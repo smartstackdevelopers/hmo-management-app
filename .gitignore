@@ -1,0 +1,34 @@
+# dependencies
+node_modules/
+
+# env / secrets
+.env
+.env*.local
+
+# builds
+dist/
+build/
+.expo/
+web-build/
+*.tsbuildinfo
+
+# databases & uploads
+*.db
+*.db-journal
+api/uploads/*
+!api/uploads/.gitkeep
+api/src/generated/prisma
+
+# os / misc
+.DS_Store
+npm-debug.*
+yarn-debug.*
+yarn-error.*
+*.pem
+*.jks
+*.p8
+*.p12
+*.key
+*.mobileprovision
+.kotlin/
+.metro-health-check*

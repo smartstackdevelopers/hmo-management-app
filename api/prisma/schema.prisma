@@ -1,0 +1,333 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+enum UserRole {
+  landlord
+  tenant
+  property_manager
+  contractor
+  admin
+}
+
+enum RoomStatus {
+  available
+  occupied
+  maintenance
+  unavailable
+}
+
+enum ListingStatus {
+  draft
+  active
+  paused
+  let
+}
+
+enum ApplicationStatus {
+  pending
+  approved
+  rejected
+  withdrawn
+}
+
+enum TenancyStatus {
+  active
+  ending
+  ended
+}
+
+enum MaintenanceStatus {
+  open
+  assigned
+  in_progress
+  awaiting_parts
+  completed
+  closed
+  cancelled
+}
+
+enum MaintenancePriority {
+  low
+  medium
+  high
+  emergency
+}
+
+enum DocumentType {
+  hmo_licence
+  epc
+  gas_safety
+  electrical_safety
+  insurance
+  tenancy_agreement
+  inventory
+  inspection_report
+  contractor_invoice
+  other
+}
+
+enum InspectionStatus {
+  scheduled
+  in_progress
+  completed
+  cancelled
+}
+
+enum NotificationType {
+  message
+  application
+  maintenance
+  compliance
+  document_expiry
+  announcement
+  system
+}
+
+model User {
+  id           String   @id @default(cuid())
+  email        String   @unique
+  passwordHash String
+  firstName    String
+  lastName     String
+  phone        String?
+  role         UserRole
+  verified     Boolean  @default(false)
+  active       Boolean  @default(true)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  ownedProperties      Property[]            @relation("PropertyOwner")
+  managedProperties    Property[]            @relation("PropertyManager")
+  tenancies            Tenancy[]
+  applications         Application[]
+  maintenanceRequests  MaintenanceRequest[]  @relation("MaintenanceReporter")
+  assignedMaintenance  MaintenanceRequest[]  @relation("MaintenanceContractor")
+  maintenanceUpdates   MaintenanceUpdate[]
+  documents            Document[]
+  sentMessages         Message[]
+  participants         ConversationParticipant[]
+  notifications        Notification[]
+  inspections          Inspection[]
+}
+
+model Property {
+  id               String   @id @default(cuid())
+  ownerId          String
+  managerId        String?
+  name             String
+  addressLine1     String
+  addressLine2     String?
+  city             String
+  county           String?
+  postcode         String
+  hmoLicenceNumber String?
+  maxOccupants     Int      @default(0)
+  description      String?
+  emergencyContact String?
+  houseRules       String?
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  owner       User                 @relation("PropertyOwner", fields: [ownerId], references: [id])
+  manager     User?                @relation("PropertyManager", fields: [managerId], references: [id])
+  rooms       Room[]
+  documents   Document[]
+  maintenance MaintenanceRequest[]
+  inspections Inspection[]
+  conversations Conversation[]
+}
+
+model Room {
+  id          String     @id @default(cuid())
+  propertyId  String
+  name        String
+  floor       String?
+  rentPcm     Int
+  deposit     Int        @default(0)
+  sizeSqm     Float?
+  furnished   Boolean    @default(false)
+  ensuite     Boolean    @default(false)
+  status      RoomStatus @default(available)
+  description String?
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+
+  property     Property      @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+  listing      Listing?
+  tenancies    Tenancy[]
+  maintenance  MaintenanceRequest[]
+}
+
+model Listing {
+  id          String        @id @default(cuid())
+  roomId      String        @unique
+  title       String
+  description String?
+  /** JSON string array of image URLs */
+  photos      String?
+  status      ListingStatus @default(draft)
+  availableFrom DateTime?
+  billsIncluded Boolean     @default(false)
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+
+  room         Room          @relation(fields: [roomId], references: [id], onDelete: Cascade)
+  applications Application[]
+}
+
+model Application {
+  id          String            @id @default(cuid())
+  listingId   String
+  tenantId    String
+  message     String?
+  moveInDate  DateTime?
+  status      ApplicationStatus @default(pending)
+  reviewedAt  DateTime?
+  createdAt   DateTime          @default(now())
+  updatedAt   DateTime          @updatedAt
+
+  listing Listing @relation(fields: [listingId], references: [id], onDelete: Cascade)
+  tenant  User    @relation(fields: [tenantId], references: [id])
+  tenancy Tenancy?
+}
+
+model Tenancy {
+  id            String        @id @default(cuid())
+  roomId        String
+  tenantId      String
+  applicationId String?       @unique
+  startDate     DateTime
+  endDate       DateTime?
+  rentPcm       Int
+  deposit       Int           @default(0)
+  status        TenancyStatus @default(active)
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+
+  room        Room         @relation(fields: [roomId], references: [id])
+  tenant      User         @relation(fields: [tenantId], references: [id])
+  application Application? @relation(fields: [applicationId], references: [id])
+}
+
+model MaintenanceRequest {
+  id           String              @id @default(cuid())
+  propertyId   String
+  roomId       String?
+  reporterId   String
+  contractorId String?
+  title        String
+  description  String
+  category     String
+  priority     MaintenancePriority @default(medium)
+  status       MaintenanceStatus   @default(open)
+  photoUrls    String              @default("[]")
+  completedAt  DateTime?
+  createdAt    DateTime            @default(now())
+  updatedAt    DateTime            @updatedAt
+
+  property   Property            @relation(fields: [propertyId], references: [id])
+  room       Room?               @relation(fields: [roomId], references: [id])
+  reporter   User                @relation("MaintenanceReporter", fields: [reporterId], references: [id])
+  contractor User?               @relation("MaintenanceContractor", fields: [contractorId], references: [id])
+  updates    MaintenanceUpdate[]
+}
+
+model MaintenanceUpdate {
+  id        String   @id @default(cuid())
+  requestId String
+  authorId  String
+  note      String
+  photoUrls String   @default("[]")
+  createdAt DateTime @default(now())
+
+  request MaintenanceRequest @relation(fields: [requestId], references: [id], onDelete: Cascade)
+  author  User               @relation(fields: [authorId], references: [id])
+}
+
+model Document {
+  id         String       @id @default(cuid())
+  propertyId String?
+  userId     String?
+  uploadedBy String
+  type       DocumentType
+  name       String
+  fileUrl    String
+  expiryDate DateTime?
+  notes      String?
+  createdAt  DateTime     @default(now())
+  updatedAt  DateTime     @updatedAt
+
+  property Property? @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+  uploader User      @relation(fields: [uploadedBy], references: [id])
+}
+
+model Conversation {
+  id         String   @id @default(cuid())
+  propertyId String?
+  subject    String?
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  property     Property?                 @relation(fields: [propertyId], references: [id])
+  participants ConversationParticipant[]
+  messages     Message[]
+}
+
+model ConversationParticipant {
+  id             String   @id @default(cuid())
+  conversationId String
+  userId         String
+  joinedAt       DateTime @default(now())
+
+  conversation Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+  user         User         @relation(fields: [userId], references: [id])
+
+  @@unique([conversationId, userId])
+}
+
+model Message {
+  id             String   @id @default(cuid())
+  conversationId String
+  senderId       String
+  body           String
+  readAt         DateTime?
+  createdAt      DateTime @default(now())
+
+  conversation Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+  sender       User         @relation(fields: [senderId], references: [id])
+}
+
+model Notification {
+  id        String           @id @default(cuid())
+  userId    String
+  type      NotificationType
+  title     String
+  body      String
+  data      String           @default("{}")
+  read      Boolean          @default(false)
+  createdAt DateTime         @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model Inspection {
+  id          String           @id @default(cuid())
+  propertyId  String
+  inspectorId String
+  scheduledAt DateTime
+  completedAt DateTime?
+  status      InspectionStatus @default(scheduled)
+  notes       String?
+  findings    String           @default("[]")
+  createdAt   DateTime         @default(now())
+  updatedAt   DateTime         @updatedAt
+
+  property  Property @relation(fields: [propertyId], references: [id])
+  inspector User     @relation(fields: [inspectorId], references: [id])
+}
