@@ -33,7 +33,7 @@ class TimestampMixin:
 
 
 class OrganisationScopedMixin:
-    """Most Phase 1 rows belong to one organisation for later F1.5 isolation."""
+    """Most Phase 1 rows belong to one organisation. Isolation enforced in F1.5."""
 
     organisation_id: Mapped[uuid.UUID] = mapped_column(
         UUID(as_uuid=True),

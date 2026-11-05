@@ -9,11 +9,12 @@ apps/api/alembic.ini
 apps/api/alembic/env.py
 apps/api/alembic/versions/20261105_1200_f12_initial_phase1_schema.py
 apps/api/alembic/versions/20261105_1500_f14_authorization_version.py
+apps/api/alembic/versions/20261105_1600_f15_organisation_isolation_rls.py
 ```
 
 `env.py` loads SQLAlchemy metadata from `app.db.models` and reads `DATABASE_URL` from application settings. Hardcoded credentials are not used.
 
-Current head: `20261105_1500_f14` (adds `users.authorization_version` for F1.4).
+Current head: `20261105_1600_f15` (FORCE RLS on organisation-scoped business tables for F1.5).
 
 ## Naming
 
