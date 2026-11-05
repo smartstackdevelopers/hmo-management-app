@@ -24,10 +24,24 @@ jobs:
       - run: npm run lint
       - run: npm run typecheck
       - run: npm run build
+        env:
+          # Placeholders so @auth0/nextjs-auth0 can initialise. Not a real tenant.
+          AUTH0_DOMAIN: example.uk.auth0.com
+          AUTH0_CLIENT_ID: ci-placeholder-client
+          AUTH0_CLIENT_SECRET: ci-placeholder-secret
+          AUTH0_SECRET: "0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef"
+          APP_BASE_URL: http://localhost:3000
+          AUTH0_AUDIENCE: https://api.hmore.local
       - run: npx playwright install --with-deps chromium
       - run: npm run test:e2e
         env:
           CI: true
+          AUTH0_DOMAIN: example.uk.auth0.com
+          AUTH0_CLIENT_ID: ci-placeholder-client
+          AUTH0_CLIENT_SECRET: ci-placeholder-secret
+          AUTH0_SECRET: "0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef"
+          APP_BASE_URL: http://localhost:3000
+          AUTH0_AUDIENCE: https://api.hmore.local
 
   mobile:
     name: Mobile typecheck
