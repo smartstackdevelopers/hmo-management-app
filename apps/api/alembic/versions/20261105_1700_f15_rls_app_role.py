@@ -78,4 +78,21 @@ def downgrade() -> None:
         $$;
         """
     )
+    op.execute(
+        """
+        ALTER DEFAULT PRIVILEGES IN SCHEMA public
+          REVOKE SELECT, INSERT, UPDATE, DELETE ON TABLES FROM hmore_app
+        """
+    )
+    op.execute(
+        """
+        REVOKE SELECT, INSERT, UPDATE, DELETE ON ALL TABLES IN SCHEMA public FROM hmore_app
+        """
+    )
+    op.execute(
+        """
+        REVOKE USAGE, SELECT ON ALL SEQUENCES IN SCHEMA public FROM hmore_app
+        """
+    )
+    op.execute("REVOKE USAGE ON SCHEMA public FROM hmore_app")
     op.execute("DROP ROLE IF EXISTS hmore_app")
