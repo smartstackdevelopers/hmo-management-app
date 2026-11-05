@@ -11,7 +11,8 @@
 | PostgreSQL FORCE RLS on org-owned tables | Implemented |
 | Transaction-scoped SET LOCAL (no pool leak) | Implemented |
 | Explicit Super Admin platform bypass | Implemented (`get_platform_context`) |
-| Background job org payload validation | Foundation implemented |
+| Background job org payload validation | Foundation implemented (org must exist; actor required by default) |
+| Isolation probes require RBAC permissions | Implemented (`properties.read` / `properties.manage`) |
 | Frontend-only filtering | Not relied upon |
 
 ## Threats addressed

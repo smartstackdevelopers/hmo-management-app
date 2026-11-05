@@ -41,6 +41,9 @@ Package: `apps/api/app/tenancy/`
 
 Isolation probes (not F1.6 product CRUD): `/api/v1/isolation/properties`
 
+Probes require both trusted organisation context **and** the matching F1.4 permission
+(`properties.read` / `properties.manage`). Membership alone is not enough.
+
 ## Database RLS
 
 Enabled with `FORCE ROW LEVEL SECURITY` on: `tenants`, `properties`, `rooms`, `file_metadata`, `emergency_access_grants`.
@@ -58,7 +61,7 @@ Organisation-scoped requests run `SET LOCAL ROLE hmore_app` because PostgreSQL *
 
 ## Background jobs
 
-`JobOrganisationContext` requires `organisation_id` in the payload. `validate_job_organisation_context` checks actor membership when `actor_user_id` is present. Full Celery workflows are later-phase work.
+`JobOrganisationContext` requires `organisation_id` in the payload. `validate_job_organisation_context` verifies the organisation exists and, by default, requires `actor_user_id` with an active membership (or Super Admin). Full Celery workflows are later-phase work.
 
 ## Out of scope
 
