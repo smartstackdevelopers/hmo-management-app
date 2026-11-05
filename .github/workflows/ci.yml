@@ -47,6 +47,23 @@ jobs:
     defaults:
       run:
         working-directory: apps/api
+    services:
+      postgres:
+        image: pgvector/pgvector:pg16
+        env:
+          POSTGRES_DB: hmore_test
+          POSTGRES_USER: hmore
+          POSTGRES_PASSWORD: hmore
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U hmore -d hmore_test"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+    env:
+      DATABASE_URL: postgresql+psycopg://hmore:hmore@localhost:5432/hmore_test
+      TEST_DATABASE_URL: postgresql+psycopg://hmore:hmore@localhost:5432/hmore_test
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
@@ -56,6 +73,7 @@ jobs:
           cache-dependency-path: apps/api/requirements.txt
       - run: pip install -r requirements.txt
       - run: python -m compileall app
+      - run: alembic upgrade head
       - run: pytest -q
 
   ai:

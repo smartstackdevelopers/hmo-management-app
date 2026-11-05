@@ -13,6 +13,7 @@ class Settings(BaseSettings):
     log_level: str = "info"
     redis_url: str = "redis://localhost:6379/0"
     database_url: str | None = None
+    test_database_url: str | None = None
 
 
 @lru_cache
