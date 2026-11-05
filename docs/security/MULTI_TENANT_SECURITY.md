@@ -36,6 +36,6 @@ Cross-organisation access returns HTTP 403 with a generic "Access denied" style 
 
 ## Residual risks
 
-- Direct DB access with a superuser role outside the app bypasses RLS
+- Direct DB access as a PostgreSQL superuser bypasses RLS (Compose/CI login roles are often superusers; app code must SET LOCAL ROLE `hmore_app` for org scope)
 - Code paths that forget `get_organisation_context` and also forget filters remain a risk — reviews and tests must catch new endpoints
 - `session.get` after prior load may serve identity-map rows; helpers still compare `organisation_id`
