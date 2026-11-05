@@ -101,4 +101,23 @@ def assign_membership(
 
     bump_authorization_version(session, target)
     session.flush()
+
+    from app.audit import events as audit_events
+    from app.audit.service import AuditOutcome, record_event
+
+    record_event(
+        session,
+        action=audit_events.MEMBERSHIP_ASSIGNED,
+        resource_type="organisation_membership",
+        resource_id=membership.id,
+        organisation_id=organisation_id,
+        actor_user_id=actor.user.id,
+        actor_role=actor.active_role.value if actor.active_role else None,
+        outcome=AuditOutcome.SUCCESS,
+        summary="Role membership assigned",
+        metadata={
+            "target_user_id": str(target_user_id),
+            "role": role.value,
+        },
+    )
     return membership

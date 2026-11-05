@@ -12,11 +12,12 @@ apps/api/alembic/versions/20261105_1500_f14_authorization_version.py
 apps/api/alembic/versions/20261105_1600_f15_organisation_isolation_rls.py
 apps/api/alembic/versions/20261105_1700_f15_rls_app_role.py
 apps/api/alembic/versions/20261105_1800_f16_core_record_fields.py
+apps/api/alembic/versions/20261105_1900_f17_audit_framework.py
 ```
 
 `env.py` loads SQLAlchemy metadata from `app.db.models` and reads `DATABASE_URL` from application settings. Hardcoded credentials are not used.
 
-Current head: `20261105_1800_f16` (tenant consent/preferences/needs fields + room type/notes for F1.6).
+Current head: `20261105_1900_f17` (audit_events outcome/actor_role/correlation + emergency grant status fields + audit RLS / append-oriented grants).
 
 ## Naming
 

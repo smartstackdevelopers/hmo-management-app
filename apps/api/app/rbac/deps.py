@@ -104,7 +104,22 @@ def require_perm(permission: Permission | str):
     def _dependency(
         ctx: AuthorizationContext = Depends(get_authorization_context),
     ) -> AuthorizationContext:
-        require_permission(ctx, required)
+        if not ctx.has_permission(required):
+            from app.audit import events as audit_events
+            from app.audit.service import AuditOutcome, record_event_independent
+
+            record_event_independent(
+                action=audit_events.AUTH_ACCESS_DENIED,
+                resource_type="permission",
+                resource_id=required.value,
+                organisation_id=ctx.active_organisation_id,
+                actor_user_id=ctx.user.id,
+                actor_role=ctx.active_role.value if ctx.active_role else None,
+                outcome=AuditOutcome.DENIED,
+                summary="Permission denied",
+                metadata={"permission": required.value},
+            )
+            require_permission(ctx, required)
         return ctx
 
     return _dependency

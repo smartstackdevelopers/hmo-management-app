@@ -13,10 +13,10 @@ from app.db.models.mixins import UUIDPrimaryKeyMixin
 
 
 class AuditEvent(UUIDPrimaryKeyMixin, Base):
-    """Immutable audit row for who saw or changed what, and when.
+    """Append-oriented audit row for who did what, when, and with what outcome.
 
-    organisation_id is nullable for platform-wide Super Admin actions.
-    Application writers land in F1.7; this table is the F1.2 foundation.
+    organisation_id is nullable for platform-wide Super Admin / system actions.
+    Application writers must use app.audit.service — not raw inserts from clients.
     """
 
     __tablename__ = "audit_events"
@@ -33,9 +33,19 @@ class AuditEvent(UUIDPrimaryKeyMixin, Base):
         nullable=True,
         index=True,
     )
+    actor_role: Mapped[str | None] = mapped_column(String(64), nullable=True)
     action: Mapped[str] = mapped_column(String(100), nullable=False, index=True)
-    resource_type: Mapped[str] = mapped_column(String(100), nullable=False)
-    resource_id: Mapped[str | None] = mapped_column(String(100), nullable=True)
+    resource_type: Mapped[str] = mapped_column(String(100), nullable=False, index=True)
+    resource_id: Mapped[str | None] = mapped_column(String(100), nullable=True, index=True)
+    outcome: Mapped[str] = mapped_column(
+        String(32),
+        nullable=False,
+        default="success",
+        server_default="success",
+        index=True,
+    )
+    correlation_id: Mapped[str | None] = mapped_column(String(100), nullable=True, index=True)
+    source: Mapped[str | None] = mapped_column(String(100), nullable=True)
     summary: Mapped[str | None] = mapped_column(Text, nullable=True)
     metadata_json: Mapped[dict[str, Any] | None] = mapped_column(JSONB, nullable=True)
     created_at: Mapped[datetime] = mapped_column(
