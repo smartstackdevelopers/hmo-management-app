@@ -15,6 +15,12 @@ class Settings(BaseSettings):
     database_url: str | None = None
     test_database_url: str | None = None
 
+    # Auth0 — never commit real secrets. Domain has no scheme.
+    auth0_domain: str | None = None
+    auth0_audience: str | None = None
+    auth0_issuer: str | None = None
+    auth0_require_mfa_claim: bool = False
+
 
 @lru_cache
 def get_settings() -> Settings:
