@@ -1,0 +1,11 @@
+**/node_modules
+**/.next
+**/.venv
+**/.git
+**/__pycache__
+**/playwright-report
+**/test-results
+**/*.md
+room-ready
+api
+docs

@@ -1,0 +1,22 @@
+{
+  "name": "hmore",
+  "private": true,
+  "version": "0.1.0",
+  "description": "HMore housing and support platform monorepo",
+  "workspaces": [
+    "apps/web",
+    "packages/*",
+    "room-ready"
+  ],
+  "scripts": {
+    "web:dev": "npm run dev -w @hmore/web",
+    "web:build": "npm run build -w @hmore/web",
+    "web:lint": "npm run lint -w @hmore/web",
+    "web:typecheck": "npm run typecheck -w @hmore/web",
+    "web:test:e2e": "npm run test:e2e -w @hmore/web",
+    "mobile:typecheck": "npm run typecheck -w room-ready"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}
