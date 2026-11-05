@@ -2,13 +2,13 @@
 
 Assessment date: 2026-11-05. Readiness: **not ready to implement Phase 1 features**. Governance is blocked until `develop` is fast-forwarded to `main`. No Phase 1 deliverable is verified.
 
-Status values used: NOT STARTED, PARTIALLY IMPLEMENTED, IMPLEMENTED BUT UNVERIFIED, VERIFIED. Nothing is VERIFIED. No automated test was run.
+Status values used: NOT STARTED, PARTIALLY IMPLEMENTED, IMPLEMENTED BUT UNVERIFIED, VERIFIED. Nothing is VERIFIED. GitHub Actions on commit `e67678a` succeeded for Web, Mobile typecheck, API, and AI (pull request run [42000186838](https://github.com/smartstackdevelopers/hmo-management-app/actions/runs/42000186838) and push run [42000129576](https://github.com/smartstackdevelopers/hmo-management-app/actions/runs/42000129576)). Docker Compose and the Expo runtime were not executed, so those checks stay unverified.
 
 ## Coverage matrix
 
 | ID | Requirement | Status | Existing files | Missing work | Dependencies | Risks | Approach | Acceptance |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| F1.1 | Monorepo + CI/CD | NOT STARTED | `room-ready/`, `api/`, root `.gitignore` | Target folders, GitHub Actions, Pytest, Playwright | `develop` aligned with `main` | Moving Expo too early breaks the only client | Add new folders and a real workflow beside current apps | Workflow runs on a pull request and reports the jobs it actually contains |
+| F1.1 | Monorepo + CI/CD | IMPLEMENTED BUT UNVERIFIED | `apps/web`, `apps/api`, `apps/ai-service`, `apps/mobile/README.md`, `packages/*`, `infra/docker`, `.github/workflows/ci.yml`, `room-ready/` preserved | Docker Compose has not been built or started. Expo runtime (`expo start`) has not been run. Room Ready stays in `room-ready/`. | None | Actions on `e67678a` are green for lint, typecheck, build, Playwright, API Pytest, AI Pytest, and Room Ready typecheck. Compose and Expo startup remain unverified. | Keep Room Ready in place; add FastAPI and Next.js beside it | Those GitHub checks passed on PR #2. Compose and Expo runtime are still unverified, so this row is not VERIFIED. |
 | F1.2 | PostgreSQL schema + migrations | NOT STARTED | `api/prisma/schema.prisma`, `api/prisma/migrations/20260705142627_init` | Postgres, pgvector availability, Phase 1 entities, new migrations | F1.5 role and organisation decisions | Reusing SQLite models would keep the wrong roles | New schema in FastAPI. Keep Prisma as reference | Migration applies on empty Postgres and is reviewed |
 | F1.3 | Managed identity + MFA | NOT STARTED | `api/src/routes/auth.ts`, `api/src/middleware/auth.ts`, `room-ready/contexts/AuthContext.tsx` | Auth0 or Entra, MFA, no local password as the primary login | Human choice of provider | Local register-and-role flow would remain if left in place | New login path only. Do not add a fake MFA field | Staff and admin sign-in requires the provider MFA challenge |
 | F1.4 | Six roles, permissions, sessions | PARTIALLY IMPLEMENTED | `api/prisma/schema.prisma` `UserRole`, `api/src/lib/access.ts`, `api/src/middleware/auth.ts`, `room-ready/constants/permissions.ts` | The six HMore roles, a permission matrix, session timeout and revocation | F1.3 | Current five roles do not match the plan. `admin` can read all properties | Replace the enum in the new schema. Do not alias `property_manager` to Organisation Admin without a written decision | Deny tests fail closed for every role that must not pass |
@@ -39,18 +39,21 @@ Status values used: NOT STARTED, PARTIALLY IMPLEMENTED, IMPLEMENTED BUT UNVERIFI
 
 ## CI and test gaps
 
-No tests and no workflows exist. Recommended pipeline, not active:
+`.github/workflows/ci.yml` ran on commit `e67678a`. Both the pull request run `42000186838` and the push run `42000129576` completed with conclusion success. Each run executed:
 
-- Format and lint for Python and TypeScript.
-- Type check.
-- Pytest for the FastAPI app, including allow and deny cases.
-- Playwright for the Next.js shell once a page exists.
+- Web: `npm ci`, Next lint, `tsc --noEmit`, `next build`, Playwright Chromium smoke tests.
+- Mobile typecheck: `tsc --noEmit` in `room-ready`.
+- API: `compileall` and Pytest for the health endpoints.
+- AI service: `compileall` and Pytest for the LangGraph foundation health check.
+
+Still unverified, and not claimed as passed:
+
+- Docker Compose build and startup.
+- Expo runtime (`expo start`).
+- Python formatting.
 - API integration tests against Postgres.
-- Build of web and API.
 - Dependency review and secret scanning.
-- Pull request workflow on `develop`.
-
-Do not mark any of those active until a run is visible on GitHub.
+- Allow and deny tests. Those belong to later Phase 1 tasks.
 
 ## Git governance
 
@@ -60,8 +63,8 @@ Recorded in `docs/development/GIT_WORKFLOW.md` on 2026-11-05. The seven-phase pl
 | --- | --- |
 | Workflow document | On `chore/phase1-git-governance`. Not committed on `main`. |
 | `develop` vs `main` | Fast-forward completed. Both `origin/develop` and `origin/main` are `f0a1625`. |
-| Branch protection | Active on `main` (pull request and 1 approval) and `develop` (pull request). Force push and deletion blocked. Status checks are not required until CI exists. |
-| CI | Not configured. No status checks to require yet. |
+| Branch protection | Active on `main` (pull request and 1 approval) and `develop` (pull request). Force push and deletion blocked. Required status checks are still not enabled. |
+| CI | Workflow `.github/workflows/ci.yml` is on this branch. Checks on `e67678a` succeeded. Branch protection still does not require those checks. Docker Compose and Expo runtime were not part of the run. |
 
 ## Human decisions
 

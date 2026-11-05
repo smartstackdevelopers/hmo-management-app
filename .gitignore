@@ -1,16 +1,25 @@
 # dependencies
 node_modules/
+.venv/
+venv/
 
 # env / secrets
 .env
 .env*.local
+!.env.example
 
 # builds
 dist/
 build/
+.next/
 .expo/
 web-build/
 *.tsbuildinfo
+playwright-report/
+test-results/
+__pycache__/
+.pytest_cache/
+*.pyc
 
 # databases & uploads
 *.db
