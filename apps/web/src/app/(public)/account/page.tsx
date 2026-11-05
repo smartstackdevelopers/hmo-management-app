@@ -30,8 +30,8 @@ export default async function AccountPage() {
       <div>
         <h1 className="text-3xl font-semibold text-forest-900">Account</h1>
         <p className="mt-2 text-slate-700">
-          Authenticated through Auth0. Permissions are enforced by the API (F1.4). Role
-          dashboards ship in F1.9.
+          Authenticated through Auth0. Permissions are enforced by the API (F1.4). Open the
+          role dashboard shell from the dashboard link after membership is assigned.
         </p>
       </div>
       <dl className="space-y-3 rounded-lg border border-slate-200 bg-white p-5 text-sm">
@@ -54,6 +54,12 @@ export default async function AccountPage() {
           href="/auth/logout"
         >
           Log out
+        </Link>
+        <Link
+          className="rounded-md px-4 py-2 text-sm text-forest-900 hover:bg-slate-100"
+          href="/dashboard"
+        >
+          Dashboard
         </Link>
         <Link className="rounded-md px-4 py-2 text-sm text-forest-900 hover:bg-slate-100" href="/">
           Home

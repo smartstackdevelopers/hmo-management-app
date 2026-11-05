@@ -15,6 +15,12 @@ export default function UnauthorizedPage() {
         >
           Account
         </Link>
+        <Link
+          className="rounded-md px-4 py-2 text-sm text-forest-900 hover:bg-slate-100"
+          href="/dashboard"
+        >
+          Dashboard
+        </Link>
         <Link className="rounded-md px-4 py-2 text-sm text-forest-900 hover:bg-slate-100" href="/">
           Home
         </Link>
