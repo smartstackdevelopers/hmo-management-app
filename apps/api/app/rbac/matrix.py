@@ -18,6 +18,8 @@ ROLE_PERMISSIONS: dict[HMoreRole, frozenset[Permission]] = {
             Permission.REPORTS_READ,
             Permission.FILES_READ,
             Permission.FILES_MANAGE,
+            Permission.OCCUPANCY_READ,
+            Permission.OCCUPANCY_ALERTS_MANAGE,
         }
     ),
     HMoreRole.ORGANISATION_ADMIN: frozenset(

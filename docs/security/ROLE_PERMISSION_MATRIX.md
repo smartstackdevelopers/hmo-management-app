@@ -32,8 +32,8 @@ Source of truth: `apps/api/app/rbac/matrix.py` and `apps/api/app/rbac/permission
 | audit_logs.read | Audit logs (sensitive) | A | A | D | D | D | D |
 | files.read | Private org file read/download | A | A | D | D | D | D |
 | files.manage | Private org file upload/delete | A | A | D | D | D | D |
-| occupancy.read | Occupancy counts (sensitive) | D | A | D | D | A | D |
-| occupancy.alerts.manage | Occupancy alerts | D | A | D | D | D | D |
+| occupancy.read | Occupancy counts / survey read (sensitive) | A | A | D | D | A | D |
+| occupancy.alerts.manage | Occupancy alerts / survey write | A | A | D | D | D | D |
 | role_assignments.manage | Assign roles | A | A | D | D | D | D |
 
 ## Housing / landlord

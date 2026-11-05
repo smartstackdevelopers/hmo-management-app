@@ -6,6 +6,7 @@ from app.api.v1.emergency_access import router as emergency_access_router
 from app.api.v1.files import router as files_router
 from app.api.v1.health import router as health_router
 from app.api.v1.isolation_probes import router as isolation_router
+from app.api.v1.occupancy_surveys import router as occupancy_surveys_router
 from app.api.v1.organisations import router as organisations_router
 from app.api.v1.properties import router as properties_router
 from app.api.v1.rbac import router as rbac_router
@@ -24,3 +25,4 @@ api_v1_router.include_router(rooms_router)
 api_v1_router.include_router(audit_router)
 api_v1_router.include_router(emergency_access_router)
 api_v1_router.include_router(files_router)
+api_v1_router.include_router(occupancy_surveys_router)
