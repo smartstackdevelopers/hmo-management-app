@@ -58,14 +58,14 @@ Recorded in `docs/development/GIT_WORKFLOW.md` on 2026-11-05. The seven-phase pl
 
 | Item | State |
 | --- | --- |
-| Workflow document | Written, not committed. Working tree is `main` with untracked `docs/architecture`, `docs/audit`, and `docs/development`. |
-| `develop` vs `main` | `origin/develop` is `d889dbc`. `origin/main` is `f0a1625`. Count `0	1`. Fast-forward is possible and has not been run. |
+| Workflow document | On `chore/phase1-git-governance`. Not committed on `main`. |
+| `develop` vs `main` | Fast-forward completed. Both `origin/develop` and `origin/main` are `f0a1625`. |
 | Branch protection | Not verified. Protection API returned 401. GitHub CLI is not installed. |
 | CI | Not configured. No status checks to require yet. |
 
 ## Human decisions
 
-1. Approve the fast-forward of `develop` to `main`, then commit these docs on `chore/phase1-git-governance` and review them into `develop`. Do not commit them on `main`.
+1. Review the pull request from `chore/phase1-git-governance` into `develop`. Do not commit these docs on `main`. The fast-forward of `develop` to `f0a1625` is done.
 2. Choose Auth0 or Entra External ID before F1.3.
 3. Confirm AWS account and UK or EU region before F1.11 is more than a document.
 4. Confirm that Room Ready's `property_manager` and `admin` roles are retired rather than renamed in place.

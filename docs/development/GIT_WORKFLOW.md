@@ -219,40 +219,14 @@ Do not require status checks until the F1.1 workflow has run at least once. Requ
 
 ## Current synchronization
 
-Checked 2026-11-05 after `git fetch origin`.
+Executed after explicit approval. No force push. `main` was not pushed.
 
 | Ref | Commit |
 | --- | --- |
 | `main` and `origin/main` | `f0a1625` Add the implementation plan and Smart Vite prototype spec to docs. |
-| `origin/develop` | `d889dbc` Initial commit |
+| `develop` and `origin/develop` | `f0a1625` after fast-forward `d889dbc..f0a1625` |
 | `origin/docs/prototype-spec` | `f0a1625` |
 
-`git rev-list --left-right --count origin/develop...origin/main` printed `0	1`. `develop` is a strict ancestor of `main`. A fast-forward is possible. It has **not** been executed.
+`origin/develop` and `origin/main` now point at the same commit. Audit and governance documents stay on `chore/phase1-git-governance` until that pull request merges into `develop`.
 
-Uncommitted files on `main` (audit and this workflow). They must not be committed on `main`:
-
-- `docs/architecture/`
-- `docs/audit/`
-- `docs/development/`
-
-## Commands waiting for confirmation
-
-Do not run these until a person explicitly approves the fast-forward. Uncommitted docs must be kept. Stash is a last resort and must not drop files. Preferred sequence after approval:
-
-```text
-git status
-git checkout -b chore/phase1-git-governance
-git add docs/architecture docs/audit docs/development
-git commit -m "docs(phase1): record repository audit and git governance"
-git fetch origin
-git checkout develop
-git merge --ff-only origin/main
-git push origin develop
-git checkout chore/phase1-git-governance
-git rebase develop
-git push -u origin chore/phase1-git-governance
-```
-
-Then open a pull request into `develop`. Do not push `main`.
-
-Risk: `git checkout develop` fails or carries the uncommitted docs if they are not committed on the chore branch first. Commit them on `chore/phase1-git-governance` before switching. Do not rebase if the chore branch has already been shared. If `develop` is no longer an ancestor of `main` at confirmation time, stop.
+Do not commit those documents directly on `main` or `develop`.
