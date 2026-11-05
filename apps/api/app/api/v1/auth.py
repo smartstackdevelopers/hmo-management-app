@@ -15,7 +15,13 @@ def read_me(
     user: User = Depends(get_current_user),
     claims: dict[str, Any] = Depends(get_token_claims),
 ) -> dict[str, Any]:
-    """Return the authenticated HMore user mapped from the Auth0 subject."""
+    """Return the authenticated HMore user mapped from the Auth0 subject.
+
+    Interactive login success/failure is owned by Auth0. Backend security audits for
+    invalid tokens, MFA policy denials, and permission denials are recorded in the
+    auth dependency layer (see AUTH_TOKEN_INVALID / AUTH_MFA_REQUIRED /
+    AUTH_ACCESS_DENIED).
+    """
     return {
         "id": str(user.id),
         "external_subject": user.external_subject,

@@ -111,6 +111,25 @@ def set_membership_status(
         bump_authorization_version(session, target)
     session.add(membership)
     session.flush()
+
+    from app.audit import events as audit_events
+    from app.audit.service import AuditOutcome, record_event
+
+    record_event(
+        session,
+        action=audit_events.MEMBERSHIP_STATUS_CHANGED,
+        resource_type="organisation_membership",
+        resource_id=membership.id,
+        organisation_id=membership.organisation_id,
+        actor_user_id=actor.user.id,
+        actor_role=actor.active_role.value if actor.active_role else None,
+        outcome=AuditOutcome.SUCCESS,
+        summary="Membership status changed",
+        metadata={
+            "target_user_id": str(membership.user_id),
+            "status": status.value,
+        },
+    )
     return membership
 
 
@@ -130,6 +149,22 @@ def create_organisation(
     org = Organisation(name=name, slug=slug)
     session.add(org)
     session.flush()
+
+    from app.audit import events as audit_events
+    from app.audit.service import AuditOutcome, record_event
+
+    record_event(
+        session,
+        action=audit_events.ORG_CREATED,
+        resource_type="organisation",
+        resource_id=org.id,
+        organisation_id=org.id,
+        actor_user_id=actor.user.id,
+        actor_role=actor.active_role.value if actor.active_role else None,
+        outcome=AuditOutcome.SUCCESS,
+        summary="Organisation created",
+        metadata={"slug": org.slug},
+    )
     return org
 
 

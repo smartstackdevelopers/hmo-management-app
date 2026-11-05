@@ -1,8 +1,4 @@
-"""Lightweight CRUD audit write into audit_events.
-
-F1.7 owns the full audit framework. This helper only inserts durable rows into the
-existing F1.2 table so Phase 1 acceptance can record create/update/archive actions.
-"""
+"""Compatibility wrapper — F1.6 CRUD callers use the F1.7 central audit service."""
 
 from __future__ import annotations
 
@@ -11,6 +7,7 @@ from typing import Any
 
 from sqlalchemy.orm import Session
 
+from app.audit.service import AuditOutcome, record_event
 from app.db.models.audit import AuditEvent
 
 
@@ -24,16 +21,20 @@ def record_crud_event(
     resource_id: uuid.UUID | str | None,
     summary: str | None = None,
     metadata: dict[str, Any] | None = None,
-) -> AuditEvent:
-    event = AuditEvent(
-        organisation_id=organisation_id,
-        actor_user_id=actor_user_id,
+    actor_role: str | None = None,
+    outcome: str = AuditOutcome.SUCCESS.value,
+    correlation_id: str | None = None,
+) -> AuditEvent | None:
+    return record_event(
+        session,
         action=action,
         resource_type=resource_type,
-        resource_id=str(resource_id) if resource_id is not None else None,
+        resource_id=resource_id,
+        organisation_id=organisation_id,
+        actor_user_id=actor_user_id,
+        actor_role=actor_role,
+        outcome=outcome,
+        correlation_id=correlation_id,
         summary=summary,
-        metadata_json=metadata,
+        metadata=metadata,
     )
-    session.add(event)
-    session.flush()
-    return event

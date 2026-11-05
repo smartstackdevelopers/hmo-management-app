@@ -37,6 +37,16 @@ def get_token_claims(
     try:
         return validate_access_token(token, settings)
     except TokenValidationError as exc:
+        from app.audit import events as audit_events
+        from app.audit.service import AuditOutcome, record_event_independent
+
+        record_event_independent(
+            action=audit_events.AUTH_TOKEN_INVALID,
+            resource_type="access_token",
+            outcome=AuditOutcome.FAILURE,
+            summary="Access token validation failed",
+            metadata={"reason": "invalid_or_expired_token"},
+        )
         raise http_401(str(exc) or "Invalid or missing access token") from exc
 
 
@@ -58,6 +68,16 @@ def require_mfa(
 
 def enforce_mfa_policy(claims: dict[str, Any], settings: Settings) -> None:
     if settings.auth0_require_mfa_claim and not token_has_mfa(claims):
+        from app.audit import events as audit_events
+        from app.audit.service import AuditOutcome, record_event_independent
+
+        record_event_independent(
+            action=audit_events.AUTH_MFA_REQUIRED,
+            resource_type="session",
+            outcome=AuditOutcome.DENIED,
+            summary="MFA required by API policy",
+            metadata={"sub_present": bool(claims.get("sub"))},
+        )
         raise http_403("Multi-factor authentication is required for this resource")
 
 

@@ -20,4 +20,4 @@ pytest tests/test_f16_records.py tests/test_db_schema.py -q
 
 ## Audit note
 
-CRUD writes lightweight `audit_events` rows. Full F1.7 framework is not claimed complete.
+CRUD writes `audit_events` via the F1.7 central service (`app.audit.service`). See [AUDIT_TESTING.md](./AUDIT_TESTING.md).
