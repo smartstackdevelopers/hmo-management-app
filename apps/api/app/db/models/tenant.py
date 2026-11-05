@@ -1,9 +1,10 @@
 from __future__ import annotations
 
 import uuid
+from datetime import datetime
 from typing import TYPE_CHECKING
 
-from sqlalchemy import ForeignKey, String, Text
+from sqlalchemy import DateTime, ForeignKey, String, Text
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
@@ -35,6 +36,13 @@ class Tenant(UUIDPrimaryKeyMixin, OrganisationScopedMixin, TimestampMixin, Base)
     full_name: Mapped[str | None] = mapped_column(String(255), nullable=True)
     email: Mapped[str | None] = mapped_column(String(320), nullable=True)
     phone: Mapped[str | None] = mapped_column(String(50), nullable=True)
+    tenancy_reference: Mapped[str | None] = mapped_column(String(100), nullable=True, index=True)
+    consent_notes: Mapped[str | None] = mapped_column(Text, nullable=True)
+    consent_given_at: Mapped[datetime | None] = mapped_column(
+        DateTime(timezone=True), nullable=True
+    )
+    preferences: Mapped[str | None] = mapped_column(Text, nullable=True)
+    needs_goals: Mapped[str | None] = mapped_column(Text, nullable=True)
     status: Mapped[RecordStatus] = mapped_column(
         record_status_enum,
         nullable=False,

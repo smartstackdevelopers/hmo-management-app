@@ -26,6 +26,10 @@ class Permission(StrEnum):
     OCCUPANCY_READ = "occupancy.read"
     OCCUPANCY_ALERTS_MANAGE = "occupancy.alerts.manage"
 
+    # Tenant person records (distinct from Tenant login role)
+    TENANTS_READ = "tenants.read"
+    TENANTS_MANAGE = "tenants.manage"
+
     # Housing / landlord
     PROPERTIES_READ = "properties.read"
     PROPERTIES_MANAGE = "properties.manage"
@@ -118,6 +122,12 @@ PERMISSION_CATALOG: dict[Permission, PermissionMeta] = {
     ),
     Permission.OCCUPANCY_ALERTS_MANAGE: PermissionMeta(
         Permission.OCCUPANCY_ALERTS_MANAGE, "Manage occupancy alerts", True
+    ),
+    Permission.TENANTS_READ: PermissionMeta(
+        Permission.TENANTS_READ, "Read organisation tenant person records", True
+    ),
+    Permission.TENANTS_MANAGE: PermissionMeta(
+        Permission.TENANTS_MANAGE, "Create/update/archive tenant person records", True
     ),
     Permission.PROPERTIES_READ: PermissionMeta(Permission.PROPERTIES_READ, "Read properties"),
     Permission.PROPERTIES_MANAGE: PermissionMeta(

@@ -31,8 +31,12 @@ ROLE_PERMISSIONS: dict[HMoreRole, frozenset[Permission]] = {
             Permission.AUDIT_LOGS_READ,
             Permission.OCCUPANCY_READ,
             Permission.OCCUPANCY_ALERTS_MANAGE,
+            Permission.TENANTS_READ,
+            Permission.TENANTS_MANAGE,
             Permission.PROPERTIES_READ,
+            Permission.PROPERTIES_MANAGE,
             Permission.ROOMS_READ,
+            Permission.ROOMS_MANAGE,
             Permission.ROLE_ASSIGNMENTS_MANAGE,
             Permission.WORK_ORDERS_APPROVE_ASSIGNED,
         }
@@ -56,6 +60,7 @@ ROLE_PERMISSIONS: dict[HMoreRole, frozenset[Permission]] = {
         {
             Permission.PROFILE_READ_OWN,
             Permission.PROFILE_UPDATE_OWN,
+            Permission.TENANTS_READ,  # own linked tenant person record only
             Permission.PLANS_READ_OWN,
             Permission.DOCUMENTS_READ_OWN,
             Permission.REPAIRS_CREATE_OWN,
@@ -76,6 +81,7 @@ ROLE_PERMISSIONS: dict[HMoreRole, frozenset[Permission]] = {
             Permission.INCIDENTS_CREATE_ASSIGNED,
             Permission.OCCUPANCY_READ,
             Permission.PROFILE_READ_OWN,
+            Permission.TENANTS_READ,  # assigned-scope refinement remains F1.5+/later
             Permission.TENANCIES_MANAGE,  # assigned caseload only — resource check required
             Permission.PROPERTIES_READ,
             Permission.ROOMS_READ,

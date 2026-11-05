@@ -3,7 +3,7 @@ from __future__ import annotations
 import uuid
 from typing import TYPE_CHECKING
 
-from sqlalchemy import ForeignKey, Integer, String, UniqueConstraint
+from sqlalchemy import ForeignKey, Integer, String, Text, UniqueConstraint
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
@@ -35,6 +35,7 @@ class Room(UUIDPrimaryKeyMixin, OrganisationScopedMixin, TimestampMixin, Base):
     )
     label: Mapped[str] = mapped_column(String(100), nullable=False)
     floor_label: Mapped[str | None] = mapped_column(String(50), nullable=True)
+    room_type: Mapped[str | None] = mapped_column(String(100), nullable=True)
     max_occupancy: Mapped[int | None] = mapped_column(Integer, nullable=True)
     status: Mapped[RecordStatus] = mapped_column(
         record_status_enum,
@@ -42,5 +43,6 @@ class Room(UUIDPrimaryKeyMixin, OrganisationScopedMixin, TimestampMixin, Base):
         default=RecordStatus.ACTIVE,
         server_default=RecordStatus.ACTIVE.value,
     )
+    notes: Mapped[str | None] = mapped_column(Text, nullable=True)
 
     housing_property: Mapped[Property] = relationship(back_populates="rooms")
