@@ -60,6 +60,13 @@ export const DASHBOARD_NAV: NavItem[] = [
     section: "platform",
   },
   {
+    id: "occupancy-survey",
+    label: "Occupancy survey",
+    href: "/dashboard/occupancy-survey",
+    anyOf: ["occupancy.read", "occupancy.alerts.manage", "inspections.manage"],
+    section: "records",
+  },
+  {
     id: "audit",
     label: "Audit logs",
     href: "/dashboard/audit",
