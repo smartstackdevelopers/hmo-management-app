@@ -61,10 +61,16 @@ def test_expected_tables_exist(migrated_engine: Engine) -> None:
     assert expected.issubset(tables)
 
 
+def test_users_authorization_version_column(migrated_engine: Engine) -> None:
+    inspector = inspect(migrated_engine)
+    columns = {column["name"] for column in inspector.get_columns("users")}
+    assert "authorization_version" in columns
+
+
 def test_migration_history_has_single_head(alembic_config) -> None:
     script = ScriptDirectory.from_config(alembic_config)
     heads = script.get_heads()
-    assert heads == ["20261105_1200_f12"]
+    assert heads == ["20261105_1500_f14"]
 
 
 def test_upgrade_downgrade_roundtrip(alembic_config, migrated_engine: Engine) -> None:
