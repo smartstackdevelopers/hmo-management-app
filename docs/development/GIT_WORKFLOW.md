@@ -196,26 +196,24 @@ Do not start the next phase in the same prompt.
 
 ## Branch protection to configure
 
-GitHub CLI (`gh`) is not installed on this machine. `GET /repos/smartstackdevelopers/hmo-management-app/branches/main/protection` returned 401, so protection is **not verified**.
-
-Set this by hand: GitHub → repository → Settings → Branches → Add branch ruleset, or classic protection.
+Applied on 2026-11-05 through the GitHub branch protection API. GitHub CLI is still not installed. Status checks are not required yet, because no GitHub Actions workflow exists. Requiring a missing check would block every pull request.
 
 `main`:
 
-- Require a pull request before merging
-- Require at least one approval
-- Require status checks once CI exists
-- Block force pushes
-- Block deletion
+- Pull request required
+- One approval required
+- Force push blocked
+- Deletion blocked
+- Rules apply to administrators
 
 `develop`:
 
-- Require a pull request before merging
-- Require status checks once CI exists
-- Block force pushes
-- Block deletion
+- Pull request required
+- Force push blocked
+- Deletion blocked
+- Rules apply to administrators
 
-Do not require status checks until the F1.1 workflow has run at least once. Requiring a check that does not exist blocks every pull request.
+After F1.1 adds a workflow and a run is visible, add that workflow as a required status check on both branches.
 
 ## Current synchronization
 

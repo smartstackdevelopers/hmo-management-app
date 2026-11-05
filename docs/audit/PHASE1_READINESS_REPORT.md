@@ -60,7 +60,7 @@ Recorded in `docs/development/GIT_WORKFLOW.md` on 2026-11-05. The seven-phase pl
 | --- | --- |
 | Workflow document | On `chore/phase1-git-governance`. Not committed on `main`. |
 | `develop` vs `main` | Fast-forward completed. Both `origin/develop` and `origin/main` are `f0a1625`. |
-| Branch protection | Not verified. Protection API returned 401. GitHub CLI is not installed. |
+| Branch protection | Active on `main` (pull request and 1 approval) and `develop` (pull request). Force push and deletion blocked. Status checks are not required until CI exists. |
 | CI | Not configured. No status checks to require yet. |
 
 ## Human decisions
