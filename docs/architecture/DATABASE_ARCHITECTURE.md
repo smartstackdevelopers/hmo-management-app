@@ -45,7 +45,7 @@ The Node `api/` Prisma SQLite schema remains reference only and is not migrated 
 - `organisation_memberships` binds a user to an organisation and one of the six roles.
 - Super Admin memberships use `organisation_id IS NULL` and role `super_admin`.
 - `audit_events.organisation_id` is nullable so platform-wide Super Admin actions can be stored.
-- Row-Level Security and request-scoped isolation are intentionally deferred to F1.5.
+- Row-Level Security and request-scoped isolation are implemented in F1.5 (`docs/architecture/ORGANISATION_ISOLATION_ARCHITECTURE.md`).
 
 ## Soft deletion
 

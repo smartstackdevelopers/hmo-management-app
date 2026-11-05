@@ -73,6 +73,11 @@ def db_session(migrated_engine: Engine) -> Generator[Session, None, None]:
     transaction = connection.begin()
     SessionLocal = sessionmaker(bind=connection, autoflush=False, future=True)
     session = SessionLocal()
+    # Tests seed fixtures under an explicit platform RLS bypass; isolation tests
+    # switch to organisation-scoped SET LOCAL when asserting tenant boundaries.
+    from app.tenancy.session_rls import apply_platform_rls_bypass
+
+    apply_platform_rls_bypass(session)
     try:
         yield session
     finally:
