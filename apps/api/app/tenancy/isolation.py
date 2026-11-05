@@ -95,6 +95,30 @@ def list_rooms_for_org(session: Session, ctx: OrganisationContext) -> list[Room]
     return list(session.scalars(stmt))
 
 
+def get_room_for_org(
+    session: Session,
+    ctx: OrganisationContext,
+    room_id: uuid.UUID,
+) -> Room | None:
+    room = session.get(Room, room_id)
+    if room is None:
+        return None
+    if room.organisation_id != ctx.organisation_id:
+        return None
+    return room
+
+
+def require_room_for_org(
+    session: Session,
+    ctx: OrganisationContext,
+    room_id: uuid.UUID,
+) -> Room:
+    room = get_room_for_org(session, ctx, room_id)
+    if room is None:
+        raise http_403("Access denied")
+    return room
+
+
 def create_property_for_org(
     session: Session,
     ctx: OrganisationContext,

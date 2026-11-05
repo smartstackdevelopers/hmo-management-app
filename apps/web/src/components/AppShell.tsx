@@ -20,6 +20,15 @@ export function AppShell({ children }: { children: ReactNode }) {
           <Link className="rounded-md px-3 py-2 hover:bg-white/10" href="/auth/login?returnTo=/account">
             Sign in
           </Link>
+          <Link className="rounded-md px-3 py-2 hover:bg-white/10" href="/tenants">
+            Tenants
+          </Link>
+          <Link className="rounded-md px-3 py-2 hover:bg-white/10" href="/properties">
+            Properties
+          </Link>
+          <Link className="rounded-md px-3 py-2 hover:bg-white/10" href="/rooms">
+            Rooms
+          </Link>
           <Link className="rounded-md px-3 py-2 hover:bg-white/10" href="/health">
             Service status
           </Link>
