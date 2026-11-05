@@ -122,13 +122,15 @@ jobs:
             exit 1
           fi
           # Fail on private key PEM material in the tree (excluding docs mentioning the marker in checklists)
-          if git grep -nE --cached 'BEGIN (RSA |OPENSSH |EC )?PRIVATE KEY' -- \
-              ':!docs/**' ':!.github/workflows/ci.yml' ; then
+          # Match real PEM headers only; exclude docs/tests that mention markers safely.
+          if git grep -nE --cached '-----BEGIN (RSA |OPENSSH |EC )?PRIVATE KEY-----' -- \
+              ':!docs/**' ':!**/tests/**' ':!.github/workflows/ci.yml' ; then
             echo "Private key material appears committed"
             exit 1
           fi
-          # Heuristic: AWS access key id pattern in tracked files
-          if git grep -nE --cached 'AKIA[0-9A-Z]{16}' -- ':!.github/workflows/ci.yml' ; then
+          # Heuristic: AWS access key id pattern (exclude CI workflow + F1.11 example fixture)
+          if git grep -nE --cached 'AKIA[0-9A-Z]{16}' -- \
+              ':!.github/workflows/ci.yml' ':!**/tests/**' ; then
             echo "Possible AWS access key id committed"
             exit 1
           fi

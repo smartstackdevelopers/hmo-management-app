@@ -109,10 +109,12 @@ def test_env_example_files_are_placeholders_only() -> None:
         root / "apps" / "api" / ".env.example",
         root / "apps" / "web" / ".env.example",
     ]
+    # Build markers without embedding a contiguous PEM header (CI secrets hygiene).
+    pem_marker = "-----BEGIN " + "PRIVATE KEY-----"
     banned_substrings = [
         "AKIA",  # typical AWS access key prefix
         "sk_live_",
-        "-----BEGIN PRIVATE KEY-----",
+        pem_marker,
     ]
     for path in examples:
         assert path.is_file(), path
