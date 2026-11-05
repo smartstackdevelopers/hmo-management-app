@@ -30,6 +30,10 @@ class Permission(StrEnum):
     TENANTS_READ = "tenants.read"
     TENANTS_MANAGE = "tenants.manage"
 
+    # Private organisation file metadata (F1.8) — not public sharing
+    FILES_READ = "files.read"
+    FILES_MANAGE = "files.manage"
+
     # Housing / landlord
     PROPERTIES_READ = "properties.read"
     PROPERTIES_MANAGE = "properties.manage"
@@ -128,6 +132,12 @@ PERMISSION_CATALOG: dict[Permission, PermissionMeta] = {
     ),
     Permission.TENANTS_MANAGE: PermissionMeta(
         Permission.TENANTS_MANAGE, "Create/update/archive tenant person records", True
+    ),
+    Permission.FILES_READ: PermissionMeta(
+        Permission.FILES_READ, "Read private organisation file metadata and download", True
+    ),
+    Permission.FILES_MANAGE: PermissionMeta(
+        Permission.FILES_MANAGE, "Upload and delete private organisation files", True
     ),
     Permission.PROPERTIES_READ: PermissionMeta(Permission.PROPERTIES_READ, "Read properties"),
     Permission.PROPERTIES_MANAGE: PermissionMeta(

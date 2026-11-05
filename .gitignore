@@ -26,6 +26,7 @@ __pycache__/
 *.db-journal
 api/uploads/*
 !api/uploads/.gitkeep
+apps/api/.hmore-private-storage/
 api/src/generated/prisma
 
 # os / misc

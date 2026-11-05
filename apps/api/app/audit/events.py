@@ -27,3 +27,11 @@ EMERGENCY_EXPIRED = "emergency_access.expired"
 EMERGENCY_REVOKED = "emergency_access.revoked"
 
 AUDIT_READ = "audit.read"
+
+FILE_UPLOAD = "file.upload"
+FILE_UPLOAD_FAILURE = "file.upload.failure"
+FILE_UPLOAD_REJECTED = "file.upload.rejected"
+FILE_DOWNLOAD = "file.download"
+FILE_DOWNLOAD_FAILURE = "file.download.failure"
+FILE_DELETE = "file.delete"
+FILE_DELETE_FAILURE = "file.delete.failure"

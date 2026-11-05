@@ -3,6 +3,7 @@ from fastapi import APIRouter
 from app.api.v1.audit import router as audit_router
 from app.api.v1.auth import router as auth_router
 from app.api.v1.emergency_access import router as emergency_access_router
+from app.api.v1.files import router as files_router
 from app.api.v1.health import router as health_router
 from app.api.v1.isolation_probes import router as isolation_router
 from app.api.v1.organisations import router as organisations_router
@@ -22,3 +23,4 @@ api_v1_router.include_router(properties_router)
 api_v1_router.include_router(rooms_router)
 api_v1_router.include_router(audit_router)
 api_v1_router.include_router(emergency_access_router)
+api_v1_router.include_router(files_router)

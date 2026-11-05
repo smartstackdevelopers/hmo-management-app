@@ -19,6 +19,11 @@ Never commit real secrets. Track `*.env.example` only.
 | `AUTH0_AUDIENCE` | api, web, mobile | API identifier | Required for API access tokens |
 | `AUTH0_ISSUER` | api | Token issuer (`https://{domain}/`) | Optional; derived from domain |
 | `AUTH0_REQUIRE_MFA_CLAIM` | api | Require `amr` contains `mfa` | Optional, default false |
+| `STORAGE_PROVIDER` | api | `memory` / `local` / `s3` private file backend | No, default `memory` |
+| `STORAGE_LOCAL_ROOT` | api | Local private disk root | No |
+| `STORAGE_MAX_UPLOAD_BYTES` | api | Upload size cap | No |
+| `STORAGE_ALLOWED_CONTENT_TYPES` | api | MIME allow-list | No |
+| `S3_*` | api | Endpoint, region, bucket, keys, path-style | Required when provider=`s3` |
 | `AUTH0_CLIENT_ID` / `AUTH0_CLIENT_SECRET` | web | Regular Web Application | Required for web login |
 | `AUTH0_SECRET` | web | Session cookie encryption | Required for web login |
 | `APP_BASE_URL` | web | App origin, e.g. `http://localhost:3000` | Required for web login |
