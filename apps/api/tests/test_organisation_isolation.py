@@ -284,6 +284,64 @@ def test_job_actor_must_belong_to_organisation(db_session: Session, unique_suffi
 
 
 @pytest.mark.postgres
+def test_job_requires_actor_and_existing_organisation(
+    db_session: Session, unique_suffix: str
+) -> None:
+    apply_platform_rls_bypass(db_session)
+    with pytest.raises(ValueError, match="Organisation not found"):
+        validate_job_organisation_context(
+            db_session,
+            {"organisation_id": str(uuid.uuid4()), "actor_user_id": str(uuid.uuid4())},
+        )
+    org = Organisation(name="Org Job Req", slug=f"org-job-req-{unique_suffix}")
+    db_session.add(org)
+    db_session.flush()
+    with pytest.raises(PermissionError, match="actor_user_id"):
+        validate_job_organisation_context(
+            db_session,
+            {"organisation_id": str(org.id)},
+        )
+
+
+@pytest.mark.postgres
+def test_create_property_stamps_trusted_organisation_only(
+    db_session: Session, unique_suffix: str
+) -> None:
+    apply_platform_rls_bypass(db_session)
+    org_a = Organisation(name="Create A", slug=f"create-a-{unique_suffix}")
+    org_b = Organisation(name="Create B", slug=f"create-b-{unique_suffix}")
+    user = User(
+        email=f"create-{unique_suffix}@example.com",
+        display_name="Creator",
+        external_subject=f"auth0|{uuid.uuid4()}",
+    )
+    db_session.add_all([org_a, org_b, user])
+    db_session.flush()
+    ctx = OrganisationContext(
+        user=user,
+        organisation_id=org_a.id,
+        role=HMoreRole.LANDLORD,
+        authorization=AuthorizationContext(
+            user=user,
+            memberships=[],
+            active_organisation_id=org_a.id,
+            active_role=HMoreRole.LANDLORD,
+        ),
+    )
+    apply_organisation_rls(db_session, org_a.id)
+    created = iso.create_property_for_org(
+        db_session,
+        ctx,
+        name="Scoped",
+        address_line1="1 Street",
+        city="London",
+        postcode="E1 1AA",
+    )
+    assert created.organisation_id == org_a.id
+    assert created.organisation_id != org_b.id
+
+
+@pytest.mark.postgres
 def test_rls_hides_foreign_rows_without_app_filter(db_session: Session, unique_suffix: str) -> None:
     """Direct SQLAlchemy get still sees PK rows; list queries under RLS hide foreign orgs."""
     apply_platform_rls_bypass(db_session)

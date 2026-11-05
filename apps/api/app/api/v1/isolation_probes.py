@@ -1,4 +1,8 @@
-"""F1.5 organisation-isolation probes (not full F1.6 CRUD)."""
+"""F1.5 organisation-isolation probes (not full F1.6 CRUD).
+
+These routes always stamp organisation_id from trusted OrganisationContext and
+also require the matching F1.4 property permission so membership alone is insufficient.
+"""
 
 from __future__ import annotations
 
@@ -10,6 +14,9 @@ from pydantic import BaseModel, Field
 from sqlalchemy.orm import Session
 
 from app.db.session import get_session
+from app.rbac.context import AuthorizationContext
+from app.rbac.deps import require_perm
+from app.rbac.permissions import Permission
 from app.tenancy.context import OrganisationContext
 from app.tenancy.deps import get_organisation_context
 from app.tenancy import isolation as iso
@@ -38,22 +45,24 @@ def _serialize_property(row) -> dict[str, Any]:
 
 @router.get("/properties")
 def list_properties(
-    ctx: OrganisationContext = Depends(get_organisation_context),
+    _authz: AuthorizationContext = Depends(require_perm(Permission.PROPERTIES_READ)),
+    org: OrganisationContext = Depends(get_organisation_context),
     session: Session = Depends(get_session),
 ) -> dict[str, Any]:
-    rows = iso.list_properties_for_org(session, ctx)
+    rows = iso.list_properties_for_org(session, org)
     return {"items": [_serialize_property(row) for row in rows]}
 
 
 @router.post("/properties")
 def create_property(
     body: PropertyCreateBody,
-    ctx: OrganisationContext = Depends(get_organisation_context),
+    _authz: AuthorizationContext = Depends(require_perm(Permission.PROPERTIES_MANAGE)),
+    org: OrganisationContext = Depends(get_organisation_context),
     session: Session = Depends(get_session),
 ) -> dict[str, Any]:
     row = iso.create_property_for_org(
         session,
-        ctx,
+        org,
         name=body.name,
         address_line1=body.address_line1,
         city=body.city,
@@ -65,10 +74,11 @@ def create_property(
 @router.get("/properties/{property_id}")
 def get_property(
     property_id: uuid.UUID,
-    ctx: OrganisationContext = Depends(get_organisation_context),
+    _authz: AuthorizationContext = Depends(require_perm(Permission.PROPERTIES_READ)),
+    org: OrganisationContext = Depends(get_organisation_context),
     session: Session = Depends(get_session),
 ) -> dict[str, Any]:
-    row = iso.require_property_for_org(session, ctx, property_id)
+    row = iso.require_property_for_org(session, org, property_id)
     return _serialize_property(row)
 
 
@@ -76,18 +86,20 @@ def get_property(
 def patch_property(
     property_id: uuid.UUID,
     body: PropertyUpdateBody,
-    ctx: OrganisationContext = Depends(get_organisation_context),
+    _authz: AuthorizationContext = Depends(require_perm(Permission.PROPERTIES_MANAGE)),
+    org: OrganisationContext = Depends(get_organisation_context),
     session: Session = Depends(get_session),
 ) -> dict[str, Any]:
-    row = iso.update_property_for_org(session, ctx, property_id, name=body.name)
+    row = iso.update_property_for_org(session, org, property_id, name=body.name)
     return _serialize_property(row)
 
 
 @router.delete("/properties/{property_id}")
 def remove_property(
     property_id: uuid.UUID,
-    ctx: OrganisationContext = Depends(get_organisation_context),
+    _authz: AuthorizationContext = Depends(require_perm(Permission.PROPERTIES_MANAGE)),
+    org: OrganisationContext = Depends(get_organisation_context),
     session: Session = Depends(get_session),
 ) -> dict[str, str]:
-    iso.delete_property_for_org(session, ctx, property_id)
+    iso.delete_property_for_org(session, org, property_id)
     return {"status": "deleted"}

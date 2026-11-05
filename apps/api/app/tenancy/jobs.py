@@ -14,6 +14,7 @@ from sqlalchemy.orm import Session
 
 from app.db.models.enums import HMoreRole, MembershipStatus
 from app.db.models.membership import OrganisationMembership
+from app.db.models.organisation import Organisation
 from app.db.models.user import User
 from sqlalchemy import select
 
@@ -54,29 +55,43 @@ class JobOrganisationContext:
 def validate_job_organisation_context(
     session: Session,
     payload: dict[str, Any],
+    *,
+    require_actor: bool = True,
 ) -> JobOrganisationContext:
-    """Validate job org context against the database. Never trust payload alone for authz."""
+    """Validate job org context against the database. Never trust payload alone for authz.
+
+    By default an actor_user_id is required so anonymous/system payloads cannot target
+    an arbitrary organisation_id without an authorized membership check.
+    """
     ctx = JobOrganisationContext.from_payload(payload)
 
-    if ctx.actor_user_id is not None:
-        user = session.get(User, ctx.actor_user_id)
-        if user is None:
-            raise ValueError("Job actor user not found")
-        membership = session.scalar(
-            select(OrganisationMembership).where(
-                OrganisationMembership.user_id == ctx.actor_user_id,
-                OrganisationMembership.organisation_id == ctx.organisation_id,
-                OrganisationMembership.status == MembershipStatus.ACTIVE,
-            )
+    organisation = session.get(Organisation, ctx.organisation_id)
+    if organisation is None:
+        raise ValueError("Organisation not found for job payload")
+
+    if ctx.actor_user_id is None:
+        if require_actor:
+            raise PermissionError("Job payload requires actor_user_id")
+        return ctx
+
+    user = session.get(User, ctx.actor_user_id)
+    if user is None:
+        raise ValueError("Job actor user not found")
+    membership = session.scalar(
+        select(OrganisationMembership).where(
+            OrganisationMembership.user_id == ctx.actor_user_id,
+            OrganisationMembership.organisation_id == ctx.organisation_id,
+            OrganisationMembership.status == MembershipStatus.ACTIVE,
         )
-        super_admin = session.scalar(
-            select(OrganisationMembership).where(
-                OrganisationMembership.user_id == ctx.actor_user_id,
-                OrganisationMembership.role == HMoreRole.SUPER_ADMIN,
-                OrganisationMembership.status == MembershipStatus.ACTIVE,
-            )
+    )
+    super_admin = session.scalar(
+        select(OrganisationMembership).where(
+            OrganisationMembership.user_id == ctx.actor_user_id,
+            OrganisationMembership.role == HMoreRole.SUPER_ADMIN,
+            OrganisationMembership.status == MembershipStatus.ACTIVE,
         )
-        if membership is None and super_admin is None:
-            raise PermissionError("Job actor is not authorized for this organisation")
+    )
+    if membership is None and super_admin is None:
+        raise PermissionError("Job actor is not authorized for this organisation")
 
     return ctx

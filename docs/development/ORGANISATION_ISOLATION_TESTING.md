@@ -23,10 +23,18 @@ python -m pytest tests/test_organisation_isolation.py tests/test_db_schema.py -q
 
 - Org A cannot list/read/update/delete Org B properties
 - Org B cannot access Org A properties
+- Creates always stamp the trusted organisation context (cannot invent another org id)
 - Inactive membership denied
 - Unauthorized self-activation rejected
 - Job actor without membership rejected
-- RLS list visibility limited to current `app.organisation_id`
+- Job payloads without actor rejected by default
+- Unknown organisation ids rejected for jobs
+- RLS list visibility limited to current `app.organisation_id` (under `hmore_app` role)
+
+## CI evidence
+
+PostgreSQL integration tests run in GitHub Actions against `pgvector/pgvector:pg16`.
+After PR #7, develop CI run reported **60 passed** for the API job (real Postgres, not mocks).
 
 ## Manual probes
 
