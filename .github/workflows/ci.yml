@@ -106,3 +106,30 @@ jobs:
       - run: pip install -r requirements.txt
       - run: python -m compileall app
       - run: pytest -q
+
+  secrets-hygiene:
+    name: Secrets hygiene
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Reject committed dotenv secrets and private keys
+        shell: bash
+        run: |
+          set -euo pipefail
+          # Fail if real .env files (not examples) are tracked
+          if git ls-files | grep -E '(^|/)\.env$' ; then
+            echo "Tracked .env file found — remove from git"
+            exit 1
+          fi
+          # Fail on private key PEM material in the tree (excluding docs mentioning the marker in checklists)
+          if git grep -nE --cached 'BEGIN (RSA |OPENSSH |EC )?PRIVATE KEY' -- \
+              ':!docs/**' ':!.github/workflows/ci.yml' ; then
+            echo "Private key material appears committed"
+            exit 1
+          fi
+          # Heuristic: AWS access key id pattern in tracked files
+          if git grep -nE --cached 'AKIA[0-9A-Z]{16}' -- ':!.github/workflows/ci.yml' ; then
+            echo "Possible AWS access key id committed"
+            exit 1
+          fi
+          echo "Secrets hygiene checks passed"
