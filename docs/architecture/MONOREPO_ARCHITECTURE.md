@@ -22,7 +22,7 @@ api/                Existing Node/Express + SQLite API (reference only)
 
 1. **Room Ready stays in `room-ready/`.** Moving it to `apps/mobile` in the same change would rewrite Expo/EAS paths before FastAPI is the client backend. CI typechecks `room-ready`. `apps/mobile/README.md` records the later move.
 2. **Node `api/` stays as reference.** New HTTP traffic belongs in `apps/api`. Do not extend Express as the production API.
-3. **Postgres and Redis run in Compose** so later phases have local infrastructure. F1.1 does not create a schema or connect FastAPI to Postgres.
+3. **Postgres and Redis run in Compose.** F1.2 adds the SQLAlchemy models and Alembic migrations under `apps/api`. Use the pgvector image; see `docs/development/DATABASE_SETUP.md`.
 4. **Celery is imported as a worker app** in `apps/api/app/workers/celery_app.py`. There are no business tasks yet.
 
 ## Service ports

@@ -66,13 +66,26 @@ npm run mobile:typecheck
 
 Playwright starts the Next.js app itself.
 
+## Database (F1.2)
+
+Start Postgres with pgvector, then migrate:
+
+```text
+docker compose -f infra/docker/docker-compose.yml up -d postgres
+cd apps/api
+alembic upgrade head
+pytest -q
+```
+
+Details: `docs/development/DATABASE_SETUP.md` and `docs/development/DATABASE_MIGRATIONS.md`.
+
 ## Docker
 
 ```text
 docker compose -f infra/docker/docker-compose.yml up --build
 ```
 
-Postgres is included for later schema work. FastAPI does not migrate or query it in F1.1.
+Postgres uses the `pgvector/pgvector:pg16` image. The API container receives `DATABASE_URL` pointing at that service.
 
 ## Known limitations
 
