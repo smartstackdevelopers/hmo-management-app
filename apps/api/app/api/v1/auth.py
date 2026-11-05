@@ -21,6 +21,7 @@ def read_me(
         "external_subject": user.external_subject,
         "email": user.email,
         "display_name": user.display_name,
+        "authorization_version": user.authorization_version,
         "token_sub": claims.get("sub"),
     }
 
@@ -32,10 +33,11 @@ def staff_session(
 ) -> dict[str, Any]:
     """Staff/admin session probe. When AUTH0_REQUIRE_MFA_CLAIM is true, MFA is required.
 
-    Role authorization is intentionally not applied here (F1.4).
+    Role permissions are enforced via /api/v1/rbac (F1.4), not this probe.
     """
     return {
         "id": str(user.id),
         "external_subject": user.external_subject,
+        "authorization_version": user.authorization_version,
         "mfa": "mfa" in (claims.get("amr") or []),
     }

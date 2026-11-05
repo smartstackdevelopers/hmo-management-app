@@ -10,7 +10,7 @@
 - FastAPI validates access tokens only (JWKS signature, issuer, audience, expiry).
 - Map Auth0 `sub` to `users.external_subject` from F1.2.
 - Do not trust client-supplied user ids, roles or organisation ids.
-- Role enforcement remains F1.4.
+- Role enforcement is F1.4 (`docs/architecture/RBAC_ARCHITECTURE.md`).
 
 ## Components
 
@@ -77,7 +77,7 @@ Passwords are not stored in HMore.
 
 ## Out of scope (F1.3)
 
-- Six-role permission matrix (F1.4)
+- Six-role permission matrix — delivered in F1.4 (`docs/security/ROLE_PERMISSION_MATRIX.md`)
 - Organisation isolation enforcement (F1.5)
 - Role dashboards (F1.9)
 - Replacing Room Ready’s legacy local JWT flows in every screen
