@@ -21,6 +21,26 @@ class Settings(BaseSettings):
     auth0_issuer: str | None = None
     auth0_require_mfa_claim: bool = False
 
+    # Private file storage (F1.8) — never commit real credentials.
+    # provider: memory | local | s3
+    storage_provider: str = Field(default="memory")
+    storage_local_root: str = Field(default=".hmore-private-storage")
+    storage_max_upload_bytes: int = Field(default=10 * 1024 * 1024)
+    storage_allowed_content_types: str = Field(
+        default=(
+            "application/pdf,image/jpeg,image/png,image/webp,"
+            "text/plain,application/msword,"
+            "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+        )
+    )
+    # S3-compatible (AWS S3, MinIO, etc.) — private bucket only
+    s3_endpoint_url: str | None = None
+    s3_region: str = Field(default="eu-west-2")
+    s3_bucket: str | None = None
+    s3_access_key_id: str | None = None
+    s3_secret_access_key: str | None = None
+    s3_force_path_style: bool = Field(default=False)
+
 
 @lru_cache
 def get_settings() -> Settings:
