@@ -52,6 +52,8 @@ Policy allows a row when:
 
 `SET LOCAL` is transaction-scoped and does not leak across pool checkouts after commit/rollback.
 
+Organisation-scoped requests run `SET LOCAL ROLE hmore_app` because PostgreSQL **superusers bypass RLS** even with FORCE. Platform bypass resets the role.
+
 **RLS is defence in depth.** Application filters remain mandatory.
 
 ## Background jobs

@@ -148,48 +148,52 @@ def test_cross_organisation_property_isolation(db_session: Session, unique_suffi
     )
     db_session.add_all([prop_a, prop_b])
     db_session.flush()
+    prop_a_id = prop_a.id
+    prop_b_id = prop_b.id
+    org_a_id = org_a.id
+    org_b_id = org_b.id
 
     ctx_a = OrganisationContext(
         user=user_a,
-        organisation_id=org_a.id,
+        organisation_id=org_a_id,
         role=HMoreRole.ORGANISATION_ADMIN,
         authorization=AuthorizationContext(
             user=user_a,
             memberships=[],
-            active_organisation_id=org_a.id,
+            active_organisation_id=org_a_id,
             active_role=HMoreRole.ORGANISATION_ADMIN,
         ),
     )
     ctx_b = OrganisationContext(
         user=user_b,
-        organisation_id=org_b.id,
+        organisation_id=org_b_id,
         role=HMoreRole.ORGANISATION_ADMIN,
         authorization=AuthorizationContext(
             user=user_b,
             memberships=[],
-            active_organisation_id=org_b.id,
+            active_organisation_id=org_b_id,
             active_role=HMoreRole.ORGANISATION_ADMIN,
         ),
     )
 
-    apply_organisation_rls(db_session, org_a.id)
+    apply_organisation_rls(db_session, org_a_id)
     db_session.expire_all()
     listed_a = iso.list_properties_for_org(db_session, ctx_a)
-    assert {row.id for row in listed_a} == {prop_a.id}
-    assert iso.get_property_for_org(db_session, ctx_a, prop_b.id) is None
+    assert {row.id for row in listed_a} == {prop_a_id}
+    assert iso.get_property_for_org(db_session, ctx_a, prop_b_id) is None
     with pytest.raises(HTTPException) as read_exc:
-        iso.require_property_for_org(db_session, ctx_a, prop_b.id)
+        iso.require_property_for_org(db_session, ctx_a, prop_b_id)
     assert read_exc.value.status_code == 403
     with pytest.raises(HTTPException):
-        iso.update_property_for_org(db_session, ctx_a, prop_b.id, name="hacked")
+        iso.update_property_for_org(db_session, ctx_a, prop_b_id, name="hacked")
     with pytest.raises(HTTPException):
-        iso.delete_property_for_org(db_session, ctx_a, prop_b.id)
+        iso.delete_property_for_org(db_session, ctx_a, prop_b_id)
 
-    apply_organisation_rls(db_session, org_b.id)
+    apply_organisation_rls(db_session, org_b_id)
     db_session.expire_all()
     listed_b = iso.list_properties_for_org(db_session, ctx_b)
-    assert {row.id for row in listed_b} == {prop_b.id}
-    assert iso.get_property_for_org(db_session, ctx_b, prop_a.id) is None
+    assert {row.id for row in listed_b} == {prop_b_id}
+    assert iso.get_property_for_org(db_session, ctx_b, prop_a_id) is None
 
 
 @pytest.mark.postgres
@@ -303,10 +307,12 @@ def test_rls_hides_foreign_rows_without_app_filter(db_session: Session, unique_s
     )
     db_session.add_all([prop_a, prop_b])
     db_session.flush()
+    prop_a_id = prop_a.id
+    org_a_id = org_a.id
 
-    apply_organisation_rls(db_session, org_a.id)
+    apply_organisation_rls(db_session, org_a_id)
     db_session.expire_all()
     from sqlalchemy import select
 
     visible = list(db_session.scalars(select(Property)))
-    assert {row.id for row in visible} == {prop_a.id}
+    assert {row.id for row in visible} == {prop_a_id}
