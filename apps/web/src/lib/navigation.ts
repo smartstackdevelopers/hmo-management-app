@@ -160,6 +160,20 @@ export const DASHBOARD_NAV: NavItem[] = [
     section: "records",
   },
   {
+    id: "maintenance",
+    label: "Maintenance",
+    href: "/dashboard/maintenance",
+    anyOf: [
+      "maintenance.manage",
+      "maintenance.read.own",
+      "maintenance.read.assigned",
+      "maintenance.create.own",
+      "maintenance.create.assigned",
+      "maintenance.read.property",
+    ],
+    section: "records",
+  },
+  {
     id: "waiting-list",
     label: "Waiting list",
     href: "/dashboard/waiting-list",

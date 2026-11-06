@@ -98,6 +98,29 @@ Source of truth: `apps/api/app/rbac/matrix.py` and `apps/api/app/rbac/permission
 
 Deadlines and categories are **operational**, not statutory.
 
+## Maintenance & repairs (F2.8)
+
+| Permission | Purpose | SA | OA | LL | TN | SW | MC |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| maintenance.manage | Full org workflow | D | A | D | D | D | D |
+| maintenance.create.own | Submit own requests | D | D | D | A | D | D |
+| maintenance.read.own | Read own requests | D | D | D | A | D | D |
+| maintenance.create.assigned | Create for assigned tenants | D | D | D | D | A | D |
+| maintenance.read.assigned | Read assigned / caseload | D | D | D | D | A | A |
+| maintenance.read.property | Read property-linked requests | D | D | A | D | D | D |
+| maintenance.priority.manage | Change priority (audited) | D | A | D | D | D | D |
+| maintenance.assign | Assign staff/contractor | D | A | D | D | D | D |
+| maintenance.schedule | Schedule / reschedule visits | D | A | D | D | A | A |
+| maintenance.approve | Approve / reject when required | D | A | D | D | D | D |
+| maintenance.notes.add | Internal / tenant-visible notes | D | A | D | D | A | A |
+| maintenance.photo.upload | Upload evidence | D | A | D | A | A | A |
+| maintenance.photo.read | View maintenance evidence | D | A | A | A | A | A |
+| maintenance.complete | Record completion | D | A | D | D | A | A |
+| maintenance.close | Close / reopen | D | A | D | D | D | D |
+| maintenance.emergency.manage | Edit gas/fire guidance | D | A | D | D | D | D |
+
+Photo downloads for maintenance use `maintenance.photo.read` plus request-level visibility checks (not `files.read` alone).
+
 ## Housing evidence packs (F2.6)
 
 | Permission | Purpose | SA | OA | LL | TN | SW | MC |
