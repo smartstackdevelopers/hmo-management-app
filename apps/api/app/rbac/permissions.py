@@ -69,6 +69,10 @@ class Permission(StrEnum):
     TASKS_MANAGE_ASSIGNED = "tasks.manage.assigned"
     EMPLOYMENT_SUPPORT_MANAGE_ASSIGNED = "employment_support.manage.assigned"
     INCIDENTS_CREATE_ASSIGNED = "incidents.create.assigned"
+    INCIDENTS_READ_ASSIGNED = "incidents.read.assigned"
+    INCIDENTS_MANAGE = "incidents.manage"
+    WORKLOAD_READ = "workload.read"
+    WORKLOAD_READ_OWN = "workload.read.own"
 
     # Maintenance & contractors (assigned-scope)
     WORK_ORDERS_READ_ASSIGNED = "work_orders.read.assigned"
@@ -223,6 +227,18 @@ PERMISSION_CATALOG: dict[Permission, PermissionMeta] = {
     ),
     Permission.INCIDENTS_CREATE_ASSIGNED: PermissionMeta(
         Permission.INCIDENTS_CREATE_ASSIGNED, "Create incident reports for assigned work"
+    ),
+    Permission.INCIDENTS_READ_ASSIGNED: PermissionMeta(
+        Permission.INCIDENTS_READ_ASSIGNED, "Read assigned or reported incidents"
+    ),
+    Permission.INCIDENTS_MANAGE: PermissionMeta(
+        Permission.INCIDENTS_MANAGE, "Manage organisation incident reports", True
+    ),
+    Permission.WORKLOAD_READ: PermissionMeta(
+        Permission.WORKLOAD_READ, "View organisation staff workload summaries"
+    ),
+    Permission.WORKLOAD_READ_OWN: PermissionMeta(
+        Permission.WORKLOAD_READ_OWN, "View own workload summary"
     ),
     Permission.WORK_ORDERS_READ_ASSIGNED: PermissionMeta(
         Permission.WORK_ORDERS_READ_ASSIGNED, "Read assigned work orders"

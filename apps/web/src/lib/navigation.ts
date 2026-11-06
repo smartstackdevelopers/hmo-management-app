@@ -118,6 +118,20 @@ export const DASHBOARD_NAV: NavItem[] = [
     section: "records",
   },
   {
+    id: "incidents",
+    label: "Incidents",
+    href: "/dashboard/incidents",
+    anyOf: ["incidents.manage", "incidents.read.assigned", "incidents.create.assigned"],
+    section: "records",
+  },
+  {
+    id: "workload",
+    label: "Workload",
+    href: "/dashboard/workload",
+    anyOf: ["workload.read", "workload.read.own"],
+    section: "records",
+  },
+  {
     id: "occupancy-survey",
     label: "Occupancy survey",
     href: "/dashboard/occupancy-survey",

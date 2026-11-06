@@ -13,6 +13,7 @@ from app.audit import events as audit_events
 from app.audit.service import AuditOutcome, record_event
 from app.core.config import get_settings
 from app.db.models.compliance import SafeguardingReminder, StaffTrainingRecord
+from app.db.models.incidents import Incident, IncidentFollowUp
 from app.db.models.scheduling import OperationalTask, ReminderRecord, StaffShift, TenantVisit
 from app.ops.notifications import ReminderMessage, get_notification_provider
 from app.tenancy.jobs import JobOrganisationContext, validate_job_organisation_context
@@ -80,6 +81,23 @@ def _resource_still_active(session: Session, reminder: ReminderRecord) -> tuple[
             if sg.status == "pending":
                 # Mark as sent after successful delivery (caller updates ReminderRecord).
                 pass
+        return True, "ok"
+    if reminder.resource_type == "incident_follow_up":
+        action = session.get(IncidentFollowUp, reminder.resource_id)
+        if action is None or action.organisation_id != reminder.organisation_id:
+            return False, "follow_up_missing"
+        if action.status in {"completed", "cancelled"}:
+            return False, f"follow_up_{action.status}"
+        if reminder.reminder_kind == "incident_follow_up_overdue":
+            if action.due_at is None or action.due_at > _now():
+                return False, "follow_up_not_overdue"
+        return True, "ok"
+    if reminder.resource_type == "incident":
+        incident = session.get(Incident, reminder.resource_id)
+        if incident is None or incident.organisation_id != reminder.organisation_id:
+            return False, "incident_missing"
+        if incident.status in {"closed", "draft"}:
+            return False, f"incident_{incident.status}"
         return True, "ok"
     return False, "unknown_resource"
 

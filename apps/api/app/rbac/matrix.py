@@ -53,6 +53,9 @@ ROLE_PERMISSIONS: dict[HMoreRole, frozenset[Permission]] = {
             # F2.3 training and safeguarding
             Permission.TRAINING_RECORDS_MANAGE,
             Permission.SAFEGUARDING_REMINDERS_MANAGE,
+            # F2.4 incidents and workload
+            Permission.INCIDENTS_MANAGE,
+            Permission.WORKLOAD_READ,
         }
     ),
     HMoreRole.LANDLORD: frozenset(
@@ -95,6 +98,8 @@ ROLE_PERMISSIONS: dict[HMoreRole, frozenset[Permission]] = {
             Permission.SAFEGUARDING_REMINDERS_MANAGE_ASSIGNED,
             Permission.EMPLOYMENT_SUPPORT_MANAGE_ASSIGNED,
             Permission.INCIDENTS_CREATE_ASSIGNED,
+            Permission.INCIDENTS_READ_ASSIGNED,
+            Permission.WORKLOAD_READ_OWN,
             Permission.OCCUPANCY_READ,
             Permission.PROFILE_READ_OWN,
             Permission.TENANTS_READ,  # assigned-scope refinement remains F1.5+/later

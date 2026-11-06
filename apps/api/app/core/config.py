@@ -22,6 +22,7 @@ class Settings(BaseSettings):
     # F2.3 training / safeguarding reminder lead times (configurable; not statutory).
     reminder_training_expiry_lead_days: int = Field(default=30, ge=1, le=365)
     reminder_safeguarding_lead_minutes: int = Field(default=1440, ge=1, le=14 * 24 * 60)
+    reminder_incident_follow_up_lead_minutes: int = Field(default=1440, ge=1, le=14 * 24 * 60)
     reminder_dispatch_batch_size: int = Field(default=100, ge=1, le=1000)
 
     # Comma-separated browser origins allowed for CORS (never "*' in production).
