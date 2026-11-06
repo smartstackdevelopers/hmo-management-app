@@ -12,14 +12,18 @@ test.describe("dashboard access helpers (unit via Playwright runner)", () => {
     expect(homePathForRole("super_admin")).toBe("/dashboard/super-admin");
     expect(homePathForRole("organisation_admin")).toBe("/dashboard/organisation-admin");
     expect(homePathForRole("landlord")).toBe("/dashboard/landlord");
+    expect(homePathForRole("support_worker")).toBe("/dashboard/support-worker");
     expect(homePathForRole("tenant")).toBe("/account");
   });
 
   test("denies wrong-role home access", () => {
     expect(canAccessRoleHome("landlord", "super_admin")).toBe(false);
     expect(canAccessRoleHome("organisation_admin", "organisation_admin")).toBe(true);
-    expect(isF19DashboardRole("support_worker")).toBe(false);
+    expect(isF19DashboardRole("support_worker")).toBe(true);
+    expect(canAccessRoleHome("support_worker", "support_worker")).toBe(true);
+    expect(canAccessRoleHome("landlord", "support_worker")).toBe(false);
     expect(requiredRoleForHomePath("landlord")).toBe("landlord");
+    expect(requiredRoleForHomePath("support-worker")).toBe("support_worker");
   });
 
   test("filters navigation by permissions", () => {

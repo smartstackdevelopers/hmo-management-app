@@ -73,7 +73,7 @@ def get_tenant_or_404(session: Session, ctx: OrganisationContext, tenant_id: uui
     tenant = session.get(Tenant, tenant_id)
     if tenant is None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Tenant not found")
-    assert_same_organisation(ctx.organisation_id, tenant.organisation_id)
+    assert_same_organisation(ctx, tenant.organisation_id)
     return tenant
 
 
