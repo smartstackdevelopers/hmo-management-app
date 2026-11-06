@@ -108,7 +108,12 @@ def _ctx(role: HMoreRole, org_id: uuid.UUID, user_id: uuid.UUID) -> Organisation
 @pytest.mark.postgres
 def test_training_and_safeguarding_flow(db_session, unique_suffix: str) -> None:
     from app.compliance import service as compliance_service
-    from app.compliance.schemas import SafeguardingUpdate, TrainingCreate, TrainingUpdate
+    from app.compliance.schemas import (
+        SafeguardingCreate,
+        SafeguardingUpdate,
+        TrainingCreate,
+        TrainingUpdate,
+    )
     from app.db.models import Organisation, OrganisationMembership, Tenant, User
     from app.db.models.support_ops import CaseAssignment
     from app.ops.reminders import dispatch_due_reminders
