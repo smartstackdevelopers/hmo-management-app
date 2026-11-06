@@ -76,6 +76,14 @@ export const DASHBOARD_NAV: NavItem[] = [
     section: "records",
   },
   {
+    id: "support-plans-dashboard",
+    label: "Support plans",
+    href: "/dashboard/support-plans",
+    anyOf: ["support_plans.read", "support_plans.manage"],
+    roles: ["support_worker", "organisation_admin", "super_admin"],
+    section: "records",
+  },
+  {
     id: "case-assignments",
     label: "Case assignments",
     href: "/dashboard/case-assignments",

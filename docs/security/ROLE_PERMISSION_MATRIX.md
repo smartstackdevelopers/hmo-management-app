@@ -138,6 +138,19 @@ Photo downloads for maintenance use `maintenance.photo.read` plus request-level 
 
 Tenants only see **tenant follow-up** rows where `show_to_tenant=true`. Internal notes on follow-ups remain staff-only.
 
+## Structured support plans (F2.10)
+
+| Permission | Purpose | SA | OA | LL | TN | SW | MC |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| support_plans.read | Read plans/goals/reviews (scope-enforced) | A | A | A | D | A | D |
+| support_plans.read.own | Read own plans (non-internal fields) | D | D | D | A | D | D |
+| support_plans.manage | Create/update plans, goals, milestones, draft reviews | A | A | D | D | A | D |
+| support_plans.notes.internal | View internal plan/goal/review notes | A | A | D | D | A | D |
+| support_plans.export | Generate/download progress PDF | A | A | D | D | A | D |
+| support_plans.review.finalise | Finalise weekly/monthly reviews | A | A | D | D | A | D |
+
+Landlord access is **property-scoped** (aligned with `timeline.read.landlord`). Maintenance & contractors have **no** support-plan permissions. Tenant progress notes use `show_to_tenant` for visibility.
+
 ## Housing evidence packs (F2.6)
 
 | Permission | Purpose | SA | OA | LL | TN | SW | MC |

@@ -118,6 +118,13 @@ class Permission(StrEnum):
     SUPPORT_NOTES_READ_ASSIGNED = "support_notes.read.assigned"
     SUPPORT_NOTES_CREATE_ASSIGNED = "support_notes.create.assigned"
     SUPPORT_PLANS_MANAGE_ASSIGNED = "support_plans.manage.assigned"
+    # F2.10 structured support plans (goals, milestones, reviews, exports)
+    SUPPORT_PLAN_READ = "support_plans.read"
+    SUPPORT_PLAN_READ_OWN = "support_plans.read.own"
+    SUPPORT_PLAN_MANAGE = "support_plans.manage"
+    SUPPORT_PLAN_NOTES_INTERNAL = "support_plans.notes.internal"
+    SUPPORT_PLAN_EXPORT = "support_plans.export"
+    SUPPORT_PLAN_REVIEW_FINALISE = "support_plans.review.finalise"
     VISITS_MANAGE_ASSIGNED = "visits.manage.assigned"
     TASKS_MANAGE_ASSIGNED = "tasks.manage.assigned"
     EMPLOYMENT_SUPPORT_MANAGE_ASSIGNED = "employment_support.manage.assigned"
@@ -442,6 +449,35 @@ PERMISSION_CATALOG: dict[Permission, PermissionMeta] = {
     ),
     Permission.SUPPORT_PLANS_MANAGE_ASSIGNED: PermissionMeta(
         Permission.SUPPORT_PLANS_MANAGE_ASSIGNED, "Manage assigned support plans"
+    ),
+    Permission.SUPPORT_PLAN_READ: PermissionMeta(
+        Permission.SUPPORT_PLAN_READ,
+        "Read structured support plans, goals, and reviews within scope",
+        True,
+    ),
+    Permission.SUPPORT_PLAN_READ_OWN: PermissionMeta(
+        Permission.SUPPORT_PLAN_READ_OWN,
+        "Read own tenant-linked structured support plans (permitted fields only)",
+    ),
+    Permission.SUPPORT_PLAN_MANAGE: PermissionMeta(
+        Permission.SUPPORT_PLAN_MANAGE,
+        "Create and update structured support plans for authorised tenants",
+        True,
+    ),
+    Permission.SUPPORT_PLAN_NOTES_INTERNAL: PermissionMeta(
+        Permission.SUPPORT_PLAN_NOTES_INTERNAL,
+        "View internal notes on support plans, goals, milestones, and reviews",
+        True,
+    ),
+    Permission.SUPPORT_PLAN_EXPORT: PermissionMeta(
+        Permission.SUPPORT_PLAN_EXPORT,
+        "Generate and download structured support-plan progress exports",
+        True,
+    ),
+    Permission.SUPPORT_PLAN_REVIEW_FINALISE: PermissionMeta(
+        Permission.SUPPORT_PLAN_REVIEW_FINALISE,
+        "Finalise weekly or monthly support plan reviews",
+        True,
     ),
     Permission.VISITS_MANAGE_ASSIGNED: PermissionMeta(
         Permission.VISITS_MANAGE_ASSIGNED, "Manage assigned visits"
