@@ -83,6 +83,27 @@ export const DASHBOARD_NAV: NavItem[] = [
     section: "records",
   },
   {
+    id: "rota",
+    label: "Rota",
+    href: "/dashboard/rota",
+    anyOf: ["organisation.users.manage", "organisation.users.read", "visits.manage.assigned"],
+    section: "records",
+  },
+  {
+    id: "visits",
+    label: "Visits",
+    href: "/dashboard/visits",
+    anyOf: ["visits.manage.assigned", "tenants.manage"],
+    section: "records",
+  },
+  {
+    id: "tasks",
+    label: "Tasks",
+    href: "/dashboard/tasks",
+    anyOf: ["tasks.manage.assigned", "tenants.manage"],
+    section: "records",
+  },
+  {
     id: "occupancy-survey",
     label: "Occupancy survey",
     href: "/dashboard/occupancy-survey",
