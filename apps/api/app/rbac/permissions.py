@@ -27,6 +27,13 @@ class Permission(StrEnum):
     APPLICATIONS_READ_ASSIGNED = "applications.read.assigned"
     WAITING_LIST_MANAGE = "waiting_list.manage"
     WAITING_LIST_READ = "waiting_list.read"
+    # F2.6 evidence checklists and packs
+    EVIDENCE_MANAGE = "evidence.manage"
+    EVIDENCE_MANAGE_ASSIGNED = "evidence.manage.assigned"
+    EVIDENCE_READ_ASSIGNED = "evidence.read.assigned"
+    EVIDENCE_READ_OWN = "evidence.read.own"
+    EVIDENCE_REVIEW = "evidence.review"
+    EVIDENCE_PACK_GENERATE = "evidence.pack.generate"
     COMPLIANCE_CHECK = "compliance.check"
     REPORTS_READ = "reports.read"
     AUDIT_LOGS_READ = "audit_logs.read"
@@ -152,6 +159,31 @@ PERMISSION_CATALOG: dict[Permission, PermissionMeta] = {
     ),
     Permission.WAITING_LIST_READ: PermissionMeta(
         Permission.WAITING_LIST_READ, "Read organisation housing waiting list"
+    ),
+    Permission.EVIDENCE_MANAGE: PermissionMeta(
+        Permission.EVIDENCE_MANAGE,
+        "Manage organisation housing evidence checklists and associations",
+        True,
+    ),
+    Permission.EVIDENCE_MANAGE_ASSIGNED: PermissionMeta(
+        Permission.EVIDENCE_MANAGE_ASSIGNED,
+        "Manage evidence for assigned housing applications",
+        True,
+    ),
+    Permission.EVIDENCE_READ_ASSIGNED: PermissionMeta(
+        Permission.EVIDENCE_READ_ASSIGNED,
+        "Read evidence for assigned housing applications",
+    ),
+    Permission.EVIDENCE_READ_OWN: PermissionMeta(
+        Permission.EVIDENCE_READ_OWN, "Read evidence for own housing applications"
+    ),
+    Permission.EVIDENCE_REVIEW: PermissionMeta(
+        Permission.EVIDENCE_REVIEW, "Review and accept/reject housing evidence", True
+    ),
+    Permission.EVIDENCE_PACK_GENERATE: PermissionMeta(
+        Permission.EVIDENCE_PACK_GENERATE,
+        "Generate and download housing evidence packs",
+        True,
     ),
     Permission.COMPLIANCE_CHECK: PermissionMeta(
         Permission.COMPLIANCE_CHECK, "Run compliance checks", True

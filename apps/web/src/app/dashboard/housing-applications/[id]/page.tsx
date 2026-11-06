@@ -1,12 +1,13 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { ApplicationReviewActions } from "@/components/housing/ApplicationReviewActions";
+import { EvidencePanel } from "@/components/housing/EvidencePanel";
 import { EmptyState } from "@/components/dashboard/EmptyState";
 import { ErrorState } from "@/components/dashboard/ErrorState";
 import { PageHeader } from "@/components/dashboard/PageHeader";
 import { auth0, isAuth0Configured } from "@/lib/auth0";
 import { fetchApplication } from "@/lib/housingApi";
-import { canAny } from "@/lib/rbac";
+import { can, canAny } from "@/lib/rbac";
 import { requireAuthenticatedSession } from "@/lib/session";
 
 export default async function HousingApplicationDetailPage({
@@ -43,9 +44,21 @@ export default async function HousingApplicationDetailPage({
       role: session.authorization?.active_role,
       applicationId: id,
     });
-    const canReview = canAny(session.authorization?.permissions, [
-      "applications.review",
-      "applications.manage",
+    const permissions = session.authorization?.permissions;
+    const canReview = canAny(permissions, ["applications.review", "applications.manage"]);
+    const canEvidenceManage = canAny(permissions, [
+      "evidence.manage",
+      "evidence.manage.assigned",
+    ]);
+    const canEvidenceReview = can(permissions, "evidence.review");
+    const canGeneratePack = can(permissions, "evidence.pack.generate");
+    const canViewEvidence = canAny(permissions, [
+      "evidence.manage",
+      "evidence.manage.assigned",
+      "evidence.read.assigned",
+      "evidence.read.own",
+      "evidence.review",
+      "evidence.pack.generate",
     ]);
     return (
       <div className="mx-auto max-w-3xl space-y-6">
@@ -71,6 +84,17 @@ export default async function HousingApplicationDetailPage({
           role={session.authorization?.active_role}
           canReview={canReview}
         />
+        {canViewEvidence ? (
+          <EvidencePanel
+            applicationId={app.id}
+            accessToken={token}
+            organisationId={orgId}
+            role={session.authorization?.active_role}
+            canManage={canEvidenceManage}
+            canReview={Boolean(canEvidenceReview)}
+            canGeneratePack={Boolean(canGeneratePack)}
+          />
+        ) : null}
         <Link href="/dashboard/housing-applications" className="text-sm text-teal-800 hover:underline">
           Back to applications
         </Link>
