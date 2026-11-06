@@ -20,6 +20,7 @@ ROLE_PERMISSIONS: dict[HMoreRole, frozenset[Permission]] = {
             Permission.FILES_MANAGE,
             Permission.OCCUPANCY_READ,
             Permission.OCCUPANCY_ALERTS_MANAGE,
+            Permission.TIMELINE_READ,
         }
     ),
     HMoreRole.ORGANISATION_ADMIN: frozenset(
@@ -82,6 +83,13 @@ ROLE_PERMISSIONS: dict[HMoreRole, frozenset[Permission]] = {
             Permission.MAINTENANCE_COMPLETE,
             Permission.MAINTENANCE_CLOSE_REOPEN,
             Permission.MAINTENANCE_EMERGENCY_MANAGE,
+            Permission.TIMELINE_READ,
+            Permission.TIMELINE_MEETING_CREATE,
+            Permission.TIMELINE_MEETING_READ,
+            Permission.TIMELINE_MEETING_NOTES_INTERNAL,
+            Permission.TIMELINE_APPOINTMENT_MANAGE,
+            Permission.TIMELINE_FOLLOWUP_MANAGE,
+            Permission.TIMELINE_NEEDS_MANAGE,
         }
     ),
     HMoreRole.LANDLORD: frozenset(
@@ -98,6 +106,7 @@ ROLE_PERMISSIONS: dict[HMoreRole, frozenset[Permission]] = {
             Permission.COMPLAINTS_READ_PROPERTY,
             Permission.MAINTENANCE_READ_PROPERTY,
             Permission.MAINTENANCE_PHOTO_READ,
+            Permission.TIMELINE_READ_LANDLORD,
             Permission.PROFILE_READ_OWN,
             Permission.PROFILE_UPDATE_OWN,
         }
@@ -122,6 +131,8 @@ ROLE_PERMISSIONS: dict[HMoreRole, frozenset[Permission]] = {
             Permission.SERVICES_DISCOVER,
             Permission.JOBS_DISCOVER,
             Permission.TRAINING_DISCOVER,
+            Permission.TIMELINE_READ_OWN,
+            Permission.TIMELINE_MEETING_READ,
         }
     ),
     HMoreRole.SUPPORT_WORKER: frozenset(
@@ -157,6 +168,14 @@ ROLE_PERMISSIONS: dict[HMoreRole, frozenset[Permission]] = {
             Permission.TENANCIES_MANAGE,  # assigned caseload only — resource check required
             Permission.PROPERTIES_READ,
             Permission.ROOMS_READ,
+            Permission.TIMELINE_READ,
+            Permission.TIMELINE_MEETING_CREATE,
+            Permission.TIMELINE_MEETING_READ,
+            Permission.TIMELINE_MEETING_NOTES_INTERNAL,
+            Permission.TIMELINE_APPOINTMENT_MANAGE,
+            Permission.TIMELINE_FOLLOWUP_MANAGE,
+            Permission.TIMELINE_FOLLOWUP_READ_ASSIGNED,
+            Permission.TIMELINE_NEEDS_MANAGE,
         }
     ),
     HMoreRole.MAINTENANCE_CONTRACTOR: frozenset(

@@ -121,6 +121,23 @@ Deadlines and categories are **operational**, not statutory.
 
 Photo downloads for maintenance use `maintenance.photo.read` plus request-level visibility checks (not `files.read` alone).
 
+## Tenant timeline (F2.9)
+
+| Permission | Purpose | SA | OA | LL | TN | SW | MC |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| timeline.read | Aggregated timeline (staff) | A | A | D | D | A | D |
+| timeline.read.own | Own tenant timeline slice | D | D | D | A | D | D |
+| timeline.read.landlord | Property-linked activity only | D | D | A | D | D | D |
+| timeline.meeting.create | Schedule meetings | D | A | D | D | A | D |
+| timeline.meeting.read | View meetings | D | A | D | A | A | D |
+| timeline.meeting.notes.internal | Confidential meeting notes | D | A | D | D | A | D |
+| timeline.appointment.manage | Create/update appointments | D | A | D | D | A | D |
+| timeline.followup.manage | Create/update follow-ups | D | A | D | D | A | D |
+| timeline.followup.read.assigned | List staff follow-ups (assignee-scoped for SW) | D | A | D | D | A | D |
+| timeline.needs.manage | Record needs/goals (staff) | D | A | D | D | A | D |
+
+Tenants only see **tenant follow-up** rows where `show_to_tenant=true`. Internal notes on follow-ups remain staff-only.
+
 ## Housing evidence packs (F2.6)
 
 | Permission | Purpose | SA | OA | LL | TN | SW | MC |
