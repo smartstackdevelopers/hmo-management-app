@@ -20,6 +20,7 @@ from app.api.v1.rbac import router as rbac_router
 from app.api.v1.rooms import router as rooms_router
 from app.api.v1.support import router as support_router
 from app.api.v1.tenants import router as tenants_router
+from app.api.v1.tenant_timeline import router as tenant_timeline_router
 
 api_v1_router = APIRouter()
 api_v1_router.include_router(health_router)
@@ -28,6 +29,7 @@ api_v1_router.include_router(rbac_router)
 api_v1_router.include_router(organisations_router)
 api_v1_router.include_router(isolation_router)
 api_v1_router.include_router(tenants_router)
+api_v1_router.include_router(tenant_timeline_router)
 api_v1_router.include_router(properties_router)
 api_v1_router.include_router(rooms_router)
 api_v1_router.include_router(audit_router)

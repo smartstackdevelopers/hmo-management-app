@@ -5,6 +5,7 @@ import { ErrorState } from "@/components/dashboard/ErrorState";
 import { PageHeader } from "@/components/dashboard/PageHeader";
 import { auth0, isAuth0Configured } from "@/lib/auth0";
 import { canAny } from "@/lib/rbac";
+import { TenantTimelinePanel } from "@/components/tenant/TenantTimelinePanel";
 import { fetchCaseDetail } from "@/lib/supportApi";
 import { requireAuthenticatedSession } from "@/lib/session";
 
@@ -44,6 +45,15 @@ export default async function CaseDetailPage({
       role: session.authorization?.active_role,
       tenantId,
     });
+    const canReadTimeline = Boolean(
+      permissions &&
+        canAny(permissions, [
+          "timeline.read",
+          "timeline.read.own",
+          "timeline.read.landlord",
+        ]),
+    );
+
     const tenant = detail.tenant as {
       preferred_name?: string;
       full_name?: string;
@@ -115,6 +125,21 @@ export default async function CaseDetailPage({
               ))}
             </ul>
           )}
+        </section>
+
+        <section className="space-y-3">
+          <h2 className="text-lg font-semibold text-forest-900">Tenant timeline</h2>
+          <p className="text-sm text-slate-600">
+            Aggregated view of permitted activity. Each item links to an underlying record — access is enforced on the
+            detail APIs.
+          </p>
+          <TenantTimelinePanel
+            accessToken={token}
+            organisationId={orgId}
+            role={session.authorization?.active_role}
+            tenantId={tenantId}
+            canReadTimeline={canReadTimeline}
+          />
         </section>
 
         <section className="space-y-3">

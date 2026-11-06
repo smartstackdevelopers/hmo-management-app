@@ -94,6 +94,17 @@ class Permission(StrEnum):
     MAINTENANCE_COMPLETE = "maintenance.complete"
     MAINTENANCE_CLOSE_REOPEN = "maintenance.close"
     MAINTENANCE_EMERGENCY_MANAGE = "maintenance.emergency.manage"
+    # F2.9 tenant timeline, meetings, appointments, follow-ups
+    TIMELINE_READ = "timeline.read"
+    TIMELINE_READ_OWN = "timeline.read.own"
+    TIMELINE_READ_LANDLORD = "timeline.read.landlord"
+    TIMELINE_MEETING_CREATE = "timeline.meeting.create"
+    TIMELINE_MEETING_READ = "timeline.meeting.read"
+    TIMELINE_MEETING_NOTES_INTERNAL = "timeline.meeting.notes.internal"
+    TIMELINE_APPOINTMENT_MANAGE = "timeline.appointment.manage"
+    TIMELINE_FOLLOWUP_MANAGE = "timeline.followup.manage"
+    TIMELINE_FOLLOWUP_READ_ASSIGNED = "timeline.followup.read.assigned"
+    TIMELINE_NEEDS_MANAGE = "timeline.needs.manage"
     SERVICES_DISCOVER = "services.discover"
     JOBS_DISCOVER = "jobs.discover"
     TRAINING_DISCOVER = "training.discover"
@@ -366,6 +377,37 @@ PERMISSION_CATALOG: dict[Permission, PermissionMeta] = {
         Permission.MAINTENANCE_EMERGENCY_MANAGE,
         "Manage emergency gas/fire instruction content (org-approved text only)",
         True,
+    ),
+    Permission.TIMELINE_READ: PermissionMeta(
+        Permission.TIMELINE_READ, "Read tenant timelines (aggregated, scope-enforced)", True
+    ),
+    Permission.TIMELINE_READ_OWN: PermissionMeta(
+        Permission.TIMELINE_READ_OWN, "Read own tenant timeline summary"
+    ),
+    Permission.TIMELINE_READ_LANDLORD: PermissionMeta(
+        Permission.TIMELINE_READ_LANDLORD,
+        "Read property-scoped tenant timeline (limited activity types)",
+    ),
+    Permission.TIMELINE_MEETING_CREATE: PermissionMeta(
+        Permission.TIMELINE_MEETING_CREATE, "Schedule tenant meetings", True
+    ),
+    Permission.TIMELINE_MEETING_READ: PermissionMeta(
+        Permission.TIMELINE_MEETING_READ, "View tenant meetings"
+    ),
+    Permission.TIMELINE_MEETING_NOTES_INTERNAL: PermissionMeta(
+        Permission.TIMELINE_MEETING_NOTES_INTERNAL, "View confidential meeting notes", True
+    ),
+    Permission.TIMELINE_APPOINTMENT_MANAGE: PermissionMeta(
+        Permission.TIMELINE_APPOINTMENT_MANAGE, "Manage tenant appointments", True
+    ),
+    Permission.TIMELINE_FOLLOWUP_MANAGE: PermissionMeta(
+        Permission.TIMELINE_FOLLOWUP_MANAGE, "Manage tenant follow-ups", True
+    ),
+    Permission.TIMELINE_FOLLOWUP_READ_ASSIGNED: PermissionMeta(
+        Permission.TIMELINE_FOLLOWUP_READ_ASSIGNED, "Read follow-ups assigned to you"
+    ),
+    Permission.TIMELINE_NEEDS_MANAGE: PermissionMeta(
+        Permission.TIMELINE_NEEDS_MANAGE, "Record tenant needs and goals (non-clinical)", True
     ),
     Permission.SERVICES_DISCOVER: PermissionMeta(
         Permission.SERVICES_DISCOVER, "Find local services"

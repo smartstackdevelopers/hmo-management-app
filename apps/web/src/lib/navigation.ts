@@ -68,6 +68,14 @@ export const DASHBOARD_NAV: NavItem[] = [
     section: "records",
   },
   {
+    id: "tenant-timeline",
+    label: "Tenant timeline",
+    href: "/dashboard/support-worker",
+    anyOf: ["timeline.read"],
+    roles: ["support_worker", "organisation_admin"],
+    section: "records",
+  },
+  {
     id: "case-assignments",
     label: "Case assignments",
     href: "/dashboard/case-assignments",

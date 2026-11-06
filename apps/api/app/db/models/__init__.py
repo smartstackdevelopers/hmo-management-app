@@ -59,6 +59,14 @@ from app.db.models.scheduling import (
 )
 from app.db.models.support_ops import CaseAssignment, DailyLog, Handover
 from app.db.models.tenant import Tenant
+from app.db.models.tenant_timeline import (
+    TenantAppointment,
+    TenantFollowUp,
+    TenantFollowUpChange,
+    TenantMeeting,
+    TenantMeetingParticipant,
+    TenantNeedGoal,
+)
 from app.db.models.user import User
 
 __all__ = [
@@ -114,6 +122,12 @@ __all__ = [
     "StaffShift",
     "StaffTrainingRecord",
     "Tenant",
+    "TenantAppointment",
+    "TenantFollowUp",
+    "TenantFollowUpChange",
+    "TenantMeeting",
+    "TenantMeetingParticipant",
+    "TenantNeedGoal",
     "TenantVisit",
     "User",
     "WaitingListEntry",
