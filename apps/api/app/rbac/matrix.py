@@ -58,6 +58,10 @@ ROLE_PERMISSIONS: dict[HMoreRole, frozenset[Permission]] = {
             # F2.4 incidents and workload
             Permission.INCIDENTS_MANAGE,
             Permission.WORKLOAD_READ,
+            # F2.6 evidence checklists and packs
+            Permission.EVIDENCE_MANAGE,
+            Permission.EVIDENCE_REVIEW,
+            Permission.EVIDENCE_PACK_GENERATE,
         }
     ),
     HMoreRole.LANDLORD: frozenset(
@@ -86,6 +90,7 @@ ROLE_PERMISSIONS: dict[HMoreRole, frozenset[Permission]] = {
             Permission.COMPLAINTS_CREATE_OWN,
             Permission.APPLICATIONS_CREATE_OWN,
             Permission.APPLICATIONS_READ_OWN,
+            Permission.EVIDENCE_READ_OWN,
             Permission.SERVICES_DISCOVER,
             Permission.JOBS_DISCOVER,
             Permission.TRAINING_DISCOVER,
@@ -107,6 +112,9 @@ ROLE_PERMISSIONS: dict[HMoreRole, frozenset[Permission]] = {
             Permission.APPLICATIONS_CREATE_ASSIGNED,
             Permission.APPLICATIONS_READ_ASSIGNED,
             Permission.WAITING_LIST_READ,
+            Permission.EVIDENCE_MANAGE_ASSIGNED,
+            Permission.EVIDENCE_READ_ASSIGNED,
+            Permission.FILES_READ,
             Permission.OCCUPANCY_READ,
             Permission.PROFILE_READ_OWN,
             Permission.TENANTS_READ,  # assigned-scope refinement remains F1.5+/later

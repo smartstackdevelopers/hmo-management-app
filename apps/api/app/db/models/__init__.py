@@ -14,6 +14,13 @@ from app.db.models.organisation import Organisation
 from app.db.models.property import Property
 from app.db.models.room import Room
 from app.db.models.compliance import SafeguardingReminder, StaffTrainingRecord
+from app.db.models.evidence import (
+    EvidenceChecklistItem,
+    EvidenceChecklistTemplate,
+    EvidenceItemFile,
+    EvidencePack,
+    EvidenceReviewHistory,
+)
 from app.db.models.housing import (
     HousingApplication,
     HousingApplicationDecision,
@@ -36,6 +43,11 @@ __all__ = [
     "CaseAssignment",
     "DailyLog",
     "EmergencyAccess",
+    "EvidenceChecklistItem",
+    "EvidenceChecklistTemplate",
+    "EvidenceItemFile",
+    "EvidencePack",
+    "EvidenceReviewHistory",
     "FileMetadata",
     "Handover",
     "HMoreRole",

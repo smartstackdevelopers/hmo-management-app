@@ -78,6 +78,19 @@ Source of truth: `apps/api/app/rbac/matrix.py` and `apps/api/app/rbac/permission
 | employment_support.manage.assigned | Employment support | D | D | D | D | A | D |
 | incidents.create.assigned | Incidents | D | D | D | D | A | D |
 
+## Housing evidence packs (F2.6)
+
+| Permission | Purpose | SA | OA | LL | TN | SW | MC |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| evidence.manage | Manage org evidence checklists | D | A | D | D | D | D |
+| evidence.manage.assigned | Manage assigned application evidence | D | D | D | D | A | D |
+| evidence.read.assigned | Read assigned application evidence | D | D | D | D | A | D |
+| evidence.read.own | Read own application evidence | D | D | D | A | D | D |
+| evidence.review | Accept/reject evidence | D | A | D | D | D | D |
+| evidence.pack.generate | Generate/download evidence packs | D | A | D | D | D | D |
+
+Support workers also receive `files.read` so linked private evidence files can be downloaded within org scope. Pack generation remains organisation-admin.
+
 ## Maintenance & Contractors (assigned)
 
 | Permission | Purpose | SA | OA | LL | TN | SW | MC |
