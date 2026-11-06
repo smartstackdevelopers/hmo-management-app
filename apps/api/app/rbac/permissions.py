@@ -78,6 +78,22 @@ class Permission(StrEnum):
     COMPLAINTS_ESCALATE = "complaints.escalate"
     COMPLAINTS_CLOSE = "complaints.close"
     COMPLAINTS_READ_PROPERTY = "complaints.read.property"
+    MAINTENANCE_MANAGE = "maintenance.manage"
+    MAINTENANCE_CREATE_OWN = "maintenance.create.own"
+    MAINTENANCE_READ_OWN = "maintenance.read.own"
+    MAINTENANCE_CREATE_ASSIGNED = "maintenance.create.assigned"
+    MAINTENANCE_READ_ASSIGNED = "maintenance.read.assigned"
+    MAINTENANCE_READ_PROPERTY = "maintenance.read.property"
+    MAINTENANCE_PRIORITY_MANAGE = "maintenance.priority.manage"
+    MAINTENANCE_ASSIGN = "maintenance.assign"
+    MAINTENANCE_SCHEDULE = "maintenance.schedule"
+    MAINTENANCE_APPROVE = "maintenance.approve"
+    MAINTENANCE_NOTES_ADD = "maintenance.notes.add"
+    MAINTENANCE_PHOTO_UPLOAD = "maintenance.photo.upload"
+    MAINTENANCE_PHOTO_READ = "maintenance.photo.read"
+    MAINTENANCE_COMPLETE = "maintenance.complete"
+    MAINTENANCE_CLOSE_REOPEN = "maintenance.close"
+    MAINTENANCE_EMERGENCY_MANAGE = "maintenance.emergency.manage"
     SERVICES_DISCOVER = "services.discover"
     JOBS_DISCOVER = "jobs.discover"
     TRAINING_DISCOVER = "training.discover"
@@ -297,6 +313,59 @@ PERMISSION_CATALOG: dict[Permission, PermissionMeta] = {
     Permission.COMPLAINTS_READ_PROPERTY: PermissionMeta(
         Permission.COMPLAINTS_READ_PROPERTY,
         "Read complaints linked to permitted properties",
+    ),
+    Permission.MAINTENANCE_MANAGE: PermissionMeta(
+        Permission.MAINTENANCE_MANAGE, "Manage organisation maintenance requests", True
+    ),
+    Permission.MAINTENANCE_CREATE_OWN: PermissionMeta(
+        Permission.MAINTENANCE_CREATE_OWN, "Submit maintenance requests for own tenancy"
+    ),
+    Permission.MAINTENANCE_READ_OWN: PermissionMeta(
+        Permission.MAINTENANCE_READ_OWN, "Read own maintenance requests"
+    ),
+    Permission.MAINTENANCE_CREATE_ASSIGNED: PermissionMeta(
+        Permission.MAINTENANCE_CREATE_ASSIGNED,
+        "Create maintenance requests for assigned tenants",
+    ),
+    Permission.MAINTENANCE_READ_ASSIGNED: PermissionMeta(
+        Permission.MAINTENANCE_READ_ASSIGNED,
+        "Read maintenance requests for assigned tenants",
+    ),
+    Permission.MAINTENANCE_READ_PROPERTY: PermissionMeta(
+        Permission.MAINTENANCE_READ_PROPERTY,
+        "Read maintenance requests for authorised properties",
+    ),
+    Permission.MAINTENANCE_PRIORITY_MANAGE: PermissionMeta(
+        Permission.MAINTENANCE_PRIORITY_MANAGE, "Change maintenance priority", True
+    ),
+    Permission.MAINTENANCE_ASSIGN: PermissionMeta(
+        Permission.MAINTENANCE_ASSIGN, "Assign maintenance to staff or contractor"
+    ),
+    Permission.MAINTENANCE_SCHEDULE: PermissionMeta(
+        Permission.MAINTENANCE_SCHEDULE, "Schedule maintenance visits"
+    ),
+    Permission.MAINTENANCE_APPROVE: PermissionMeta(
+        Permission.MAINTENANCE_APPROVE, "Approve or reject maintenance work requests", True
+    ),
+    Permission.MAINTENANCE_NOTES_ADD: PermissionMeta(
+        Permission.MAINTENANCE_NOTES_ADD, "Add internal or tenant-visible maintenance notes"
+    ),
+    Permission.MAINTENANCE_PHOTO_UPLOAD: PermissionMeta(
+        Permission.MAINTENANCE_PHOTO_UPLOAD, "Upload maintenance photographs", True
+    ),
+    Permission.MAINTENANCE_PHOTO_READ: PermissionMeta(
+        Permission.MAINTENANCE_PHOTO_READ, "View maintenance photographs", True
+    ),
+    Permission.MAINTENANCE_COMPLETE: PermissionMeta(
+        Permission.MAINTENANCE_COMPLETE, "Record maintenance completion", True
+    ),
+    Permission.MAINTENANCE_CLOSE_REOPEN: PermissionMeta(
+        Permission.MAINTENANCE_CLOSE_REOPEN, "Close or reopen maintenance requests", True
+    ),
+    Permission.MAINTENANCE_EMERGENCY_MANAGE: PermissionMeta(
+        Permission.MAINTENANCE_EMERGENCY_MANAGE,
+        "Manage emergency gas/fire instruction content (org-approved text only)",
+        True,
     ),
     Permission.SERVICES_DISCOVER: PermissionMeta(
         Permission.SERVICES_DISCOVER, "Find local services"

@@ -38,6 +38,18 @@ from app.db.models.housing import (
     HousingApplicationStatusHistory,
     WaitingListEntry,
 )
+from app.db.models.maintenance import (
+    MaintenanceApproval,
+    MaintenanceCategory,
+    MaintenanceEmergencyContent,
+    MaintenanceHistoryEvent,
+    MaintenanceNote,
+    MaintenancePriorityChange,
+    MaintenanceRequest,
+    MaintenanceRequestFile,
+    MaintenanceStatusHistory,
+    MaintenanceVisit,
+)
 from app.db.models.incidents import Incident, IncidentFollowUp, IncidentStatusHistory
 from app.db.models.scheduling import (
     OperationalTask,
@@ -71,6 +83,16 @@ __all__ = [
     "FileMetadata",
     "Handover",
     "HMoreRole",
+    "MaintenanceApproval",
+    "MaintenanceCategory",
+    "MaintenanceEmergencyContent",
+    "MaintenanceHistoryEvent",
+    "MaintenanceNote",
+    "MaintenancePriorityChange",
+    "MaintenanceRequest",
+    "MaintenanceRequestFile",
+    "MaintenanceStatusHistory",
+    "MaintenanceVisit",
     "HousingApplication",
     "HousingApplicationDecision",
     "HousingApplicationStatusHistory",

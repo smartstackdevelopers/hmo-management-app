@@ -6,23 +6,26 @@ Tooling: Alembic inside `apps/api`.
 
 ```text
 apps/api/alembic.ini
-apps/api/alembic/env.py
-apps/api/alembic/versions/20261105_1200_f12_initial_phase1_schema.py
-apps/api/alembic/versions/20261105_1500_f14_authorization_version.py
-apps/api/alembic/versions/20261105_1600_f15_organisation_isolation_rls.py
-apps/api/alembic/versions/20261105_1700_f15_rls_app_role.py
-apps/api/alembic/versions/20261105_1800_f16_core_record_fields.py
-apps/api/alembic/versions/20261105_1900_f17_audit_framework.py
-apps/api/alembic/versions/20261105_2000_f18_file_storage_metadata.py
-apps/api/alembic/versions/20261105_2100_f110_occupancy_survey.py
+apps/api/migrations/env.py
+apps/api/migrations/versions/20261105_1200_f12_initial_phase1_schema.py
+apps/api/migrations/versions/20261105_1500_f14_authorization_version.py
+apps/api/migrations/versions/20261105_1600_f15_organisation_isolation_rls.py
+apps/api/migrations/versions/20261105_1700_f15_rls_app_role.py
+apps/api/migrations/versions/20261105_1800_f16_core_record_fields.py
+apps/api/migrations/versions/20261105_1900_f17_audit_framework.py
+apps/api/migrations/versions/20261105_2000_f18_file_storage_metadata.py
+apps/api/migrations/versions/20261105_2100_f110_occupancy_survey.py
 … (Phase 2 revisions through F2.5)
-apps/api/alembic/versions/20261106_1700_f26_evidence_packs.py
-apps/api/alembic/versions/20261106_1800_f27_complaints.py
+apps/api/migrations/versions/20261106_1700_f26_evidence_packs.py
+apps/api/migrations/versions/20261106_1800_f27_complaints.py
+apps/api/migrations/versions/20261106_1900_f28_maintenance.py
 ```
+
+The environment directory is named `migrations` (not `alembic`) so Python never imports the local script folder instead of the **`alembic`** PyPI package when running tests or tools from `apps/api`.
 
 `env.py` loads SQLAlchemy metadata from `app.db.models` and reads `DATABASE_URL` from application settings. Hardcoded credentials are not used.
 
-Current head: `20261106_1800_f27` (F2.7 complaints workflow tables + RLS).
+Current head: `20261106_1900_f28` (F2.8 maintenance tables + RLS).
 
 ## Naming
 
