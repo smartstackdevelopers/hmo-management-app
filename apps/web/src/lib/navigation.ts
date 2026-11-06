@@ -104,6 +104,20 @@ export const DASHBOARD_NAV: NavItem[] = [
     section: "records",
   },
   {
+    id: "training",
+    label: "Training",
+    href: "/dashboard/training",
+    anyOf: ["training.records.manage", "training.records.read.own"],
+    section: "records",
+  },
+  {
+    id: "safeguarding",
+    label: "Safeguarding",
+    href: "/dashboard/safeguarding",
+    anyOf: ["safeguarding.reminders.manage", "safeguarding.reminders.manage.assigned"],
+    section: "records",
+  },
+  {
     id: "occupancy-survey",
     label: "Occupancy survey",
     href: "/dashboard/occupancy-survey",
