@@ -14,6 +14,12 @@ from app.db.models.organisation import Organisation
 from app.db.models.property import Property
 from app.db.models.room import Room
 from app.db.models.compliance import SafeguardingReminder, StaffTrainingRecord
+from app.db.models.housing import (
+    HousingApplication,
+    HousingApplicationDecision,
+    HousingApplicationStatusHistory,
+    WaitingListEntry,
+)
 from app.db.models.incidents import Incident, IncidentFollowUp, IncidentStatusHistory
 from app.db.models.scheduling import (
     OperationalTask,
@@ -33,6 +39,9 @@ __all__ = [
     "FileMetadata",
     "Handover",
     "HMoreRole",
+    "HousingApplication",
+    "HousingApplicationDecision",
+    "HousingApplicationStatusHistory",
     "Incident",
     "IncidentFollowUp",
     "IncidentStatusHistory",
@@ -53,4 +62,5 @@ __all__ = [
     "Tenant",
     "TenantVisit",
     "User",
+    "WaitingListEntry",
 ]

@@ -20,6 +20,13 @@ class Permission(StrEnum):
     ORGANISATION_SETTINGS_MANAGE = "organisation.settings.manage"
     ORGANISATION_WORKFLOWS_MANAGE = "organisation.workflows.manage"
     APPLICATIONS_REVIEW = "applications.review"
+    APPLICATIONS_MANAGE = "applications.manage"
+    APPLICATIONS_CREATE_OWN = "applications.create.own"
+    APPLICATIONS_READ_OWN = "applications.read.own"
+    APPLICATIONS_CREATE_ASSIGNED = "applications.create.assigned"
+    APPLICATIONS_READ_ASSIGNED = "applications.read.assigned"
+    WAITING_LIST_MANAGE = "waiting_list.manage"
+    WAITING_LIST_READ = "waiting_list.read"
     COMPLIANCE_CHECK = "compliance.check"
     REPORTS_READ = "reports.read"
     AUDIT_LOGS_READ = "audit_logs.read"
@@ -122,6 +129,29 @@ PERMISSION_CATALOG: dict[Permission, PermissionMeta] = {
     ),
     Permission.APPLICATIONS_REVIEW: PermissionMeta(
         Permission.APPLICATIONS_REVIEW, "Review housing applications and decisions"
+    ),
+    Permission.APPLICATIONS_MANAGE: PermissionMeta(
+        Permission.APPLICATIONS_MANAGE, "Manage organisation housing applications", True
+    ),
+    Permission.APPLICATIONS_CREATE_OWN: PermissionMeta(
+        Permission.APPLICATIONS_CREATE_OWN, "Create own housing applications"
+    ),
+    Permission.APPLICATIONS_READ_OWN: PermissionMeta(
+        Permission.APPLICATIONS_READ_OWN, "Read own housing applications"
+    ),
+    Permission.APPLICATIONS_CREATE_ASSIGNED: PermissionMeta(
+        Permission.APPLICATIONS_CREATE_ASSIGNED,
+        "Create housing applications for assigned tenants",
+    ),
+    Permission.APPLICATIONS_READ_ASSIGNED: PermissionMeta(
+        Permission.APPLICATIONS_READ_ASSIGNED,
+        "Read housing applications for assigned tenants",
+    ),
+    Permission.WAITING_LIST_MANAGE: PermissionMeta(
+        Permission.WAITING_LIST_MANAGE, "Manage organisation housing waiting list", True
+    ),
+    Permission.WAITING_LIST_READ: PermissionMeta(
+        Permission.WAITING_LIST_READ, "Read organisation housing waiting list"
     ),
     Permission.COMPLIANCE_CHECK: PermissionMeta(
         Permission.COMPLIANCE_CHECK, "Run compliance checks", True

@@ -132,6 +132,27 @@ export const DASHBOARD_NAV: NavItem[] = [
     section: "records",
   },
   {
+    id: "housing-applications",
+    label: "Housing applications",
+    href: "/dashboard/housing-applications",
+    anyOf: [
+      "applications.manage",
+      "applications.review",
+      "applications.read.own",
+      "applications.read.assigned",
+      "applications.create.own",
+      "applications.create.assigned",
+    ],
+    section: "records",
+  },
+  {
+    id: "waiting-list",
+    label: "Waiting list",
+    href: "/dashboard/waiting-list",
+    anyOf: ["waiting_list.manage", "waiting_list.read"],
+    section: "records",
+  },
+  {
     id: "occupancy-survey",
     label: "Occupancy survey",
     href: "/dashboard/occupancy-survey",
