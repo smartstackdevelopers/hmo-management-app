@@ -75,6 +75,20 @@ export default async function OrganisationAdminDashboardPage() {
           <p className="mt-2 text-sm text-slate-600">Requires files.read (F1.8).</p>
         </Link>
         <Link
+          href="/dashboard/case-assignments"
+          className="rounded-lg border border-slate-200 bg-white p-5 shadow-sm hover:border-teal-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-teal-700"
+        >
+          <h3 className="font-semibold text-forest-900">Case assignments</h3>
+          <p className="mt-2 text-sm text-slate-600">F2.1 assign Support Workers to tenants (tenants.manage).</p>
+        </Link>
+        <Link
+          href="/dashboard/handovers"
+          className="rounded-lg border border-slate-200 bg-white p-5 shadow-sm hover:border-teal-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-teal-700"
+        >
+          <h3 className="font-semibold text-forest-900">Handovers oversight</h3>
+          <p className="mt-2 text-sm text-slate-600">View pending staff handovers in this organisation.</p>
+        </Link>
+        <Link
           href="/dashboard/audit"
           className="rounded-lg border border-slate-200 bg-white p-5 shadow-sm hover:border-teal-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-teal-700"
         >
@@ -84,8 +98,8 @@ export default async function OrganisationAdminDashboardPage() {
       </section>
 
       <EmptyState
-        title="No invented organisation KPIs"
-        description="Occupancy, support caseloads, and AI cost widgets are later phases. This home is a shell only."
+        title="Operational tools"
+        description="Use Case assignments and Handovers for F2.1 support operations. Broader KPI dashboards remain later phases."
       />
     </div>
   );

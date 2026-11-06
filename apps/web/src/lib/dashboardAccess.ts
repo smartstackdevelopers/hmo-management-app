@@ -5,18 +5,21 @@
 import type { ApprovedRole } from "@/lib/rbac";
 
 export const ROLE_DASHBOARD_HOMES: Record<
-  "super_admin" | "organisation_admin" | "landlord",
+  "super_admin" | "organisation_admin" | "landlord" | "support_worker",
   string
 > = {
   super_admin: "/dashboard/super-admin",
   organisation_admin: "/dashboard/organisation-admin",
   landlord: "/dashboard/landlord",
+  support_worker: "/dashboard/support-worker",
 };
 
+/** F1.9 role homes plus F2.1 Support Worker caseload home. */
 export const F19_DASHBOARD_ROLES = [
   "super_admin",
   "organisation_admin",
   "landlord",
+  "support_worker",
 ] as const;
 
 export type F19DashboardRole = (typeof F19_DASHBOARD_ROLES)[number];
@@ -49,6 +52,9 @@ export function requiredRoleForHomePath(segment: string): F19DashboardRole | nul
   }
   if (segment === "landlord") {
     return "landlord";
+  }
+  if (segment === "support-worker") {
+    return "support_worker";
   }
   return null;
 }

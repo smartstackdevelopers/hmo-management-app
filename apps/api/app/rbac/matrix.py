@@ -45,6 +45,8 @@ ROLE_PERMISSIONS: dict[HMoreRole, frozenset[Permission]] = {
             Permission.ROOMS_MANAGE,
             Permission.ROLE_ASSIGNMENTS_MANAGE,
             Permission.WORK_ORDERS_APPROVE_ASSIGNED,
+            # F2.1 oversight of support notes / handovers (caseload assign via tenants.manage)
+            Permission.SUPPORT_NOTES_READ_ASSIGNED,
         }
     ),
     HMoreRole.LANDLORD: frozenset(

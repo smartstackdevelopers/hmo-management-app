@@ -11,6 +11,7 @@ from app.api.v1.organisations import router as organisations_router
 from app.api.v1.properties import router as properties_router
 from app.api.v1.rbac import router as rbac_router
 from app.api.v1.rooms import router as rooms_router
+from app.api.v1.support import router as support_router
 from app.api.v1.tenants import router as tenants_router
 
 api_v1_router = APIRouter()
@@ -26,3 +27,4 @@ api_v1_router.include_router(audit_router)
 api_v1_router.include_router(emergency_access_router)
 api_v1_router.include_router(files_router)
 api_v1_router.include_router(occupancy_surveys_router)
+api_v1_router.include_router(support_router)
