@@ -17,11 +17,12 @@ apps/api/alembic/versions/20261105_2000_f18_file_storage_metadata.py
 apps/api/alembic/versions/20261105_2100_f110_occupancy_survey.py
 … (Phase 2 revisions through F2.5)
 apps/api/alembic/versions/20261106_1700_f26_evidence_packs.py
+apps/api/alembic/versions/20261106_1800_f27_complaints.py
 ```
 
 `env.py` loads SQLAlchemy metadata from `app.db.models` and reads `DATABASE_URL` from application settings. Hardcoded credentials are not used.
 
-Current head: `20261106_1700_f26` (F2.6 evidence checklist/pack tables + RLS).
+Current head: `20261106_1800_f27` (F2.7 complaints workflow tables + RLS).
 
 ## Naming
 

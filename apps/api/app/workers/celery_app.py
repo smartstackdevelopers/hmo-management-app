@@ -29,6 +29,10 @@ celery_app.conf.update(
             "task": "hmore.reminders.dispatch_due",
             "schedule": 60.0,
         },
+        "dispatch-complaint-overdue-escalations-every-15-minutes": {
+            "task": "hmore.complaints.dispatch_overdue",
+            "schedule": 900.0,
+        },
     },
 )
 

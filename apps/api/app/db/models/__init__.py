@@ -14,6 +14,17 @@ from app.db.models.organisation import Organisation
 from app.db.models.property import Property
 from app.db.models.room import Room
 from app.db.models.compliance import SafeguardingReminder, StaffTrainingRecord
+from app.db.models.complaints import (
+    Complaint,
+    ComplaintCategory,
+    ComplaintDeadlineChange,
+    ComplaintDeadlineRule,
+    ComplaintEscalation,
+    ComplaintFile,
+    ComplaintHistoryEvent,
+    ComplaintNote,
+    ComplaintStatusHistory,
+)
 from app.db.models.evidence import (
     EvidenceChecklistItem,
     EvidenceChecklistTemplate,
@@ -41,6 +52,15 @@ from app.db.models.user import User
 __all__ = [
     "AuditEvent",
     "CaseAssignment",
+    "Complaint",
+    "ComplaintCategory",
+    "ComplaintDeadlineChange",
+    "ComplaintDeadlineRule",
+    "ComplaintEscalation",
+    "ComplaintFile",
+    "ComplaintHistoryEvent",
+    "ComplaintNote",
+    "ComplaintStatusHistory",
     "DailyLog",
     "EmergencyAccess",
     "EvidenceChecklistItem",

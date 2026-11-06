@@ -62,6 +62,15 @@ ROLE_PERMISSIONS: dict[HMoreRole, frozenset[Permission]] = {
             Permission.EVIDENCE_MANAGE,
             Permission.EVIDENCE_REVIEW,
             Permission.EVIDENCE_PACK_GENERATE,
+            # F2.7 complaints
+            Permission.COMPLAINTS_MANAGE,
+            Permission.COMPLAINTS_ASSIGN,
+            Permission.COMPLAINTS_PRIORITY_MANAGE,
+            Permission.COMPLAINTS_NOTES_INTERNAL,
+            Permission.COMPLAINTS_NOTES_ADD,
+            Permission.COMPLAINTS_DEADLINES_MANAGE,
+            Permission.COMPLAINTS_ESCALATE,
+            Permission.COMPLAINTS_CLOSE,
         }
     ),
     HMoreRole.LANDLORD: frozenset(
@@ -75,6 +84,7 @@ ROLE_PERMISSIONS: dict[HMoreRole, frozenset[Permission]] = {
             Permission.INSPECTIONS_MANAGE,
             Permission.RENT_RECORDS_MANAGE,
             Permission.REPAIRS_STATUS_READ,
+            Permission.COMPLAINTS_READ_PROPERTY,
             Permission.PROFILE_READ_OWN,
             Permission.PROFILE_UPDATE_OWN,
         }
@@ -88,6 +98,7 @@ ROLE_PERMISSIONS: dict[HMoreRole, frozenset[Permission]] = {
             Permission.DOCUMENTS_READ_OWN,
             Permission.REPAIRS_CREATE_OWN,
             Permission.COMPLAINTS_CREATE_OWN,
+            Permission.COMPLAINTS_READ_OWN,
             Permission.APPLICATIONS_CREATE_OWN,
             Permission.APPLICATIONS_READ_OWN,
             Permission.EVIDENCE_READ_OWN,
@@ -114,6 +125,9 @@ ROLE_PERMISSIONS: dict[HMoreRole, frozenset[Permission]] = {
             Permission.WAITING_LIST_READ,
             Permission.EVIDENCE_MANAGE_ASSIGNED,
             Permission.EVIDENCE_READ_ASSIGNED,
+            Permission.COMPLAINTS_CREATE_ASSIGNED,
+            Permission.COMPLAINTS_READ_ASSIGNED,
+            Permission.COMPLAINTS_NOTES_ADD,
             Permission.FILES_READ,
             Permission.OCCUPANCY_READ,
             Permission.PROFILE_READ_OWN,

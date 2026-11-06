@@ -66,6 +66,18 @@ class Permission(StrEnum):
     DOCUMENTS_READ_OWN = "documents.read.own"
     REPAIRS_CREATE_OWN = "repairs.create.own"
     COMPLAINTS_CREATE_OWN = "complaints.create.own"
+    COMPLAINTS_READ_OWN = "complaints.read.own"
+    COMPLAINTS_CREATE_ASSIGNED = "complaints.create.assigned"
+    COMPLAINTS_READ_ASSIGNED = "complaints.read.assigned"
+    COMPLAINTS_MANAGE = "complaints.manage"
+    COMPLAINTS_ASSIGN = "complaints.assign"
+    COMPLAINTS_PRIORITY_MANAGE = "complaints.priority.manage"
+    COMPLAINTS_NOTES_INTERNAL = "complaints.notes.internal"
+    COMPLAINTS_NOTES_ADD = "complaints.notes.add"
+    COMPLAINTS_DEADLINES_MANAGE = "complaints.deadlines.manage"
+    COMPLAINTS_ESCALATE = "complaints.escalate"
+    COMPLAINTS_CLOSE = "complaints.close"
+    COMPLAINTS_READ_PROPERTY = "complaints.read.property"
     SERVICES_DISCOVER = "services.discover"
     JOBS_DISCOVER = "jobs.discover"
     TRAINING_DISCOVER = "training.discover"
@@ -242,6 +254,49 @@ PERMISSION_CATALOG: dict[Permission, PermissionMeta] = {
     ),
     Permission.COMPLAINTS_CREATE_OWN: PermissionMeta(
         Permission.COMPLAINTS_CREATE_OWN, "Raise own complaints"
+    ),
+    Permission.COMPLAINTS_READ_OWN: PermissionMeta(
+        Permission.COMPLAINTS_READ_OWN, "Read own complaints"
+    ),
+    Permission.COMPLAINTS_CREATE_ASSIGNED: PermissionMeta(
+        Permission.COMPLAINTS_CREATE_ASSIGNED,
+        "Create complaints for assigned tenants",
+    ),
+    Permission.COMPLAINTS_READ_ASSIGNED: PermissionMeta(
+        Permission.COMPLAINTS_READ_ASSIGNED,
+        "Read assigned or caseload complaints",
+    ),
+    Permission.COMPLAINTS_MANAGE: PermissionMeta(
+        Permission.COMPLAINTS_MANAGE, "Manage organisation complaints workflow", True
+    ),
+    Permission.COMPLAINTS_ASSIGN: PermissionMeta(
+        Permission.COMPLAINTS_ASSIGN, "Assign or reassign complaints"
+    ),
+    Permission.COMPLAINTS_PRIORITY_MANAGE: PermissionMeta(
+        Permission.COMPLAINTS_PRIORITY_MANAGE, "Change complaint priority"
+    ),
+    Permission.COMPLAINTS_NOTES_INTERNAL: PermissionMeta(
+        Permission.COMPLAINTS_NOTES_INTERNAL,
+        "View internal complaint investigation notes",
+        True,
+    ),
+    Permission.COMPLAINTS_NOTES_ADD: PermissionMeta(
+        Permission.COMPLAINTS_NOTES_ADD, "Add complaint investigation or follow-up notes"
+    ),
+    Permission.COMPLAINTS_DEADLINES_MANAGE: PermissionMeta(
+        Permission.COMPLAINTS_DEADLINES_MANAGE,
+        "Update operational complaint deadlines",
+        True,
+    ),
+    Permission.COMPLAINTS_ESCALATE: PermissionMeta(
+        Permission.COMPLAINTS_ESCALATE, "Escalate complaints", True
+    ),
+    Permission.COMPLAINTS_CLOSE: PermissionMeta(
+        Permission.COMPLAINTS_CLOSE, "Close or reopen complaints", True
+    ),
+    Permission.COMPLAINTS_READ_PROPERTY: PermissionMeta(
+        Permission.COMPLAINTS_READ_PROPERTY,
+        "Read complaints linked to permitted properties",
     ),
     Permission.SERVICES_DISCOVER: PermissionMeta(
         Permission.SERVICES_DISCOVER, "Find local services"

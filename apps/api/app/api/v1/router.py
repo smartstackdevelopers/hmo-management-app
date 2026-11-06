@@ -8,6 +8,7 @@ from app.api.v1.health import router as health_router
 from app.api.v1.isolation_probes import router as isolation_router
 from app.api.v1.occupancy_surveys import router as occupancy_surveys_router
 from app.api.v1.compliance import router as compliance_router
+from app.api.v1.complaints import router as complaints_router
 from app.api.v1.evidence import router as evidence_router
 from app.api.v1.housing import router as housing_router
 from app.api.v1.incidents import router as incidents_router
@@ -38,3 +39,4 @@ api_v1_router.include_router(compliance_router)
 api_v1_router.include_router(incidents_router)
 api_v1_router.include_router(housing_router)
 api_v1_router.include_router(evidence_router)
+api_v1_router.include_router(complaints_router)
