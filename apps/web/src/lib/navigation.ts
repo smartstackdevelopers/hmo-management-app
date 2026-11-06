@@ -146,6 +146,20 @@ export const DASHBOARD_NAV: NavItem[] = [
     section: "records",
   },
   {
+    id: "complaints",
+    label: "Complaints",
+    href: "/dashboard/complaints",
+    anyOf: [
+      "complaints.manage",
+      "complaints.read.own",
+      "complaints.read.assigned",
+      "complaints.create.own",
+      "complaints.create.assigned",
+      "complaints.read.property",
+    ],
+    section: "records",
+  },
+  {
     id: "waiting-list",
     label: "Waiting list",
     href: "/dashboard/waiting-list",

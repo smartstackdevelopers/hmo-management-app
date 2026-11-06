@@ -46,3 +46,37 @@ def dispatch_organisation_reminders_task(self, payload: dict) -> dict:
         result = dispatch_org_reminders(session, payload)
         logger.info("dispatch_org_reminders result=%s", result)
         return result
+
+
+@celery_app.task(
+    name="hmore.complaints.dispatch_overdue",
+    bind=True,
+    autoretry_for=(Exception,),
+    retry_backoff=True,
+    retry_kwargs={"max_retries": 3},
+)
+def dispatch_complaint_overdue_task(self) -> dict:
+    """Periodic job: escalate overdue complaints using operational deadline rules."""
+    from app.complaints.jobs import dispatch_overdue_escalations
+
+    with session_scope() as session:
+        result = dispatch_overdue_escalations(session)
+        logger.info("dispatch_overdue_escalations result=%s", result)
+        return result
+
+
+@celery_app.task(
+    name="hmore.complaints.dispatch_organisation_overdue",
+    bind=True,
+    autoretry_for=(Exception,),
+    retry_backoff=True,
+    retry_kwargs={"max_retries": 3},
+)
+def dispatch_org_complaint_overdue_task(self, payload: dict) -> dict:
+    """Organisation-scoped overdue complaint escalation with validated job context."""
+    from app.complaints.jobs import dispatch_org_overdue_escalations
+
+    with session_scope() as session:
+        result = dispatch_org_overdue_escalations(session, payload)
+        logger.info("dispatch_org_overdue_escalations result=%s", result)
+        return result

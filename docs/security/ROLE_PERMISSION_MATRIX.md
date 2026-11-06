@@ -78,6 +78,26 @@ Source of truth: `apps/api/app/rbac/matrix.py` and `apps/api/app/rbac/permission
 | employment_support.manage.assigned | Employment support | D | D | D | D | A | D |
 | incidents.create.assigned | Incidents | D | D | D | D | A | D |
 
+## Complaints workflow (F2.7)
+
+| Permission | Purpose | SA | OA | LL | TN | SW | MC |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| complaints.manage | Manage org complaints | D | A | D | D | D | D |
+| complaints.assign | Assign complaints | D | A | D | D | D | D |
+| complaints.priority.manage | Change priority | D | A | D | D | D | D |
+| complaints.notes.internal | View internal notes | D | A | D | D | D | D |
+| complaints.notes.add | Add notes | D | A | D | D | A | D |
+| complaints.deadlines.manage | Update deadlines | D | A | D | D | D | D |
+| complaints.escalate | Escalate / resolve escalations | D | A | D | D | D | D |
+| complaints.close | Close / reopen | D | A | D | D | D | D |
+| complaints.create.own | Submit own complaint | D | D | D | A | D | D |
+| complaints.read.own | Read own complaints | D | D | D | A | D | D |
+| complaints.create.assigned | Create for assigned tenants | D | D | D | D | A | D |
+| complaints.read.assigned | Read assigned/caseload | D | D | D | D | A | D |
+| complaints.read.property | Read property-linked complaints | D | D | A | D | D | D |
+
+Deadlines and categories are **operational**, not statutory.
+
 ## Housing evidence packs (F2.6)
 
 | Permission | Purpose | SA | OA | LL | TN | SW | MC |
