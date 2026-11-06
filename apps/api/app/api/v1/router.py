@@ -21,6 +21,9 @@ from app.api.v1.rooms import router as rooms_router
 from app.api.v1.support import router as support_router
 from app.api.v1.tenants import router as tenants_router
 from app.api.v1.tenant_timeline import router as tenant_timeline_router
+from app.api.v1.support_plans import dash_router as support_plans_dash_router
+from app.api.v1.support_plans import router as support_plans_router
+from app.api.v1.support_plans import tenant_self_router as support_plans_tenant_self_router
 
 api_v1_router = APIRouter()
 api_v1_router.include_router(health_router)
@@ -30,6 +33,9 @@ api_v1_router.include_router(organisations_router)
 api_v1_router.include_router(isolation_router)
 api_v1_router.include_router(tenants_router)
 api_v1_router.include_router(tenant_timeline_router)
+api_v1_router.include_router(support_plans_router)
+api_v1_router.include_router(support_plans_dash_router)
+api_v1_router.include_router(support_plans_tenant_self_router)
 api_v1_router.include_router(properties_router)
 api_v1_router.include_router(rooms_router)
 api_v1_router.include_router(audit_router)

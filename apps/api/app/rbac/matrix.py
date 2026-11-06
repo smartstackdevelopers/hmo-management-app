@@ -21,6 +21,11 @@ ROLE_PERMISSIONS: dict[HMoreRole, frozenset[Permission]] = {
             Permission.OCCUPANCY_READ,
             Permission.OCCUPANCY_ALERTS_MANAGE,
             Permission.TIMELINE_READ,
+            Permission.SUPPORT_PLAN_READ,
+            Permission.SUPPORT_PLAN_MANAGE,
+            Permission.SUPPORT_PLAN_NOTES_INTERNAL,
+            Permission.SUPPORT_PLAN_EXPORT,
+            Permission.SUPPORT_PLAN_REVIEW_FINALISE,
         }
     ),
     HMoreRole.ORGANISATION_ADMIN: frozenset(
@@ -90,6 +95,11 @@ ROLE_PERMISSIONS: dict[HMoreRole, frozenset[Permission]] = {
             Permission.TIMELINE_APPOINTMENT_MANAGE,
             Permission.TIMELINE_FOLLOWUP_MANAGE,
             Permission.TIMELINE_NEEDS_MANAGE,
+            Permission.SUPPORT_PLAN_READ,
+            Permission.SUPPORT_PLAN_MANAGE,
+            Permission.SUPPORT_PLAN_NOTES_INTERNAL,
+            Permission.SUPPORT_PLAN_EXPORT,
+            Permission.SUPPORT_PLAN_REVIEW_FINALISE,
         }
     ),
     HMoreRole.LANDLORD: frozenset(
@@ -107,6 +117,7 @@ ROLE_PERMISSIONS: dict[HMoreRole, frozenset[Permission]] = {
             Permission.MAINTENANCE_READ_PROPERTY,
             Permission.MAINTENANCE_PHOTO_READ,
             Permission.TIMELINE_READ_LANDLORD,
+            Permission.SUPPORT_PLAN_READ,
             Permission.PROFILE_READ_OWN,
             Permission.PROFILE_UPDATE_OWN,
         }
@@ -133,6 +144,7 @@ ROLE_PERMISSIONS: dict[HMoreRole, frozenset[Permission]] = {
             Permission.TRAINING_DISCOVER,
             Permission.TIMELINE_READ_OWN,
             Permission.TIMELINE_MEETING_READ,
+            Permission.SUPPORT_PLAN_READ_OWN,
         }
     ),
     HMoreRole.SUPPORT_WORKER: frozenset(
@@ -176,6 +188,11 @@ ROLE_PERMISSIONS: dict[HMoreRole, frozenset[Permission]] = {
             Permission.TIMELINE_FOLLOWUP_MANAGE,
             Permission.TIMELINE_FOLLOWUP_READ_ASSIGNED,
             Permission.TIMELINE_NEEDS_MANAGE,
+            Permission.SUPPORT_PLAN_READ,
+            Permission.SUPPORT_PLAN_MANAGE,
+            Permission.SUPPORT_PLAN_NOTES_INTERNAL,
+            Permission.SUPPORT_PLAN_EXPORT,
+            Permission.SUPPORT_PLAN_REVIEW_FINALISE,
         }
     ),
     HMoreRole.MAINTENANCE_CONTRACTOR: frozenset(

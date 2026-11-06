@@ -57,6 +57,18 @@ from app.db.models.scheduling import (
     StaffShift,
     TenantVisit,
 )
+from app.db.models.support_plans import (
+    SupportPlanContributor,
+    SupportPlanGoal,
+    SupportPlanGoalChange,
+    SupportPlanGoalProgressNote,
+    SupportPlanHistoryEvent,
+    SupportPlanMilestone,
+    SupportPlanMilestoneChange,
+    SupportPlanProgressExport,
+    SupportPlanReview,
+    TenantSupportPlan,
+)
 from app.db.models.support_ops import CaseAssignment, DailyLog, Handover
 from app.db.models.tenant import Tenant
 from app.db.models.tenant_timeline import (
@@ -121,7 +133,17 @@ __all__ = [
     "SafeguardingReminder",
     "StaffShift",
     "StaffTrainingRecord",
+    "SupportPlanContributor",
+    "SupportPlanGoal",
+    "SupportPlanGoalChange",
+    "SupportPlanGoalProgressNote",
+    "SupportPlanHistoryEvent",
+    "SupportPlanMilestone",
+    "SupportPlanMilestoneChange",
+    "SupportPlanProgressExport",
+    "SupportPlanReview",
     "Tenant",
+    "TenantSupportPlan",
     "TenantAppointment",
     "TenantFollowUp",
     "TenantFollowUpChange",

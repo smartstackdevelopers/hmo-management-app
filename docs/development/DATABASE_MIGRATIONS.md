@@ -25,7 +25,7 @@ The environment directory is named `migrations` (not `alembic`) so Python never 
 
 `env.py` loads SQLAlchemy metadata from `app.db.models` and reads `DATABASE_URL` from application settings. Hardcoded credentials are not used.
 
-Current head: `20261106_1900_f28` (F2.8 maintenance tables + RLS).
+Current head includes `20261106_2100_f210` (F2.10 support plans + RLS) after F2.9 timeline migrations.
 
 ## Naming
 
