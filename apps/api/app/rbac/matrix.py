@@ -50,6 +50,9 @@ ROLE_PERMISSIONS: dict[HMoreRole, frozenset[Permission]] = {
             # F2.2 operational scheduling oversight
             Permission.VISITS_MANAGE_ASSIGNED,
             Permission.TASKS_MANAGE_ASSIGNED,
+            # F2.3 training and safeguarding
+            Permission.TRAINING_RECORDS_MANAGE,
+            Permission.SAFEGUARDING_REMINDERS_MANAGE,
         }
     ),
     HMoreRole.LANDLORD: frozenset(
@@ -88,6 +91,8 @@ ROLE_PERMISSIONS: dict[HMoreRole, frozenset[Permission]] = {
             Permission.SUPPORT_PLANS_MANAGE_ASSIGNED,
             Permission.VISITS_MANAGE_ASSIGNED,
             Permission.TASKS_MANAGE_ASSIGNED,
+            Permission.TRAINING_RECORDS_READ_OWN,
+            Permission.SAFEGUARDING_REMINDERS_MANAGE_ASSIGNED,
             Permission.EMPLOYMENT_SUPPORT_MANAGE_ASSIGNED,
             Permission.INCIDENTS_CREATE_ASSIGNED,
             Permission.OCCUPANCY_READ,

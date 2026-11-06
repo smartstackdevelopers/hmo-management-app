@@ -13,6 +13,7 @@ from app.db.models.occupancy_survey import (
 from app.db.models.organisation import Organisation
 from app.db.models.property import Property
 from app.db.models.room import Room
+from app.db.models.compliance import SafeguardingReminder, StaffTrainingRecord
 from app.db.models.scheduling import (
     OperationalTask,
     ReminderRecord,
@@ -42,7 +43,9 @@ __all__ = [
     "RecordStatus",
     "ReminderRecord",
     "Room",
+    "SafeguardingReminder",
     "StaffShift",
+    "StaffTrainingRecord",
     "Tenant",
     "TenantVisit",
     "User",

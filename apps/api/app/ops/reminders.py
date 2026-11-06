@@ -12,6 +12,7 @@ from sqlalchemy.orm import Session
 from app.audit import events as audit_events
 from app.audit.service import AuditOutcome, record_event
 from app.core.config import get_settings
+from app.db.models.compliance import SafeguardingReminder, StaffTrainingRecord
 from app.db.models.scheduling import OperationalTask, ReminderRecord, StaffShift, TenantVisit
 from app.ops.notifications import ReminderMessage, get_notification_provider
 from app.tenancy.jobs import JobOrganisationContext, validate_job_organisation_context
@@ -48,6 +49,37 @@ def _resource_still_active(session: Session, reminder: ReminderRecord) -> tuple[
         if reminder.reminder_kind == "task_overdue":
             if task.due_at is None or task.due_at > _now():
                 return False, "task_not_overdue"
+        return True, "ok"
+    if reminder.resource_type == "staff_training":
+        training = session.get(StaffTrainingRecord, reminder.resource_id)
+        if training is None or training.organisation_id != reminder.organisation_id:
+            return False, "training_missing"
+        if training.status == "exempt":
+            return False, "training_exempt"
+        if reminder.reminder_kind == "training_incomplete_due":
+            if training.status not in {"not_started", "in_progress"}:
+                return False, f"training_{training.status}"
+            return True, "ok"
+        if reminder.reminder_kind in {"training_expiring_soon", "training_expired"}:
+            if training.status != "completed" or training.expiry_date is None:
+                return False, "training_not_expiring"
+            return True, "ok"
+        return True, "ok"
+    if reminder.resource_type == "safeguarding_reminder":
+        sg = session.get(SafeguardingReminder, reminder.resource_id)
+        if sg is None or sg.organisation_id != reminder.organisation_id:
+            return False, "safeguarding_missing"
+        if sg.status in {"completed", "cancelled"}:
+            return False, f"safeguarding_{sg.status}"
+        if reminder.reminder_kind == "safeguarding_overdue":
+            if sg.due_at > _now():
+                return False, "safeguarding_not_overdue"
+            if sg.status in {"pending", "sent", "acknowledged"}:
+                sg.status = "overdue"
+        elif reminder.reminder_kind == "safeguarding_upcoming":
+            if sg.status == "pending":
+                # Mark as sent after successful delivery (caller updates ReminderRecord).
+                pass
         return True, "ok"
     return False, "unknown_resource"
 
@@ -106,6 +138,13 @@ def dispatch_due_reminders(session: Session, *, limit: int | None = None) -> dic
                 reminder.delivered = True
                 reminder.last_error = None
                 counts["sent"] += 1
+                if (
+                    reminder.resource_type == "safeguarding_reminder"
+                    and reminder.reminder_kind == "safeguarding_upcoming"
+                ):
+                    sg = session.get(SafeguardingReminder, reminder.resource_id)
+                    if sg is not None and sg.status == "pending":
+                        sg.status = "sent"
                 record_event(
                     session,
                     action=audit_events.REMINDER_SENT,

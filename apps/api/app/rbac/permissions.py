@@ -55,6 +55,11 @@ class Permission(StrEnum):
     SERVICES_DISCOVER = "services.discover"
     JOBS_DISCOVER = "jobs.discover"
     TRAINING_DISCOVER = "training.discover"
+    # F2.3 staff training records (distinct from tenant TRAINING_DISCOVER)
+    TRAINING_RECORDS_MANAGE = "training.records.manage"
+    TRAINING_RECORDS_READ_OWN = "training.records.read.own"
+    SAFEGUARDING_REMINDERS_MANAGE = "safeguarding.reminders.manage"
+    SAFEGUARDING_REMINDERS_MANAGE_ASSIGNED = "safeguarding.reminders.manage.assigned"
 
     # Support worker (assigned-scope — enforced with resource checks / F1.5+)
     SUPPORT_NOTES_READ_ASSIGNED = "support_notes.read.assigned"
@@ -178,6 +183,24 @@ PERMISSION_CATALOG: dict[Permission, PermissionMeta] = {
     Permission.JOBS_DISCOVER: PermissionMeta(Permission.JOBS_DISCOVER, "Find jobs"),
     Permission.TRAINING_DISCOVER: PermissionMeta(
         Permission.TRAINING_DISCOVER, "Find training"
+    ),
+    Permission.TRAINING_RECORDS_MANAGE: PermissionMeta(
+        Permission.TRAINING_RECORDS_MANAGE,
+        "Manage organisation staff training records",
+        True,
+    ),
+    Permission.TRAINING_RECORDS_READ_OWN: PermissionMeta(
+        Permission.TRAINING_RECORDS_READ_OWN, "Read own staff training records"
+    ),
+    Permission.SAFEGUARDING_REMINDERS_MANAGE: PermissionMeta(
+        Permission.SAFEGUARDING_REMINDERS_MANAGE,
+        "Manage organisation safeguarding reminders",
+        True,
+    ),
+    Permission.SAFEGUARDING_REMINDERS_MANAGE_ASSIGNED: PermissionMeta(
+        Permission.SAFEGUARDING_REMINDERS_MANAGE_ASSIGNED,
+        "Manage assigned safeguarding reminders",
+        True,
     ),
     Permission.SUPPORT_NOTES_READ_ASSIGNED: PermissionMeta(
         Permission.SUPPORT_NOTES_READ_ASSIGNED, "Read notes for assigned tenants"
