@@ -159,6 +159,18 @@ class Permission(StrEnum):
     # Role administration
     ROLE_ASSIGNMENTS_MANAGE = "role_assignments.manage"
 
+    # F2.12 communication platform
+    COMMUNICATION_MESSAGES_SEND = "communication.messages.send"
+    COMMUNICATION_MESSAGES_READ = "communication.messages.read"
+    COMMUNICATION_DELIVERIES_READ = "communication.deliveries.read"
+    COMMUNICATION_CHANNEL_EMAIL_SEND = "communication.channel.email.send"
+    COMMUNICATION_CHANNEL_SMS_SEND = "communication.channel.sms.send"
+    COMMUNICATION_REMINDERS_MANAGE = "communication.reminders.manage"
+    COMMUNICATION_ANNOUNCEMENTS_PUBLISH = "communication.announcements.publish"
+    COMMUNICATION_ANNOUNCEMENTS_READ = "communication.announcements.read"
+    COMMUNICATION_TEMPLATES_MANAGE = "communication.templates.manage"
+    COMMUNICATION_TRANSLATIONS_MANAGE = "communication.translations.manage"
+
 
 @dataclass(frozen=True)
 class PermissionMeta:
@@ -586,6 +598,50 @@ PERMISSION_CATALOG: dict[Permission, PermissionMeta] = {
     ),
     Permission.WORK_ORDERS_APPROVE_ASSIGNED: PermissionMeta(
         Permission.WORK_ORDERS_APPROVE_ASSIGNED, "Approve assigned jobs where permitted"
+    ),
+    Permission.COMMUNICATION_MESSAGES_SEND: PermissionMeta(
+        Permission.COMMUNICATION_MESSAGES_SEND, "Send in-app messages within permitted recipient scope"
+    ),
+    Permission.COMMUNICATION_MESSAGES_READ: PermissionMeta(
+        Permission.COMMUNICATION_MESSAGES_READ, "Read permitted in-app messages and threads"
+    ),
+    Permission.COMMUNICATION_DELIVERIES_READ: PermissionMeta(
+        Permission.COMMUNICATION_DELIVERIES_READ,
+        "View communication delivery status and attempts (operational)",
+        True,
+    ),
+    Permission.COMMUNICATION_CHANNEL_EMAIL_SEND: PermissionMeta(
+        Permission.COMMUNICATION_CHANNEL_EMAIL_SEND,
+        "Dispatch operational email via the communication service",
+        True,
+    ),
+    Permission.COMMUNICATION_CHANNEL_SMS_SEND: PermissionMeta(
+        Permission.COMMUNICATION_CHANNEL_SMS_SEND,
+        "Dispatch operational SMS via the communication service",
+        True,
+    ),
+    Permission.COMMUNICATION_REMINDERS_MANAGE: PermissionMeta(
+        Permission.COMMUNICATION_REMINDERS_MANAGE,
+        "Create or cancel scheduled communication reminders where permitted",
+        True,
+    ),
+    Permission.COMMUNICATION_ANNOUNCEMENTS_PUBLISH: PermissionMeta(
+        Permission.COMMUNICATION_ANNOUNCEMENTS_PUBLISH,
+        "Publish emergency or org announcements",
+        True,
+    ),
+    Permission.COMMUNICATION_ANNOUNCEMENTS_READ: PermissionMeta(
+        Permission.COMMUNICATION_ANNOUNCEMENTS_READ, "Read announcements targeted to the user"
+    ),
+    Permission.COMMUNICATION_TEMPLATES_MANAGE: PermissionMeta(
+        Permission.COMMUNICATION_TEMPLATES_MANAGE,
+        "Manage organisation communication templates",
+        True,
+    ),
+    Permission.COMMUNICATION_TRANSLATIONS_MANAGE: PermissionMeta(
+        Permission.COMMUNICATION_TRANSLATIONS_MANAGE,
+        "Request or review translations of communication content",
+        True,
     ),
     Permission.ROLE_ASSIGNMENTS_MANAGE: PermissionMeta(
         Permission.ROLE_ASSIGNMENTS_MANAGE,

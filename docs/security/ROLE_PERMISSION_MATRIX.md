@@ -197,6 +197,23 @@ Support workers also receive `files.read` so linked private evidence files can b
 | work_orders.schedule.assigned | Scheduling | D | D | D | D | D | A |
 | work_orders.approve.assigned | Job approvals | D | A | D | D | D | A |
 
+## Communication (F2.12)
+
+| Permission | Purpose | SA | OA | LL | TN | SW | MC |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| communication.messages.send | Send permitted in-app messages | A | A | A | A | A | A |
+| communication.messages.read | Read permitted in-app messages | A | A | A | A | A | A |
+| communication.deliveries.read | View delivery status (operational) | A | A | D | D | D | D |
+| communication.channel.email.send | Dispatch email | A | A | D | D | D | D |
+| communication.channel.sms.send | Dispatch SMS | A | A | D | D | D | D |
+| communication.reminders.manage | Manage scheduled comm reminders | A | A | D | D | A | D |
+| communication.announcements.publish | Create/publish announcements | A | A | D | D | D | D |
+| communication.announcements.read | Read targeted announcements | A | A | A | A | A | A |
+| communication.templates.manage | Manage templates | A | A | D | D | D | D |
+| communication.translations.manage | Request/review translations | A | A | D | D | D | D |
+
+Service-layer rules still restrict landlord↔tenant messaging, support worker caseload boundaries, and **emergency announcement publication** to Organisation Admin or Super Admin.
+
 ## Scope notes (not F1.5 completion)
 
 | Actor | Required scope check |

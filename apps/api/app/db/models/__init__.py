@@ -92,6 +92,17 @@ from app.db.models.tenant_timeline import (
     TenantNeedGoal,
 )
 from app.db.models.user import User
+from app.db.models.communication import (
+    CommunicationAnnouncement,
+    CommunicationAnnouncementRecipient,
+    CommunicationDelivery,
+    CommunicationMessage,
+    CommunicationMessageRecipient,
+    CommunicationScheduledReminder,
+    CommunicationTemplate,
+    CommunicationTranslation,
+    CommunicationUserPreference,
+)
 
 __all__ = [
     "AuditEvent",
@@ -175,4 +186,13 @@ __all__ = [
     "TenantVisit",
     "User",
     "WaitingListEntry",
+    "CommunicationAnnouncement",
+    "CommunicationAnnouncementRecipient",
+    "CommunicationDelivery",
+    "CommunicationMessage",
+    "CommunicationMessageRecipient",
+    "CommunicationScheduledReminder",
+    "CommunicationTemplate",
+    "CommunicationTranslation",
+    "CommunicationUserPreference",
 ]

@@ -98,7 +98,7 @@ def scan_and_schedule_document_reminders(session: Session) -> dict[str, int]:
                 recipient_user_id=d.uploaded_by_user_id,
                 scheduled_for=bucket,
                 status="pending",
-                channel="log",
+                channel="in_app",
                 payload_summary=payload_summary,
             )
             session.add(row)
