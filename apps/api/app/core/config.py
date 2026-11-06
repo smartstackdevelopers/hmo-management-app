@@ -56,6 +56,20 @@ class Settings(BaseSettings):
     s3_secret_access_key: str | None = None
     s3_force_path_style: bool = Field(default=False)
 
+    # F2.12 communication (credentials via env only — never commit real secrets)
+    smtp_host: str | None = None
+    smtp_port: int = Field(default=587, ge=1, le=65535)
+    smtp_user: str | None = None
+    smtp_password: str | None = None
+    smtp_from_email: str | None = None
+    # test = stub adapter; smtp = real SMTP when host/from are set
+    email_adapter_mode: str = Field(default="test")
+
+    twilio_account_sid: str | None = None
+    twilio_auth_token: str | None = None
+    twilio_from_number: str | None = None
+    sms_adapter_mode: str = Field(default="test")  # test | twilio
+
     @field_validator("environment")
     @classmethod
     def normalize_environment(cls, value: str) -> str:

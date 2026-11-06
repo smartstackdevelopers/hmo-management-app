@@ -19,13 +19,15 @@ apps/api/migrations/versions/20261105_2100_f110_occupancy_survey.py
 apps/api/migrations/versions/20261106_1700_f26_evidence_packs.py
 apps/api/migrations/versions/20261106_1800_f27_complaints.py
 apps/api/migrations/versions/20261106_1900_f28_maintenance.py
+apps/api/migrations/versions/20261106_2200_f211_document_management.py
+apps/api/migrations/versions/20261106_2300_f212_communication_platform.py
 ```
 
 The environment directory is named `migrations` (not `alembic`) so Python never imports the local script folder instead of the **`alembic`** PyPI package when running tests or tools from `apps/api`.
 
 `env.py` loads SQLAlchemy metadata from `app.db.models` and reads `DATABASE_URL` from application settings. Hardcoded credentials are not used.
 
-Current head includes `20261106_2100_f210` (F2.10 support plans + RLS) after F2.9 timeline migrations.
+Current head includes `20261106_2300_f212_communication_platform` (F2.12 communication platform + RLS; migrates legacy `reminder_records.channel` from `log` to `in_app`).
 
 ## Naming
 

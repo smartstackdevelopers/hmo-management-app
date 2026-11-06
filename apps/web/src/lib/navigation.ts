@@ -59,6 +59,18 @@ export const DASHBOARD_NAV: NavItem[] = [
     section: "records",
   },
   {
+    id: "communications",
+    label: "Communications",
+    href: "/dashboard/communications",
+    anyOf: [
+      "communication.messages.read",
+      "communication.deliveries.read",
+      "communication.reminders.manage",
+      "communication.announcements.read",
+    ],
+    section: "records",
+  },
+  {
     id: "organisations",
     label: "Organisations",
     href: "/dashboard/super-admin/organisations",
