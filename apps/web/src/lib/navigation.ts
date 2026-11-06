@@ -52,6 +52,13 @@ export const DASHBOARD_NAV: NavItem[] = [
     section: "records",
   },
   {
+    id: "documents",
+    label: "Documents",
+    href: "/dashboard/documents",
+    anyOf: ["documents.read.meta"],
+    section: "records",
+  },
+  {
     id: "organisations",
     label: "Organisations",
     href: "/dashboard/super-admin/organisations",

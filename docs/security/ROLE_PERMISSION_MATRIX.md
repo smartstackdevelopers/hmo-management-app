@@ -151,6 +151,29 @@ Tenants only see **tenant follow-up** rows where `show_to_tenant=true`. Internal
 
 Landlord access is **property-scoped** (aligned with `timeline.read.landlord`). Maintenance & contractors have **no** support-plan permissions. Tenant progress notes use `show_to_tenant` for visibility.
 
+## Document management (F2.11)
+
+Managed documents use **metadata + version rows** referencing F1.8 `file_metadata`; content download is gated separately from metadata listing.
+
+| Permission | Purpose | SA | OA | LL | TN | SW | MC |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| documents.read.meta | List/read document records (scope-enforced) | A | A | A | A | A | A |
+| documents.read.content | Download current or historical version bytes | A | A | A | A | A | A |
+| documents.upload | Create documents / update metadata that requires upload perm | A | A | D | D | A | D |
+| documents.version | Upload new versions | A | A | D | D | A | D |
+| documents.archive | Archive documents | A | A | D | D | D | D |
+| documents.manage.expiry | Set/change expiry | A | A | D | D | A | D |
+| documents.manage.retention | Retention metadata + reviews | A | A | D | D | D | D |
+| documents.view.restricted | View restricted/confidential classifications | A | A | D | D | A | D |
+| documents.access.request | Submit access requests | A | A | A | A | A | A |
+| documents.access.approve | Approve/reject + revoke temporary grants | A | A | D | D | D | D |
+| documents.sign.request | Create signature requests | A | A | D | D | A | D |
+| documents.sign.complete | Complete/decline as designated signer | A | A | D | A | A | D |
+| documents.manage.categories | Manage categories | A | A | D | D | D | D |
+| documents.manage.settings | Org reminder/settings | A | A | D | D | D | D |
+
+Resource visibility still applies: landlords/tenants/support workers only see documents linked to records they may already access (see `app/managed_documents/access.py`).
+
 ## Housing evidence packs (F2.6)
 
 | Permission | Purpose | SA | OA | LL | TN | SW | MC |

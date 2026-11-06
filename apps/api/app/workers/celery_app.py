@@ -33,6 +33,10 @@ celery_app.conf.update(
             "task": "hmore.complaints.dispatch_overdue",
             "schedule": 900.0,
         },
+        "scan-managed-document-expiry-reminders-hourly": {
+            "task": "hmore.managed_documents.scan_expiry_reminders",
+            "schedule": 3600.0,
+        },
     },
 )
 

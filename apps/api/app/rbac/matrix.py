@@ -26,6 +26,20 @@ ROLE_PERMISSIONS: dict[HMoreRole, frozenset[Permission]] = {
             Permission.SUPPORT_PLAN_NOTES_INTERNAL,
             Permission.SUPPORT_PLAN_EXPORT,
             Permission.SUPPORT_PLAN_REVIEW_FINALISE,
+            Permission.DOCUMENTS_READ_META,
+            Permission.DOCUMENTS_READ_CONTENT,
+            Permission.DOCUMENTS_UPLOAD,
+            Permission.DOCUMENTS_VERSION,
+            Permission.DOCUMENTS_ARCHIVE,
+            Permission.DOCUMENTS_MANAGE_EXPIRY,
+            Permission.DOCUMENTS_MANAGE_RETENTION,
+            Permission.DOCUMENTS_VIEW_RESTRICTED,
+            Permission.DOCUMENTS_ACCESS_REQUEST,
+            Permission.DOCUMENTS_ACCESS_APPROVE,
+            Permission.DOCUMENTS_SIGN_REQUEST,
+            Permission.DOCUMENTS_SIGN_COMPLETE,
+            Permission.DOCUMENTS_MANAGE_CATEGORIES,
+            Permission.DOCUMENTS_MANAGE_SETTINGS,
         }
     ),
     HMoreRole.ORGANISATION_ADMIN: frozenset(
@@ -100,6 +114,20 @@ ROLE_PERMISSIONS: dict[HMoreRole, frozenset[Permission]] = {
             Permission.SUPPORT_PLAN_NOTES_INTERNAL,
             Permission.SUPPORT_PLAN_EXPORT,
             Permission.SUPPORT_PLAN_REVIEW_FINALISE,
+            Permission.DOCUMENTS_READ_META,
+            Permission.DOCUMENTS_READ_CONTENT,
+            Permission.DOCUMENTS_UPLOAD,
+            Permission.DOCUMENTS_VERSION,
+            Permission.DOCUMENTS_ARCHIVE,
+            Permission.DOCUMENTS_MANAGE_EXPIRY,
+            Permission.DOCUMENTS_MANAGE_RETENTION,
+            Permission.DOCUMENTS_VIEW_RESTRICTED,
+            Permission.DOCUMENTS_ACCESS_REQUEST,
+            Permission.DOCUMENTS_ACCESS_APPROVE,
+            Permission.DOCUMENTS_SIGN_REQUEST,
+            Permission.DOCUMENTS_SIGN_COMPLETE,
+            Permission.DOCUMENTS_MANAGE_CATEGORIES,
+            Permission.DOCUMENTS_MANAGE_SETTINGS,
         }
     ),
     HMoreRole.LANDLORD: frozenset(
@@ -118,6 +146,9 @@ ROLE_PERMISSIONS: dict[HMoreRole, frozenset[Permission]] = {
             Permission.MAINTENANCE_PHOTO_READ,
             Permission.TIMELINE_READ_LANDLORD,
             Permission.SUPPORT_PLAN_READ,
+            Permission.DOCUMENTS_READ_META,
+            Permission.DOCUMENTS_READ_CONTENT,
+            Permission.DOCUMENTS_ACCESS_REQUEST,
             Permission.PROFILE_READ_OWN,
             Permission.PROFILE_UPDATE_OWN,
         }
@@ -145,6 +176,10 @@ ROLE_PERMISSIONS: dict[HMoreRole, frozenset[Permission]] = {
             Permission.TIMELINE_READ_OWN,
             Permission.TIMELINE_MEETING_READ,
             Permission.SUPPORT_PLAN_READ_OWN,
+            Permission.DOCUMENTS_READ_META,
+            Permission.DOCUMENTS_READ_CONTENT,
+            Permission.DOCUMENTS_ACCESS_REQUEST,
+            Permission.DOCUMENTS_SIGN_COMPLETE,
         }
     ),
     HMoreRole.SUPPORT_WORKER: frozenset(
@@ -193,6 +228,15 @@ ROLE_PERMISSIONS: dict[HMoreRole, frozenset[Permission]] = {
             Permission.SUPPORT_PLAN_NOTES_INTERNAL,
             Permission.SUPPORT_PLAN_EXPORT,
             Permission.SUPPORT_PLAN_REVIEW_FINALISE,
+            Permission.DOCUMENTS_READ_META,
+            Permission.DOCUMENTS_READ_CONTENT,
+            Permission.DOCUMENTS_UPLOAD,
+            Permission.DOCUMENTS_VERSION,
+            Permission.DOCUMENTS_MANAGE_EXPIRY,
+            Permission.DOCUMENTS_VIEW_RESTRICTED,
+            Permission.DOCUMENTS_ACCESS_REQUEST,
+            Permission.DOCUMENTS_SIGN_REQUEST,
+            Permission.DOCUMENTS_SIGN_COMPLETE,
         }
     ),
     HMoreRole.MAINTENANCE_CONTRACTOR: frozenset(
@@ -211,6 +255,9 @@ ROLE_PERMISSIONS: dict[HMoreRole, frozenset[Permission]] = {
             Permission.PROFILE_READ_OWN,
             Permission.PROPERTIES_READ,
             Permission.ROOMS_READ,
+            Permission.DOCUMENTS_READ_META,
+            Permission.DOCUMENTS_READ_CONTENT,
+            Permission.DOCUMENTS_ACCESS_REQUEST,
         }
     ),
 }

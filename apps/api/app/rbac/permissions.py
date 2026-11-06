@@ -125,6 +125,21 @@ class Permission(StrEnum):
     SUPPORT_PLAN_NOTES_INTERNAL = "support_plans.notes.internal"
     SUPPORT_PLAN_EXPORT = "support_plans.export"
     SUPPORT_PLAN_REVIEW_FINALISE = "support_plans.review.finalise"
+    # F2.11 managed documents (central DMS — not F2.6 evidence files)
+    DOCUMENTS_READ_META = "documents.read.meta"
+    DOCUMENTS_READ_CONTENT = "documents.read.content"
+    DOCUMENTS_UPLOAD = "documents.upload"
+    DOCUMENTS_VERSION = "documents.version"
+    DOCUMENTS_ARCHIVE = "documents.archive"
+    DOCUMENTS_MANAGE_EXPIRY = "documents.manage.expiry"
+    DOCUMENTS_MANAGE_RETENTION = "documents.manage.retention"
+    DOCUMENTS_VIEW_RESTRICTED = "documents.view.restricted"
+    DOCUMENTS_ACCESS_REQUEST = "documents.access.request"
+    DOCUMENTS_ACCESS_APPROVE = "documents.access.approve"
+    DOCUMENTS_SIGN_REQUEST = "documents.sign.request"
+    DOCUMENTS_SIGN_COMPLETE = "documents.sign.complete"
+    DOCUMENTS_MANAGE_CATEGORIES = "documents.manage.categories"
+    DOCUMENTS_MANAGE_SETTINGS = "documents.manage.settings"
     VISITS_MANAGE_ASSIGNED = "visits.manage.assigned"
     TASKS_MANAGE_ASSIGNED = "tasks.manage.assigned"
     EMPLOYMENT_SUPPORT_MANAGE_ASSIGNED = "employment_support.manage.assigned"
@@ -477,6 +492,58 @@ PERMISSION_CATALOG: dict[Permission, PermissionMeta] = {
     Permission.SUPPORT_PLAN_REVIEW_FINALISE: PermissionMeta(
         Permission.SUPPORT_PLAN_REVIEW_FINALISE,
         "Finalise weekly or monthly support plan reviews",
+        True,
+    ),
+    Permission.DOCUMENTS_READ_META: PermissionMeta(
+        Permission.DOCUMENTS_READ_META,
+        "View managed document metadata within authorised scope",
+        True,
+    ),
+    Permission.DOCUMENTS_READ_CONTENT: PermissionMeta(
+        Permission.DOCUMENTS_READ_CONTENT,
+        "Download managed document file content within authorised scope",
+        True,
+    ),
+    Permission.DOCUMENTS_UPLOAD: PermissionMeta(
+        Permission.DOCUMENTS_UPLOAD, "Upload new managed documents or versions", True
+    ),
+    Permission.DOCUMENTS_VERSION: PermissionMeta(
+        Permission.DOCUMENTS_VERSION, "Upload new versions of managed documents", True
+    ),
+    Permission.DOCUMENTS_ARCHIVE: PermissionMeta(
+        Permission.DOCUMENTS_ARCHIVE, "Archive managed documents", True
+    ),
+    Permission.DOCUMENTS_MANAGE_EXPIRY: PermissionMeta(
+        Permission.DOCUMENTS_MANAGE_EXPIRY, "Set or change document expiry dates", True
+    ),
+    Permission.DOCUMENTS_MANAGE_RETENTION: PermissionMeta(
+        Permission.DOCUMENTS_MANAGE_RETENTION, "Manage retention metadata and reviews", True
+    ),
+    Permission.DOCUMENTS_VIEW_RESTRICTED: PermissionMeta(
+        Permission.DOCUMENTS_VIEW_RESTRICTED,
+        "View confidential or restricted managed documents",
+        True,
+    ),
+    Permission.DOCUMENTS_ACCESS_REQUEST: PermissionMeta(
+        Permission.DOCUMENTS_ACCESS_REQUEST, "Submit access requests for managed documents"
+    ),
+    Permission.DOCUMENTS_ACCESS_APPROVE: PermissionMeta(
+        Permission.DOCUMENTS_ACCESS_APPROVE, "Approve or reject document access requests", True
+    ),
+    Permission.DOCUMENTS_SIGN_REQUEST: PermissionMeta(
+        Permission.DOCUMENTS_SIGN_REQUEST, "Create internal signature requests", True
+    ),
+    Permission.DOCUMENTS_SIGN_COMPLETE: PermissionMeta(
+        Permission.DOCUMENTS_SIGN_COMPLETE,
+        "Complete or decline in-platform signature (not qualified e-signature)",
+        True,
+    ),
+    Permission.DOCUMENTS_MANAGE_CATEGORIES: PermissionMeta(
+        Permission.DOCUMENTS_MANAGE_CATEGORIES, "Manage organisation document categories", True
+    ),
+    Permission.DOCUMENTS_MANAGE_SETTINGS: PermissionMeta(
+        Permission.DOCUMENTS_MANAGE_SETTINGS,
+        "Manage organisation document reminder and retention defaults",
         True,
     ),
     Permission.VISITS_MANAGE_ASSIGNED: PermissionMeta(
