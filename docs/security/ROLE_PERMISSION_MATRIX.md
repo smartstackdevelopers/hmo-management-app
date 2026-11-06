@@ -70,7 +70,7 @@ Source of truth: `apps/api/app/rbac/matrix.py` and `apps/api/app/rbac/permission
 
 | Permission | Purpose | SA | OA | LL | TN | SW | MC |
 | --- | --- | --- | --- | --- | --- | --- | --- |
-| support_notes.read.assigned | Assigned notes | D | D | D | D | A | D |
+| support_notes.read.assigned | Assigned notes / F2.1 oversight | D | A | D | D | A | D |
 | support_notes.create.assigned | Create assigned notes | D | D | D | D | A | D |
 | support_plans.manage.assigned | Assigned plans | D | D | D | D | A | D |
 | visits.manage.assigned | Visits | D | D | D | D | A | D |
