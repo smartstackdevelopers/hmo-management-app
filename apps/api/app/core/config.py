@@ -15,6 +15,12 @@ class Settings(BaseSettings):
     database_url: str | None = None
     test_database_url: str | None = None
 
+    # F2.2 reminder lead times (minutes before event). Configurable via env.
+    reminder_shift_lead_minutes: int = Field(default=60, ge=1, le=7 * 24 * 60)
+    reminder_visit_lead_minutes: int = Field(default=120, ge=1, le=7 * 24 * 60)
+    reminder_task_due_lead_minutes: int = Field(default=1440, ge=1, le=14 * 24 * 60)
+    reminder_dispatch_batch_size: int = Field(default=100, ge=1, le=1000)
+
     # Comma-separated browser origins allowed for CORS (never "*' in production).
     cors_allowed_origins: str = Field(default="http://localhost:3000")
     # When true (recommended in production), reject clearly insecure absolute URLs in CORS list.

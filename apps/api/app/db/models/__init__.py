@@ -13,6 +13,12 @@ from app.db.models.occupancy_survey import (
 from app.db.models.organisation import Organisation
 from app.db.models.property import Property
 from app.db.models.room import Room
+from app.db.models.scheduling import (
+    OperationalTask,
+    ReminderRecord,
+    StaffShift,
+    TenantVisit,
+)
 from app.db.models.support_ops import CaseAssignment, DailyLog, Handover
 from app.db.models.tenant import Tenant
 from app.db.models.user import User
@@ -29,11 +35,15 @@ __all__ = [
     "OccupancySiteSurvey",
     "OccupancySurveyFinding",
     "OccupancySurveyRoomAssessment",
+    "OperationalTask",
     "Organisation",
     "OrganisationMembership",
     "Property",
     "RecordStatus",
+    "ReminderRecord",
     "Room",
+    "StaffShift",
     "Tenant",
+    "TenantVisit",
     "User",
 ]
