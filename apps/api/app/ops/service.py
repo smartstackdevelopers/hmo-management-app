@@ -31,7 +31,8 @@ from app.records.pagination import offset_limit
 from app.tenancy.context import OrganisationContext
 
 VISIT_TRANSITIONS: dict[str, frozenset[str]] = {
-    "scheduled": frozenset({"confirmed", "in_progress", "cancelled", "missed"}),
+    # Allow scheduled → completed for short visits that skip explicit start.
+    "scheduled": frozenset({"confirmed", "in_progress", "completed", "cancelled", "missed"}),
     "confirmed": frozenset({"in_progress", "cancelled", "missed", "completed"}),
     "in_progress": frozenset({"completed", "cancelled", "missed"}),
     "completed": frozenset(),
