@@ -19,7 +19,15 @@ from app.tools.registry import build_default_tool_registry
 from app.usage.metadata import UsageMetadata
 
 SUPPORTED_WORKFLOWS = frozenset(
-    {"foundation_ping", "foundation_echo", "foundation_routed_echo", "notes_analysis", "case_summary", "document_check"}
+    {
+        "foundation_ping",
+        "foundation_echo",
+        "foundation_routed_echo",
+        "notes_analysis",
+        "case_summary",
+        "document_check",
+        "support_plan_draft",
+    }
 )
 
 # foundation_ping is infrastructure-only and non-billable.
@@ -221,6 +229,35 @@ def execute_workflow(
                 "requires_approval": True,
                 "approval_id": None,
                 "provider_request_id": analysed.get("provider_request_id"),
+            }
+
+        if workflow_id == "support_plan_draft":
+            from app.graph.support_plan_draft import run_support_plan_draft
+
+            _reject_body_org()
+            packet = (input_payload or {}).get("packet")
+            if not isinstance(packet, dict):
+                raise WorkflowError("support_plan_draft requires input_payload.packet", status_code=422)
+            drafted = run_support_plan_draft(
+                settings=settings,
+                organisation_id=ctx.organisation_id,
+                packet=packet,
+            )
+            usage.prompt_id = drafted.get("prompt_id")
+            usage.prompt_version = drafted.get("prompt_version")
+            usage.provider = drafted.get("provider")
+            usage.model = drafted.get("model_id")
+            usage.prompt_tokens = drafted.get("prompt_tokens")
+            usage.completion_tokens = drafted.get("completion_tokens")
+            usage.total_tokens = drafted.get("total_tokens")
+            usage.cache_hit = drafted.get("cache_status") == "hit"
+            return {
+                "workflow_id": workflow_id,
+                "status": "completed",
+                "result": drafted,
+                "requires_approval": True,
+                "approval_id": None,
+                "provider_request_id": drafted.get("provider_request_id"),
             }
 
         _reject_body_org()

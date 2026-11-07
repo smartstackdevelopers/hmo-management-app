@@ -7,6 +7,7 @@ FEATURE_ROUTING = "ai.infra.routing"
 FEATURE_NOTES_ANALYSIS = "ai.agent.notes_analysis"
 FEATURE_CASE_SUMMARY = "ai.workflow.case_summaries"
 FEATURE_DOCUMENT_CHECK = "ai.workflow.document_checker"
+FEATURE_SUPPORT_PLANNING = "ai.agent.support_planning"
 FEATURE_UNKNOWN = "ai.infra.unattributed"
 
 WORKFLOW_FEATURE_MAP: dict[str, str] = {
@@ -16,6 +17,7 @@ WORKFLOW_FEATURE_MAP: dict[str, str] = {
     "notes_analysis": FEATURE_NOTES_ANALYSIS,
     "case_summary": FEATURE_CASE_SUMMARY,
     "document_check": FEATURE_DOCUMENT_CHECK,
+    "support_plan_draft": FEATURE_SUPPORT_PLANNING,
 }
 
 

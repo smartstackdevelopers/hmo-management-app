@@ -216,6 +216,11 @@ class Permission(StrEnum):
     AI_DOCUMENT_CHECK_READ = "ai.document_check.read"
     AI_DOCUMENT_CHECK_REVIEW = "ai.document_check.review"
 
+    # F3.7 support planning drafts
+    AI_SUPPORT_PLAN_DRAFT_RUN = "ai.support_plan_draft.run"
+    AI_SUPPORT_PLAN_DRAFT_READ = "ai.support_plan_draft.read"
+    AI_SUPPORT_PLAN_DRAFT_REVIEW = "ai.support_plan_draft.review"
+
 
 @dataclass(frozen=True)
 class PermissionMeta:
@@ -791,6 +796,15 @@ PERMISSION_CATALOG: dict[Permission, PermissionMeta] = {
     ),
     Permission.AI_DOCUMENT_CHECK_REVIEW: PermissionMeta(
         Permission.AI_DOCUMENT_CHECK_REVIEW, "Confirm or dismiss document check findings", True
+    ),
+    Permission.AI_SUPPORT_PLAN_DRAFT_RUN: PermissionMeta(
+        Permission.AI_SUPPORT_PLAN_DRAFT_RUN, "Generate a support-plan draft from authorised case records", True
+    ),
+    Permission.AI_SUPPORT_PLAN_DRAFT_READ: PermissionMeta(
+        Permission.AI_SUPPORT_PLAN_DRAFT_READ, "View support-plan drafts and their sources", True
+    ),
+    Permission.AI_SUPPORT_PLAN_DRAFT_REVIEW: PermissionMeta(
+        Permission.AI_SUPPORT_PLAN_DRAFT_REVIEW, "Approve or reject a support-plan draft", True
     ),
     Permission.ROLE_ASSIGNMENTS_MANAGE: PermissionMeta(
         Permission.ROLE_ASSIGNMENTS_MANAGE,
