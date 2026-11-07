@@ -92,6 +92,16 @@ from app.db.models.tenant_timeline import (
     TenantNeedGoal,
 )
 from app.db.models.user import User
+from app.db.models.org_workflows import (
+    OrganisationApprovalAssignment,
+    OrganisationApprovalWorkflow,
+    OrganisationApprovalWorkflowVersion,
+    OrganisationCustomForm,
+    OrganisationCustomFormSubmission,
+    OrganisationCustomFormVersion,
+    SecureSharingAccessLog,
+    SecureSharingGrant,
+)
 from app.db.models.communication import (
     CommunicationAnnouncement,
     CommunicationAnnouncementRecipient,
@@ -195,4 +205,12 @@ __all__ = [
     "CommunicationTemplate",
     "CommunicationTranslation",
     "CommunicationUserPreference",
+    "OrganisationApprovalAssignment",
+    "OrganisationApprovalWorkflow",
+    "OrganisationApprovalWorkflowVersion",
+    "OrganisationCustomForm",
+    "OrganisationCustomFormSubmission",
+    "OrganisationCustomFormVersion",
+    "SecureSharingAccessLog",
+    "SecureSharingGrant",
 ]
