@@ -218,6 +218,13 @@ export const DASHBOARD_NAV: NavItem[] = [
     section: "records",
   },
   {
+    id: "operational-search",
+    label: "Operational search",
+    href: "/dashboard/operational-search",
+    anyOf: ["operational_search.run"],
+    section: "records",
+  },
+  {
     id: "duplicate-detection",
     label: "Duplicate detection",
     href: "/dashboard/duplicate-detection",

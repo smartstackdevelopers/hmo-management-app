@@ -11,6 +11,7 @@ FEATURE_SUPPORT_PLANNING = "ai.agent.support_planning"
 FEATURE_HOUSING_APPLICATION = "ai.agent.housing_application"
 FEATURE_COMPLIANCE = "ai.agent.compliance"
 FEATURE_TENANT_ASSISTANT = "ai.agent.tenant_assistant"
+FEATURE_OPERATIONAL_SEARCH = "ai.workflow.operational_search"
 FEATURE_UNKNOWN = "ai.infra.unattributed"
 
 WORKFLOW_FEATURE_MAP: dict[str, str] = {
@@ -24,6 +25,7 @@ WORKFLOW_FEATURE_MAP: dict[str, str] = {
     "housing_application_analysis": FEATURE_HOUSING_APPLICATION,
     "compliance_explanation": FEATURE_COMPLIANCE,
     "tenant_assistant": FEATURE_TENANT_ASSISTANT,
+    "operational_search": FEATURE_OPERATIONAL_SEARCH,
 }
 
 

@@ -101,6 +101,7 @@ ROLE_PERMISSIONS: dict[HMoreRole, frozenset[Permission]] = {
             Permission.DUPLICATE_DETECTION_RUN,
             Permission.DUPLICATE_DETECTION_READ,
             Permission.DUPLICATE_DETECTION_REVIEW,
+            Permission.OPERATIONAL_SEARCH_RUN,
         }
     ),
     HMoreRole.ORGANISATION_ADMIN: frozenset(
@@ -248,6 +249,7 @@ ROLE_PERMISSIONS: dict[HMoreRole, frozenset[Permission]] = {
             Permission.DUPLICATE_DETECTION_RUN,
             Permission.DUPLICATE_DETECTION_READ,
             Permission.DUPLICATE_DETECTION_REVIEW,
+            Permission.OPERATIONAL_SEARCH_RUN,
         }
     ),
     HMoreRole.LANDLORD: frozenset(
@@ -276,6 +278,7 @@ ROLE_PERMISSIONS: dict[HMoreRole, frozenset[Permission]] = {
             Permission.COMMUNICATION_MESSAGES_READ,
             Permission.COMMUNICATION_ANNOUNCEMENTS_READ,
             Permission.SECURE_SHARING_READ,
+            Permission.OPERATIONAL_SEARCH_RUN,
         }
     ),
     HMoreRole.TENANT: frozenset(
@@ -399,6 +402,7 @@ ROLE_PERMISSIONS: dict[HMoreRole, frozenset[Permission]] = {
             Permission.REPORTS_DASHBOARD_VIEW,
             Permission.REPORTS_CASELOAD_VIEW,
             Permission.REPORTS_EXPORT_CSV,
+            Permission.OPERATIONAL_SEARCH_RUN,
         }
     ),
     HMoreRole.MAINTENANCE_CONTRACTOR: frozenset(
@@ -426,6 +430,7 @@ ROLE_PERMISSIONS: dict[HMoreRole, frozenset[Permission]] = {
             Permission.COMMUNICATION_ANNOUNCEMENTS_READ,
             Permission.APPROVALS_INBOX_READ,
             Permission.SECURE_SHARING_READ,
+            Permission.OPERATIONAL_SEARCH_RUN,
         }
     ),
 }
