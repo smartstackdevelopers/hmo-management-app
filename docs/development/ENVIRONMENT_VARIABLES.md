@@ -21,6 +21,14 @@ Never commit real secrets. Track `*.env.example` only.
 | `AI_MAX_REQUEST_BYTES` | ai | Request body size cap | No |
 | `AI_WORKFLOW_TIMEOUT_SECONDS` | ai | LangGraph execution timeout | No |
 | `AI_DEFAULT_ALLOWED_FEATURES` | ai | Default feature allow-list when header omitted | No |
+| `AI_DEFAULT_MODEL_KEY` | ai | Low-cost default model registry key | No |
+| `AI_PREMIUM_MODEL_ID` | ai | Premium model id for built-in registry | No |
+| `AI_MODEL_REGISTRY_JSON` | ai | Optional JSON model registry override | No |
+| `AI_ESCALATION_ENABLED` / `AI_ESCALATION_MAX_ATTEMPTS` | ai | Premium escalation controls | No |
+| `REDIS_URL` | ai | Redis for cache + Celery | Recommended |
+| `AI_CACHE_BACKEND` | ai | `none` / `memory` / `redis` | No |
+| `AI_CACHE_TTL_SECONDS` / `AI_CACHE_ENABLED` | ai | Cache policy | No |
+| `AI_BATCH_EAGER` | ai | Run batch jobs inline (tests/local) | No |
 | `POSTGRES_*` | compose | Local Postgres bootstrap | Only for Compose |
 | `AUTH0_DOMAIN` | api, web | Auth0 tenant host without scheme | Required for live auth |
 | `AUTH0_AUDIENCE` | api, web, mobile | API identifier | Required for API access tokens |

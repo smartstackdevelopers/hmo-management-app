@@ -53,6 +53,9 @@ services:
     environment:
       ENVIRONMENT: development
       LLM_PROVIDER: none
+      REDIS_URL: redis://redis:6379/0
+      AI_CACHE_BACKEND: memory
+      AI_BATCH_EAGER: "true"
       # Override locally; never commit a real production token.
       AI_SERVICE_TOKEN: local-dev-ai-service-token
     ports:

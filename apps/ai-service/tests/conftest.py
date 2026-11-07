@@ -6,9 +6,12 @@ import pytest
 from fastapi.testclient import TestClient
 
 from app.approval.service import reset_approval_service_for_tests
+from app.batch.store import reset_batch_store_for_tests
+from app.cache.service import reset_cache_service_for_tests
 from app.core.config import get_settings
 from app.main import app
 from app.prompts.store import reset_prompt_store_for_tests
+from app.routing.service import reset_registry_cache
 
 
 ORG_A = uuid.UUID("11111111-1111-1111-1111-111111111111")
@@ -21,13 +24,22 @@ SERVICE_TOKEN = "test-ai-service-token"
 @pytest.fixture(autouse=True)
 def _reset_state(monkeypatch: pytest.MonkeyPatch):
     monkeypatch.setenv("AI_SERVICE_TOKEN", SERVICE_TOKEN)
-    monkeypatch.setenv("LLM_PROVIDER", "none")
+    monkeypatch.setenv("LLM_PROVIDER", "mock")
     monkeypatch.setenv("ENVIRONMENT", "test")
+    monkeypatch.setenv("AI_CACHE_BACKEND", "memory")
+    monkeypatch.setenv("AI_CACHE_ENABLED", "true")
+    monkeypatch.setenv("AI_BATCH_EAGER", "true")
+    monkeypatch.setenv("AI_ESCALATION_ENABLED", "true")
+    monkeypatch.setenv("AI_ESCALATION_MAX_ATTEMPTS", "1")
     get_settings.cache_clear()
+    reset_registry_cache()
     reset_prompt_store_for_tests()
     reset_approval_service_for_tests()
+    reset_batch_store_for_tests()
+    reset_cache_service_for_tests()
     yield
     get_settings.cache_clear()
+    reset_registry_cache()
 
 
 @pytest.fixture

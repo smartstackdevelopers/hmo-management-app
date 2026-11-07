@@ -17,11 +17,16 @@ from app.providers.factory import get_llm_provider
 from app.api.v1.schemas import (
     ApprovalDecisionRequest,
     ApprovalDecisionResponse,
+    BatchJobResponse,
+    BatchSubmitRequest,
     PromptListResponse,
     ProviderStatusResponse,
     WorkflowExecuteRequest,
     WorkflowExecuteResponse,
 )
+from app.batch.service import job_to_public, submit_batch_job
+from app.batch.store import get_batch_store
+from app.routing.service import build_registry, route_for_workflow
 from app import __version__
 
 router = APIRouter()
@@ -181,5 +186,75 @@ def approval_get(
             is_human_approved=record.is_human_approved,
             proposed_action_source=record.proposed_action.source,
         )
+    except AiServiceError as exc:
+        raise exc.to_http() from exc
+
+
+@router.get("/models")
+def list_models(
+    ctx: TrustedCallerContext = Depends(require_feature("ai.routing.read")),
+    settings: Settings = Depends(get_settings),
+) -> dict:
+    _ = ctx
+    registry = build_registry(settings)
+    return {"default_model_key": settings.ai_default_model_key, "models": registry.summaries()}
+
+
+@router.post("/routing/preview")
+def routing_preview(
+    body: WorkflowExecuteRequest,
+    ctx: TrustedCallerContext = Depends(require_feature("ai.routing.read")),
+    settings: Settings = Depends(get_settings),
+) -> dict:
+    _ = ctx
+    decision = route_for_workflow(
+        settings,
+        workflow_id=body.workflow_id,
+        quality_requirement=body.quality_requirement,
+    )
+    return {"decision": decision.model_dump()}
+
+
+@router.post("/batch/jobs", response_model=BatchJobResponse)
+def batch_submit(
+    body: BatchSubmitRequest,
+    ctx: TrustedCallerContext = Depends(require_feature("ai.batch.submit")),
+    settings: Settings = Depends(get_settings),
+) -> BatchJobResponse:
+    try:
+        if body.organisation_id is not None:
+            ctx.ensure_org(body.organisation_id)
+        job = submit_batch_job(
+            ctx=ctx,
+            settings=settings,
+            workflow_id=body.workflow_id,
+            message=body.message,
+            idempotency_key=body.idempotency_key,
+        )
+        return BatchJobResponse(**job_to_public(job))
+    except AiServiceError as exc:
+        raise exc.to_http() from exc
+
+
+@router.get("/batch/jobs/{job_id}", response_model=BatchJobResponse)
+def batch_status(
+    job_id: str,
+    ctx: TrustedCallerContext = Depends(require_feature("ai.batch.read")),
+) -> BatchJobResponse:
+    try:
+        job = get_batch_store().get(job_id, ctx)
+        return BatchJobResponse(**job_to_public(job))
+    except AiServiceError as exc:
+        raise exc.to_http() from exc
+
+
+@router.post("/batch/jobs/{job_id}/cancel", response_model=BatchJobResponse)
+def batch_cancel(
+    job_id: str,
+    ctx: TrustedCallerContext = Depends(require_feature("ai.batch.submit")),
+) -> BatchJobResponse:
+    try:
+        job = get_batch_store().cancel(job_id, ctx)
+        return BatchJobResponse(**job_to_public(job))
     except AiServiceError as exc:
         raise exc.to_http() from exc

@@ -10,6 +10,7 @@ class WorkflowExecuteRequest(BaseModel):
     workflow_id: str = Field(..., min_length=1, max_length=100)
     message: str = Field(default="", max_length=4000)
     require_human_gate: bool = False
+    quality_requirement: str | None = Field(default=None, max_length=20)
     # Intentionally ignored for authz — present only so tests can prove rejection.
     organisation_id: UUID | None = None
 
@@ -52,3 +53,24 @@ class ProviderStatusResponse(BaseModel):
     configured_provider: str
     available: bool
     detail: str
+
+
+class BatchSubmitRequest(BaseModel):
+    workflow_id: str = Field(..., min_length=1, max_length=100)
+    message: str = Field(default="", max_length=4000)
+    idempotency_key: str | None = Field(default=None, max_length=120)
+    organisation_id: UUID | None = None
+
+
+class BatchJobResponse(BaseModel):
+    job_id: str
+    workflow_id: str
+    organisation_id: str
+    status: str
+    created_at: str
+    started_at: str | None = None
+    finished_at: str | None = None
+    attempt: int = 0
+    error: str | None = None
+    result_ref: dict[str, Any] | None = None
+    idempotency_key: str | None = None

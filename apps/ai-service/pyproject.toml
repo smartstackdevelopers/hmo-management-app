@@ -28,4 +28,6 @@ testpaths = ["tests"]
 pythonpath = ["."]
 markers = [
   "real_llm: tests that call a real LLM provider (skipped without credentials)",
+  "real_redis: tests that require a live Redis instance",
+  "real_celery: tests that require a live Celery worker",
 ]

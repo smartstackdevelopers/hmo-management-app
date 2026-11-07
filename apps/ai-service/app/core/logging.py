@@ -13,7 +13,7 @@ _SECRET_KEYS = re.compile(
 def configure_logging(level: str = "info") -> None:
     logging.basicConfig(
         level=getattr(logging, level.upper(), logging.INFO),
-        format="%(asctime)s %(levelname)s %(name)s correlation_id=%(correlation_id)s %(message)s",
+        format="%(asctime)s %(levelname)s %(name)s %(message)s",
     )
     logging.getLogger("uvicorn.access").setLevel(logging.INFO)
 
