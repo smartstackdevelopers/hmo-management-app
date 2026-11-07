@@ -148,3 +148,37 @@ def dispatch_org_compliance_sweep_task(self, payload: dict) -> dict:
         result = dispatch_org_scheduled_sweep(session, payload)
         logger.info("dispatch_org_compliance_sweep result=%s", result)
         return result
+
+
+@celery_app.task(
+    name="hmore.duplicate_detection.dispatch_scheduled_sweeps",
+    bind=True,
+    autoretry_for=(Exception,),
+    retry_backoff=True,
+    retry_kwargs={"max_retries": 2},
+)
+def dispatch_scheduled_duplicate_detection_task(self) -> dict:
+    """Daily org-scoped duplicate detection sweeps (search-based; no AI)."""
+    from app.duplicate_detection.jobs import dispatch_scheduled_sweeps
+
+    with session_scope() as session:
+        result = dispatch_scheduled_sweeps(session)
+        logger.info("dispatch_scheduled_duplicate_detection result=%s", result)
+        return result
+
+
+@celery_app.task(
+    name="hmore.duplicate_detection.dispatch_organisation_sweep",
+    bind=True,
+    autoretry_for=(Exception,),
+    retry_backoff=True,
+    retry_kwargs={"max_retries": 2},
+)
+def dispatch_org_duplicate_detection_task(self, payload: dict) -> dict:
+    """Organisation-scoped duplicate detection sweep with validated job context."""
+    from app.duplicate_detection.jobs import dispatch_org_scheduled_sweep
+
+    with session_scope() as session:
+        result = dispatch_org_scheduled_sweep(session, payload)
+        logger.info("dispatch_org_duplicate_detection result=%s", result)
+        return result

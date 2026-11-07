@@ -46,6 +46,11 @@ celery_app.conf.update(
             "task": "hmore.compliance.dispatch_scheduled_sweeps",
             "schedule": 86400.0,
         },
+        # F3.11 — daily search-based duplicate detection (no AI per record)
+        "dispatch-duplicate-detection-daily": {
+            "task": "hmore.duplicate_detection.dispatch_scheduled_sweeps",
+            "schedule": 86400.0,
+        },
     },
 )
 

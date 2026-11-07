@@ -235,6 +235,11 @@ class Permission(StrEnum):
     AI_TENANT_ASSISTANT_ASK = "ai.tenant_assistant.ask"
     AI_TENANT_ASSISTANT_READ = "ai.tenant_assistant.read"
 
+    # F3.11 duplicate detection (search-based; no AI per record)
+    DUPLICATE_DETECTION_RUN = "duplicate_detection.run"
+    DUPLICATE_DETECTION_READ = "duplicate_detection.read"
+    DUPLICATE_DETECTION_REVIEW = "duplicate_detection.review"
+
 
 @dataclass(frozen=True)
 class PermissionMeta:
@@ -854,6 +859,21 @@ PERMISSION_CATALOG: dict[Permission, PermissionMeta] = {
     Permission.AI_TENANT_ASSISTANT_READ: PermissionMeta(
         Permission.AI_TENANT_ASSISTANT_READ,
         "Read own Tenant Assistant conversation history",
+        True,
+    ),
+    Permission.DUPLICATE_DETECTION_RUN: PermissionMeta(
+        Permission.DUPLICATE_DETECTION_RUN,
+        "Run search-based duplicate detection",
+        True,
+    ),
+    Permission.DUPLICATE_DETECTION_READ: PermissionMeta(
+        Permission.DUPLICATE_DETECTION_READ,
+        "View duplicate detection runs and findings",
+        True,
+    ),
+    Permission.DUPLICATE_DETECTION_REVIEW: PermissionMeta(
+        Permission.DUPLICATE_DETECTION_REVIEW,
+        "Confirm, dismiss, or defer potential duplicate findings",
         True,
     ),
     Permission.ROLE_ASSIGNMENTS_MANAGE: PermissionMeta(
