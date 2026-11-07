@@ -39,6 +39,13 @@ test.describe("dashboard access helpers (unit via Playwright runner)", () => {
     expect(ids).not.toContain("organisations");
     expect(ids).not.toContain("audit");
 
+    const withDocs = filterNavItems(DASHBOARD_NAV, {
+      authenticated: true,
+      role: "organisation_admin",
+      permissions: ["documents.read.meta", "documents.upload"],
+    });
+    expect(withDocs.map((i) => i.id)).toContain("documents");
+
     const empty = filterNavItems(DASHBOARD_NAV, {
       authenticated: false,
       permissions: ["tenants.manage"],
