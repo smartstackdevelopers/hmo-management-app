@@ -52,6 +52,9 @@ services:
       dockerfile: infra/docker/Dockerfile.ai
     environment:
       ENVIRONMENT: development
+      LLM_PROVIDER: none
+      # Override locally; never commit a real production token.
+      AI_SERVICE_TOKEN: local-dev-ai-service-token
     ports:
       - "8001:8001"
     healthcheck:
