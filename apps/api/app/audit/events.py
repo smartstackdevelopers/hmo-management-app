@@ -231,3 +231,9 @@ ORG_FORM_SUBMISSION_DECIDE = "org_form.submission.decide"
 SECURE_SHARING_CREATE = "secure_sharing.create"
 SECURE_SHARING_REVOKE = "secure_sharing.revoke"
 SECURE_SHARING_ACCESS = "secure_sharing.access"
+
+# F2.14 reporting
+REPORTS_DASHBOARD_VIEW = "reports.dashboard.view"
+REPORTS_EXPORT_CSV = "reports.export.csv"
+REPORTS_EXPORT_PDF = "reports.export.pdf"
+REPORTS_EXPORT_EXCEL = "reports.export.excel"

@@ -64,6 +64,14 @@ ROLE_PERMISSIONS: dict[HMoreRole, frozenset[Permission]] = {
             Permission.SECURE_SHARING_GRANT,
             Permission.SECURE_SHARING_REVOKE,
             Permission.SECURE_SHARING_READ,
+            # F2.14
+            Permission.REPORTS_DASHBOARD_VIEW,
+            Permission.REPORTS_HOUSING_VIEW,
+            Permission.REPORTS_COMPLAINTS_VIEW,
+            Permission.REPORTS_CASELOAD_VIEW,
+            Permission.REPORTS_EXPORT_CSV,
+            Permission.REPORTS_EXPORT_PDF,
+            Permission.REPORTS_EXPORT_EXCEL,
         }
     ),
     HMoreRole.ORGANISATION_ADMIN: frozenset(
@@ -175,6 +183,15 @@ ROLE_PERMISSIONS: dict[HMoreRole, frozenset[Permission]] = {
             Permission.SECURE_SHARING_GRANT,
             Permission.SECURE_SHARING_REVOKE,
             Permission.SECURE_SHARING_READ,
+            # F2.14
+            Permission.REPORTS_READ,
+            Permission.REPORTS_DASHBOARD_VIEW,
+            Permission.REPORTS_HOUSING_VIEW,
+            Permission.REPORTS_COMPLAINTS_VIEW,
+            Permission.REPORTS_CASELOAD_VIEW,
+            Permission.REPORTS_EXPORT_CSV,
+            Permission.REPORTS_EXPORT_PDF,
+            Permission.REPORTS_EXPORT_EXCEL,
         }
     ),
     HMoreRole.LANDLORD: frozenset(
@@ -310,6 +327,9 @@ ROLE_PERMISSIONS: dict[HMoreRole, frozenset[Permission]] = {
             Permission.ORGANISATION_FORMS_SUBMISSIONS_READ,
             Permission.ORGANISATION_FORMS_SUBMISSIONS_REVIEW,
             Permission.SECURE_SHARING_READ,
+            Permission.REPORTS_DASHBOARD_VIEW,
+            Permission.REPORTS_CASELOAD_VIEW,
+            Permission.REPORTS_EXPORT_CSV,
         }
     ),
     HMoreRole.MAINTENANCE_CONTRACTOR: frozenset(
