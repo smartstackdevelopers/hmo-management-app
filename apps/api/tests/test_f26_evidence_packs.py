@@ -151,7 +151,7 @@ def test_evidence_checklist_review_pack_and_isolation(
         ApplicationCreate(
             tenant_id=tenant.id,
             housing_requirements="Need supported housing",
-            priority="medium",
+            priority="normal",
             submit=True,
         ),
     )
