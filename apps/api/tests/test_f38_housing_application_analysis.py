@@ -114,7 +114,7 @@ def test_f38_analysis_does_not_change_application_or_waiting_list(db_session: Se
             priority="normal",
         ),
     )
-    app_id = uuid.UUID(created["id"])
+    app_id = created.id
     evidence_service.seed_checklist_from_templates(db_session, admin_ctx, app_id)
     app = db_session.get(HousingApplication, app_id)
     assert app is not None
@@ -168,7 +168,7 @@ def test_f38_budget_cross_org_and_no_auto_reject(db_session: Session, unique_suf
         admin_ctx,
         ApplicationCreate(tenant_id=tenant.id, housing_requirements="Need housing", priority="normal"),
     )
-    app_id = uuid.UUID(created["id"])
+    app_id = created.id
     app = db_session.get(HousingApplication, app_id)
     assert app is not None
     original_status = app.status
