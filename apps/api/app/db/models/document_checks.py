@@ -5,7 +5,7 @@ from __future__ import annotations
 import uuid
 from datetime import datetime
 
-from sqlalchemy import Boolean, DateTime, ForeignKey, Index, Integer, String, Text, UniqueConstraint, func
+from sqlalchemy import Boolean, DateTime, ForeignKey, Index, Integer, String, Text, UniqueConstraint
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import Mapped, mapped_column
 
@@ -101,9 +101,3 @@ class DocumentCheckObservation(UUIDPrimaryKeyMixin, OrganisationScopedMixin, Tim
     source_finding_code: Mapped[str] = mapped_column(String(64), nullable=False)
     needs_human_verification: Mapped[bool] = mapped_column(Boolean, nullable=False, default=True)
     origin: Mapped[str] = mapped_column(String(32), nullable=False, default="structured_heuristic")
-    created_at_override: Mapped[datetime] = mapped_column(
-        DateTime(timezone=True),
-        server_default=func.now(),
-        default=lambda: datetime.now(timezone.utc),
-        nullable=False,
-    )
