@@ -133,6 +133,11 @@ from app.db.models.housing_application_analysis import (
     HousingApplicationAnalysisFinding,
 )
 from app.db.models.compliance_agent import ComplianceFinding, ComplianceSweep
+from app.db.models.tenant_assistant import (
+    TenantAssistantConversation,
+    TenantAssistantMessage,
+    TenantAssistantRateWindow,
+)
 
 __all__ = [
     "AuditEvent",
@@ -249,4 +254,7 @@ __all__ = [
     "HousingApplicationAnalysisFinding",
     "ComplianceSweep",
     "ComplianceFinding",
+    "TenantAssistantConversation",
+    "TenantAssistantMessage",
+    "TenantAssistantRateWindow",
 ]

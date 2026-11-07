@@ -306,6 +306,8 @@ ROLE_PERMISSIONS: dict[HMoreRole, frozenset[Permission]] = {
             Permission.ORGANISATION_FORMS_SUBMIT,
             Permission.ORGANISATION_FORMS_SUBMISSIONS_READ,
             Permission.SECURE_SHARING_READ,
+            Permission.AI_TENANT_ASSISTANT_ASK,
+            Permission.AI_TENANT_ASSISTANT_READ,
         }
     ),
     HMoreRole.SUPPORT_WORKER: frozenset(
