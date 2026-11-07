@@ -192,7 +192,7 @@ def _upsert_reminder(
             recipient_user_id=recipient_user_id,
             scheduled_for=scheduled_for,
             status="pending",
-            channel="log",
+            channel="in_app",
             payload_summary=summary[:255],
         )
     )

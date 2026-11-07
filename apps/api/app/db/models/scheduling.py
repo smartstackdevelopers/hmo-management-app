@@ -169,7 +169,7 @@ class ReminderRecord(UUIDPrimaryKeyMixin, OrganisationScopedMixin, TimestampMixi
     )
     scheduled_for: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
     status: Mapped[str] = mapped_column(String(32), nullable=False, default="pending")
-    channel: Mapped[str] = mapped_column(String(32), nullable=False, default="log")
+    channel: Mapped[str] = mapped_column(String(32), nullable=False, default="in_app")
     attempt_count: Mapped[int] = mapped_column(Integer, nullable=False, default=0)
     last_attempt_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
     last_error: Mapped[str | None] = mapped_column(Text, nullable=True)
