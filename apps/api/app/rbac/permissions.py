@@ -206,6 +206,11 @@ class Permission(StrEnum):
     AI_NOTES_ANALYSIS_REVIEW = "ai.notes.analysis.review"
     AI_NOTES_ANALYSIS_INBOX_READ = "ai.notes.analysis.inbox.read"
 
+    # F3.5 case summaries
+    AI_CASE_SUMMARY_RUN = "ai.case_summary.run"
+    AI_CASE_SUMMARY_READ = "ai.case_summary.read"
+    AI_CASE_SUMMARY_REVIEW = "ai.case_summary.review"
+
 
 @dataclass(frozen=True)
 class PermissionMeta:
@@ -763,6 +768,15 @@ PERMISSION_CATALOG: dict[Permission, PermissionMeta] = {
     ),
     Permission.AI_NOTES_ANALYSIS_INBOX_READ: PermissionMeta(
         Permission.AI_NOTES_ANALYSIS_INBOX_READ, "View notes analysis human approval inbox", True
+    ),
+    Permission.AI_CASE_SUMMARY_RUN: PermissionMeta(
+        Permission.AI_CASE_SUMMARY_RUN, "Generate a case summary from authorised records", True
+    ),
+    Permission.AI_CASE_SUMMARY_READ: PermissionMeta(
+        Permission.AI_CASE_SUMMARY_READ, "View case summaries for authorised cases", True
+    ),
+    Permission.AI_CASE_SUMMARY_REVIEW: PermissionMeta(
+        Permission.AI_CASE_SUMMARY_REVIEW, "Approve or reject a case summary", True
     ),
     Permission.ROLE_ASSIGNMENTS_MANAGE: PermissionMeta(
         Permission.ROLE_ASSIGNMENTS_MANAGE,

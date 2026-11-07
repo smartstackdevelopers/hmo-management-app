@@ -19,7 +19,7 @@ from app.tools.registry import build_default_tool_registry
 from app.usage.metadata import UsageMetadata
 
 SUPPORTED_WORKFLOWS = frozenset(
-    {"foundation_ping", "foundation_echo", "foundation_routed_echo", "notes_analysis"}
+    {"foundation_ping", "foundation_echo", "foundation_routed_echo", "notes_analysis", "case_summary"}
 )
 
 # foundation_ping is infrastructure-only and non-billable.
@@ -159,6 +159,38 @@ def execute_workflow(
                 "requires_approval": True,
                 "approval_id": None,
                 "provider_request_id": analysed.get("provider_request_id"),
+            }
+
+        if workflow_id == "case_summary":
+            from app.graph.case_summary import run_case_summary
+
+            _reject_body_org()
+            packet = (input_payload or {}).get("packet") or {}
+            if not isinstance(packet, dict) or not isinstance(packet.get("profile"), dict):
+                raise WorkflowError("case_summary requires input_payload.packet", status_code=422)
+            summarised = run_case_summary(
+                settings=settings,
+                organisation_id=ctx.organisation_id,
+                packet=packet,
+            )
+            usage.prompt_id = summarised.get("prompt_id")
+            usage.prompt_version = summarised.get("prompt_version")
+            usage.provider = summarised.get("provider")
+            usage.model = summarised.get("model_id")
+            usage.prompt_tokens = summarised.get("prompt_tokens")
+            usage.completion_tokens = summarised.get("completion_tokens")
+            usage.total_tokens = summarised.get("total_tokens")
+            usage.cache_hit = summarised.get("cache_status") == "hit"
+            esc = summarised.get("escalation")
+            usage.escalation_occurred = bool(esc)
+            usage.escalation_reason = (esc or {}).get("reason") if esc else None
+            return {
+                "workflow_id": workflow_id,
+                "status": "completed",
+                "result": summarised,
+                "requires_approval": True,
+                "approval_id": None,
+                "provider_request_id": summarised.get("provider_request_id"),
             }
 
         _reject_body_org()

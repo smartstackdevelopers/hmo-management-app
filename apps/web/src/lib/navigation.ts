@@ -97,6 +97,13 @@ export const DASHBOARD_NAV: NavItem[] = [
     section: "platform",
   },
   {
+    id: "case-summaries",
+    label: "Case summaries",
+    href: "/dashboard/case-summaries",
+    anyOf: ["ai.case_summary.run", "ai.case_summary.read", "ai.case_summary.review"],
+    section: "records",
+  },
+  {
     id: "notes-analysis",
     label: "Notes analysis",
     href: "/dashboard/notes-analysis",
