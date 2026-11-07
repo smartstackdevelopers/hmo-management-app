@@ -226,6 +226,11 @@ class Permission(StrEnum):
     AI_HOUSING_APPLICATION_READ = "ai.housing_application.read"
     AI_HOUSING_APPLICATION_REVIEW = "ai.housing_application.review"
 
+    # F3.9 compliance agent
+    AI_COMPLIANCE_RUN = "ai.compliance.run"
+    AI_COMPLIANCE_READ = "ai.compliance.read"
+    AI_COMPLIANCE_REVIEW = "ai.compliance.review"
+
 
 @dataclass(frozen=True)
 class PermissionMeta:
@@ -822,6 +827,19 @@ PERMISSION_CATALOG: dict[Permission, PermissionMeta] = {
     Permission.AI_HOUSING_APPLICATION_REVIEW: PermissionMeta(
         Permission.AI_HOUSING_APPLICATION_REVIEW,
         "Confirm or dismiss housing application analysis findings",
+        True,
+    ),
+    Permission.AI_COMPLIANCE_RUN: PermissionMeta(
+        Permission.AI_COMPLIANCE_RUN,
+        "Run a rules-based compliance sweep",
+        True,
+    ),
+    Permission.AI_COMPLIANCE_READ: PermissionMeta(
+        Permission.AI_COMPLIANCE_READ, "View compliance sweeps, rules, and findings", True
+    ),
+    Permission.AI_COMPLIANCE_REVIEW: PermissionMeta(
+        Permission.AI_COMPLIANCE_REVIEW,
+        "Review, dismiss, or resolve compliance findings",
         True,
     ),
     Permission.ROLE_ASSIGNMENTS_MANAGE: PermissionMeta(
