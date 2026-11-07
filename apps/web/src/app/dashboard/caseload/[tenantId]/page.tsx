@@ -4,6 +4,7 @@ import { EmptyState } from "@/components/dashboard/EmptyState";
 import { ErrorState } from "@/components/dashboard/ErrorState";
 import { PageHeader } from "@/components/dashboard/PageHeader";
 import { auth0, isAuth0Configured } from "@/lib/auth0";
+import { canGenerateSummary } from "@/lib/caseSummaryView";
 import { canAny } from "@/lib/rbac";
 import { TenantTimelinePanel } from "@/components/tenant/TenantTimelinePanel";
 import { fetchCaseDetail } from "@/lib/supportApi";
@@ -103,6 +104,14 @@ export default async function CaseDetailPage({
           >
             Create handover
           </Link>
+          {canGenerateSummary(permissions) ? (
+            <Link
+              href={`/dashboard/case-summaries?tenantId=${tenantId}`}
+              className="rounded-md border border-slate-300 px-3 py-2 text-sm"
+            >
+              Case summary
+            </Link>
+          ) : null}
           <Link href="/dashboard/support-worker" className="rounded-md px-3 py-2 text-sm text-teal-800 underline">
             Back to caseload
           </Link>

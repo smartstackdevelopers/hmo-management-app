@@ -120,6 +120,7 @@ from app.db.models.ai_usage import (
     OrganisationAiBudget,
 )
 from app.db.models.notes_analysis import DailyLogAiAnalysis, DailyLogAiSuggestion
+from app.db.models.case_summaries import CaseSummary
 
 __all__ = [
     "AuditEvent",
@@ -226,4 +227,5 @@ __all__ = [
     "AiBudgetReservation",
     "DailyLogAiAnalysis",
     "DailyLogAiSuggestion",
+    "CaseSummary",
 ]

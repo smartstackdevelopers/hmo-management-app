@@ -257,3 +257,12 @@ AI_NOTES_ANALYSIS_REVIEWED = "ai.notes_analysis.reviewed"
 AI_NOTES_ANALYSIS_SUGGESTION_APPROVE = "ai.notes_analysis.suggestion.approve"
 AI_NOTES_ANALYSIS_SUGGESTION_REJECT = "ai.notes_analysis.suggestion.reject"
 AI_NOTES_ANALYSIS_BATCH = "ai.notes_analysis.batch"
+
+# F3.5 case summaries
+AI_CASE_SUMMARY_REQUESTED = "ai.case_summary.requested"
+AI_CASE_SUMMARY_COMPLETED = "ai.case_summary.completed"
+AI_CASE_SUMMARY_FAILED = "ai.case_summary.failed"
+AI_CASE_SUMMARY_APPROVED = "ai.case_summary.approved"
+AI_CASE_SUMMARY_REJECTED = "ai.case_summary.rejected"
+AI_CASE_SUMMARY_REGENERATED = "ai.case_summary.regenerated"
+AI_CASE_SUMMARY_DENIED = "ai.case_summary.denied"
