@@ -40,6 +40,7 @@ def test_relevance_prefers_matching_title() -> None:
     assert score_relevance("fire safety assembly", item) > 0.3
     selected = select_relevant("fire safety assembly", [item])
     assert selected == [item]
+    assert select_relevant("what is the secret intergalactic policy code", [item]) == []
 
 
 def test_escalation_blocks_housing_and_other_tenant() -> None:

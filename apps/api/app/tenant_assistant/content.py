@@ -27,6 +27,38 @@ from app.db.models.communication import CommunicationAnnouncement
 from app.db.models.maintenance import MaintenanceEmergencyContent
 
 _TOKEN = re.compile(r"[a-z0-9]{3,}", re.IGNORECASE)
+_STOPWORDS = frozenset(
+    {
+        "the",
+        "and",
+        "for",
+        "are",
+        "was",
+        "were",
+        "what",
+        "when",
+        "where",
+        "who",
+        "how",
+        "why",
+        "can",
+        "could",
+        "would",
+        "should",
+        "with",
+        "from",
+        "this",
+        "that",
+        "have",
+        "has",
+        "had",
+        "into",
+        "about",
+        "please",
+        "tell",
+        "know",
+    }
+)
 
 # In-process approved-content pack cache: org-scoped, fingerprint-keyed.
 _CACHE: dict[str, tuple[float, str, list["ApprovedContentItem"]]] = {}
@@ -150,7 +182,7 @@ def load_approved_content(
 
 
 def score_relevance(question: str, item: ApprovedContentItem) -> float:
-    q_tokens = set(_TOKEN.findall(question.lower()))
+    q_tokens = {token for token in _TOKEN.findall(question.lower()) if token not in _STOPWORDS}
     if not q_tokens:
         return 0.0
     text = f"{item.title} {item.body}".lower()
@@ -163,7 +195,7 @@ def select_relevant(
     items: list[ApprovedContentItem],
     *,
     limit: int = 5,
-    min_score: float = 0.15,
+    min_score: float = 0.34,
 ) -> list[ApprovedContentItem]:
     ranked = sorted(
         ((score_relevance(question, item), item) for item in items),

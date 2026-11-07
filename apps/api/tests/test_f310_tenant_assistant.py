@@ -172,10 +172,13 @@ def test_f310_answers_from_published_announcement_only(
     assert all(ref["content_id"] != str(draft.id) for ref in result["message"]["source_refs"])
     assert all(ref["content_id"] != str(staff_only.id) for ref in result["message"]["source_refs"])
 
+    # Monkeypatch would invent an answer if retrieval were too loose; require no-content path.
     no_match = ta_service.ask(
         db_session, ctx_a, question="What is the secret intergalactic policy code?", settings=settings
     )
+    assert no_match["message"]["ai_status"] == "no_content"
     assert "cannot confirm" in no_match["message"]["body"].lower()
+    assert no_match["message"]["source_refs"] == []
 
     # Tenant B cannot read Tenant A's conversation
     ctx_b = _ctx(HMoreRole.TENANT, org.id, tenant_b.id)
