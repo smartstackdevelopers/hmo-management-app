@@ -54,6 +54,7 @@ def execute_workflow_job(self, job_id: str, trusted_payload: dict[str, Any], mes
             settings=settings,
             message=message,
             require_human_gate=False,
+            batch_job_id=job_id,
         )
         # Persist a reference only — avoid dumping sensitive prompt content.
         ref = {

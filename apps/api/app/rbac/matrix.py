@@ -72,6 +72,13 @@ ROLE_PERMISSIONS: dict[HMoreRole, frozenset[Permission]] = {
             Permission.REPORTS_EXPORT_CSV,
             Permission.REPORTS_EXPORT_PDF,
             Permission.REPORTS_EXPORT_EXCEL,
+            # F3.3
+            Permission.AI_BUDGET_READ,
+            Permission.AI_BUDGET_MANAGE,
+            Permission.AI_USAGE_READ,
+            Permission.AI_COST_DASHBOARD_VIEW,
+            Permission.AI_PRICING_MANAGE,
+            Permission.AI_PLATFORM_COST_VIEW,
         }
     ),
     HMoreRole.ORGANISATION_ADMIN: frozenset(
@@ -192,6 +199,10 @@ ROLE_PERMISSIONS: dict[HMoreRole, frozenset[Permission]] = {
             Permission.REPORTS_EXPORT_CSV,
             Permission.REPORTS_EXPORT_PDF,
             Permission.REPORTS_EXPORT_EXCEL,
+            # F3.3 — organisation-scoped only
+            Permission.AI_BUDGET_READ,
+            Permission.AI_USAGE_READ,
+            Permission.AI_COST_DASHBOARD_VIEW,
         }
     ),
     HMoreRole.LANDLORD: frozenset(
