@@ -19,6 +19,7 @@ from app.api.v1.ai_usage import router as ai_usage_router
 from app.api.v1.notes_analysis import router as notes_analysis_router
 from app.api.v1.case_summaries import router as case_summaries_router
 from app.api.v1.document_checks import router as document_checks_router
+from app.api.v1.support_plan_drafts import router as support_plan_drafts_router
 from app.api.v1.evidence import router as evidence_router
 from app.api.v1.housing import router as housing_router
 from app.api.v1.incidents import router as incidents_router
@@ -68,3 +69,4 @@ api_v1_router.include_router(ai_usage_internal_router)
 api_v1_router.include_router(notes_analysis_router)
 api_v1_router.include_router(case_summaries_router)
 api_v1_router.include_router(document_checks_router)
+api_v1_router.include_router(support_plan_drafts_router)

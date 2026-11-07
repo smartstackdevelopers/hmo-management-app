@@ -2,8 +2,10 @@ import Link from "next/link";
 import { EmptyState } from "@/components/dashboard/EmptyState";
 import { ErrorState } from "@/components/dashboard/ErrorState";
 import { PageHeader } from "@/components/dashboard/PageHeader";
+import { SupportPlanDraftPanel } from "@/components/support-plans/SupportPlanDraftPanel";
 import { auth0, isAuth0Configured } from "@/lib/auth0";
 import { canAny } from "@/lib/rbac";
+import { canRunSupportPlanDraft } from "@/lib/supportPlanDraftView";
 import { fetchTenantSupportPlans, type SupportPlanListItem } from "@/lib/supportPlansApi";
 import { requireAuthenticatedSession } from "@/lib/session";
 
@@ -84,6 +86,16 @@ export default async function TenantSupportPlansListPage({
             ))}
           </ul>
         )}
+        {canRunSupportPlanDraft(permissions) ? (
+          <SupportPlanDraftPanel
+            tenantId={tenantId}
+            planId={page.items[0]?.id ?? null}
+            accessToken={token}
+            organisationId={orgId}
+            role={session.authorization?.active_role}
+            permissions={permissions ?? []}
+          />
+        ) : null}
       </div>
     );
   } catch (e) {

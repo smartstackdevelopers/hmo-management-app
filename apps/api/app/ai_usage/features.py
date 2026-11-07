@@ -56,6 +56,7 @@ WORKFLOW_FEATURE_MAP: dict[str, str] = {
     "notes_analysis": FEATURE_NOTES_ANALYSIS,
     "case_summary": FEATURE_CASE_SUMMARY,
     "document_check": FEATURE_DOCUMENT_CHECK,
+    "support_plan_draft": FEATURE_SUPPORT_PLANNING,
 }
 
 
