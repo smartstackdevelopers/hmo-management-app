@@ -254,6 +254,7 @@ def test_timeline_and_meetings_isolation(db_session, unique_suffix: str) -> None
         )
     assert exc.value.status_code in {403, 404}
 
+    apply_organisation_rls(db_session, org_a.id)
     audits = db_session.scalars(
         select(AuditEvent).where(
             AuditEvent.organisation_id == org_a.id,
