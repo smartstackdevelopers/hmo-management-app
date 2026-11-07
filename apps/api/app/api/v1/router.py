@@ -11,6 +11,9 @@ from app.api.v1.compliance import router as compliance_router
 from app.api.v1.complaints import router as complaints_router
 from app.api.v1.maintenance import router as maintenance_router
 from app.api.v1.managed_documents import router as managed_documents_router
+from app.api.v1.communication import router as communication_router
+from app.api.v1.org_workflows import router as org_workflows_router
+from app.api.v1.reporting import router as reporting_router
 from app.api.v1.evidence import router as evidence_router
 from app.api.v1.housing import router as housing_router
 from app.api.v1.incidents import router as incidents_router
@@ -52,3 +55,6 @@ api_v1_router.include_router(evidence_router)
 api_v1_router.include_router(complaints_router)
 api_v1_router.include_router(maintenance_router)
 api_v1_router.include_router(managed_documents_router)
+api_v1_router.include_router(communication_router)
+api_v1_router.include_router(org_workflows_router)
+api_v1_router.include_router(reporting_router)

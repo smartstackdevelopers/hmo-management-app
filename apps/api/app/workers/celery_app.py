@@ -37,6 +37,10 @@ celery_app.conf.update(
             "task": "hmore.managed_documents.scan_expiry_reminders",
             "schedule": 3600.0,
         },
+        "dispatch-f212-communication-reminders-every-minute": {
+            "task": "hmore.communication.dispatch_scheduled_reminders",
+            "schedule": 60.0,
+        },
     },
 )
 

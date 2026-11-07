@@ -239,9 +239,13 @@ def dispatch_due_reminders(session: Session, *, limit: int | None = None) -> dic
             subject=reminder.payload_summary or reminder.reminder_kind,
             body=reminder.payload_summary or reminder.reminder_kind,
             channel=reminder.channel,
+            target_type="reminder_record",
+            target_id=str(reminder.id),
+            idempotency_key=f"reminder_record:{reminder.id}",
+            essential_operational=True,
         )
         try:
-            result = provider.send(message)
+            result = provider.send(session, message)
             if result.success:
                 reminder.status = "sent"
                 reminder.delivered = True
@@ -326,13 +330,18 @@ def dispatch_org_reminders(session: Session, payload: dict) -> dict[str, int]:
             continue
         try:
             result = provider.send(
+                session,
                 ReminderMessage(
                     organisation_id=str(reminder.organisation_id),
                     recipient_user_id=str(reminder.recipient_user_id),
                     subject=reminder.payload_summary or reminder.reminder_kind,
                     body=reminder.payload_summary or reminder.reminder_kind,
                     channel=reminder.channel,
-                )
+                    target_type="reminder_record",
+                    target_id=str(reminder.id),
+                    idempotency_key=f"reminder_record:{reminder.id}",
+                    essential_operational=True,
+                ),
             )
         except Exception as exc:  # noqa: BLE001
             logger.exception("reminder_dispatch_error id=%s", reminder.id)
