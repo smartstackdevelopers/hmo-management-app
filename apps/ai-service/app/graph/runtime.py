@@ -27,6 +27,7 @@ SUPPORTED_WORKFLOWS = frozenset(
         "case_summary",
         "document_check",
         "support_plan_draft",
+        "housing_application_analysis",
     }
 )
 
@@ -258,6 +259,38 @@ def execute_workflow(
                 "requires_approval": True,
                 "approval_id": None,
                 "provider_request_id": drafted.get("provider_request_id"),
+            }
+
+        if workflow_id == "housing_application_analysis":
+            from app.graph.housing_application_analysis import run_housing_application_analysis
+
+            _reject_body_org()
+            findings = (input_payload or {}).get("findings") or []
+            if not isinstance(findings, list):
+                raise WorkflowError(
+                    "housing_application_analysis requires input_payload.findings", status_code=422
+                )
+            analysed = run_housing_application_analysis(
+                settings=settings,
+                organisation_id=ctx.organisation_id,
+                findings=findings,
+                application_reference=str((input_payload or {}).get("application_reference") or "unknown"),
+            )
+            usage.prompt_id = analysed.get("prompt_id")
+            usage.prompt_version = analysed.get("prompt_version")
+            usage.provider = analysed.get("provider")
+            usage.model = analysed.get("model_id")
+            usage.prompt_tokens = analysed.get("prompt_tokens")
+            usage.completion_tokens = analysed.get("completion_tokens")
+            usage.total_tokens = analysed.get("total_tokens")
+            usage.cache_hit = analysed.get("cache_status") == "hit"
+            return {
+                "workflow_id": workflow_id,
+                "status": "completed",
+                "result": analysed,
+                "requires_approval": True,
+                "approval_id": None,
+                "provider_request_id": analysed.get("provider_request_id"),
             }
 
         _reject_body_org()

@@ -2,11 +2,13 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { ApplicationReviewActions } from "@/components/housing/ApplicationReviewActions";
 import { EvidencePanel } from "@/components/housing/EvidencePanel";
+import { HousingApplicationAnalysisPanel } from "@/components/housing/HousingApplicationAnalysisPanel";
 import { EmptyState } from "@/components/dashboard/EmptyState";
 import { ErrorState } from "@/components/dashboard/ErrorState";
 import { PageHeader } from "@/components/dashboard/PageHeader";
 import { auth0, isAuth0Configured } from "@/lib/auth0";
 import { fetchApplication } from "@/lib/housingApi";
+import { canRunHousingApplicationAnalysis } from "@/lib/housingApplicationAnalysisView";
 import { can, canAny } from "@/lib/rbac";
 import { requireAuthenticatedSession } from "@/lib/session";
 
@@ -84,6 +86,15 @@ export default async function HousingApplicationDetailPage({
           role={session.authorization?.active_role}
           canReview={canReview}
         />
+        {canRunHousingApplicationAnalysis(permissions) ? (
+          <HousingApplicationAnalysisPanel
+            applicationId={app.id}
+            accessToken={token}
+            organisationId={orgId}
+            role={session.authorization?.active_role}
+            permissions={permissions ?? []}
+          />
+        ) : null}
         {canViewEvidence ? (
           <EvidencePanel
             applicationId={app.id}

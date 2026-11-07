@@ -92,6 +92,9 @@ ROLE_PERMISSIONS: dict[HMoreRole, frozenset[Permission]] = {
             Permission.AI_SUPPORT_PLAN_DRAFT_RUN,
             Permission.AI_SUPPORT_PLAN_DRAFT_READ,
             Permission.AI_SUPPORT_PLAN_DRAFT_REVIEW,
+            Permission.AI_HOUSING_APPLICATION_RUN,
+            Permission.AI_HOUSING_APPLICATION_READ,
+            Permission.AI_HOUSING_APPLICATION_REVIEW,
         }
     ),
     HMoreRole.ORGANISATION_ADMIN: frozenset(
@@ -230,6 +233,9 @@ ROLE_PERMISSIONS: dict[HMoreRole, frozenset[Permission]] = {
             Permission.AI_SUPPORT_PLAN_DRAFT_RUN,
             Permission.AI_SUPPORT_PLAN_DRAFT_READ,
             Permission.AI_SUPPORT_PLAN_DRAFT_REVIEW,
+            Permission.AI_HOUSING_APPLICATION_RUN,
+            Permission.AI_HOUSING_APPLICATION_READ,
+            Permission.AI_HOUSING_APPLICATION_REVIEW,
         }
     ),
     HMoreRole.LANDLORD: frozenset(
@@ -307,6 +313,8 @@ ROLE_PERMISSIONS: dict[HMoreRole, frozenset[Permission]] = {
             Permission.AI_DOCUMENT_CHECK_READ,
             Permission.AI_SUPPORT_PLAN_DRAFT_RUN,
             Permission.AI_SUPPORT_PLAN_DRAFT_READ,
+            Permission.AI_HOUSING_APPLICATION_RUN,
+            Permission.AI_HOUSING_APPLICATION_READ,
             Permission.SUPPORT_NOTES_READ_ASSIGNED,
             Permission.SUPPORT_NOTES_CREATE_ASSIGNED,
             Permission.SUPPORT_PLANS_MANAGE_ASSIGNED,
