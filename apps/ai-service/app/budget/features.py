@@ -4,12 +4,14 @@ from __future__ import annotations
 
 FEATURE_FOUNDATION = "ai.infra.foundation"
 FEATURE_ROUTING = "ai.infra.routing"
+FEATURE_NOTES_ANALYSIS = "ai.agent.notes_analysis"
 FEATURE_UNKNOWN = "ai.infra.unattributed"
 
 WORKFLOW_FEATURE_MAP: dict[str, str] = {
     "foundation_ping": FEATURE_FOUNDATION,
     "foundation_echo": FEATURE_FOUNDATION,
     "foundation_routed_echo": FEATURE_ROUTING,
+    "notes_analysis": FEATURE_NOTES_ANALYSIS,
 }
 
 

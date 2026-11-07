@@ -119,6 +119,7 @@ from app.db.models.ai_usage import (
     AiUsageRecord,
     OrganisationAiBudget,
 )
+from app.db.models.notes_analysis import DailyLogAiAnalysis, DailyLogAiSuggestion
 
 __all__ = [
     "AuditEvent",
@@ -223,4 +224,6 @@ __all__ = [
     "AiModelPricing",
     "AiUsageRecord",
     "AiBudgetReservation",
+    "DailyLogAiAnalysis",
+    "DailyLogAiSuggestion",
 ]

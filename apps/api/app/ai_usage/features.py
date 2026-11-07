@@ -49,6 +49,7 @@ WORKFLOW_FEATURE_MAP: dict[str, str] = {
     "foundation_ping": FEATURE_FOUNDATION,
     "foundation_echo": FEATURE_FOUNDATION,
     "foundation_routed_echo": FEATURE_ROUTING,
+    "notes_analysis": FEATURE_NOTES_ANALYSIS,
 }
 
 
