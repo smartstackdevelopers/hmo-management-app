@@ -29,6 +29,7 @@ from app.support_plans.schemas import (
     GoalUpdate,
     MilestoneCompleteBody,
     MilestoneCreate,
+    MilestoneUpdate,
     ReviewCreate,
     ReviewUpdate,
     SupportPlanCreate,
@@ -288,6 +289,15 @@ def test_f210_plan_lifecycle_and_isolation(db_session: Session, unique_suffix: s
         )
     assert exc.value.status_code == 409
 
+    sp_service.update_milestone(
+        db_session,
+        worker_ctx,
+        tenant_a.id,
+        pid,
+        gid,
+        mid,
+        MilestoneUpdate(status="in_progress"),
+    )
     sp_service.complete_milestone(
         db_session,
         worker_ctx,
