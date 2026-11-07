@@ -36,6 +36,14 @@ class Permission(StrEnum):
     EVIDENCE_PACK_GENERATE = "evidence.pack.generate"
     COMPLIANCE_CHECK = "compliance.check"
     REPORTS_READ = "reports.read"
+    # F2.14 granular reporting (reports.read retained for backward compatibility)
+    REPORTS_DASHBOARD_VIEW = "reports.dashboard.view"
+    REPORTS_HOUSING_VIEW = "reports.housing.view"
+    REPORTS_COMPLAINTS_VIEW = "reports.complaints.view"
+    REPORTS_CASELOAD_VIEW = "reports.caseload.view"
+    REPORTS_EXPORT_CSV = "reports.export.csv"
+    REPORTS_EXPORT_PDF = "reports.export.pdf"
+    REPORTS_EXPORT_EXCEL = "reports.export.excel"
     AUDIT_LOGS_READ = "audit_logs.read"
     OCCUPANCY_READ = "occupancy.read"
     OCCUPANCY_ALERTS_MANAGE = "occupancy.alerts.manage"
@@ -125,6 +133,21 @@ class Permission(StrEnum):
     SUPPORT_PLAN_NOTES_INTERNAL = "support_plans.notes.internal"
     SUPPORT_PLAN_EXPORT = "support_plans.export"
     SUPPORT_PLAN_REVIEW_FINALISE = "support_plans.review.finalise"
+    # F2.11 managed documents (central DMS — not F2.6 evidence files)
+    DOCUMENTS_READ_META = "documents.read.meta"
+    DOCUMENTS_READ_CONTENT = "documents.read.content"
+    DOCUMENTS_UPLOAD = "documents.upload"
+    DOCUMENTS_VERSION = "documents.version"
+    DOCUMENTS_ARCHIVE = "documents.archive"
+    DOCUMENTS_MANAGE_EXPIRY = "documents.manage.expiry"
+    DOCUMENTS_MANAGE_RETENTION = "documents.manage.retention"
+    DOCUMENTS_VIEW_RESTRICTED = "documents.view.restricted"
+    DOCUMENTS_ACCESS_REQUEST = "documents.access.request"
+    DOCUMENTS_ACCESS_APPROVE = "documents.access.approve"
+    DOCUMENTS_SIGN_REQUEST = "documents.sign.request"
+    DOCUMENTS_SIGN_COMPLETE = "documents.sign.complete"
+    DOCUMENTS_MANAGE_CATEGORIES = "documents.manage.categories"
+    DOCUMENTS_MANAGE_SETTINGS = "documents.manage.settings"
     VISITS_MANAGE_ASSIGNED = "visits.manage.assigned"
     TASKS_MANAGE_ASSIGNED = "tasks.manage.assigned"
     EMPLOYMENT_SUPPORT_MANAGE_ASSIGNED = "employment_support.manage.assigned"
@@ -143,6 +166,31 @@ class Permission(StrEnum):
 
     # Role administration
     ROLE_ASSIGNMENTS_MANAGE = "role_assignments.manage"
+
+    # F2.12 communication platform
+    COMMUNICATION_MESSAGES_SEND = "communication.messages.send"
+    COMMUNICATION_MESSAGES_READ = "communication.messages.read"
+    COMMUNICATION_DELIVERIES_READ = "communication.deliveries.read"
+    COMMUNICATION_CHANNEL_EMAIL_SEND = "communication.channel.email.send"
+    COMMUNICATION_CHANNEL_SMS_SEND = "communication.channel.sms.send"
+    COMMUNICATION_REMINDERS_MANAGE = "communication.reminders.manage"
+    COMMUNICATION_ANNOUNCEMENTS_PUBLISH = "communication.announcements.publish"
+    COMMUNICATION_ANNOUNCEMENTS_READ = "communication.announcements.read"
+    COMMUNICATION_TEMPLATES_MANAGE = "communication.templates.manage"
+    COMMUNICATION_TRANSLATIONS_MANAGE = "communication.translations.manage"
+
+    # F2.13 organisation workflows
+    APPROVALS_INBOX_READ = "approvals.inbox.read"
+    APPROVALS_DECIDE = "approvals.decide"
+    APPROVALS_ASSIGN = "approvals.assign"
+    ORGANISATION_FORMS_MANAGE = "organisation.forms.manage"
+    ORGANISATION_FORMS_PUBLISH = "organisation.forms.publish"
+    ORGANISATION_FORMS_SUBMIT = "organisation.forms.submit"
+    ORGANISATION_FORMS_SUBMISSIONS_READ = "organisation.forms.submissions.read"
+    ORGANISATION_FORMS_SUBMISSIONS_REVIEW = "organisation.forms.submissions.review"
+    SECURE_SHARING_GRANT = "secure_sharing.grant"
+    SECURE_SHARING_REVOKE = "secure_sharing.revoke"
+    SECURE_SHARING_READ = "secure_sharing.read"
 
 
 @dataclass(frozen=True)
@@ -235,6 +283,27 @@ PERMISSION_CATALOG: dict[Permission, PermissionMeta] = {
         Permission.COMPLIANCE_CHECK, "Run compliance checks", True
     ),
     Permission.REPORTS_READ: PermissionMeta(Permission.REPORTS_READ, "Access organisation reports"),
+    Permission.REPORTS_DASHBOARD_VIEW: PermissionMeta(
+        Permission.REPORTS_DASHBOARD_VIEW, "View operational reporting dashboard", True
+    ),
+    Permission.REPORTS_HOUSING_VIEW: PermissionMeta(
+        Permission.REPORTS_HOUSING_VIEW, "View housing application reports", True
+    ),
+    Permission.REPORTS_COMPLAINTS_VIEW: PermissionMeta(
+        Permission.REPORTS_COMPLAINTS_VIEW, "View complaints reports", True
+    ),
+    Permission.REPORTS_CASELOAD_VIEW: PermissionMeta(
+        Permission.REPORTS_CASELOAD_VIEW, "View support worker caseload reports", True
+    ),
+    Permission.REPORTS_EXPORT_CSV: PermissionMeta(
+        Permission.REPORTS_EXPORT_CSV, "Export reports as CSV", True
+    ),
+    Permission.REPORTS_EXPORT_PDF: PermissionMeta(
+        Permission.REPORTS_EXPORT_PDF, "Export reports as PDF", True
+    ),
+    Permission.REPORTS_EXPORT_EXCEL: PermissionMeta(
+        Permission.REPORTS_EXPORT_EXCEL, "Export reports as Excel", True
+    ),
     Permission.AUDIT_LOGS_READ: PermissionMeta(
         Permission.AUDIT_LOGS_READ, "Read audit logs", True
     ),
@@ -479,6 +548,58 @@ PERMISSION_CATALOG: dict[Permission, PermissionMeta] = {
         "Finalise weekly or monthly support plan reviews",
         True,
     ),
+    Permission.DOCUMENTS_READ_META: PermissionMeta(
+        Permission.DOCUMENTS_READ_META,
+        "View managed document metadata within authorised scope",
+        True,
+    ),
+    Permission.DOCUMENTS_READ_CONTENT: PermissionMeta(
+        Permission.DOCUMENTS_READ_CONTENT,
+        "Download managed document file content within authorised scope",
+        True,
+    ),
+    Permission.DOCUMENTS_UPLOAD: PermissionMeta(
+        Permission.DOCUMENTS_UPLOAD, "Upload new managed documents or versions", True
+    ),
+    Permission.DOCUMENTS_VERSION: PermissionMeta(
+        Permission.DOCUMENTS_VERSION, "Upload new versions of managed documents", True
+    ),
+    Permission.DOCUMENTS_ARCHIVE: PermissionMeta(
+        Permission.DOCUMENTS_ARCHIVE, "Archive managed documents", True
+    ),
+    Permission.DOCUMENTS_MANAGE_EXPIRY: PermissionMeta(
+        Permission.DOCUMENTS_MANAGE_EXPIRY, "Set or change document expiry dates", True
+    ),
+    Permission.DOCUMENTS_MANAGE_RETENTION: PermissionMeta(
+        Permission.DOCUMENTS_MANAGE_RETENTION, "Manage retention metadata and reviews", True
+    ),
+    Permission.DOCUMENTS_VIEW_RESTRICTED: PermissionMeta(
+        Permission.DOCUMENTS_VIEW_RESTRICTED,
+        "View confidential or restricted managed documents",
+        True,
+    ),
+    Permission.DOCUMENTS_ACCESS_REQUEST: PermissionMeta(
+        Permission.DOCUMENTS_ACCESS_REQUEST, "Submit access requests for managed documents"
+    ),
+    Permission.DOCUMENTS_ACCESS_APPROVE: PermissionMeta(
+        Permission.DOCUMENTS_ACCESS_APPROVE, "Approve or reject document access requests", True
+    ),
+    Permission.DOCUMENTS_SIGN_REQUEST: PermissionMeta(
+        Permission.DOCUMENTS_SIGN_REQUEST, "Create internal signature requests", True
+    ),
+    Permission.DOCUMENTS_SIGN_COMPLETE: PermissionMeta(
+        Permission.DOCUMENTS_SIGN_COMPLETE,
+        "Complete or decline in-platform signature (not qualified e-signature)",
+        True,
+    ),
+    Permission.DOCUMENTS_MANAGE_CATEGORIES: PermissionMeta(
+        Permission.DOCUMENTS_MANAGE_CATEGORIES, "Manage organisation document categories", True
+    ),
+    Permission.DOCUMENTS_MANAGE_SETTINGS: PermissionMeta(
+        Permission.DOCUMENTS_MANAGE_SETTINGS,
+        "Manage organisation document reminder and retention defaults",
+        True,
+    ),
     Permission.VISITS_MANAGE_ASSIGNED: PermissionMeta(
         Permission.VISITS_MANAGE_ASSIGNED, "Manage assigned visits"
     ),
@@ -519,6 +640,85 @@ PERMISSION_CATALOG: dict[Permission, PermissionMeta] = {
     ),
     Permission.WORK_ORDERS_APPROVE_ASSIGNED: PermissionMeta(
         Permission.WORK_ORDERS_APPROVE_ASSIGNED, "Approve assigned jobs where permitted"
+    ),
+    Permission.COMMUNICATION_MESSAGES_SEND: PermissionMeta(
+        Permission.COMMUNICATION_MESSAGES_SEND, "Send in-app messages within permitted recipient scope"
+    ),
+    Permission.COMMUNICATION_MESSAGES_READ: PermissionMeta(
+        Permission.COMMUNICATION_MESSAGES_READ, "Read permitted in-app messages and threads"
+    ),
+    Permission.COMMUNICATION_DELIVERIES_READ: PermissionMeta(
+        Permission.COMMUNICATION_DELIVERIES_READ,
+        "View communication delivery status and attempts (operational)",
+        True,
+    ),
+    Permission.COMMUNICATION_CHANNEL_EMAIL_SEND: PermissionMeta(
+        Permission.COMMUNICATION_CHANNEL_EMAIL_SEND,
+        "Dispatch operational email via the communication service",
+        True,
+    ),
+    Permission.COMMUNICATION_CHANNEL_SMS_SEND: PermissionMeta(
+        Permission.COMMUNICATION_CHANNEL_SMS_SEND,
+        "Dispatch operational SMS via the communication service",
+        True,
+    ),
+    Permission.COMMUNICATION_REMINDERS_MANAGE: PermissionMeta(
+        Permission.COMMUNICATION_REMINDERS_MANAGE,
+        "Create or cancel scheduled communication reminders where permitted",
+        True,
+    ),
+    Permission.COMMUNICATION_ANNOUNCEMENTS_PUBLISH: PermissionMeta(
+        Permission.COMMUNICATION_ANNOUNCEMENTS_PUBLISH,
+        "Publish emergency or org announcements",
+        True,
+    ),
+    Permission.COMMUNICATION_ANNOUNCEMENTS_READ: PermissionMeta(
+        Permission.COMMUNICATION_ANNOUNCEMENTS_READ, "Read announcements targeted to the user"
+    ),
+    Permission.COMMUNICATION_TEMPLATES_MANAGE: PermissionMeta(
+        Permission.COMMUNICATION_TEMPLATES_MANAGE,
+        "Manage organisation communication templates",
+        True,
+    ),
+    Permission.COMMUNICATION_TRANSLATIONS_MANAGE: PermissionMeta(
+        Permission.COMMUNICATION_TRANSLATIONS_MANAGE,
+        "Request or review translations of communication content",
+        True,
+    ),
+    Permission.APPROVALS_INBOX_READ: PermissionMeta(
+        Permission.APPROVALS_INBOX_READ, "View organisation approvals inbox", True
+    ),
+    Permission.APPROVALS_DECIDE: PermissionMeta(
+        Permission.APPROVALS_DECIDE, "Approve or reject aggregated approval requests", True
+    ),
+    Permission.APPROVALS_ASSIGN: PermissionMeta(
+        Permission.APPROVALS_ASSIGN, "Assign reviewers to approval requests", True
+    ),
+    Permission.ORGANISATION_FORMS_MANAGE: PermissionMeta(
+        Permission.ORGANISATION_FORMS_MANAGE, "Create and edit organisation custom forms", True
+    ),
+    Permission.ORGANISATION_FORMS_PUBLISH: PermissionMeta(
+        Permission.ORGANISATION_FORMS_PUBLISH, "Publish organisation custom forms", True
+    ),
+    Permission.ORGANISATION_FORMS_SUBMIT: PermissionMeta(
+        Permission.ORGANISATION_FORMS_SUBMIT, "Complete and submit published custom forms"
+    ),
+    Permission.ORGANISATION_FORMS_SUBMISSIONS_READ: PermissionMeta(
+        Permission.ORGANISATION_FORMS_SUBMISSIONS_READ, "Read permitted custom form submissions"
+    ),
+    Permission.ORGANISATION_FORMS_SUBMISSIONS_REVIEW: PermissionMeta(
+        Permission.ORGANISATION_FORMS_SUBMISSIONS_REVIEW,
+        "Review and decide on custom form submissions",
+        True,
+    ),
+    Permission.SECURE_SHARING_GRANT: PermissionMeta(
+        Permission.SECURE_SHARING_GRANT, "Create secure sharing grants", True
+    ),
+    Permission.SECURE_SHARING_REVOKE: PermissionMeta(
+        Permission.SECURE_SHARING_REVOKE, "Revoke secure sharing grants", True
+    ),
+    Permission.SECURE_SHARING_READ: PermissionMeta(
+        Permission.SECURE_SHARING_READ, "View and access secure sharing grants", True
     ),
     Permission.ROLE_ASSIGNMENTS_MANAGE: PermissionMeta(
         Permission.ROLE_ASSIGNMENTS_MANAGE,

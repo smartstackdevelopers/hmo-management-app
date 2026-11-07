@@ -28,5 +28,14 @@ Never commit real secrets. Track `*.env.example` only.
 | `AUTH0_SECRET` | web | Session cookie encryption | Required for web login |
 | `APP_BASE_URL` | web | App origin, e.g. `http://localhost:3000` | Required for web login |
 | `EXPO_PUBLIC_AUTH0_*` | mobile | Native app public config | Required for Expo Auth0 |
+| `EMAIL_ADAPTER_MODE` | api | `test` (default, no network) or `smtp` | No |
+| `SMTP_HOST` | api | SMTP server hostname | When using SMTP |
+| `SMTP_PORT` | api | SMTP port (default 587) | When using SMTP |
+| `SMTP_USER` / `SMTP_PASSWORD` | api | SMTP auth (optional if IAM/relay) | When required |
+| `SMTP_FROM_EMAIL` | api | Envelope From for operational email | When using SMTP |
+| `SMS_ADAPTER_MODE` | api | `test` (default) or `twilio` | No |
+| `TWILIO_ACCOUNT_SID` | api | Twilio account SID | When `SMS_ADAPTER_MODE=twilio` |
+| `TWILIO_AUTH_TOKEN` | api | Twilio auth token | When `SMS_ADAPTER_MODE=twilio` |
+| `TWILIO_FROM_NUMBER` | api | Twilio sender number | When `SMS_ADAPTER_MODE=twilio` |
 
 The Node `api/` still reads `JWT_SECRET` and `DATABASE_URL` for Room Ready. That is the reference API. Do not copy its development JWT fallback into FastAPI.

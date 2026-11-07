@@ -38,6 +38,18 @@ from app.db.models.housing import (
     HousingApplicationStatusHistory,
     WaitingListEntry,
 )
+from app.db.models.managed_documents import (
+    ManagedDocument,
+    ManagedDocumentAccessGrant,
+    ManagedDocumentAccessRequest,
+    ManagedDocumentCategory,
+    ManagedDocumentLink,
+    ManagedDocumentReminderLog,
+    ManagedDocumentRetentionReview,
+    ManagedDocumentSignatureRequest,
+    ManagedDocumentVersion,
+    OrganisationDocumentSettings,
+)
 from app.db.models.maintenance import (
     MaintenanceApproval,
     MaintenanceCategory,
@@ -80,6 +92,27 @@ from app.db.models.tenant_timeline import (
     TenantNeedGoal,
 )
 from app.db.models.user import User
+from app.db.models.org_workflows import (
+    OrganisationApprovalAssignment,
+    OrganisationApprovalWorkflow,
+    OrganisationApprovalWorkflowVersion,
+    OrganisationCustomForm,
+    OrganisationCustomFormSubmission,
+    OrganisationCustomFormVersion,
+    SecureSharingAccessLog,
+    SecureSharingGrant,
+)
+from app.db.models.communication import (
+    CommunicationAnnouncement,
+    CommunicationAnnouncementRecipient,
+    CommunicationDelivery,
+    CommunicationMessage,
+    CommunicationMessageRecipient,
+    CommunicationScheduledReminder,
+    CommunicationTemplate,
+    CommunicationTranslation,
+    CommunicationUserPreference,
+)
 
 __all__ = [
     "AuditEvent",
@@ -113,6 +146,15 @@ __all__ = [
     "MaintenanceRequestFile",
     "MaintenanceStatusHistory",
     "MaintenanceVisit",
+    "ManagedDocument",
+    "ManagedDocumentAccessGrant",
+    "ManagedDocumentAccessRequest",
+    "ManagedDocumentCategory",
+    "ManagedDocumentLink",
+    "ManagedDocumentReminderLog",
+    "ManagedDocumentRetentionReview",
+    "ManagedDocumentSignatureRequest",
+    "ManagedDocumentVersion",
     "HousingApplication",
     "HousingApplicationDecision",
     "HousingApplicationStatusHistory",
@@ -124,6 +166,7 @@ __all__ = [
     "OccupancySurveyFinding",
     "OccupancySurveyRoomAssessment",
     "OperationalTask",
+    "OrganisationDocumentSettings",
     "Organisation",
     "OrganisationMembership",
     "Property",
@@ -153,4 +196,21 @@ __all__ = [
     "TenantVisit",
     "User",
     "WaitingListEntry",
+    "CommunicationAnnouncement",
+    "CommunicationAnnouncementRecipient",
+    "CommunicationDelivery",
+    "CommunicationMessage",
+    "CommunicationMessageRecipient",
+    "CommunicationScheduledReminder",
+    "CommunicationTemplate",
+    "CommunicationTranslation",
+    "CommunicationUserPreference",
+    "OrganisationApprovalAssignment",
+    "OrganisationApprovalWorkflow",
+    "OrganisationApprovalWorkflowVersion",
+    "OrganisationCustomForm",
+    "OrganisationCustomFormSubmission",
+    "OrganisationCustomFormVersion",
+    "SecureSharingAccessLog",
+    "SecureSharingGrant",
 ]

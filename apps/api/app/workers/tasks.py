@@ -12,6 +12,8 @@ from __future__ import annotations
 import logging
 
 from app.db.session import session_scope
+from app.communication.jobs import dispatch_due_communication_reminders
+from app.managed_documents.jobs import scan_and_schedule_document_reminders
 from app.ops.reminders import dispatch_due_reminders, dispatch_org_reminders
 from app.workers.celery_app import celery_app
 
@@ -79,4 +81,36 @@ def dispatch_org_complaint_overdue_task(self, payload: dict) -> dict:
     with session_scope() as session:
         result = dispatch_org_overdue_escalations(session, payload)
         logger.info("dispatch_org_overdue_escalations result=%s", result)
+        return result
+
+
+@celery_app.task(
+    name="hmore.managed_documents.scan_expiry_reminders",
+    bind=True,
+    autoretry_for=(Exception,),
+    retry_backoff=True,
+    retry_kwargs={"max_retries": 3},
+)
+def scan_managed_document_expiry_reminders_task(self) -> dict:
+    """Periodic: enqueue idempotent ReminderRecord rows for document expiry windows."""
+    with session_scope() as session:
+        result = scan_and_schedule_document_reminders(session)
+        session.commit()
+        logger.info("scan_managed_document_expiry_reminders result=%s", result)
+        return result
+
+
+@celery_app.task(
+    name="hmore.communication.dispatch_scheduled_reminders",
+    bind=True,
+    autoretry_for=(Exception,),
+    retry_backoff=True,
+    retry_kwargs={"max_retries": 3},
+)
+def dispatch_communication_reminders_task(self) -> dict:
+    """Periodic: dispatch due communication_scheduled_reminders (F2.12)."""
+    with session_scope() as session:
+        result = dispatch_due_communication_reminders(session)
+        session.commit()
+        logger.info("dispatch_due_communication_reminders result=%s", result)
         return result

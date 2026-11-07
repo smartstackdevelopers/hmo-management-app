@@ -10,6 +10,7 @@ import pytest
 from fastapi import HTTPException
 from fastapi.testclient import TestClient
 from pydantic import ValidationError
+from sqlalchemy.orm import Session
 
 from app.db.models.enums import HMoreRole, MembershipStatus, RecordStatus
 from app.main import app
@@ -234,17 +235,33 @@ def test_rota_visits_tasks_reminders_flow(db_session, unique_suffix: str) -> Non
     assert "processed" in result
 
 
-def test_notification_provider_is_stub() -> None:
+@pytest.mark.postgres
+def test_notification_provider_in_app_delivery(db_session: Session) -> None:
+    """F2.12 provider persists in-app deliveries with explicit idempotency."""
+    from app.db.models import Organisation, User
     from app.ops.notifications import ReminderMessage, get_notification_provider
+    from app.tenancy.session_rls import apply_platform_rls_bypass
+
+    apply_platform_rls_bypass(db_session)
+    org = Organisation(name="NP", slug=f"np-{uuid.uuid4().hex[:8]}")
+    user = User(email=f"np-{uuid.uuid4().hex[:8]}@example.com", display_name="N", external_subject=f"auth0|{uuid.uuid4()}")
+    db_session.add_all([org, user])
+    db_session.flush()
 
     provider = get_notification_provider()
     result = provider.send(
+        db_session,
         ReminderMessage(
-            organisation_id=str(uuid.uuid4()),
-            recipient_user_id=str(uuid.uuid4()),
+            organisation_id=str(org.id),
+            recipient_user_id=str(user.id),
             subject="Test",
             body="Body",
-        )
+            channel="in_app",
+            target_type="reminder_record",
+            target_id=str(uuid.uuid4()),
+            idempotency_key=f"test:{uuid.uuid4()}",
+            essential_operational=True,
+        ),
     )
     assert result.success is True
-    assert result.provider == "log_stub"
+    assert result.provider == "in_app_store"
