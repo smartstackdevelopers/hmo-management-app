@@ -84,7 +84,7 @@ REVIEW_TRANSITIONS: dict[str, frozenset[str]] = {
     "superseded": frozenset(),
 }
 
-PLAN_EDITABLE_STATUSES = frozenset({"draft", "under_review", "on_hold"})
+PLAN_EDITABLE_STATUSES = frozenset({"draft", "under_review", "on_hold", "active"})
 
 
 def _next_ref(session: Session, org_id: uuid.UUID, model: type, prefix: str) -> str:

@@ -226,7 +226,7 @@ def test_f211_reminder_scan_idempotent_and_dispatch_writes_log(db_session: Sessi
         db_session.scalars(
             select(AuditEvent).where(
                 AuditEvent.action == DOCUMENT_EXPIRY_REMINDER_DISPATCHED,
-                AuditEvent.resource_id == doc_id,
+                AuditEvent.resource_id == str(doc_id),
             )
         )
     )
