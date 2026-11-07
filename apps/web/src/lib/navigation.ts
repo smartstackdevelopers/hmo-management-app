@@ -71,6 +71,19 @@ export const DASHBOARD_NAV: NavItem[] = [
     section: "records",
   },
   {
+    id: "org-workflows",
+    label: "Approvals & workflows",
+    href: "/dashboard/org-workflows",
+    anyOf: [
+      "approvals.inbox.read",
+      "organisation.workflows.manage",
+      "organisation.forms.manage",
+      "organisation.forms.submit",
+      "secure_sharing.read",
+    ],
+    section: "records",
+  },
+  {
     id: "organisations",
     label: "Organisations",
     href: "/dashboard/super-admin/organisations",

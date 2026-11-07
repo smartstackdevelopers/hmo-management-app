@@ -51,6 +51,19 @@ ROLE_PERMISSIONS: dict[HMoreRole, frozenset[Permission]] = {
             Permission.COMMUNICATION_ANNOUNCEMENTS_READ,
             Permission.COMMUNICATION_TEMPLATES_MANAGE,
             Permission.COMMUNICATION_TRANSLATIONS_MANAGE,
+            # F2.13
+            Permission.ORGANISATION_WORKFLOWS_MANAGE,
+            Permission.APPROVALS_INBOX_READ,
+            Permission.APPROVALS_DECIDE,
+            Permission.APPROVALS_ASSIGN,
+            Permission.ORGANISATION_FORMS_MANAGE,
+            Permission.ORGANISATION_FORMS_PUBLISH,
+            Permission.ORGANISATION_FORMS_SUBMIT,
+            Permission.ORGANISATION_FORMS_SUBMISSIONS_READ,
+            Permission.ORGANISATION_FORMS_SUBMISSIONS_REVIEW,
+            Permission.SECURE_SHARING_GRANT,
+            Permission.SECURE_SHARING_REVOKE,
+            Permission.SECURE_SHARING_READ,
         }
     ),
     HMoreRole.ORGANISATION_ADMIN: frozenset(
@@ -150,6 +163,18 @@ ROLE_PERMISSIONS: dict[HMoreRole, frozenset[Permission]] = {
             Permission.COMMUNICATION_ANNOUNCEMENTS_READ,
             Permission.COMMUNICATION_TEMPLATES_MANAGE,
             Permission.COMMUNICATION_TRANSLATIONS_MANAGE,
+            # F2.13
+            Permission.APPROVALS_INBOX_READ,
+            Permission.APPROVALS_DECIDE,
+            Permission.APPROVALS_ASSIGN,
+            Permission.ORGANISATION_FORMS_MANAGE,
+            Permission.ORGANISATION_FORMS_PUBLISH,
+            Permission.ORGANISATION_FORMS_SUBMIT,
+            Permission.ORGANISATION_FORMS_SUBMISSIONS_READ,
+            Permission.ORGANISATION_FORMS_SUBMISSIONS_REVIEW,
+            Permission.SECURE_SHARING_GRANT,
+            Permission.SECURE_SHARING_REVOKE,
+            Permission.SECURE_SHARING_READ,
         }
     ),
     HMoreRole.LANDLORD: frozenset(
@@ -177,6 +202,7 @@ ROLE_PERMISSIONS: dict[HMoreRole, frozenset[Permission]] = {
             Permission.COMMUNICATION_MESSAGES_SEND,
             Permission.COMMUNICATION_MESSAGES_READ,
             Permission.COMMUNICATION_ANNOUNCEMENTS_READ,
+            Permission.SECURE_SHARING_READ,
         }
     ),
     HMoreRole.TENANT: frozenset(
@@ -210,6 +236,9 @@ ROLE_PERMISSIONS: dict[HMoreRole, frozenset[Permission]] = {
             Permission.COMMUNICATION_MESSAGES_SEND,
             Permission.COMMUNICATION_MESSAGES_READ,
             Permission.COMMUNICATION_ANNOUNCEMENTS_READ,
+            Permission.ORGANISATION_FORMS_SUBMIT,
+            Permission.ORGANISATION_FORMS_SUBMISSIONS_READ,
+            Permission.SECURE_SHARING_READ,
         }
     ),
     HMoreRole.SUPPORT_WORKER: frozenset(
@@ -272,6 +301,15 @@ ROLE_PERMISSIONS: dict[HMoreRole, frozenset[Permission]] = {
             Permission.COMMUNICATION_MESSAGES_READ,
             Permission.COMMUNICATION_REMINDERS_MANAGE,
             Permission.COMMUNICATION_ANNOUNCEMENTS_READ,
+            Permission.APPROVALS_INBOX_READ,
+            Permission.APPLICATIONS_REVIEW,
+            Permission.MAINTENANCE_APPROVE,
+            Permission.DOCUMENTS_ACCESS_APPROVE,
+            Permission.EVIDENCE_REVIEW,
+            Permission.ORGANISATION_FORMS_SUBMIT,
+            Permission.ORGANISATION_FORMS_SUBMISSIONS_READ,
+            Permission.ORGANISATION_FORMS_SUBMISSIONS_REVIEW,
+            Permission.SECURE_SHARING_READ,
         }
     ),
     HMoreRole.MAINTENANCE_CONTRACTOR: frozenset(
@@ -297,6 +335,8 @@ ROLE_PERMISSIONS: dict[HMoreRole, frozenset[Permission]] = {
             Permission.COMMUNICATION_MESSAGES_SEND,
             Permission.COMMUNICATION_MESSAGES_READ,
             Permission.COMMUNICATION_ANNOUNCEMENTS_READ,
+            Permission.APPROVALS_INBOX_READ,
+            Permission.SECURE_SHARING_READ,
         }
     ),
 }
