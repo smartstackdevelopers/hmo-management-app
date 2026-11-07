@@ -36,6 +36,14 @@ class Permission(StrEnum):
     EVIDENCE_PACK_GENERATE = "evidence.pack.generate"
     COMPLIANCE_CHECK = "compliance.check"
     REPORTS_READ = "reports.read"
+    # F2.14 granular reporting (reports.read retained for backward compatibility)
+    REPORTS_DASHBOARD_VIEW = "reports.dashboard.view"
+    REPORTS_HOUSING_VIEW = "reports.housing.view"
+    REPORTS_COMPLAINTS_VIEW = "reports.complaints.view"
+    REPORTS_CASELOAD_VIEW = "reports.caseload.view"
+    REPORTS_EXPORT_CSV = "reports.export.csv"
+    REPORTS_EXPORT_PDF = "reports.export.pdf"
+    REPORTS_EXPORT_EXCEL = "reports.export.excel"
     AUDIT_LOGS_READ = "audit_logs.read"
     OCCUPANCY_READ = "occupancy.read"
     OCCUPANCY_ALERTS_MANAGE = "occupancy.alerts.manage"
@@ -275,6 +283,27 @@ PERMISSION_CATALOG: dict[Permission, PermissionMeta] = {
         Permission.COMPLIANCE_CHECK, "Run compliance checks", True
     ),
     Permission.REPORTS_READ: PermissionMeta(Permission.REPORTS_READ, "Access organisation reports"),
+    Permission.REPORTS_DASHBOARD_VIEW: PermissionMeta(
+        Permission.REPORTS_DASHBOARD_VIEW, "View operational reporting dashboard", True
+    ),
+    Permission.REPORTS_HOUSING_VIEW: PermissionMeta(
+        Permission.REPORTS_HOUSING_VIEW, "View housing application reports", True
+    ),
+    Permission.REPORTS_COMPLAINTS_VIEW: PermissionMeta(
+        Permission.REPORTS_COMPLAINTS_VIEW, "View complaints reports", True
+    ),
+    Permission.REPORTS_CASELOAD_VIEW: PermissionMeta(
+        Permission.REPORTS_CASELOAD_VIEW, "View support worker caseload reports", True
+    ),
+    Permission.REPORTS_EXPORT_CSV: PermissionMeta(
+        Permission.REPORTS_EXPORT_CSV, "Export reports as CSV", True
+    ),
+    Permission.REPORTS_EXPORT_PDF: PermissionMeta(
+        Permission.REPORTS_EXPORT_PDF, "Export reports as PDF", True
+    ),
+    Permission.REPORTS_EXPORT_EXCEL: PermissionMeta(
+        Permission.REPORTS_EXPORT_EXCEL, "Export reports as Excel", True
+    ),
     Permission.AUDIT_LOGS_READ: PermissionMeta(
         Permission.AUDIT_LOGS_READ, "Read audit logs", True
     ),

@@ -71,6 +71,19 @@ export const DASHBOARD_NAV: NavItem[] = [
     section: "records",
   },
   {
+    id: "reports",
+    label: "Reports",
+    href: "/dashboard/reports",
+    anyOf: [
+      "reports.dashboard.view",
+      "reports.housing.view",
+      "reports.complaints.view",
+      "reports.caseload.view",
+      "reports.read",
+    ],
+    section: "records",
+  },
+  {
     id: "org-workflows",
     label: "Approvals & workflows",
     href: "/dashboard/org-workflows",
