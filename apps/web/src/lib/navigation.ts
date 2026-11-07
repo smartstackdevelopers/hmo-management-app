@@ -71,6 +71,12 @@ export const DASHBOARD_NAV: NavItem[] = [
     section: "records",
   },
   {
+    id: "ali-journey",
+    label: "Ali journey (F2.15)",
+    href: "/dashboard/journeys/ali",
+    section: "platform",
+  },
+  {
     id: "reports",
     label: "Reports",
     href: "/dashboard/reports",
