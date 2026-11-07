@@ -182,3 +182,52 @@ def dispatch_org_duplicate_detection_task(self, payload: dict) -> dict:
         result = dispatch_org_scheduled_sweep(session, payload)
         logger.info("dispatch_org_duplicate_detection result=%s", result)
         return result
+
+
+@celery_app.task(
+    name="hmore.overdue_reminders.scan",
+    bind=True,
+    autoretry_for=(Exception,),
+    retry_backoff=True,
+    retry_kwargs={"max_retries": 2},
+)
+def scan_overdue_reminders_task(self) -> dict:
+    """Scan overdue tasks/follow-ups/safeguarding and upsert ReminderRecord rows."""
+    from app.report_drafts.overdue import dispatch_overdue_scans
+
+    with session_scope() as session:
+        result = dispatch_overdue_scans(session)
+        logger.info("scan_overdue_reminders result=%s", result)
+        return result
+
+
+@celery_app.task(
+    name="hmore.report_drafts.dispatch_weekly",
+    bind=True,
+    autoretry_for=(Exception,),
+    retry_backoff=True,
+    retry_kwargs={"max_retries": 2},
+)
+def dispatch_weekly_report_drafts_task(self) -> dict:
+    from app.report_drafts.jobs import dispatch_period_drafts
+
+    with session_scope() as session:
+        result = dispatch_period_drafts(session, "weekly")
+        logger.info("dispatch_weekly_report_drafts result=%s", result)
+        return result
+
+
+@celery_app.task(
+    name="hmore.report_drafts.dispatch_monthly",
+    bind=True,
+    autoretry_for=(Exception,),
+    retry_backoff=True,
+    retry_kwargs={"max_retries": 2},
+)
+def dispatch_monthly_report_drafts_task(self) -> dict:
+    from app.report_drafts.jobs import dispatch_period_drafts
+
+    with session_scope() as session:
+        result = dispatch_period_drafts(session, "monthly")
+        logger.info("dispatch_monthly_report_drafts result=%s", result)
+        return result

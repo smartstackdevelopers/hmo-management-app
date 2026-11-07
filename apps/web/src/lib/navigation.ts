@@ -225,6 +225,14 @@ export const DASHBOARD_NAV: NavItem[] = [
     section: "records",
   },
   {
+    id: "report-drafts",
+    label: "Report drafts",
+    href: "/dashboard/report-drafts",
+    anyOf: ["report_drafts.generate", "report_drafts.read", "report_drafts.review"],
+    section: "records",
+  },
+
+  {
     id: "duplicate-detection",
     label: "Duplicate detection",
     href: "/dashboard/duplicate-detection",

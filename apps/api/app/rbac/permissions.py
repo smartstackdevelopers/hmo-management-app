@@ -243,6 +243,11 @@ class Permission(StrEnum):
     # F3.12 natural-language operational search
     OPERATIONAL_SEARCH_RUN = "operational_search.run"
 
+    # F3.13 report drafts
+    REPORT_DRAFTS_GENERATE = "report_drafts.generate"
+    REPORT_DRAFTS_READ = "report_drafts.read"
+    REPORT_DRAFTS_REVIEW = "report_drafts.review"
+
 
 @dataclass(frozen=True)
 class PermissionMeta:
@@ -882,6 +887,21 @@ PERMISSION_CATALOG: dict[Permission, PermissionMeta] = {
     Permission.OPERATIONAL_SEARCH_RUN: PermissionMeta(
         Permission.OPERATIONAL_SEARCH_RUN,
         "Run natural-language search over authorised operational records",
+        True,
+    ),
+    Permission.REPORT_DRAFTS_GENERATE: PermissionMeta(
+        Permission.REPORT_DRAFTS_GENERATE,
+        "Generate weekly or monthly operational report drafts",
+        True,
+    ),
+    Permission.REPORT_DRAFTS_READ: PermissionMeta(
+        Permission.REPORT_DRAFTS_READ,
+        "View operational report drafts and metrics snapshots",
+        True,
+    ),
+    Permission.REPORT_DRAFTS_REVIEW: PermissionMeta(
+        Permission.REPORT_DRAFTS_REVIEW,
+        "Edit, approve, or reject operational report drafts",
         True,
     ),
     Permission.ROLE_ASSIGNMENTS_MANAGE: PermissionMeta(
