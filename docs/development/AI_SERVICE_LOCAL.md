@@ -30,8 +30,19 @@ cd apps/ai-service
 pytest -q
 ```
 
-- Default suite uses `LLM_PROVIDER=none` / explicit mock tests.
-- Real OpenAI integration is marked `@pytest.mark.real_llm` and **skips** without a real key — skips are not passes.
+- Default suite uses `LLM_PROVIDER=mock` + in-memory cache + eager batch.
+- Real OpenAI: `@pytest.mark.real_llm` (skips without a real key — skips are not passes).
+- Real Redis: `@pytest.mark.real_redis` with `REDIS_URL_REAL`.
+
+## Celery worker (optional local)
+
+```text
+cd apps/ai-service
+celery -A app.batch.celery_app.celery_app worker -l info
+celery -A app.batch.celery_app.celery_app beat -l info
+```
+
+Set `AI_BATCH_EAGER=false` to require a live worker.
 
 ## Calling a protected endpoint
 

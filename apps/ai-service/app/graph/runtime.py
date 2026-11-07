@@ -16,7 +16,7 @@ from app.prompts.store import get_prompt_store
 from app.tools.registry import build_default_tool_registry
 from app.usage.metadata import UsageMetadata
 
-SUPPORTED_WORKFLOWS = frozenset({"foundation_ping", "foundation_echo"})
+SUPPORTED_WORKFLOWS = frozenset({"foundation_ping", "foundation_echo", "foundation_routed_echo"})
 
 
 def list_workflows() -> list[str]:
@@ -46,24 +46,78 @@ def execute_workflow(
         status="started",
     )
 
-    def _run() -> dict[str, Any]:
-        if workflow_id == "foundation_ping":
-            ping = ping_graph()
-            return {
-                "workflow_id": workflow_id,
-                "status": "completed",
-                "result": {"ping": ping},
-                "requires_approval": False,
-                "approval_id": None,
-            }
-
-        # foundation_echo — body org fields ignored; trusted ctx only
-        if input_payload and "organisation_id" in input_payload:
-            # Explicitly ignore / reject impersonation attempts via body
+    def _reject_body_org() -> None:
+        if input_payload and input_payload.get("organisation_id"):
             claimed = input_payload.get("organisation_id")
             if claimed and str(claimed) != str(ctx.organisation_id):
                 raise WorkflowError("organisation_id in body is not trusted", status_code=403)
 
+    def _run_routed() -> dict[str, Any]:
+        from app.prompts.seed import FOUNDATION_PROMPT_ID
+        from app.routing.executor import run_routed_completion
+
+        _reject_body_org()
+        store = get_prompt_store()
+        record, rendered = store.render(
+            FOUNDATION_PROMPT_ID,
+            variables={
+                "organisation_id": str(ctx.organisation_id),
+                "role": ctx.role,
+                "message": message,
+            },
+        )
+        quality = input_payload.get("quality_requirement") if input_payload else None
+        routed = run_routed_completion(
+            settings=settings,
+            organisation_id=ctx.organisation_id,
+            workflow_id=workflow_id,
+            prompt_id=record.prompt_id,
+            prompt_version=record.version,
+            rendered_prompt=rendered,
+            user_message=message,
+            quality_requirement=quality,
+            cache_eligible=True,
+        )
+        usage.prompt_id = record.prompt_id
+        usage.prompt_version = record.version
+        usage.provider = routed.get("provider")
+        usage.model = routed.get("model_id")
+        usage.prompt_tokens = routed.get("prompt_tokens")
+        usage.completion_tokens = routed.get("completion_tokens")
+        usage.total_tokens = routed.get("total_tokens")
+        usage.cache_hit = routed.get("cache_status") == "hit"
+        esc = routed.get("escalation")
+        usage.escalation_occurred = bool(esc)
+        usage.escalation_reason = (esc or {}).get("reason") if esc else None
+        return {
+            "workflow_id": workflow_id,
+            "status": "completed",
+            "result": {
+                "content": routed.get("content"),
+                "prompt_id": record.prompt_id,
+                "prompt_version": record.version,
+                "routing": routed.get("routing"),
+                "escalation": routed.get("escalation"),
+                "cache_status": routed.get("cache_status"),
+            },
+            "requires_approval": False,
+            "approval_id": None,
+        }
+
+    def _run() -> dict[str, Any]:
+        if workflow_id == "foundation_ping":
+            return {
+                "workflow_id": workflow_id,
+                "status": "completed",
+                "result": {"ping": ping_graph()},
+                "requires_approval": False,
+                "approval_id": None,
+            }
+
+        if workflow_id == "foundation_routed_echo":
+            return _run_routed()
+
+        _reject_body_org()
         store = get_prompt_store()
         tools = build_default_tool_registry()
         approvals = get_approval_service()
@@ -93,7 +147,6 @@ def execute_workflow(
                 "tool_output": final.get("tool_output"),
                 "prompt_id": final.get("prompt_id"),
                 "prompt_version": final.get("prompt_version"),
-                # Do not return full rendered prompt with PII amplification in API by default
             },
             "requires_approval": bool(final.get("requires_approval")),
             "approval_id": final.get("approval_id"),

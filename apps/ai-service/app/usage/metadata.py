@@ -8,7 +8,7 @@ from uuid import UUID
 
 @dataclass(slots=True)
 class UsageMetadata:
-    """F3.1 usage capture for future F3.3 cost dashboards — no invented costs."""
+    """Usage capture for F3.3 — no invented monetary costs."""
 
     request_id: str
     correlation_id: str
@@ -22,10 +22,14 @@ class UsageMetadata:
     prompt_tokens: int | None = None
     completion_tokens: int | None = None
     total_tokens: int | None = None
+    cache_hit: bool | None = None
+    escalation_occurred: bool | None = None
+    escalation_reason: str | None = None
+    batch_job_id: str | None = None
     status: str = "started"
     duration_ms: int | None = None
     timestamp: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
-    monetary_cost: None = None  # never invent cost in F3.1
+    monetary_cost: None = None
 
     def to_public_dict(self) -> dict[str, Any]:
         data = asdict(self)

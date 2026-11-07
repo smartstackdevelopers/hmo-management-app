@@ -78,5 +78,9 @@ Each execution returns usage fields suitable for F3.3 (provider, model, tokens i
 1. Core API authenticates the user and checks RBAC/feature flags.
 2. Core API calls `POST /api/v1/workflows/execute` with the service token and trusted headers.
 3. Agent-specific LangGraph workflow runs with published prompts and allow-listed tools.
-4. If the action is important, the workflow returns `requires_approval=true`.
-5. A human decides via the approval endpoints; the core API then applies the change under normal validation.
+4. Model selection goes through the shared F3.2 router (low-cost default + bounded escalation).
+5. Eligible responses use the shared cache; batch/overnight work uses Celery task helpers.
+6. If the action is important, the workflow returns `requires_approval=true`.
+7. A human decides via the approval endpoints; the core API then applies the change under normal validation.
+
+See also: `docs/architecture/AI_MODEL_ROUTING_CACHING_BATCH.md`.
