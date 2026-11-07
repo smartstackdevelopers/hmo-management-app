@@ -26,3 +26,6 @@ include = ["app*"]
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 pythonpath = ["."]
+markers = [
+  "real_llm: tests that call a real LLM provider (skipped without credentials)",
+]

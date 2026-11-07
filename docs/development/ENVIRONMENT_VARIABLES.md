@@ -13,7 +13,14 @@ Never commit real secrets. Track `*.env.example` only.
 | `REDIS_URL` | api | Celery broker | Only if a worker is started |
 | `DATABASE_URL` | api | PostgreSQL URL for Alembic and the ORM (`postgresql+psycopg://...`) | Yes for migrations and schema tests |
 | `TEST_DATABASE_URL` | api | Isolated DB for Pytest | Recommended locally; set in CI |
-| `OPENAI_API_KEY` | ai | Unused by the foundation graph | Leave empty |
+| `AI_SERVICE_TOKEN` | ai | Shared secret for core API → AI service S2S auth | Required for protected AI routes |
+| `LLM_PROVIDER` | ai | `none` / `mock` / `openai` | No, default `none` |
+| `OPENAI_API_KEY` | ai | OpenAI (or compatible) API key when `LLM_PROVIDER=openai` | When using openai |
+| `OPENAI_BASE_URL` / `OPENAI_MODEL` | ai | Provider endpoint and model id | No |
+| `LLM_TIMEOUT_SECONDS` / `LLM_MAX_RETRIES` | ai | Provider call limits | No |
+| `AI_MAX_REQUEST_BYTES` | ai | Request body size cap | No |
+| `AI_WORKFLOW_TIMEOUT_SECONDS` | ai | LangGraph execution timeout | No |
+| `AI_DEFAULT_ALLOWED_FEATURES` | ai | Default feature allow-list when header omitted | No |
 | `POSTGRES_*` | compose | Local Postgres bootstrap | Only for Compose |
 | `AUTH0_DOMAIN` | api, web | Auth0 tenant host without scheme | Required for live auth |
 | `AUTH0_AUDIENCE` | api, web, mobile | API identifier | Required for API access tokens |
