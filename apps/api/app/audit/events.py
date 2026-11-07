@@ -331,3 +331,13 @@ AI_TENANT_ASSISTANT_BUDGET = "ai.tenant_assistant.budget"
 AI_TENANT_ASSISTANT_ESCALATED = "ai.tenant_assistant.escalated"
 AI_TENANT_ASSISTANT_RATE_LIMITED = "ai.tenant_assistant.rate_limited"
 AI_TENANT_ASSISTANT_DENIED = "ai.tenant_assistant.denied"
+
+# F3.11 duplicate detection
+DUPLICATE_DETECTION_REQUESTED = "duplicate_detection.requested"
+DUPLICATE_DETECTION_STARTED = "duplicate_detection.started"
+DUPLICATE_DETECTION_COMPLETED = "duplicate_detection.completed"
+DUPLICATE_DETECTION_FAILED = "duplicate_detection.failed"
+DUPLICATE_DETECTION_REVIEWED = "duplicate_detection.reviewed"
+DUPLICATE_DETECTION_CONFIRMED = "duplicate_detection.confirmed"
+DUPLICATE_DETECTION_DISMISSED = "duplicate_detection.dismissed"
+DUPLICATE_DETECTION_DENIED = "duplicate_detection.denied"

@@ -218,6 +218,17 @@ export const DASHBOARD_NAV: NavItem[] = [
     section: "records",
   },
   {
+    id: "duplicate-detection",
+    label: "Duplicate detection",
+    href: "/dashboard/duplicate-detection",
+    anyOf: [
+      "duplicate_detection.run",
+      "duplicate_detection.read",
+      "duplicate_detection.review",
+    ],
+    section: "records",
+  },
+  {
     id: "tenant-assistant",
     label: "Tenant assistant",
     href: "/dashboard/tenant-assistant",

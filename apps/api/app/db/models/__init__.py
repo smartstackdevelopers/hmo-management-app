@@ -138,6 +138,7 @@ from app.db.models.tenant_assistant import (
     TenantAssistantMessage,
     TenantAssistantRateWindow,
 )
+from app.db.models.duplicate_detection import DuplicateDetectionFinding, DuplicateDetectionRun
 
 __all__ = [
     "AuditEvent",
@@ -257,4 +258,6 @@ __all__ = [
     "TenantAssistantConversation",
     "TenantAssistantMessage",
     "TenantAssistantRateWindow",
+    "DuplicateDetectionRun",
+    "DuplicateDetectionFinding",
 ]
