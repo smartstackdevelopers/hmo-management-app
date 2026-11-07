@@ -13,6 +13,8 @@ class WorkflowExecuteRequest(BaseModel):
     quality_requirement: str | None = Field(default=None, max_length=20)
     # Intentionally ignored for authz — present only so tests can prove rejection.
     organisation_id: UUID | None = None
+    # Workflow-specific payload (for example notes_analysis.note). Not used for authorisation.
+    input_payload: dict[str, Any] | None = None
 
     @field_validator("workflow_id")
     @classmethod

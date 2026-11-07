@@ -34,6 +34,7 @@ services:
       REDIS_URL: redis://redis:6379/0
       DATABASE_URL: postgresql+psycopg://hmore:hmore@postgres:5432/hmore
       AI_SERVICE_TOKEN: local-dev-ai-service-token
+      AI_SERVICE_BASE_URL: http://ai:8001
     ports:
       - "8000:8000"
     depends_on:

@@ -37,7 +37,7 @@ def test_unsupported_workflow(client: TestClient) -> None:
     response = client.post(
         "/api/v1/workflows/execute",
         headers=auth_headers(),
-        json={"workflow_id": "notes_analysis"},
+        json={"workflow_id": "not_a_registered_workflow"},
     )
     assert response.status_code == 404
 

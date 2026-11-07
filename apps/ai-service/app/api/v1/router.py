@@ -87,13 +87,15 @@ def workflows_execute(
         # Body organisation_id is never trusted as authorisation.
         if body.organisation_id is not None:
             ctx.ensure_org(body.organisation_id)
+        payload = body.model_dump()
+        nested = payload.pop("input_payload", None) or {}
         result = execute_workflow(
             workflow_id=body.workflow_id,
             ctx=ctx,
             settings=settings,
             message=body.message,
             require_human_gate=body.require_human_gate,
-            input_payload=body.model_dump(),
+            input_payload={**payload, **nested},
         )
         return WorkflowExecuteResponse(**result)
     except AiServiceError as exc:

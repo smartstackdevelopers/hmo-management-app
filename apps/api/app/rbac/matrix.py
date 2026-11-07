@@ -79,6 +79,10 @@ ROLE_PERMISSIONS: dict[HMoreRole, frozenset[Permission]] = {
             Permission.AI_COST_DASHBOARD_VIEW,
             Permission.AI_PRICING_MANAGE,
             Permission.AI_PLATFORM_COST_VIEW,
+            Permission.AI_NOTES_ANALYSIS_RUN,
+            Permission.AI_NOTES_ANALYSIS_READ,
+            Permission.AI_NOTES_ANALYSIS_REVIEW,
+            Permission.AI_NOTES_ANALYSIS_INBOX_READ,
         }
     ),
     HMoreRole.ORGANISATION_ADMIN: frozenset(
@@ -203,6 +207,11 @@ ROLE_PERMISSIONS: dict[HMoreRole, frozenset[Permission]] = {
             Permission.AI_BUDGET_READ,
             Permission.AI_USAGE_READ,
             Permission.AI_COST_DASHBOARD_VIEW,
+            # F3.4
+            Permission.AI_NOTES_ANALYSIS_RUN,
+            Permission.AI_NOTES_ANALYSIS_READ,
+            Permission.AI_NOTES_ANALYSIS_REVIEW,
+            Permission.AI_NOTES_ANALYSIS_INBOX_READ,
         }
     ),
     HMoreRole.LANDLORD: frozenset(
@@ -271,6 +280,9 @@ ROLE_PERMISSIONS: dict[HMoreRole, frozenset[Permission]] = {
     ),
     HMoreRole.SUPPORT_WORKER: frozenset(
         {
+            Permission.AI_NOTES_ANALYSIS_RUN,
+            Permission.AI_NOTES_ANALYSIS_READ,
+            Permission.AI_NOTES_ANALYSIS_INBOX_READ,
             Permission.SUPPORT_NOTES_READ_ASSIGNED,
             Permission.SUPPORT_NOTES_CREATE_ASSIGNED,
             Permission.SUPPORT_PLANS_MANAGE_ASSIGNED,

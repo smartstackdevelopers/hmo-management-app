@@ -4,6 +4,8 @@ from app.prompts.store import PromptStore
 
 FOUNDATION_PROMPT_ID = "hmore.foundation.echo"
 FOUNDATION_PROMPT_VERSION = "1.0.0"
+NOTES_ANALYSIS_PROMPT_ID = "hmore.notes_analysis.v1"
+NOTES_ANALYSIS_PROMPT_VERSION = "1.0.0"
 
 
 def seed_prompts(store: PromptStore) -> None:
@@ -19,3 +21,22 @@ def seed_prompts(store: PromptStore) -> None:
         metadata={"phase": "F3.1", "agent": None},
     )
     store.publish(FOUNDATION_PROMPT_ID, FOUNDATION_PROMPT_VERSION)
+
+    store.upsert_draft(
+        prompt_id=NOTES_ANALYSIS_PROMPT_ID,
+        version=NOTES_ANALYSIS_PROMPT_VERSION,
+        workflow_or_feature="notes_analysis",
+        template=(
+            "You are the HMore Notes Analysis assistant for organisation {{organisation_id}}. "
+            "Analyse ONLY the authorised daily note JSON provided. "
+            "Do not invent facts, diagnoses, housing decisions, or risk classifications. "
+            "Return a single JSON object with keys: summary (string), key_observations (string array), "
+            "missing_details (array of {title,body,rationale,source_excerpt,is_interpretation}), "
+            "suggested_actions (array of {title,body,rationale,source_excerpt,is_interpretation}), "
+            "uncertainty_notes (string or null). "
+            "Label interpretations clearly. Missing details are suggestions for human review, "
+            "not compliance failures. Note JSON: {{note_json}}"
+        ),
+        metadata={"phase": "F3.4", "agent": "notes_analysis"},
+    )
+    store.publish(NOTES_ANALYSIS_PROMPT_ID, NOTES_ANALYSIS_PROMPT_VERSION)

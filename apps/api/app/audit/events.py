@@ -248,3 +248,12 @@ AI_BUDGET_RECONCILED = "ai.budget.reconciled"
 AI_BUDGET_CAP_REJECTED = "ai.budget.cap_rejected"
 AI_BUDGET_RESERVATION_EXPIRED = "ai.budget.reservation_expired"
 AI_COST_DASHBOARD_VIEW = "ai.cost.dashboard.view"
+
+# F3.4 Notes Analysis Agent
+AI_NOTES_ANALYSIS_RUN = "ai.notes_analysis.run"
+AI_NOTES_ANALYSIS_COMPLETE = "ai.notes_analysis.complete"
+AI_NOTES_ANALYSIS_FAILED = "ai.notes_analysis.failed"
+AI_NOTES_ANALYSIS_REVIEWED = "ai.notes_analysis.reviewed"
+AI_NOTES_ANALYSIS_SUGGESTION_APPROVE = "ai.notes_analysis.suggestion.approve"
+AI_NOTES_ANALYSIS_SUGGESTION_REJECT = "ai.notes_analysis.suggestion.reject"
+AI_NOTES_ANALYSIS_BATCH = "ai.notes_analysis.batch"

@@ -18,7 +18,9 @@ from app.prompts.store import get_prompt_store
 from app.tools.registry import build_default_tool_registry
 from app.usage.metadata import UsageMetadata
 
-SUPPORTED_WORKFLOWS = frozenset({"foundation_ping", "foundation_echo", "foundation_routed_echo"})
+SUPPORTED_WORKFLOWS = frozenset(
+    {"foundation_ping", "foundation_echo", "foundation_routed_echo", "notes_analysis"}
+)
 
 # foundation_ping is infrastructure-only and non-billable.
 NON_BILLABLE_WORKFLOWS = frozenset({"foundation_ping"})
@@ -126,6 +128,38 @@ def execute_workflow(
 
         if workflow_id == "foundation_routed_echo":
             return _run_routed()
+
+        if workflow_id == "notes_analysis":
+            from app.graph.notes_analysis import run_notes_analysis
+
+            _reject_body_org()
+            note_payload = (input_payload or {}).get("note") or {}
+            if not isinstance(note_payload, dict) or not note_payload:
+                raise WorkflowError("notes_analysis requires input_payload.note", status_code=422)
+            analysed = run_notes_analysis(
+                settings=settings,
+                organisation_id=ctx.organisation_id,
+                note_payload=note_payload,
+            )
+            usage.prompt_id = analysed.get("prompt_id")
+            usage.prompt_version = analysed.get("prompt_version")
+            usage.provider = analysed.get("provider")
+            usage.model = analysed.get("model_id")
+            usage.prompt_tokens = analysed.get("prompt_tokens")
+            usage.completion_tokens = analysed.get("completion_tokens")
+            usage.total_tokens = analysed.get("total_tokens")
+            usage.cache_hit = analysed.get("cache_status") == "hit"
+            esc = analysed.get("escalation")
+            usage.escalation_occurred = bool(esc)
+            usage.escalation_reason = (esc or {}).get("reason") if esc else None
+            return {
+                "workflow_id": workflow_id,
+                "status": "completed",
+                "result": analysed,
+                "requires_approval": True,
+                "approval_id": None,
+                "provider_request_id": analysed.get("provider_request_id"),
+            }
 
         _reject_body_org()
         store = get_prompt_store()

@@ -200,6 +200,12 @@ class Permission(StrEnum):
     AI_PRICING_MANAGE = "ai.pricing.manage"
     AI_PLATFORM_COST_VIEW = "ai.platform.cost.view"
 
+    # F3.4 Notes Analysis Agent
+    AI_NOTES_ANALYSIS_RUN = "ai.notes.analysis.run"
+    AI_NOTES_ANALYSIS_READ = "ai.notes.analysis.read"
+    AI_NOTES_ANALYSIS_REVIEW = "ai.notes.analysis.review"
+    AI_NOTES_ANALYSIS_INBOX_READ = "ai.notes.analysis.inbox.read"
+
 
 @dataclass(frozen=True)
 class PermissionMeta:
@@ -745,6 +751,18 @@ PERMISSION_CATALOG: dict[Permission, PermissionMeta] = {
     ),
     Permission.AI_PLATFORM_COST_VIEW: PermissionMeta(
         Permission.AI_PLATFORM_COST_VIEW, "View platform-wide AI cost dashboard", True
+    ),
+    Permission.AI_NOTES_ANALYSIS_RUN: PermissionMeta(
+        Permission.AI_NOTES_ANALYSIS_RUN, "Run AI notes analysis on authorised daily notes", True
+    ),
+    Permission.AI_NOTES_ANALYSIS_READ: PermissionMeta(
+        Permission.AI_NOTES_ANALYSIS_READ, "View AI notes analysis results", True
+    ),
+    Permission.AI_NOTES_ANALYSIS_REVIEW: PermissionMeta(
+        Permission.AI_NOTES_ANALYSIS_REVIEW, "Approve or reject AI notes analysis suggestions", True
+    ),
+    Permission.AI_NOTES_ANALYSIS_INBOX_READ: PermissionMeta(
+        Permission.AI_NOTES_ANALYSIS_INBOX_READ, "View notes analysis human approval inbox", True
     ),
     Permission.ROLE_ASSIGNMENTS_MANAGE: PermissionMeta(
         Permission.ROLE_ASSIGNMENTS_MANAGE,

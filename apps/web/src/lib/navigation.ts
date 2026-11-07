@@ -97,6 +97,18 @@ export const DASHBOARD_NAV: NavItem[] = [
     section: "platform",
   },
   {
+    id: "notes-analysis",
+    label: "Notes analysis",
+    href: "/dashboard/notes-analysis",
+    anyOf: [
+      "ai.notes.analysis.inbox.read",
+      "ai.notes.analysis.read",
+      "ai.notes.analysis.review",
+      "ai.notes.analysis.run",
+    ],
+    section: "records",
+  },
+  {
     id: "org-workflows",
     label: "Approvals & workflows",
     href: "/dashboard/org-workflows",

@@ -16,6 +16,7 @@ from app.api.v1.org_workflows import router as org_workflows_router
 from app.api.v1.reporting import router as reporting_router
 from app.api.v1.ai_usage import internal_router as ai_usage_internal_router
 from app.api.v1.ai_usage import router as ai_usage_router
+from app.api.v1.notes_analysis import router as notes_analysis_router
 from app.api.v1.evidence import router as evidence_router
 from app.api.v1.housing import router as housing_router
 from app.api.v1.incidents import router as incidents_router
@@ -62,3 +63,4 @@ api_v1_router.include_router(org_workflows_router)
 api_v1_router.include_router(reporting_router)
 api_v1_router.include_router(ai_usage_router)
 api_v1_router.include_router(ai_usage_internal_router)
+api_v1_router.include_router(notes_analysis_router)

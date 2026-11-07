@@ -77,6 +77,14 @@ class Settings(BaseSettings):
 
     # F3.3 — shared secret for AI service → core API metering/budget calls
     ai_service_token: str = Field(default="", validation_alias="AI_SERVICE_TOKEN")
+    # F3.4 — core API → AI service workflow execution
+    ai_service_base_url: str = Field(default="", validation_alias="AI_SERVICE_BASE_URL")
+    ai_service_timeout_seconds: float = Field(default=60.0, validation_alias="AI_SERVICE_TIMEOUT_SECONDS")
+    # Configurable overnight batch schedule hint (cron). Actual dispatch uses workers.
+    notes_analysis_batch_cron: str = Field(
+        default="0 2 * * *",
+        validation_alias="NOTES_ANALYSIS_BATCH_CRON",
+    )
 
     @field_validator("environment")
     @classmethod
