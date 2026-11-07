@@ -29,6 +29,7 @@ SUPPORTED_WORKFLOWS = frozenset(
         "support_plan_draft",
         "housing_application_analysis",
         "compliance_explanation",
+        "tenant_assistant",
     }
 )
 
@@ -323,6 +324,38 @@ def execute_workflow(
                 "requires_approval": True,
                 "approval_id": None,
                 "provider_request_id": explained.get("provider_request_id"),
+            }
+
+        if workflow_id == "tenant_assistant":
+            from app.graph.tenant_assistant import run_tenant_assistant
+
+            _reject_body_org()
+            snippets = (input_payload or {}).get("approved_snippets") or []
+            if not isinstance(snippets, list):
+                raise WorkflowError(
+                    "tenant_assistant requires input_payload.approved_snippets", status_code=422
+                )
+            answered = run_tenant_assistant(
+                settings=settings,
+                organisation_id=ctx.organisation_id,
+                question=str((input_payload or {}).get("question") or ""),
+                approved_snippets=snippets,
+            )
+            usage.prompt_id = answered.get("prompt_id")
+            usage.prompt_version = answered.get("prompt_version")
+            usage.provider = answered.get("provider")
+            usage.model = answered.get("model_id")
+            usage.prompt_tokens = answered.get("prompt_tokens")
+            usage.completion_tokens = answered.get("completion_tokens")
+            usage.total_tokens = answered.get("total_tokens")
+            usage.cache_hit = answered.get("cache_status") == "hit"
+            return {
+                "workflow_id": workflow_id,
+                "status": "completed",
+                "result": answered,
+                "requires_approval": False,
+                "approval_id": None,
+                "provider_request_id": answered.get("provider_request_id"),
             }
 
         _reject_body_org()

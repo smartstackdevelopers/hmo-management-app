@@ -231,6 +231,10 @@ class Permission(StrEnum):
     AI_COMPLIANCE_READ = "ai.compliance.read"
     AI_COMPLIANCE_REVIEW = "ai.compliance.review"
 
+    # F3.10 tenant assistant pilot
+    AI_TENANT_ASSISTANT_ASK = "ai.tenant_assistant.ask"
+    AI_TENANT_ASSISTANT_READ = "ai.tenant_assistant.read"
+
 
 @dataclass(frozen=True)
 class PermissionMeta:
@@ -840,6 +844,16 @@ PERMISSION_CATALOG: dict[Permission, PermissionMeta] = {
     Permission.AI_COMPLIANCE_REVIEW: PermissionMeta(
         Permission.AI_COMPLIANCE_REVIEW,
         "Review, dismiss, or resolve compliance findings",
+        True,
+    ),
+    Permission.AI_TENANT_ASSISTANT_ASK: PermissionMeta(
+        Permission.AI_TENANT_ASSISTANT_ASK,
+        "Ask the Tenant Assistant using approved organisation content",
+        True,
+    ),
+    Permission.AI_TENANT_ASSISTANT_READ: PermissionMeta(
+        Permission.AI_TENANT_ASSISTANT_READ,
+        "Read own Tenant Assistant conversation history",
         True,
     ),
     Permission.ROLE_ASSIGNMENTS_MANAGE: PermissionMeta(

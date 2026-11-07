@@ -218,6 +218,13 @@ export const DASHBOARD_NAV: NavItem[] = [
     section: "records",
   },
   {
+    id: "tenant-assistant",
+    label: "Tenant assistant",
+    href: "/dashboard/tenant-assistant",
+    anyOf: ["ai.tenant_assistant.ask"],
+    section: "records",
+  },
+  {
     id: "incidents",
     label: "Incidents",
     href: "/dashboard/incidents",

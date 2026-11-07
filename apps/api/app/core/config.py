@@ -85,6 +85,18 @@ class Settings(BaseSettings):
         default="0 2 * * *",
         validation_alias="NOTES_ANALYSIS_BATCH_CRON",
     )
+    # F3.10 — comma-separated organisation UUIDs allowed to use Tenant Assistant pilot.
+    # Empty = disabled for all organisations (not globally enabled by default).
+    tenant_assistant_pilot_organisation_ids: str = Field(
+        default="",
+        validation_alias="TENANT_ASSISTANT_PILOT_ORGANISATION_IDS",
+    )
+    tenant_assistant_hourly_limit: int = Field(
+        default=30,
+        ge=1,
+        le=500,
+        validation_alias="TENANT_ASSISTANT_HOURLY_LIMIT",
+    )
 
     @field_validator("environment")
     @classmethod
