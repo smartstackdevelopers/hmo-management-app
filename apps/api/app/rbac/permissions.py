@@ -192,6 +192,14 @@ class Permission(StrEnum):
     SECURE_SHARING_REVOKE = "secure_sharing.revoke"
     SECURE_SHARING_READ = "secure_sharing.read"
 
+    # F3.3 AI usage caps and cost dashboard
+    AI_BUDGET_READ = "ai.budget.read"
+    AI_BUDGET_MANAGE = "ai.budget.manage"
+    AI_USAGE_READ = "ai.usage.read"
+    AI_COST_DASHBOARD_VIEW = "ai.cost.dashboard.view"
+    AI_PRICING_MANAGE = "ai.pricing.manage"
+    AI_PLATFORM_COST_VIEW = "ai.platform.cost.view"
+
 
 @dataclass(frozen=True)
 class PermissionMeta:
@@ -719,6 +727,24 @@ PERMISSION_CATALOG: dict[Permission, PermissionMeta] = {
     ),
     Permission.SECURE_SHARING_READ: PermissionMeta(
         Permission.SECURE_SHARING_READ, "View and access secure sharing grants", True
+    ),
+    Permission.AI_BUDGET_READ: PermissionMeta(
+        Permission.AI_BUDGET_READ, "View organisation AI budget configuration", True
+    ),
+    Permission.AI_BUDGET_MANAGE: PermissionMeta(
+        Permission.AI_BUDGET_MANAGE, "Create or update organisation AI budgets", True
+    ),
+    Permission.AI_USAGE_READ: PermissionMeta(
+        Permission.AI_USAGE_READ, "View organisation AI usage and cost records", True
+    ),
+    Permission.AI_COST_DASHBOARD_VIEW: PermissionMeta(
+        Permission.AI_COST_DASHBOARD_VIEW, "View organisation AI cost dashboard", True
+    ),
+    Permission.AI_PRICING_MANAGE: PermissionMeta(
+        Permission.AI_PRICING_MANAGE, "Manage verified AI provider/model pricing", True
+    ),
+    Permission.AI_PLATFORM_COST_VIEW: PermissionMeta(
+        Permission.AI_PLATFORM_COST_VIEW, "View platform-wide AI cost dashboard", True
     ),
     Permission.ROLE_ASSIGNMENTS_MANAGE: PermissionMeta(
         Permission.ROLE_ASSIGNMENTS_MANAGE,

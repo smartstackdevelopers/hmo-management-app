@@ -113,6 +113,12 @@ from app.db.models.communication import (
     CommunicationTranslation,
     CommunicationUserPreference,
 )
+from app.db.models.ai_usage import (
+    AiBudgetReservation,
+    AiModelPricing,
+    AiUsageRecord,
+    OrganisationAiBudget,
+)
 
 __all__ = [
     "AuditEvent",
@@ -213,4 +219,8 @@ __all__ = [
     "OrganisationCustomFormVersion",
     "SecureSharingAccessLog",
     "SecureSharingGrant",
+    "OrganisationAiBudget",
+    "AiModelPricing",
+    "AiUsageRecord",
+    "AiBudgetReservation",
 ]

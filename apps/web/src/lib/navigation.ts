@@ -90,6 +90,13 @@ export const DASHBOARD_NAV: NavItem[] = [
     section: "records",
   },
   {
+    id: "ai-costs",
+    label: "AI costs",
+    href: "/dashboard/ai-costs",
+    anyOf: ["ai.cost.dashboard.view", "ai.platform.cost.view", "ai.usage.read"],
+    section: "platform",
+  },
+  {
     id: "org-workflows",
     label: "Approvals & workflows",
     href: "/dashboard/org-workflows",

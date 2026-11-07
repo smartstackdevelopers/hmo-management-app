@@ -6,6 +6,8 @@ from concurrent.futures import ThreadPoolExecutor, TimeoutError as FuturesTimeou
 from typing import Any
 
 from app.approval.service import get_approval_service
+from app.budget.client import BudgetExceededError, reconcile_usage, reserve_budget
+from app.budget.features import feature_for_workflow
 from app.context.trusted import TrustedCallerContext
 from app.core.config import Settings
 from app.core.correlation import get_correlation_id
@@ -17,6 +19,9 @@ from app.tools.registry import build_default_tool_registry
 from app.usage.metadata import UsageMetadata
 
 SUPPORTED_WORKFLOWS = frozenset({"foundation_ping", "foundation_echo", "foundation_routed_echo"})
+
+# foundation_ping is infrastructure-only and non-billable.
+NON_BILLABLE_WORKFLOWS = frozenset({"foundation_ping"})
 
 
 def list_workflows() -> list[str]:
@@ -31,12 +36,15 @@ def execute_workflow(
     message: str = "",
     require_human_gate: bool = False,
     input_payload: dict[str, Any] | None = None,
+    batch_job_id: str | None = None,
 ) -> dict[str, Any]:
     if workflow_id not in SUPPORTED_WORKFLOWS:
         raise WorkflowError(f"Unsupported workflow '{workflow_id}'", status_code=404)
 
     request_id = str(uuid.uuid4())
     started = time.perf_counter()
+    feature_id = feature_for_workflow(workflow_id)
+    billable = workflow_id not in NON_BILLABLE_WORKFLOWS
     usage = UsageMetadata(
         request_id=request_id,
         correlation_id=get_correlation_id(),
@@ -44,6 +52,7 @@ def execute_workflow(
         organisation_id=ctx.organisation_id,
         user_id=ctx.user_id,
         status="started",
+        batch_job_id=batch_job_id,
     )
 
     def _reject_body_org() -> None:
@@ -102,6 +111,7 @@ def execute_workflow(
             },
             "requires_approval": False,
             "approval_id": None,
+            "provider_request_id": routed.get("provider_request_id"),
         }
 
     def _run() -> dict[str, Any]:
@@ -153,6 +163,49 @@ def execute_workflow(
             "proposed_action_summary": final.get("proposed_action_summary"),
         }
 
+    def _reconcile(execution_status: str, extra: dict[str, Any] | None = None) -> None:
+        payload: dict[str, Any] = {
+            "request_id": request_id,
+            "organisation_id": str(ctx.organisation_id),
+            "execution_status": execution_status,
+            "feature_id": feature_id,
+            "workflow_id": workflow_id,
+            "user_id": str(ctx.user_id),
+            "provider": usage.provider,
+            "model_id": usage.model,
+            "prompt_id": usage.prompt_id,
+            "prompt_version": usage.prompt_version,
+            "batch_job_id": batch_job_id,
+            "input_tokens": usage.prompt_tokens,
+            "output_tokens": usage.completion_tokens,
+            "total_tokens": usage.total_tokens,
+            "cache_hit": usage.cache_hit,
+            "escalation_occurred": usage.escalation_occurred,
+            "escalation_reason": usage.escalation_reason,
+            "duration_ms": usage.duration_ms,
+            "metadata": {"correlation_id": usage.correlation_id},
+        }
+        if extra:
+            payload.update(extra)
+        reconcile_usage(settings, payload=payload)
+
+    # Hard cap enforcement before billable dispatch.
+    try:
+        reserve_budget(
+            settings,
+            request_id=request_id,
+            organisation_id=ctx.organisation_id,
+            user_id=ctx.user_id,
+            feature_id=feature_id,
+            workflow_id=workflow_id,
+            billable=billable,
+            cache_hit=False,
+        )
+    except BudgetExceededError as exc:
+        usage.status = "rejected_budget"
+        usage.duration_ms = int((time.perf_counter() - started) * 1000)
+        raise
+
     try:
         with ThreadPoolExecutor(max_workers=1) as pool:
             future = pool.submit(_run)
@@ -162,14 +215,23 @@ def execute_workflow(
         outcome["request_id"] = request_id
         outcome["usage"] = usage.to_public_dict()
         outcome["organisation_id"] = str(ctx.organisation_id)
+        _reconcile(
+            "completed" if usage.status == "completed" else "failed",
+            {"provider_request_id": outcome.get("provider_request_id")},
+        )
         return outcome
     except FuturesTimeout as exc:
         usage.status = "timeout"
         usage.duration_ms = int((time.perf_counter() - started) * 1000)
+        _reconcile("failed", {"metadata": {"reason": "timeout"}})
         raise WorkflowError("Workflow execution timed out", status_code=504) from exc
     except WorkflowError:
+        usage.status = "failed"
+        usage.duration_ms = int((time.perf_counter() - started) * 1000)
+        _reconcile("failed")
         raise
     except Exception as exc:  # noqa: BLE001
         usage.status = "failed"
         usage.duration_ms = int((time.perf_counter() - started) * 1000)
+        _reconcile("failed")
         raise WorkflowError("Workflow execution failed", status_code=500) from exc

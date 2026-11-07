@@ -55,6 +55,12 @@ class Settings(BaseSettings):
     max_request_bytes: int = Field(default=262_144, validation_alias="AI_MAX_REQUEST_BYTES")
     workflow_timeout_seconds: float = Field(default=60.0, validation_alias="AI_WORKFLOW_TIMEOUT_SECONDS")
 
+    # F3.3 — core API budget metering
+    core_api_base_url: str = Field(default="", validation_alias="CORE_API_BASE_URL")
+    budget_http_timeout_seconds: float = Field(default=5.0, validation_alias="AI_BUDGET_HTTP_TIMEOUT_SECONDS")
+    # Fail-open when core API unreachable. Default true for local/test; set false in production.
+    budget_enforcement_fail_open: bool = Field(default=True, validation_alias="AI_BUDGET_ENFORCEMENT_FAIL_OPEN")
+
     default_allowed_features: str = Field(
         default=(
             "ai.foundation,ai.workflow.execute,ai.prompts.read,ai.approvals,"

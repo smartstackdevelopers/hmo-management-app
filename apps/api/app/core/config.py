@@ -5,7 +5,12 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
 class Settings(BaseSettings):
-    model_config = SettingsConfigDict(env_file=".env", env_file_encoding="utf-8", extra="ignore")
+    model_config = SettingsConfigDict(
+        env_file=".env",
+        env_file_encoding="utf-8",
+        extra="ignore",
+        populate_by_name=True,
+    )
 
     app_name: str = "HMore API"
     environment: str = Field(default="development")
@@ -69,6 +74,9 @@ class Settings(BaseSettings):
     twilio_auth_token: str | None = None
     twilio_from_number: str | None = None
     sms_adapter_mode: str = Field(default="test")  # test | twilio
+
+    # F3.3 — shared secret for AI service → core API metering/budget calls
+    ai_service_token: str = Field(default="", validation_alias="AI_SERVICE_TOKEN")
 
     @field_validator("environment")
     @classmethod
