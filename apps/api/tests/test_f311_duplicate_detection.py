@@ -83,7 +83,6 @@ def test_f311_detects_email_duplicates_without_ai_or_mutation(
     org, other, admin, worker = _seed(db_session, unique_suffix)
     admin_ctx = _ctx(HMoreRole.ORGANISATION_ADMIN, org.id, admin.id)
     worker_ctx = _ctx(HMoreRole.SUPPORT_WORKER, org.id, worker.id)
-    apply_organisation_rls(db_session, org.id)
 
     t1 = Tenant(
         organisation_id=org.id,
@@ -116,6 +115,7 @@ def test_f311_detects_email_duplicates_without_ai_or_mutation(
     db_session.add_all([t1, t2, t3, t_other])
     db_session.flush()
     before_ids = {t1.id, t2.id, t3.id}
+    apply_organisation_rls(db_session, org.id)
 
     result = dd_service.run_detection(
         db_session, admin_ctx, record_types=["tenant"], trigger="manual"
@@ -199,7 +199,6 @@ def test_f311_housing_and_file_duplicates_and_dismiss_sticky(
     apply_platform_rls_bypass(db_session)
     org, _other, admin, _worker = _seed(db_session, unique_suffix)
     admin_ctx = _ctx(HMoreRole.ORGANISATION_ADMIN, org.id, admin.id)
-    apply_organisation_rls(db_session, org.id)
 
     tenant = Tenant(
         organisation_id=org.id,
@@ -247,6 +246,7 @@ def test_f311_housing_and_file_duplicates_and_dismiss_sticky(
     )
     db_session.add_all([app1, app2, f1, f2])
     db_session.flush()
+    apply_organisation_rls(db_session, org.id)
 
     result = dd_service.run_detection(
         db_session,
@@ -284,7 +284,6 @@ def test_f311_record_scoped_detection_limits_candidates(
 ) -> None:
     apply_platform_rls_bypass(db_session)
     org, _other, admin, _worker = _seed(db_session, unique_suffix)
-    apply_organisation_rls(db_session, org.id)
     source = Tenant(
         organisation_id=org.id,
         preferred_name="Source",
@@ -307,6 +306,7 @@ def test_f311_record_scoped_detection_limits_candidates(
     )
     db_session.add_all([source, twin, unrelated])
     db_session.flush()
+    apply_organisation_rls(db_session, org.id)
 
     scanned, compared, hits = detect_tenant_duplicates(
         db_session, org.id, source_id=source.id, limit_pairs=50
