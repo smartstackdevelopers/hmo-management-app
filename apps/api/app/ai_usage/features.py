@@ -22,6 +22,7 @@ FEATURE_BATCH = "ai.infra.batch"
 FEATURE_CACHE = "ai.infra.cache"
 FEATURE_CASE_SUMMARY = "ai.workflow.case_summaries"
 FEATURE_DOCUMENT_CHECK = "ai.workflow.document_checker"
+FEATURE_OPERATIONAL_SEARCH = "ai.workflow.operational_search"
 FEATURE_UNKNOWN = "ai.infra.unattributed"
 
 PLANNED_AGENT_FEATURES: frozenset[str] = frozenset(
@@ -45,7 +46,9 @@ INFRA_FEATURES: frozenset[str] = frozenset(
     }
 )
 
-WORKFLOW_FEATURES: frozenset[str] = frozenset({FEATURE_CASE_SUMMARY, FEATURE_DOCUMENT_CHECK})
+WORKFLOW_FEATURES: frozenset[str] = frozenset(
+    {FEATURE_CASE_SUMMARY, FEATURE_DOCUMENT_CHECK, FEATURE_OPERATIONAL_SEARCH}
+)
 
 ALL_FEATURE_IDS: frozenset[str] = PLANNED_AGENT_FEATURES | INFRA_FEATURES | WORKFLOW_FEATURES
 
@@ -60,6 +63,7 @@ WORKFLOW_FEATURE_MAP: dict[str, str] = {
     "housing_application_analysis": FEATURE_HOUSING_APPLICATION,
     "compliance_explanation": FEATURE_COMPLIANCE,
     "tenant_assistant": FEATURE_TENANT_ASSISTANT,
+    "operational_search": FEATURE_OPERATIONAL_SEARCH,
 }
 
 

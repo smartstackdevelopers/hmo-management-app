@@ -240,6 +240,9 @@ class Permission(StrEnum):
     DUPLICATE_DETECTION_READ = "duplicate_detection.read"
     DUPLICATE_DETECTION_REVIEW = "duplicate_detection.review"
 
+    # F3.12 natural-language operational search
+    OPERATIONAL_SEARCH_RUN = "operational_search.run"
+
 
 @dataclass(frozen=True)
 class PermissionMeta:
@@ -874,6 +877,11 @@ PERMISSION_CATALOG: dict[Permission, PermissionMeta] = {
     Permission.DUPLICATE_DETECTION_REVIEW: PermissionMeta(
         Permission.DUPLICATE_DETECTION_REVIEW,
         "Confirm, dismiss, or defer potential duplicate findings",
+        True,
+    ),
+    Permission.OPERATIONAL_SEARCH_RUN: PermissionMeta(
+        Permission.OPERATIONAL_SEARCH_RUN,
+        "Run natural-language search over authorised operational records",
         True,
     ),
     Permission.ROLE_ASSIGNMENTS_MANAGE: PermissionMeta(

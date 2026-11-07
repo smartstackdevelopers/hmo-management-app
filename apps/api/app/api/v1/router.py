@@ -24,6 +24,7 @@ from app.api.v1.housing_application_analysis import router as housing_applicatio
 from app.api.v1.compliance_agent import router as compliance_agent_router
 from app.api.v1.tenant_assistant import router as tenant_assistant_router
 from app.api.v1.duplicate_detection import router as duplicate_detection_router
+from app.api.v1.operational_search import router as operational_search_router
 from app.api.v1.evidence import router as evidence_router
 from app.api.v1.housing import router as housing_router
 from app.api.v1.incidents import router as incidents_router
@@ -78,3 +79,4 @@ api_v1_router.include_router(housing_application_analysis_router)
 api_v1_router.include_router(compliance_agent_router)
 api_v1_router.include_router(tenant_assistant_router)
 api_v1_router.include_router(duplicate_detection_router)
+api_v1_router.include_router(operational_search_router)

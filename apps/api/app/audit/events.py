@@ -341,3 +341,9 @@ DUPLICATE_DETECTION_REVIEWED = "duplicate_detection.reviewed"
 DUPLICATE_DETECTION_CONFIRMED = "duplicate_detection.confirmed"
 DUPLICATE_DETECTION_DISMISSED = "duplicate_detection.dismissed"
 DUPLICATE_DETECTION_DENIED = "duplicate_detection.denied"
+
+# F3.12 operational search
+OPERATIONAL_SEARCH_REQUESTED = "operational_search.requested"
+OPERATIONAL_SEARCH_REJECTED = "operational_search.rejected"
+OPERATIONAL_SEARCH_DENIED = "operational_search.denied"
+OPERATIONAL_SEARCH_CAP = "operational_search.cap_reached"

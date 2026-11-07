@@ -30,6 +30,7 @@ SUPPORTED_WORKFLOWS = frozenset(
         "housing_application_analysis",
         "compliance_explanation",
         "tenant_assistant",
+        "operational_search",
     }
 )
 
@@ -324,6 +325,28 @@ def execute_workflow(
                 "requires_approval": True,
                 "approval_id": None,
                 "provider_request_id": explained.get("provider_request_id"),
+            }
+
+        if workflow_id == "operational_search":
+            from app.graph.operational_search import run_operational_search
+
+            _reject_body_org()
+            question = str((input_payload or {}).get("question") or "")
+            interpreted = run_operational_search(question=question)
+            usage.prompt_id = interpreted.get("prompt_id")
+            usage.prompt_version = interpreted.get("prompt_version")
+            usage.provider = interpreted.get("provider")
+            usage.model = interpreted.get("model_id")
+            usage.prompt_tokens = 0
+            usage.completion_tokens = 0
+            usage.total_tokens = 0
+            return {
+                "workflow_id": workflow_id,
+                "status": "completed",
+                "result": interpreted,
+                "requires_approval": False,
+                "approval_id": None,
+                "provider_request_id": None,
             }
 
         if workflow_id == "tenant_assistant":
