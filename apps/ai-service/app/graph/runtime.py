@@ -31,6 +31,7 @@ SUPPORTED_WORKFLOWS = frozenset(
         "compliance_explanation",
         "tenant_assistant",
         "operational_search",
+        "report_draft_narrative",
     }
 )
 
@@ -345,6 +346,39 @@ def execute_workflow(
                 "status": "completed",
                 "result": interpreted,
                 "requires_approval": False,
+                "approval_id": None,
+                "provider_request_id": None,
+            }
+
+        if workflow_id == "report_draft_narrative":
+            from app.graph.report_draft_narrative import run_report_draft_narrative
+
+            _reject_body_org()
+            metrics = (input_payload or {}).get("sections")
+            payload = {
+                "period_start": (input_payload or {}).get("period_start"),
+                "period_end": (input_payload or {}).get("period_end"),
+                "sections": (input_payload or {}).get("sections") or {},
+                "unavailable": (input_payload or {}).get("unavailable") or [],
+            }
+            if metrics is not None and not isinstance(metrics, dict):
+                raise WorkflowError("report_draft_narrative requires sections object", status_code=422)
+            drafted = run_report_draft_narrative(
+                period_type=str((input_payload or {}).get("period_type") or "weekly"),
+                metrics=payload,
+            )
+            usage.prompt_id = drafted.get("prompt_id")
+            usage.prompt_version = drafted.get("prompt_version")
+            usage.provider = drafted.get("provider")
+            usage.model = drafted.get("model_id")
+            usage.prompt_tokens = 0
+            usage.completion_tokens = 0
+            usage.total_tokens = 0
+            return {
+                "workflow_id": workflow_id,
+                "status": "completed",
+                "result": drafted,
+                "requires_approval": True,
                 "approval_id": None,
                 "provider_request_id": None,
             }

@@ -27,9 +27,9 @@ The environment directory is named `migrations` (not `alembic`) so Python never 
 
 `env.py` loads SQLAlchemy metadata from `app.db.models` and reads `DATABASE_URL` from application settings. Hardcoded credentials are not used.
 
-Current head: `20261107_2500_f311` (F3.11 duplicate detection runs/findings + supporting search indexes + RLS).
+Current head: `20261107_2600_f313` (F3.13 operational report drafts + RLS).
 
-Previous Phase 3 head: `20261107_2400_f310` (F3.10 tenant assistant).
+Previous Phase 3 head: `20261107_2500_f311` (F3.11 duplicate detection).
 
 ## Naming
 

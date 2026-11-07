@@ -51,6 +51,20 @@ celery_app.conf.update(
             "task": "hmore.duplicate_detection.dispatch_scheduled_sweeps",
             "schedule": 86400.0,
         },
+        # F3.13 — overdue reminder scan (creates ReminderRecord rows; dispatch job delivers)
+        "scan-overdue-reminders-hourly": {
+            "task": "hmore.overdue_reminders.scan",
+            "schedule": 3600.0,
+        },
+        # F3.13 — weekly/monthly report draft generation (idempotent per period)
+        "dispatch-weekly-report-drafts": {
+            "task": "hmore.report_drafts.dispatch_weekly",
+            "schedule": 604800.0,
+        },
+        "dispatch-monthly-report-drafts": {
+            "task": "hmore.report_drafts.dispatch_monthly",
+            "schedule": 2592000.0,
+        },
     },
 )
 

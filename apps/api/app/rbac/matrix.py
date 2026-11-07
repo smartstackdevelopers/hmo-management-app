@@ -102,6 +102,9 @@ ROLE_PERMISSIONS: dict[HMoreRole, frozenset[Permission]] = {
             Permission.DUPLICATE_DETECTION_READ,
             Permission.DUPLICATE_DETECTION_REVIEW,
             Permission.OPERATIONAL_SEARCH_RUN,
+            Permission.REPORT_DRAFTS_GENERATE,
+            Permission.REPORT_DRAFTS_READ,
+            Permission.REPORT_DRAFTS_REVIEW,
         }
     ),
     HMoreRole.ORGANISATION_ADMIN: frozenset(
@@ -250,6 +253,9 @@ ROLE_PERMISSIONS: dict[HMoreRole, frozenset[Permission]] = {
             Permission.DUPLICATE_DETECTION_READ,
             Permission.DUPLICATE_DETECTION_REVIEW,
             Permission.OPERATIONAL_SEARCH_RUN,
+            Permission.REPORT_DRAFTS_GENERATE,
+            Permission.REPORT_DRAFTS_READ,
+            Permission.REPORT_DRAFTS_REVIEW,
         }
     ),
     HMoreRole.LANDLORD: frozenset(
