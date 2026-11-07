@@ -21,6 +21,7 @@ FEATURE_ROUTING = "ai.infra.routing"
 FEATURE_BATCH = "ai.infra.batch"
 FEATURE_CACHE = "ai.infra.cache"
 FEATURE_CASE_SUMMARY = "ai.workflow.case_summaries"
+FEATURE_DOCUMENT_CHECK = "ai.workflow.document_checker"
 FEATURE_UNKNOWN = "ai.infra.unattributed"
 
 PLANNED_AGENT_FEATURES: frozenset[str] = frozenset(
@@ -44,7 +45,7 @@ INFRA_FEATURES: frozenset[str] = frozenset(
     }
 )
 
-WORKFLOW_FEATURES: frozenset[str] = frozenset({FEATURE_CASE_SUMMARY})
+WORKFLOW_FEATURES: frozenset[str] = frozenset({FEATURE_CASE_SUMMARY, FEATURE_DOCUMENT_CHECK})
 
 ALL_FEATURE_IDS: frozenset[str] = PLANNED_AGENT_FEATURES | INFRA_FEATURES | WORKFLOW_FEATURES
 
@@ -54,6 +55,7 @@ WORKFLOW_FEATURE_MAP: dict[str, str] = {
     "foundation_routed_echo": FEATURE_ROUTING,
     "notes_analysis": FEATURE_NOTES_ANALYSIS,
     "case_summary": FEATURE_CASE_SUMMARY,
+    "document_check": FEATURE_DOCUMENT_CHECK,
 }
 
 

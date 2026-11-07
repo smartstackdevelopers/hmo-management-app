@@ -2,7 +2,9 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { AccessRequestForm } from "@/components/documents/AccessRequestForm";
 import { NewVersionUploadForm } from "@/components/documents/NewVersionUploadForm";
+import { DocumentCheckPanel } from "@/components/documents/DocumentCheckPanel";
 import { SecureDocumentDownload } from "@/components/documents/SecureDocumentDownload";
+import { canRunDocumentCheck } from "@/lib/documentCheckView";
 import { EmptyState } from "@/components/dashboard/EmptyState";
 import { ErrorState } from "@/components/dashboard/ErrorState";
 import { PageHeader } from "@/components/dashboard/PageHeader";
@@ -99,6 +101,16 @@ export default async function DocumentDetailPage({ params }: { params: Promise<{
             </ul>
           )}
         </div>
+
+        {canRunDocumentCheck(perms) ? (
+          <DocumentCheckPanel
+            documentId={id}
+            accessToken={token}
+            organisationId={orgId}
+            role={role}
+            permissions={perms ?? []}
+          />
+        ) : null}
 
         {can(perms, "documents.version") ? (
           <NewVersionUploadForm accessToken={token} organisationId={orgId} role={role} documentId={id} />

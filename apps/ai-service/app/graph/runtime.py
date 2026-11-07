@@ -19,7 +19,7 @@ from app.tools.registry import build_default_tool_registry
 from app.usage.metadata import UsageMetadata
 
 SUPPORTED_WORKFLOWS = frozenset(
-    {"foundation_ping", "foundation_echo", "foundation_routed_echo", "notes_analysis", "case_summary"}
+    {"foundation_ping", "foundation_echo", "foundation_routed_echo", "notes_analysis", "case_summary", "document_check"}
 )
 
 # foundation_ping is infrastructure-only and non-billable.
@@ -191,6 +191,36 @@ def execute_workflow(
                 "requires_approval": True,
                 "approval_id": None,
                 "provider_request_id": summarised.get("provider_request_id"),
+            }
+
+        if workflow_id == "document_check":
+            from app.graph.document_check import run_document_check
+
+            _reject_body_org()
+            findings = (input_payload or {}).get("findings") or []
+            if not isinstance(findings, list):
+                raise WorkflowError("document_check requires input_payload.findings", status_code=422)
+            analysed = run_document_check(
+                settings=settings,
+                organisation_id=ctx.organisation_id,
+                findings=findings,
+                excerpt=str((input_payload or {}).get("excerpt") or ""),
+            )
+            usage.prompt_id = analysed.get("prompt_id")
+            usage.prompt_version = analysed.get("prompt_version")
+            usage.provider = analysed.get("provider")
+            usage.model = analysed.get("model_id")
+            usage.prompt_tokens = analysed.get("prompt_tokens")
+            usage.completion_tokens = analysed.get("completion_tokens")
+            usage.total_tokens = analysed.get("total_tokens")
+            usage.cache_hit = analysed.get("cache_status") == "hit"
+            return {
+                "workflow_id": workflow_id,
+                "status": "completed",
+                "result": analysed,
+                "requires_approval": True,
+                "approval_id": None,
+                "provider_request_id": analysed.get("provider_request_id"),
             }
 
         _reject_body_org()

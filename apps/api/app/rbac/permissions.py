@@ -211,6 +211,11 @@ class Permission(StrEnum):
     AI_CASE_SUMMARY_READ = "ai.case_summary.read"
     AI_CASE_SUMMARY_REVIEW = "ai.case_summary.review"
 
+    # F3.6 document checker
+    AI_DOCUMENT_CHECK_RUN = "ai.document_check.run"
+    AI_DOCUMENT_CHECK_READ = "ai.document_check.read"
+    AI_DOCUMENT_CHECK_REVIEW = "ai.document_check.review"
+
 
 @dataclass(frozen=True)
 class PermissionMeta:
@@ -777,6 +782,15 @@ PERMISSION_CATALOG: dict[Permission, PermissionMeta] = {
     ),
     Permission.AI_CASE_SUMMARY_REVIEW: PermissionMeta(
         Permission.AI_CASE_SUMMARY_REVIEW, "Approve or reject a case summary", True
+    ),
+    Permission.AI_DOCUMENT_CHECK_RUN: PermissionMeta(
+        Permission.AI_DOCUMENT_CHECK_RUN, "Run a document check on an authorised file", True
+    ),
+    Permission.AI_DOCUMENT_CHECK_READ: PermissionMeta(
+        Permission.AI_DOCUMENT_CHECK_READ, "View document check results", True
+    ),
+    Permission.AI_DOCUMENT_CHECK_REVIEW: PermissionMeta(
+        Permission.AI_DOCUMENT_CHECK_REVIEW, "Confirm or dismiss document check findings", True
     ),
     Permission.ROLE_ASSIGNMENTS_MANAGE: PermissionMeta(
         Permission.ROLE_ASSIGNMENTS_MANAGE,

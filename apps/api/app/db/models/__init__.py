@@ -121,6 +121,12 @@ from app.db.models.ai_usage import (
 )
 from app.db.models.notes_analysis import DailyLogAiAnalysis, DailyLogAiSuggestion
 from app.db.models.case_summaries import CaseSummary
+from app.db.models.document_checks import (
+    DocumentCheck,
+    DocumentCheckFinding,
+    DocumentCheckObservation,
+    DocumentCheckRule,
+)
 
 __all__ = [
     "AuditEvent",
@@ -228,4 +234,8 @@ __all__ = [
     "DailyLogAiAnalysis",
     "DailyLogAiSuggestion",
     "CaseSummary",
+    "DocumentCheck",
+    "DocumentCheckFinding",
+    "DocumentCheckObservation",
+    "DocumentCheckRule",
 ]
