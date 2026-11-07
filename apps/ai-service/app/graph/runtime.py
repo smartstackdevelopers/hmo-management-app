@@ -28,6 +28,7 @@ SUPPORTED_WORKFLOWS = frozenset(
         "document_check",
         "support_plan_draft",
         "housing_application_analysis",
+        "compliance_explanation",
     }
 )
 
@@ -291,6 +292,37 @@ def execute_workflow(
                 "requires_approval": True,
                 "approval_id": None,
                 "provider_request_id": analysed.get("provider_request_id"),
+            }
+
+        if workflow_id == "compliance_explanation":
+            from app.graph.compliance_explanation import run_compliance_explanation
+
+            _reject_body_org()
+            findings = (input_payload or {}).get("findings") or []
+            if not isinstance(findings, list):
+                raise WorkflowError(
+                    "compliance_explanation requires input_payload.findings", status_code=422
+                )
+            explained = run_compliance_explanation(
+                settings=settings,
+                organisation_id=ctx.organisation_id,
+                findings=findings,
+            )
+            usage.prompt_id = explained.get("prompt_id")
+            usage.prompt_version = explained.get("prompt_version")
+            usage.provider = explained.get("provider")
+            usage.model = explained.get("model_id")
+            usage.prompt_tokens = explained.get("prompt_tokens")
+            usage.completion_tokens = explained.get("completion_tokens")
+            usage.total_tokens = explained.get("total_tokens")
+            usage.cache_hit = explained.get("cache_status") == "hit"
+            return {
+                "workflow_id": workflow_id,
+                "status": "completed",
+                "result": explained,
+                "requires_approval": True,
+                "approval_id": None,
+                "provider_request_id": explained.get("provider_request_id"),
             }
 
         _reject_body_org()

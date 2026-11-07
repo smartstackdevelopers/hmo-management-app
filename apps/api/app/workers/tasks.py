@@ -114,3 +114,37 @@ def dispatch_communication_reminders_task(self) -> dict:
         session.commit()
         logger.info("dispatch_due_communication_reminders result=%s", result)
         return result
+
+
+@celery_app.task(
+    name="hmore.compliance.dispatch_scheduled_sweeps",
+    bind=True,
+    autoretry_for=(Exception,),
+    retry_backoff=True,
+    retry_kwargs={"max_retries": 2},
+)
+def dispatch_compliance_sweeps_task(self) -> dict:
+    """Periodic: organisation-scoped F3.9 compliance rules sweeps."""
+    from app.compliance_agent.jobs import dispatch_scheduled_sweeps
+
+    with session_scope() as session:
+        result = dispatch_scheduled_sweeps(session)
+        logger.info("dispatch_scheduled_compliance_sweeps result=%s", result)
+        return result
+
+
+@celery_app.task(
+    name="hmore.compliance.dispatch_organisation_sweep",
+    bind=True,
+    autoretry_for=(Exception,),
+    retry_backoff=True,
+    retry_kwargs={"max_retries": 2},
+)
+def dispatch_org_compliance_sweep_task(self, payload: dict) -> dict:
+    """Organisation-scoped compliance sweep with validated job context."""
+    from app.compliance_agent.jobs import dispatch_org_scheduled_sweep
+
+    with session_scope() as session:
+        result = dispatch_org_scheduled_sweep(session, payload)
+        logger.info("dispatch_org_compliance_sweep result=%s", result)
+        return result

@@ -211,6 +211,13 @@ export const DASHBOARD_NAV: NavItem[] = [
     section: "records",
   },
   {
+    id: "compliance-agent",
+    label: "Compliance agent",
+    href: "/dashboard/compliance-agent",
+    anyOf: ["ai.compliance.run", "ai.compliance.read", "compliance.check"],
+    section: "records",
+  },
+  {
     id: "incidents",
     label: "Incidents",
     href: "/dashboard/incidents",
