@@ -36,6 +36,14 @@ class Permission(StrEnum):
     EVIDENCE_PACK_GENERATE = "evidence.pack.generate"
     COMPLIANCE_CHECK = "compliance.check"
     REPORTS_READ = "reports.read"
+    # F2.14 granular reporting (reports.read retained for backward compatibility)
+    REPORTS_DASHBOARD_VIEW = "reports.dashboard.view"
+    REPORTS_HOUSING_VIEW = "reports.housing.view"
+    REPORTS_COMPLAINTS_VIEW = "reports.complaints.view"
+    REPORTS_CASELOAD_VIEW = "reports.caseload.view"
+    REPORTS_EXPORT_CSV = "reports.export.csv"
+    REPORTS_EXPORT_PDF = "reports.export.pdf"
+    REPORTS_EXPORT_EXCEL = "reports.export.excel"
     AUDIT_LOGS_READ = "audit_logs.read"
     OCCUPANCY_READ = "occupancy.read"
     OCCUPANCY_ALERTS_MANAGE = "occupancy.alerts.manage"
@@ -171,6 +179,19 @@ class Permission(StrEnum):
     COMMUNICATION_TEMPLATES_MANAGE = "communication.templates.manage"
     COMMUNICATION_TRANSLATIONS_MANAGE = "communication.translations.manage"
 
+    # F2.13 organisation workflows
+    APPROVALS_INBOX_READ = "approvals.inbox.read"
+    APPROVALS_DECIDE = "approvals.decide"
+    APPROVALS_ASSIGN = "approvals.assign"
+    ORGANISATION_FORMS_MANAGE = "organisation.forms.manage"
+    ORGANISATION_FORMS_PUBLISH = "organisation.forms.publish"
+    ORGANISATION_FORMS_SUBMIT = "organisation.forms.submit"
+    ORGANISATION_FORMS_SUBMISSIONS_READ = "organisation.forms.submissions.read"
+    ORGANISATION_FORMS_SUBMISSIONS_REVIEW = "organisation.forms.submissions.review"
+    SECURE_SHARING_GRANT = "secure_sharing.grant"
+    SECURE_SHARING_REVOKE = "secure_sharing.revoke"
+    SECURE_SHARING_READ = "secure_sharing.read"
+
 
 @dataclass(frozen=True)
 class PermissionMeta:
@@ -262,6 +283,27 @@ PERMISSION_CATALOG: dict[Permission, PermissionMeta] = {
         Permission.COMPLIANCE_CHECK, "Run compliance checks", True
     ),
     Permission.REPORTS_READ: PermissionMeta(Permission.REPORTS_READ, "Access organisation reports"),
+    Permission.REPORTS_DASHBOARD_VIEW: PermissionMeta(
+        Permission.REPORTS_DASHBOARD_VIEW, "View operational reporting dashboard", True
+    ),
+    Permission.REPORTS_HOUSING_VIEW: PermissionMeta(
+        Permission.REPORTS_HOUSING_VIEW, "View housing application reports", True
+    ),
+    Permission.REPORTS_COMPLAINTS_VIEW: PermissionMeta(
+        Permission.REPORTS_COMPLAINTS_VIEW, "View complaints reports", True
+    ),
+    Permission.REPORTS_CASELOAD_VIEW: PermissionMeta(
+        Permission.REPORTS_CASELOAD_VIEW, "View support worker caseload reports", True
+    ),
+    Permission.REPORTS_EXPORT_CSV: PermissionMeta(
+        Permission.REPORTS_EXPORT_CSV, "Export reports as CSV", True
+    ),
+    Permission.REPORTS_EXPORT_PDF: PermissionMeta(
+        Permission.REPORTS_EXPORT_PDF, "Export reports as PDF", True
+    ),
+    Permission.REPORTS_EXPORT_EXCEL: PermissionMeta(
+        Permission.REPORTS_EXPORT_EXCEL, "Export reports as Excel", True
+    ),
     Permission.AUDIT_LOGS_READ: PermissionMeta(
         Permission.AUDIT_LOGS_READ, "Read audit logs", True
     ),
@@ -642,6 +684,41 @@ PERMISSION_CATALOG: dict[Permission, PermissionMeta] = {
         Permission.COMMUNICATION_TRANSLATIONS_MANAGE,
         "Request or review translations of communication content",
         True,
+    ),
+    Permission.APPROVALS_INBOX_READ: PermissionMeta(
+        Permission.APPROVALS_INBOX_READ, "View organisation approvals inbox", True
+    ),
+    Permission.APPROVALS_DECIDE: PermissionMeta(
+        Permission.APPROVALS_DECIDE, "Approve or reject aggregated approval requests", True
+    ),
+    Permission.APPROVALS_ASSIGN: PermissionMeta(
+        Permission.APPROVALS_ASSIGN, "Assign reviewers to approval requests", True
+    ),
+    Permission.ORGANISATION_FORMS_MANAGE: PermissionMeta(
+        Permission.ORGANISATION_FORMS_MANAGE, "Create and edit organisation custom forms", True
+    ),
+    Permission.ORGANISATION_FORMS_PUBLISH: PermissionMeta(
+        Permission.ORGANISATION_FORMS_PUBLISH, "Publish organisation custom forms", True
+    ),
+    Permission.ORGANISATION_FORMS_SUBMIT: PermissionMeta(
+        Permission.ORGANISATION_FORMS_SUBMIT, "Complete and submit published custom forms"
+    ),
+    Permission.ORGANISATION_FORMS_SUBMISSIONS_READ: PermissionMeta(
+        Permission.ORGANISATION_FORMS_SUBMISSIONS_READ, "Read permitted custom form submissions"
+    ),
+    Permission.ORGANISATION_FORMS_SUBMISSIONS_REVIEW: PermissionMeta(
+        Permission.ORGANISATION_FORMS_SUBMISSIONS_REVIEW,
+        "Review and decide on custom form submissions",
+        True,
+    ),
+    Permission.SECURE_SHARING_GRANT: PermissionMeta(
+        Permission.SECURE_SHARING_GRANT, "Create secure sharing grants", True
+    ),
+    Permission.SECURE_SHARING_REVOKE: PermissionMeta(
+        Permission.SECURE_SHARING_REVOKE, "Revoke secure sharing grants", True
+    ),
+    Permission.SECURE_SHARING_READ: PermissionMeta(
+        Permission.SECURE_SHARING_READ, "View and access secure sharing grants", True
     ),
     Permission.ROLE_ASSIGNMENTS_MANAGE: PermissionMeta(
         Permission.ROLE_ASSIGNMENTS_MANAGE,

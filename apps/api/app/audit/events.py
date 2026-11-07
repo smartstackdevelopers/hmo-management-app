@@ -217,3 +217,23 @@ COMMUNICATION_PREFERENCE_UPDATE = "communication.preference.update"
 COMMUNICATION_TEMPLATE_UPDATE = "communication.template.update"
 COMMUNICATION_TRANSLATION_REQUEST = "communication.translation.request"
 COMMUNICATION_TRANSLATION_REVIEW = "communication.translation.review"
+
+# F2.13 organisation workflows
+ORG_WORKFLOW_CREATE = "org_workflow.create"
+ORG_WORKFLOW_UPDATE = "org_workflow.update"
+ORG_WORKFLOW_ACTIVATE = "org_workflow.activate"
+ORG_WORKFLOW_DEACTIVATE = "org_workflow.deactivate"
+ORG_APPROVAL_ASSIGNED = "org_approval.assigned"
+ORG_FORM_CREATE = "org_form.create"
+ORG_FORM_PUBLISH = "org_form.publish"
+ORG_FORM_SUBMISSION_CREATE = "org_form.submission.create"
+ORG_FORM_SUBMISSION_DECIDE = "org_form.submission.decide"
+SECURE_SHARING_CREATE = "secure_sharing.create"
+SECURE_SHARING_REVOKE = "secure_sharing.revoke"
+SECURE_SHARING_ACCESS = "secure_sharing.access"
+
+# F2.14 reporting
+REPORTS_DASHBOARD_VIEW = "reports.dashboard.view"
+REPORTS_EXPORT_CSV = "reports.export.csv"
+REPORTS_EXPORT_PDF = "reports.export.pdf"
+REPORTS_EXPORT_EXCEL = "reports.export.excel"

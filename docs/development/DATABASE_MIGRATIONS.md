@@ -27,7 +27,9 @@ The environment directory is named `migrations` (not `alembic`) so Python never 
 
 `env.py` loads SQLAlchemy metadata from `app.db.models` and reads `DATABASE_URL` from application settings. Hardcoded credentials are not used.
 
-Current head includes `20261106_2300_f212_communication_platform` (F2.12 communication platform + RLS; migrates legacy `reminder_records.channel` from `log` to `in_app`).
+Current head includes `20261107_0000_f213_organisation_workflows` (F2.13 approvals inbox support tables, custom forms, secure sharing + RLS).
+
+Previous: `20261106_2300_f212_communication_platform` (F2.12 communication platform + RLS; migrates legacy `reminder_records.channel` from `log` to `in_app`).
 
 ## Naming
 
