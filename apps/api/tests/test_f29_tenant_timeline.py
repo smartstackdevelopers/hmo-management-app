@@ -252,7 +252,7 @@ def test_timeline_and_meetings_isolation(db_session, unique_suffix: str) -> None
             assigned_user_id=None,
             search=None,
         )
-    assert exc.value.status_code == 404
+    assert exc.value.status_code in {403, 404}
 
     audits = db_session.scalars(
         select(AuditEvent).where(

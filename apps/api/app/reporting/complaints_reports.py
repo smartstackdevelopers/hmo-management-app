@@ -70,11 +70,12 @@ def complaints_summary(session: Session, ctx: OrganisationContext, flt: Complain
     overdue = int(session.scalar(overdue_stmt) or 0)
     open_count = sum(by_status.get(s, 0) for s in OPEN_STATUSES)
     col = _date_column(flt.date_field)
+    day_bucket = func.date_trunc("day", col).label("day_bucket")
     trends_stmt = (
-        select(func.date_trunc("day", col), func.count())
+        select(day_bucket, func.count())
         .where(Complaint.organisation_id == ctx.organisation_id)
-        .group_by(func.date_trunc("day", col))
-        .order_by(func.date_trunc("day", col))
+        .group_by(day_bucket)
+        .order_by(day_bucket)
     )
     if flt.created_from:
         trends_stmt = trends_stmt.where(col >= flt.created_from)
