@@ -98,6 +98,82 @@ Source of truth: `apps/api/app/rbac/matrix.py` and `apps/api/app/rbac/permission
 
 Deadlines and categories are **operational**, not statutory.
 
+## Maintenance & repairs (F2.8)
+
+| Permission | Purpose | SA | OA | LL | TN | SW | MC |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| maintenance.manage | Full org workflow | D | A | D | D | D | D |
+| maintenance.create.own | Submit own requests | D | D | D | A | D | D |
+| maintenance.read.own | Read own requests | D | D | D | A | D | D |
+| maintenance.create.assigned | Create for assigned tenants | D | D | D | D | A | D |
+| maintenance.read.assigned | Read assigned / caseload | D | D | D | D | A | A |
+| maintenance.read.property | Read property-linked requests | D | D | A | D | D | D |
+| maintenance.priority.manage | Change priority (audited) | D | A | D | D | D | D |
+| maintenance.assign | Assign staff/contractor | D | A | D | D | D | D |
+| maintenance.schedule | Schedule / reschedule visits | D | A | D | D | A | A |
+| maintenance.approve | Approve / reject when required | D | A | D | D | D | D |
+| maintenance.notes.add | Internal / tenant-visible notes | D | A | D | D | A | A |
+| maintenance.photo.upload | Upload evidence | D | A | D | A | A | A |
+| maintenance.photo.read | View maintenance evidence | D | A | A | A | A | A |
+| maintenance.complete | Record completion | D | A | D | D | A | A |
+| maintenance.close | Close / reopen | D | A | D | D | D | D |
+| maintenance.emergency.manage | Edit gas/fire guidance | D | A | D | D | D | D |
+
+Photo downloads for maintenance use `maintenance.photo.read` plus request-level visibility checks (not `files.read` alone).
+
+## Tenant timeline (F2.9)
+
+| Permission | Purpose | SA | OA | LL | TN | SW | MC |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| timeline.read | Aggregated timeline (staff) | A | A | D | D | A | D |
+| timeline.read.own | Own tenant timeline slice | D | D | D | A | D | D |
+| timeline.read.landlord | Property-linked activity only | D | D | A | D | D | D |
+| timeline.meeting.create | Schedule meetings | D | A | D | D | A | D |
+| timeline.meeting.read | View meetings | D | A | D | A | A | D |
+| timeline.meeting.notes.internal | Confidential meeting notes | D | A | D | D | A | D |
+| timeline.appointment.manage | Create/update appointments | D | A | D | D | A | D |
+| timeline.followup.manage | Create/update follow-ups | D | A | D | D | A | D |
+| timeline.followup.read.assigned | List staff follow-ups (assignee-scoped for SW) | D | A | D | D | A | D |
+| timeline.needs.manage | Record needs/goals (staff) | D | A | D | D | A | D |
+
+Tenants only see **tenant follow-up** rows where `show_to_tenant=true`. Internal notes on follow-ups remain staff-only.
+
+## Structured support plans (F2.10)
+
+| Permission | Purpose | SA | OA | LL | TN | SW | MC |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| support_plans.read | Read plans/goals/reviews (scope-enforced) | A | A | A | D | A | D |
+| support_plans.read.own | Read own plans (non-internal fields) | D | D | D | A | D | D |
+| support_plans.manage | Create/update plans, goals, milestones, draft reviews | A | A | D | D | A | D |
+| support_plans.notes.internal | View internal plan/goal/review notes | A | A | D | D | A | D |
+| support_plans.export | Generate/download progress PDF | A | A | D | D | A | D |
+| support_plans.review.finalise | Finalise weekly/monthly reviews | A | A | D | D | A | D |
+
+Landlord access is **property-scoped** (aligned with `timeline.read.landlord`). Maintenance & contractors have **no** support-plan permissions. Tenant progress notes use `show_to_tenant` for visibility.
+
+## Document management (F2.11)
+
+Managed documents use **metadata + version rows** referencing F1.8 `file_metadata`; content download is gated separately from metadata listing.
+
+| Permission | Purpose | SA | OA | LL | TN | SW | MC |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| documents.read.meta | List/read document records (scope-enforced) | A | A | A | A | A | A |
+| documents.read.content | Download current or historical version bytes | A | A | A | A | A | A |
+| documents.upload | Create documents / update metadata that requires upload perm | A | A | D | D | A | D |
+| documents.version | Upload new versions | A | A | D | D | A | D |
+| documents.archive | Archive documents | A | A | D | D | D | D |
+| documents.manage.expiry | Set/change expiry | A | A | D | D | A | D |
+| documents.manage.retention | Retention metadata + reviews | A | A | D | D | D | D |
+| documents.view.restricted | View restricted/confidential classifications | A | A | D | D | A | D |
+| documents.access.request | Submit access requests | A | A | A | A | A | A |
+| documents.access.approve | Approve/reject + revoke temporary grants | A | A | D | D | D | D |
+| documents.sign.request | Create signature requests | A | A | D | D | A | D |
+| documents.sign.complete | Complete/decline as designated signer | A | A | D | A | A | D |
+| documents.manage.categories | Manage categories | A | A | D | D | D | D |
+| documents.manage.settings | Org reminder/settings | A | A | D | D | D | D |
+
+Resource visibility still applies: landlords/tenants/support workers only see documents linked to records they may already access (see `app/managed_documents/access.py`).
+
 ## Housing evidence packs (F2.6)
 
 | Permission | Purpose | SA | OA | LL | TN | SW | MC |
@@ -120,6 +196,23 @@ Support workers also receive `files.read` so linked private evidence files can b
 | work_orders.evidence.upload.assigned | Evidence upload | D | D | D | D | D | A |
 | work_orders.schedule.assigned | Scheduling | D | D | D | D | D | A |
 | work_orders.approve.assigned | Job approvals | D | A | D | D | D | A |
+
+## Communication (F2.12)
+
+| Permission | Purpose | SA | OA | LL | TN | SW | MC |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| communication.messages.send | Send permitted in-app messages | A | A | A | A | A | A |
+| communication.messages.read | Read permitted in-app messages | A | A | A | A | A | A |
+| communication.deliveries.read | View delivery status (operational) | A | A | D | D | D | D |
+| communication.channel.email.send | Dispatch email | A | A | D | D | D | D |
+| communication.channel.sms.send | Dispatch SMS | A | A | D | D | D | D |
+| communication.reminders.manage | Manage scheduled comm reminders | A | A | D | D | A | D |
+| communication.announcements.publish | Create/publish announcements | A | A | D | D | D | D |
+| communication.announcements.read | Read targeted announcements | A | A | A | A | A | A |
+| communication.templates.manage | Manage templates | A | A | D | D | D | D |
+| communication.translations.manage | Request/review translations | A | A | D | D | D | D |
+
+Service-layer rules still restrict landlord↔tenant messaging, support worker caseload boundaries, and **emergency announcement publication** to Organisation Admin or Super Admin.
 
 ## Scope notes (not F1.5 completion)
 

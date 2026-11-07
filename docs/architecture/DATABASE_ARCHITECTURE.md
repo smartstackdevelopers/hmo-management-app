@@ -27,7 +27,7 @@ apps/api/app/db/
   base.py          Declarative Base
   session.py       Engine and session helpers
   models/          Domain tables and enums
-apps/api/alembic/  Migration environment and versions
+apps/api/migrations/  Migration environment and versions (Alembic; `alembic.ini` sets `script_location = migrations`)
 ```
 
 The Node `api/` Prisma SQLite schema remains reference only and is not migrated forward.
