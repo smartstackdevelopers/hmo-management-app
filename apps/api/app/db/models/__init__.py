@@ -128,6 +128,10 @@ from app.db.models.document_checks import (
     DocumentCheckRule,
 )
 from app.db.models.support_plan_drafts import SupportPlanDraft
+from app.db.models.housing_application_analysis import (
+    HousingApplicationAnalysis,
+    HousingApplicationAnalysisFinding,
+)
 
 __all__ = [
     "AuditEvent",
@@ -240,4 +244,6 @@ __all__ = [
     "DocumentCheckObservation",
     "DocumentCheckRule",
     "SupportPlanDraft",
+    "HousingApplicationAnalysis",
+    "HousingApplicationAnalysisFinding",
 ]

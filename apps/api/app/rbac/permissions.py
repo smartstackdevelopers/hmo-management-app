@@ -221,6 +221,11 @@ class Permission(StrEnum):
     AI_SUPPORT_PLAN_DRAFT_READ = "ai.support_plan_draft.read"
     AI_SUPPORT_PLAN_DRAFT_REVIEW = "ai.support_plan_draft.review"
 
+    # F3.8 housing application analysis
+    AI_HOUSING_APPLICATION_RUN = "ai.housing_application.run"
+    AI_HOUSING_APPLICATION_READ = "ai.housing_application.read"
+    AI_HOUSING_APPLICATION_REVIEW = "ai.housing_application.review"
+
 
 @dataclass(frozen=True)
 class PermissionMeta:
@@ -805,6 +810,19 @@ PERMISSION_CATALOG: dict[Permission, PermissionMeta] = {
     ),
     Permission.AI_SUPPORT_PLAN_DRAFT_REVIEW: PermissionMeta(
         Permission.AI_SUPPORT_PLAN_DRAFT_REVIEW, "Approve or reject a support-plan draft", True
+    ),
+    Permission.AI_HOUSING_APPLICATION_RUN: PermissionMeta(
+        Permission.AI_HOUSING_APPLICATION_RUN,
+        "Analyse a housing application checklist and gaps",
+        True,
+    ),
+    Permission.AI_HOUSING_APPLICATION_READ: PermissionMeta(
+        Permission.AI_HOUSING_APPLICATION_READ, "View housing application analysis results", True
+    ),
+    Permission.AI_HOUSING_APPLICATION_REVIEW: PermissionMeta(
+        Permission.AI_HOUSING_APPLICATION_REVIEW,
+        "Confirm or dismiss housing application analysis findings",
+        True,
     ),
     Permission.ROLE_ASSIGNMENTS_MANAGE: PermissionMeta(
         Permission.ROLE_ASSIGNMENTS_MANAGE,

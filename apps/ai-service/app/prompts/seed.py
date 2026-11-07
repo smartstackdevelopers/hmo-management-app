@@ -95,3 +95,17 @@ def seed_prompts(store: PromptStore) -> None:
         metadata={"phase": "F3.7", "workflow": "support_plan_draft"},
     )
     store.publish("hmore.support_plan_draft.v1", "1.0.0")
+
+    store.upsert_draft(
+        prompt_id="hmore.housing_application_analysis.v1",
+        version="1.0.0",
+        workflow_or_feature="housing_application_analysis",
+        template=(
+            "You write a housing application gap narrative for organisation {{organisation_id}}. "
+            "Use ONLY the checklist findings JSON. Do not approve, reject, allocate, rank, or decide eligibility. "
+            "Return JSON {gap_narrative}. Mention that final decisions remain with authorised human staff. "
+            "Application reference: {{application_reference}}. Findings: {{findings_json}}"
+        ),
+        metadata={"phase": "F3.8", "workflow": "housing_application_analysis"},
+    )
+    store.publish("hmore.housing_application_analysis.v1", "1.0.0")
