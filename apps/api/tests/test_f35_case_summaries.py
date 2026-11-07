@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 import uuid
-from datetime import date, datetime, timezone
+from datetime import date, datetime, timedelta, timezone
 from types import SimpleNamespace
 
 import pytest
@@ -148,6 +148,8 @@ def test_f35_generate_review_version_and_audit(db_session: Session, unique_suffi
     assert [item["version_number"] for item in versions["items"]] == [2, 1]
 
     log.summary = "Visit amended"
+    # PostgreSQL now() is stable inside one transaction, so set a later stamp explicitly.
+    log.updated_at = datetime.now(timezone.utc) + timedelta(minutes=5)
     db_session.flush()
     current = case_service.get_summary(db_session, ctx, uuid.UUID(first["id"]))
     assert current["stale"] is True
