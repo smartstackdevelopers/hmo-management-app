@@ -200,6 +200,11 @@ class Permission(StrEnum):
     AI_PRICING_MANAGE = "ai.pricing.manage"
     AI_PLATFORM_COST_VIEW = "ai.platform.cost.view"
 
+    # F3.14 AI activity transparency and wrong-answer feedback
+    AI_ACTIVITY_READ = "ai.activity.read"
+    AI_ACTIVITY_FEEDBACK_SUBMIT = "ai.activity.feedback.submit"
+    AI_ACTIVITY_FEEDBACK_REVIEW = "ai.activity.feedback.review"
+
     # F3.4 Notes Analysis Agent
     AI_NOTES_ANALYSIS_RUN = "ai.notes.analysis.run"
     AI_NOTES_ANALYSIS_READ = "ai.notes.analysis.read"
@@ -902,6 +907,21 @@ PERMISSION_CATALOG: dict[Permission, PermissionMeta] = {
     Permission.REPORT_DRAFTS_REVIEW: PermissionMeta(
         Permission.REPORT_DRAFTS_REVIEW,
         "Edit, approve, or reject operational report drafts",
+        True,
+    ),
+    Permission.AI_ACTIVITY_READ: PermissionMeta(
+        Permission.AI_ACTIVITY_READ,
+        "View authorised AI activity logs, confidence, and source references",
+        True,
+    ),
+    Permission.AI_ACTIVITY_FEEDBACK_SUBMIT: PermissionMeta(
+        Permission.AI_ACTIVITY_FEEDBACK_SUBMIT,
+        "Report incorrect or unsupported AI responses",
+        True,
+    ),
+    Permission.AI_ACTIVITY_FEEDBACK_REVIEW: PermissionMeta(
+        Permission.AI_ACTIVITY_FEEDBACK_REVIEW,
+        "Review and resolve wrong-answer feedback",
         True,
     ),
     Permission.ROLE_ASSIGNMENTS_MANAGE: PermissionMeta(

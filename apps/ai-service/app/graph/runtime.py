@@ -451,7 +451,31 @@ def execute_workflow(
             "proposed_action_summary": final.get("proposed_action_summary"),
         }
 
-    def _reconcile(execution_status: str, extra: dict[str, Any] | None = None) -> None:
+    def _reconcile(
+        execution_status: str,
+        extra: dict[str, Any] | None = None,
+        *,
+        outcome_for_transparency: dict[str, Any] | None = None,
+    ) -> None:
+        # F3.14 — pass only genuine workflow source refs; never invent confidence %.
+        transparency: dict[str, Any] = {"operation_type": workflow_id}
+        if feature_id == "ai.agent.tenant_assistant":
+            transparency["visibility"] = "initiator"
+        result_block = None
+        if isinstance(outcome_for_transparency, dict):
+            result_block = outcome_for_transparency.get("result")
+            if not isinstance(result_block, dict):
+                result_block = outcome_for_transparency
+        if isinstance(result_block, dict):
+            refs = result_block.get("source_refs") or result_block.get("sources")
+            if isinstance(refs, (list, dict)):
+                transparency["source_refs"] = refs
+            if result_block.get("human_approval_status"):
+                transparency["human_approval_status"] = result_block.get("human_approval_status")
+        metadata: dict[str, Any] = {
+            "correlation_id": usage.correlation_id,
+            "transparency": transparency,
+        }
         payload: dict[str, Any] = {
             "request_id": request_id,
             "organisation_id": str(ctx.organisation_id),
@@ -471,9 +495,15 @@ def execute_workflow(
             "escalation_occurred": usage.escalation_occurred,
             "escalation_reason": usage.escalation_reason,
             "duration_ms": usage.duration_ms,
-            "metadata": {"correlation_id": usage.correlation_id},
+            "metadata": metadata,
         }
         if extra:
+            # Merge metadata carefully so transparency is not dropped.
+            extra_meta = extra.get("metadata") if isinstance(extra.get("metadata"), dict) else None
+            if extra_meta:
+                metadata.update({k: v for k, v in extra_meta.items() if k != "transparency"})
+                payload["metadata"] = metadata
+                extra = {k: v for k, v in extra.items() if k != "metadata"}
             payload.update(extra)
         reconcile_usage(settings, payload=payload)
 
@@ -506,6 +536,7 @@ def execute_workflow(
         _reconcile(
             "completed" if usage.status == "completed" else "failed",
             {"provider_request_id": outcome.get("provider_request_id")},
+            outcome_for_transparency=outcome,
         )
         return outcome
     except FuturesTimeout as exc:

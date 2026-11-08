@@ -295,6 +295,7 @@ def ask(
             metadata={"count": len(relevant), "fingerprint": fingerprint},
             raise_on_error=False,
         )
+        ai_response: dict | None = None
         try:
             response = ask_grounded(
                 settings,
@@ -304,6 +305,7 @@ def ask(
                 question=text,
                 approved_snippets=items_as_dicts(relevant),
             )
+            ai_response = response if isinstance(response, dict) else None
             result = response.get("result") if isinstance(response, dict) else None
             if not isinstance(result, dict):
                 raise HTTPException(status_code=502, detail="Invalid AI response")
@@ -388,6 +390,55 @@ def ask(
     session.add(assistant_msg)
     conversation.last_message_at = datetime.now(timezone.utc)
     session.flush()
+
+    # F3.14 — initiator-scoped activity with retrieval coverage when sources exist.
+    from app.ai_transparency.service import attach_transparency, record_local_activity
+
+    ta_request_id = None
+    if "ai_response" in locals() and isinstance(ai_response, dict):
+        ta_request_id = ai_response.get("request_id")
+    if not ta_request_id:
+        ta_request_id = f"ta-{assistant_msg.id}"
+    conf_kind = "retrieval_coverage" if source_refs else "unavailable"
+    conf_detail = {"sources_used": len(source_refs)} if source_refs else None
+    if ai_status == "failed":
+        exec_status = "failed"
+    elif ai_status == "skipped_budget":
+        exec_status = "rejected_budget"
+    else:
+        exec_status = "completed"
+    if not attach_transparency(
+        session,
+        request_id=str(ta_request_id),
+        organisation_id=ctx.organisation_id,
+        source_refs=source_refs,
+        confidence_kind=conf_kind,
+        confidence_detail=conf_detail,
+        human_approval_status="not_applicable",
+        output_ref={"type": "tenant_assistant_message", "id": str(assistant_msg.id)},
+        operation_type="tenant_assistant",
+        visibility="initiator",
+    ):
+        record_local_activity(
+            session,
+            organisation_id=ctx.organisation_id,
+            request_id=str(ta_request_id),
+            feature_id="ai.agent.tenant_assistant",
+            workflow_id="tenant_assistant",
+            user_id=ctx.user_id,
+            execution_status=exec_status,
+            prompt_id=prompt_id,
+            prompt_version=prompt_version,
+            provider=provider,
+            model_id=model_id,
+            source_refs=source_refs,
+            confidence_kind=conf_kind,
+            confidence_detail=conf_detail,
+            human_approval_status="not_applicable",
+            output_ref={"type": "tenant_assistant_message", "id": str(assistant_msg.id)},
+            operation_type="tenant_assistant",
+            visibility="initiator",
+        )
 
     return {
         "conversation_id": str(conversation.id),

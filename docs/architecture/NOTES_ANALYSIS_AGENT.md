@@ -63,4 +63,4 @@ Uses the shared AI service (F3.1), low-cost routing/caching (F3.2), and organisa
 - Heuristic fallback is used when no LLM is configured; it only uses explicit note fields.
 - Approving a suggestion does **not** auto-create tasks/visits (human uses existing modules).
 - AI service prompt store remains in-memory (F3.1 limitation).
-- Full AI activity feedback UI is F3.14.
+- AI activity logs, confidence display, and wrong-answer feedback: see F3.14 (`AI_ACTIVITY_TRANSPARENCY.md`).
