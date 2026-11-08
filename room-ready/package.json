@@ -33,7 +33,10 @@
     "react-native-worklets": "0.10.0"
   },
   "devDependencies": {
+    "@types/jest": "^29.5.14",
     "@types/react": "~19.2.2",
+    "jest": "~29.7.0",
+    "jest-expo": "~57.0.0",
     "typescript": "~6.0.3"
   },
   "scripts": {
@@ -47,6 +50,7 @@
     "android:device": "expo run:android --device",
     "web": "expo start --web",
     "typecheck": "tsc --noEmit",
+    "test": "jest --watchman=false",
     "build:ios": "eas build --platform ios --profile production",
     "build:android": "eas build --platform android --profile production"
   },

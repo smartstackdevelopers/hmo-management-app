@@ -12,6 +12,7 @@ import {
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 
+import { HmoreRepairForm } from '@/components/tenant/HmoreRepairForm';
 import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
 import { EmptyState, LoadingScreen } from '@/components/ui/States';
@@ -35,7 +36,7 @@ const PRIORITIES = [
   { id: 'emergency' as const, hint: 'Safety / no heat / flood' },
 ];
 
-export default function NewMaintenanceScreen() {
+function LegacyNewMaintenanceScreen() {
   const guard = useRoleGuard(ROUTE_ROLES.maintenanceNew);
   if (guard) return guard;
 
@@ -497,3 +498,9 @@ const styles = StyleSheet.create({
     lineHeight: 18,
   },
 });
+
+export default function NewMaintenanceScreen() {
+  const { hmore, user } = useAuth();
+  if (hmore && user?.role === 'tenant') return <HmoreRepairForm />;
+  return <LegacyNewMaintenanceScreen />;
+}

@@ -26,11 +26,24 @@ const DEMO_ACCOUNTS = [
 
 export default function LoginScreen() {
   const insets = useSafeAreaInsets();
-  const { signIn } = useAuth();
+  const { signIn, signInWithAuth0, authMode } = useAuth();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+
+  async function handleAuth0() {
+    setError('');
+    setLoading(true);
+    try {
+      await signInWithAuth0();
+      router.replace('/(app)/(tabs)');
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Unable to sign in.');
+    } finally {
+      setLoading(false);
+    }
+  }
 
   async function handleSignIn(loginEmail?: string, passwordOverride?: string) {
     const targetEmail = loginEmail ?? email;
@@ -67,57 +80,71 @@ export default function LoginScreen() {
 
         <RoomReadyLogo size="sm" />
         <Text style={styles.title}>Sign in</Text>
-        <Text style={styles.subtitle}>Welcome back to Room Ready</Text>
-
-        <Card style={styles.formCard}>
-          <Input
-            label="Email"
-            value={email}
-            onChangeText={setEmail}
-            keyboardType="email-address"
-            autoCapitalize="none"
-            autoComplete="email"
-            placeholder="you@example.com"
-            editable={!loading}
-          />
-          <Input
-            label="Password"
-            value={password}
-            onChangeText={setPassword}
-            secureTextEntry
-            autoComplete="password"
-            placeholder="Your password"
-            editable={!loading}
-            error={error || undefined}
-          />
-          <Link href="/(auth)/forgot-password" asChild>
-            <Pressable style={styles.forgot}>
-              <Text style={styles.forgotText}>Forgot password?</Text>
-            </Pressable>
-          </Link>
-          <Button title="Sign in" onPress={() => handleSignIn()} loading={loading} fullWidth size="lg" variant="secondary" />
-        </Card>
-
-        <Text style={styles.demoLabel}>Try demo</Text>
-        <View style={styles.demoRow}>
-          {DEMO_ACCOUNTS.map((demo) => (
-            <Pressable
-              key={demo.email}
-              style={styles.demoChip}
-              onPress={() => {
-                setEmail(demo.email);
-                setPassword('Password123');
-                handleSignIn(demo.email, 'Password123');
-              }}
-            >
-              <Text style={styles.demoChipText}>{demo.label}</Text>
-            </Pressable>
-          ))}
-        </View>
-
-        <Text style={styles.footer}>
-          No account? <Link href="/(auth)/register" style={styles.link}>Sign up</Link>
+        <Text style={styles.subtitle}>
+          {authMode === 'auth0' ? 'Use your organisation account' : 'Welcome back to Room Ready'}
         </Text>
+
+        {authMode === 'auth0' ? (
+          <Card style={styles.formCard}>
+            <Text style={styles.auth0Copy}>
+              Sign in with Auth0. The app stores the session on this device and talks to the HMore API. Password sign-in is turned off while organisation login is configured.
+            </Text>
+            {error ? <Text style={styles.auth0Error}>{error}</Text> : null}
+            <Button title="Continue with organisation login" onPress={handleAuth0} loading={loading} fullWidth size="lg" />
+          </Card>
+        ) : (
+          <>
+            <Card style={styles.formCard}>
+              <Input
+                label="Email"
+                value={email}
+                onChangeText={setEmail}
+                keyboardType="email-address"
+                autoCapitalize="none"
+                autoComplete="email"
+                placeholder="you@example.com"
+                editable={!loading}
+              />
+              <Input
+                label="Password"
+                value={password}
+                onChangeText={setPassword}
+                secureTextEntry
+                autoComplete="password"
+                placeholder="Your password"
+                editable={!loading}
+                error={error || undefined}
+              />
+              <Link href="/(auth)/forgot-password" asChild>
+                <Pressable style={styles.forgot}>
+                  <Text style={styles.forgotText}>Forgot password?</Text>
+                </Pressable>
+              </Link>
+              <Button title="Sign in" onPress={() => handleSignIn()} loading={loading} fullWidth size="lg" variant="secondary" />
+            </Card>
+
+            <Text style={styles.demoLabel}>Try demo</Text>
+            <View style={styles.demoRow}>
+              {DEMO_ACCOUNTS.map((demo) => (
+                <Pressable
+                  key={demo.email}
+                  style={styles.demoChip}
+                  onPress={() => {
+                    setEmail(demo.email);
+                    setPassword('Password123');
+                    handleSignIn(demo.email, 'Password123');
+                  }}
+                >
+                  <Text style={styles.demoChipText}>{demo.label}</Text>
+                </Pressable>
+              ))}
+            </View>
+
+            <Text style={styles.footer}>
+              No account? <Link href="/(auth)/register" style={styles.link}>Sign up</Link>
+            </Text>
+          </>
+        )}
       </ScrollView>
     </KeyboardAvoidingView>
   );
@@ -163,4 +190,11 @@ const styles = StyleSheet.create({
     paddingTop: theme.spacing.lg,
   },
   link: { color: theme.colors.secondary, fontWeight: '600' },
+  auth0Copy: {
+    fontSize: 15,
+    lineHeight: 22,
+    color: theme.colors.textSecondary,
+    marginBottom: theme.spacing.md,
+  },
+  auth0Error: { color: theme.colors.error, marginBottom: theme.spacing.sm, fontSize: 14 },
 });

@@ -21,7 +21,7 @@ export const ROLE_TABS: Record<UserRole, TabConfig[]> = {
     { name: 'index', title: 'Home', icon: 'home-outline', iconFocused: 'home' },
     { name: 'tenancy', title: 'My home', icon: 'business-outline', iconFocused: 'business' },
     { name: 'maintenance', title: 'Repairs', icon: 'construct-outline', iconFocused: 'construct' },
-    { name: 'messages', title: 'Messages', icon: 'chatbubbles-outline', iconFocused: 'chatbubbles' },
+    { name: 'support', title: 'Support', icon: 'people-outline', iconFocused: 'people' },
     { name: 'more', title: 'Account', icon: 'person-circle-outline', iconFocused: 'person-circle' },
   ],
   property_manager: [
@@ -46,6 +46,15 @@ export const ROLE_TABS: Record<UserRole, TabConfig[]> = {
   ],
 };
 
+/** Password-login tenants keep the previous Room Ready tabs. HMore tenants use ROLE_TABS.tenant. */
+export const LEGACY_TENANT_TABS: TabConfig[] = [
+  { name: 'index', title: 'Home', icon: 'home-outline', iconFocused: 'home' },
+  { name: 'tenancy', title: 'My home', icon: 'business-outline', iconFocused: 'business' },
+  { name: 'maintenance', title: 'Repairs', icon: 'construct-outline', iconFocused: 'construct' },
+  { name: 'messages', title: 'Messages', icon: 'chatbubbles-outline', iconFocused: 'chatbubbles' },
+  { name: 'more', title: 'Account', icon: 'person-circle-outline', iconFocused: 'person-circle' },
+];
+
 export const TAB_SCREEN_TITLES: Record<string, string> = {
   index: 'Home',
   find: 'Find a room',
@@ -53,6 +62,7 @@ export const TAB_SCREEN_TITLES: Record<string, string> = {
   compliance: 'Property checks',
   tenancy: 'My home',
   maintenance: 'Repairs',
+  support: 'Support',
   inspections: 'Inspections',
   schedule: 'Schedule',
   messages: 'Messages',

@@ -9,6 +9,7 @@ export const TAB_ROLES: Record<string, UserRole[]> = {
   compliance: ['landlord', 'property_manager'],
   tenancy: ['tenant'],
   maintenance: ['landlord', 'tenant', 'property_manager'],
+  support: ['tenant'],
   inspections: ['property_manager'],
   schedule: ['contractor'],
   messages: ['landlord', 'tenant', 'property_manager', 'contractor'],

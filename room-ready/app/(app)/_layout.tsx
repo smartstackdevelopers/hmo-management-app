@@ -41,6 +41,10 @@ export default function AppLayout() {
         <Stack.Screen name="inspection/new" options={{ ...headerOptions, headerShown: true, title: 'Schedule Inspection' }} />
         <Stack.Screen name="documents" options={{ ...headerOptions, headerShown: true, title: 'My files' }} />
         <Stack.Screen name="notifications" options={{ ...headerOptions, headerShown: true, title: 'Notifications' }} />
+        <Stack.Screen name="community" options={{ ...headerOptions, headerShown: true, title: 'Local services' }} />
+        <Stack.Screen name="jobs" options={{ ...headerOptions, headerShown: true, title: 'Jobs and training' }} />
+        <Stack.Screen name="assistant" options={{ ...headerOptions, headerShown: true, title: 'Assistant' }} />
+        <Stack.Screen name="accessibility" options={{ ...headerOptions, headerShown: true, title: 'Accessibility' }} />
         <Stack.Screen name="security" options={{ ...headerOptions, headerShown: true, title: 'Privacy & Security' }} />
         <Stack.Screen name="browse" options={{ ...headerOptions, headerShown: true, title: 'Find a Room' }} />
         <Stack.Screen name="wishlist" options={{ ...headerOptions, headerShown: true, title: 'Wishlist' }} />

@@ -13,6 +13,7 @@ import {
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 
+import { HmoreRepairDetail } from '@/components/tenant/HmoreRepairDetail';
 import { RepairStatusTrack } from '@/components/maintenance/RepairStatusTrack';
 import { Badge } from '@/components/ui/Badge';
 import { Button } from '@/components/ui/Button';
@@ -43,7 +44,7 @@ function PhotoThumb({ url }: { url: string }) {
   );
 }
 
-export default function MaintenanceDetailScreen() {
+function LegacyMaintenanceDetailScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const { user } = useAuth();
   const { data, isLoading, error, refetch, isRefetching } = useMaintenanceDetail(id);
@@ -421,3 +422,9 @@ const styles = StyleSheet.create({
   optionEmail: { fontSize: 13, color: theme.colors.textMuted, marginTop: 2, fontFamily: FONT_MEDIUM },
   messageBtn: { marginTop: theme.spacing.md },
 });
+
+export default function MaintenanceDetailScreen() {
+  const { hmore } = useAuth();
+  if (hmore) return <HmoreRepairDetail />;
+  return <LegacyMaintenanceDetailScreen />;
+}

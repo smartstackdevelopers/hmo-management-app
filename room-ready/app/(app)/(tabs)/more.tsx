@@ -1,6 +1,7 @@
 import { router } from 'expo-router';
 import { Linking, RefreshControl, ScrollView, StyleSheet, Text, View } from 'react-native';
 
+import { HmoreAccount } from '@/components/tenant/HmoreAccount';
 import { Badge } from '@/components/ui/Badge';
 import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
@@ -16,7 +17,7 @@ import { useTabClearance } from '@/hooks/useLayout';
 import { useNotifications } from '@/hooks/useApi';
 import { ROLE_LABELS } from '@/types';
 
-export default function MoreScreen() {
+function LegacyMoreScreen() {
   const { user, signOut } = useAuth();
   const bottomPad = useTabClearance();
   const { data: notifData, refetch: refetchNotifs, isRefetching } = useNotifications();
@@ -144,3 +145,9 @@ const styles = StyleSheet.create({
     marginVertical: theme.spacing.lg,
   },
 });
+
+export default function MoreScreen() {
+  const { hmore } = useAuth();
+  if (hmore) return <HmoreAccount />;
+  return <LegacyMoreScreen />;
+}

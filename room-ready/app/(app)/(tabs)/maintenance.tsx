@@ -3,6 +3,8 @@ import { useMemo, useState } from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 
 import { RepairCard } from '@/components/maintenance/RepairCard';
+import { StaffMobileLater } from '@/components/tenant/StaffMobileLater';
+import { TenantMaintenanceList } from '@/components/tenant/TenantMaintenanceList';
 import { Button } from '@/components/ui/Button';
 import { ListScreen } from '@/components/ui/ListScreen';
 import { EmptyState, ErrorState, LoadingScreen } from '@/components/ui/States';
@@ -26,7 +28,7 @@ const FILTERS: { id: RepairFilter; label: string }[] = [
   { id: 'done', label: 'Done' },
 ];
 
-export default function MaintenanceScreen() {
+function LegacyMaintenanceScreen() {
   const guard = useRoleGuard(TAB_ROLES.maintenance);
   if (guard) return guard;
 
@@ -208,3 +210,10 @@ const styles = StyleSheet.create({
     marginBottom: theme.spacing.sm,
   },
 });
+
+export default function MaintenanceScreen() {
+  const { hmore, user } = useAuth();
+  if (hmore && user?.role === 'tenant') return <TenantMaintenanceList />;
+  if (hmore) return <StaffMobileLater />;
+  return <LegacyMaintenanceScreen />;
+}

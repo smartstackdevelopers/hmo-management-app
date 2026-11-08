@@ -2,6 +2,7 @@ import { useMemo, useState } from 'react';
 import { Alert, Pressable, StyleSheet, Text, View } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 
+import { HmoreDocuments } from '@/components/tenant/HmoreDocuments';
 import { Badge } from '@/components/ui/Badge';
 import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
@@ -49,7 +50,7 @@ function typeIcon(type: string): keyof typeof Ionicons.glyphMap {
   }
 }
 
-export default function DocumentsScreen() {
+function LegacyDocumentsScreen() {
   const { user } = useAuth();
   const { data, isLoading, error, refetch, isRefetching } = useDocuments();
   const deleteDoc = useDeleteDocument();
@@ -398,3 +399,9 @@ const styles = StyleSheet.create({
   open: { color: theme.colors.secondary, fontSize: 13, fontFamily: FONT_SEMIBOLD, fontWeight: '700' },
   deleteText: { color: theme.colors.error, fontSize: 12, fontFamily: FONT_SEMIBOLD, fontWeight: '600', marginTop: 8 },
 });
+
+export default function DocumentsScreen() {
+  const { hmore } = useAuth();
+  if (hmore) return <HmoreDocuments />;
+  return <LegacyDocumentsScreen />;
+}
