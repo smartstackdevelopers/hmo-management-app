@@ -118,7 +118,7 @@ def auto_enable_ai_feature_flags(
 
     db_session: Session = request.getfixturevalue("db_session")
 
-    from sqlalchemy import event, insert
+    from sqlalchemy import event, insert, text
 
     from app.ai_feature_flags.cache import cache_invalidate
     from app.ai_feature_flags.registry import REGISTRY
@@ -128,6 +128,8 @@ def auto_enable_ai_feature_flags(
     def _after_org_insert(_mapper, connection, target: Organisation) -> None:
         # Seed after the organisation row exists (FK-safe). Uses Core insert so
         # we stay inside the same flush/transaction without recursive ORM flushes.
+        # Ensure RLS bypass for seed inserts (tests may have org-scoped RLS active).
+        connection.execute(text("SELECT set_config('app.rls_bypass', 'on', true)"))
         rows = []
         for definition in REGISTRY:
             pilot = bool(definition.pilot_eligible)
