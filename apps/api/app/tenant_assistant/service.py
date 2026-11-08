@@ -179,6 +179,11 @@ def ask(
 ) -> dict[str, Any]:
     settings = settings or get_settings()
     _guard(ctx, lambda: ta_access.require_tenant_ask(ctx))
+    from app.ai_feature_flags.service import require_feature_available
+    from app.ai_usage.features import FEATURE_TENANT_ASSISTANT
+
+    # F3.15 DB flags are authoritative; env allowlist remains a secondary gate.
+    require_feature_available(session, ctx, FEATURE_TENANT_ASSISTANT)
     _guard(ctx, lambda: ta_access.require_pilot_enabled(ctx, settings))
     text = (question or "").strip()
     if len(text) < 3 or len(text) > 2000:

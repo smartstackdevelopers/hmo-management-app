@@ -165,6 +165,10 @@ def run_analysis(
     settings: Settings | None = None,
 ) -> dict[str, Any]:
     _guard(ctx, lambda: analysis_access.require_run(ctx), application_id=application_id)
+    from app.ai_feature_flags.service import require_feature_available
+    from app.ai_usage.features import FEATURE_HOUSING_APPLICATION
+
+    require_feature_available(session, ctx, FEATURE_HOUSING_APPLICATION)
     settings = settings or get_settings()
     application = _guard(
         ctx, lambda: analysis_access.load_application(session, ctx, application_id), application_id=application_id

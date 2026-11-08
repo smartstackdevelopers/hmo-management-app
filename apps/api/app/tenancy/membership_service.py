@@ -165,6 +165,12 @@ def create_organisation(
         summary="Organisation created",
         metadata={"slug": org.slug},
     )
+    # F3.15 — new orgs start with all controllable AI features disabled.
+    from app.ai_feature_flags.service import seed_defaults_for_organisation
+
+    seed_defaults_for_organisation(
+        session, organisation_id=org.id, actor_user_id=actor.user.id, tenant_assistant_pilot=False
+    )
     return org
 
 

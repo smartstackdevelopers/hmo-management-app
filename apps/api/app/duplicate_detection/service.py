@@ -151,6 +151,10 @@ def run_detection(
     trigger: str = "manual",
 ) -> dict[str, Any]:
     _guard(ctx, lambda: dd_access.require_run(ctx))
+    from app.ai_feature_flags.service import require_feature_available
+    from app.ai_usage.features import FEATURE_DUPLICATE_DETECTION
+
+    require_feature_available(session, ctx, FEATURE_DUPLICATE_DETECTION)
     types = record_types or list(SUPPORTED_RECORD_TYPES)
     for item in types:
         if item not in SUPPORTED_RECORD_TYPES:

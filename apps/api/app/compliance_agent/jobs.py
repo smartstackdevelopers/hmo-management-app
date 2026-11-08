@@ -55,6 +55,12 @@ def _system_ctx(session: Session, organisation_id: uuid.UUID) -> OrganisationCon
 
 def run_org_sweep(session: Session, organisation_id: uuid.UUID, *, trigger: str = "scheduled") -> dict:
     apply_organisation_rls(session, organisation_id)
+    from app.ai_feature_flags.enforce import skip_if_disabled
+    from app.ai_usage.features import FEATURE_COMPLIANCE
+
+    skipped = skip_if_disabled(session, organisation_id=organisation_id, feature_id=FEATURE_COMPLIANCE)
+    if skipped:
+        return skipped
     ctx = _system_ctx(session, organisation_id)
     result = compliance_service.run_sweep(
         session,

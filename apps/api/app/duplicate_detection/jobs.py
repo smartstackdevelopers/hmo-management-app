@@ -55,6 +55,14 @@ def _admin_ctx(session: Session, organisation_id: uuid.UUID) -> OrganisationCont
 
 def run_org_sweep(session: Session, organisation_id: uuid.UUID) -> dict:
     apply_organisation_rls(session, organisation_id)
+    from app.ai_feature_flags.enforce import skip_if_disabled
+    from app.ai_usage.features import FEATURE_DUPLICATE_DETECTION
+
+    skipped = skip_if_disabled(
+        session, organisation_id=organisation_id, feature_id=FEATURE_DUPLICATE_DETECTION
+    )
+    if skipped:
+        return skipped
     ctx = _admin_ctx(session, organisation_id)
     result = dd_service.run_detection(session, ctx, trigger="scheduled")
     session.commit()

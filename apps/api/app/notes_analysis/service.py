@@ -114,6 +114,10 @@ def run_analysis(
     settings: Settings | None = None,
 ) -> dict[str, Any]:
     na_access.require_notes_analysis_run(ctx)
+    from app.ai_feature_flags.service import require_feature_available
+    from app.ai_usage.features import FEATURE_NOTES_ANALYSIS
+
+    require_feature_available(session, ctx, FEATURE_NOTES_ANALYSIS)
     settings = settings or get_settings()
     log = _get_log(session, ctx, daily_log_id)
     version = source_note_version(log)

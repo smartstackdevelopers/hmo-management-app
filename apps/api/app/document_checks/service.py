@@ -132,6 +132,10 @@ def run_check(
     settings: Settings | None = None,
 ) -> dict[str, Any]:
     _guard(ctx, lambda: check_access.require_run(ctx), document_id=document_id)
+    from app.ai_feature_flags.service import require_feature_available
+    from app.ai_usage.features import FEATURE_DOCUMENT_CHECK
+
+    require_feature_available(session, ctx, FEATURE_DOCUMENT_CHECK)
     settings = settings or get_settings()
     doc = _guard(ctx, lambda: check_access.load_document(session, ctx, document_id), document_id=document_id)
     if doc.current_version_id is None:

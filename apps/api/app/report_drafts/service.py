@@ -78,6 +78,10 @@ def generate_draft(
     except HTTPException:
         _denied(ctx)
         raise
+    from app.ai_feature_flags.service import require_feature_available
+    from app.ai_usage.features import FEATURE_REPORT_DRAFT
+
+    require_feature_available(session, ctx, FEATURE_REPORT_DRAFT)
     if period_type not in {"weekly", "monthly"}:
         raise HTTPException(status_code=422, detail="period_type must be weekly or monthly")
     period_start, period_end, tz_name = resolve_period(period_type)

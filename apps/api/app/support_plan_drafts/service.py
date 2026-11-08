@@ -161,6 +161,10 @@ def generate_draft(
     settings: Settings | None = None,
 ) -> dict[str, Any]:
     _guard(ctx, lambda: draft_access.require_run(ctx), tenant_id=tenant_id)
+    from app.ai_feature_flags.service import require_feature_available
+    from app.ai_usage.features import FEATURE_SUPPORT_PLANNING
+
+    require_feature_available(session, ctx, FEATURE_SUPPORT_PLANNING)
     settings = settings or get_settings()
     tenant = _guard(ctx, lambda: draft_access.assert_case_access(session, ctx, tenant_id), tenant_id=tenant_id)
     plan = _load_plan(session, ctx, tenant.id, plan_id)
