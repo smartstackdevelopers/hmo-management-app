@@ -366,6 +366,37 @@ def run_analysis(
         },
         raise_on_error=False,
     )
+    # F3.14 — preserve genuine source refs; confidence remains unavailable (no calibrated score).
+    from app.ai_transparency.service import attach_transparency, record_local_activity
+
+    if not attach_transparency(
+        session,
+        request_id=request_id,
+        organisation_id=ctx.organisation_id,
+        source_refs=analysis.source_refs_json,
+        confidence_kind="unavailable",
+        human_approval_status="pending",
+        output_ref={"type": "daily_log_ai_analysis", "id": str(analysis.id)},
+        operation_type="notes_analysis",
+    ):
+        record_local_activity(
+            session,
+            organisation_id=ctx.organisation_id,
+            request_id=request_id,
+            feature_id="ai.agent.notes_analysis",
+            workflow_id="notes_analysis",
+            user_id=ctx.user_id,
+            execution_status="completed",
+            prompt_id=analysis.prompt_id,
+            prompt_version=analysis.prompt_version,
+            provider=analysis.provider,
+            model_id=analysis.model_id,
+            source_refs=analysis.source_refs_json,
+            confidence_kind="unavailable",
+            human_approval_status="pending",
+            output_ref={"type": "daily_log_ai_analysis", "id": str(analysis.id)},
+            operation_type="notes_analysis",
+        )
     return {
         **_analysis_dict(analysis, include_suggestions=suggestions),
         "idempotent": False,

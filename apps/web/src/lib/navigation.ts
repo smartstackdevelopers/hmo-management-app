@@ -231,6 +231,18 @@ export const DASHBOARD_NAV: NavItem[] = [
     anyOf: ["report_drafts.generate", "report_drafts.read", "report_drafts.review"],
     section: "records",
   },
+  {
+    id: "ai-activity",
+    label: "AI activity",
+    href: "/dashboard/ai-activity",
+    anyOf: [
+      "ai.activity.read",
+      "ai.activity.feedback.submit",
+      "ai.activity.feedback.review",
+    ],
+    section: "records",
+  },
+
 
   {
     id: "duplicate-detection",

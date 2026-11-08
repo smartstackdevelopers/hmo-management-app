@@ -140,6 +140,11 @@ from app.db.models.tenant_assistant import (
 )
 from app.db.models.duplicate_detection import DuplicateDetectionFinding, DuplicateDetectionRun
 from app.db.models.report_drafts import OperationalReportDraft
+from app.db.models.ai_activity import (
+    AiActivityLog,
+    AiFeedbackReviewEvent,
+    AiWrongAnswerFeedback,
+)
 
 __all__ = [
     "AuditEvent",
@@ -262,4 +267,7 @@ __all__ = [
     "DuplicateDetectionRun",
     "DuplicateDetectionFinding",
     "OperationalReportDraft",
+    "AiActivityLog",
+    "AiWrongAnswerFeedback",
+    "AiFeedbackReviewEvent",
 ]

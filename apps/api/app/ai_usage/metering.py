@@ -106,6 +106,14 @@ def record_and_reconcile(
     session.add(record)
     session.flush()
 
+    # F3.14 — create transparency activity (best-effort; never stores prompts/outputs).
+    try:
+        from app.ai_transparency.service import ensure_activity_from_usage
+
+        ensure_activity_from_usage(session, record, metadata=metadata)
+    except Exception:  # noqa: BLE001
+        pass
+
     reservation = session.scalars(
         select(AiBudgetReservation).where(AiBudgetReservation.request_id == request_id)
     ).first()

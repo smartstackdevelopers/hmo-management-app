@@ -251,6 +251,38 @@ def generate_summary(
         metadata={"tenant_id": str(tenant.id), "version_number": row.version_number},
         raise_on_error=False,
     )
+    # F3.14 — preserve packet sources; no fabricated confidence.
+    from app.ai_transparency.service import attach_transparency, record_local_activity
+
+    if request_id:
+        if not attach_transparency(
+            session,
+            request_id=request_id,
+            organisation_id=ctx.organisation_id,
+            source_refs=row.source_refs_json,
+            confidence_kind="unavailable",
+            human_approval_status="pending",
+            output_ref={"type": "case_summary", "id": str(row.id)},
+            operation_type="case_summary",
+        ):
+            record_local_activity(
+                session,
+                organisation_id=ctx.organisation_id,
+                request_id=request_id,
+                feature_id="ai.agent.case_summary",
+                workflow_id="case_summary",
+                user_id=ctx.user_id,
+                execution_status="completed",
+                prompt_id=prompt_id,
+                prompt_version=prompt_version,
+                provider=provider,
+                model_id=model_id,
+                source_refs=row.source_refs_json,
+                confidence_kind="unavailable",
+                human_approval_status="pending",
+                output_ref={"type": "case_summary", "id": str(row.id)},
+                operation_type="case_summary",
+            )
     return {**_public(row, current_fingerprint=fingerprint), "idempotent": False, "regenerated": force}
 
 

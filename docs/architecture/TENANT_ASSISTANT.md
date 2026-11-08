@@ -59,5 +59,5 @@ Migration `20261107_2400_f310`: conversations, messages, rate windows + RLS.
 
 - Pilot requires manual env configuration per organisation.
 - Retrieval is keyword-based over approved content only.
-- Feedback/wrong-answer UI is out of scope (F3.14).
+- Wrong-answer feedback and activity transparency are provided by F3.14 (`AI_ACTIVITY_TRANSPARENCY.md`).
 - Does not create complaints, change records, or decide housing eligibility.
