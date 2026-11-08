@@ -182,9 +182,8 @@ def ask(
     from app.ai_feature_flags.service import require_feature_available
     from app.ai_usage.features import FEATURE_TENANT_ASSISTANT
 
-    # F3.15 DB flags are authoritative; env allowlist remains a secondary gate.
     require_feature_available(session, ctx, FEATURE_TENANT_ASSISTANT)
-    _guard(ctx, lambda: ta_access.require_pilot_enabled(ctx, settings))
+    _guard(ctx, lambda: ta_access.require_pilot_enabled(ctx, settings, session=session))
     text = (question or "").strip()
     if len(text) < 3 or len(text) > 2000:
         raise HTTPException(status_code=422, detail="Question must be between 3 and 2000 characters")
@@ -458,7 +457,7 @@ def ask(
 
 def list_conversations(session: Session, ctx: OrganisationContext) -> dict[str, Any]:
     _guard(ctx, lambda: ta_access.require_tenant_read(ctx))
-    _guard(ctx, lambda: ta_access.require_pilot_enabled(ctx))
+    _guard(ctx, lambda: ta_access.require_pilot_enabled(ctx, session=session))
     rows = list(
         session.scalars(
             select(TenantAssistantConversation)
@@ -485,7 +484,7 @@ def list_conversations(session: Session, ctx: OrganisationContext) -> dict[str, 
 
 def get_conversation(session: Session, ctx: OrganisationContext, conversation_id: uuid.UUID) -> dict[str, Any]:
     _guard(ctx, lambda: ta_access.require_tenant_read(ctx))
-    _guard(ctx, lambda: ta_access.require_pilot_enabled(ctx))
+    _guard(ctx, lambda: ta_access.require_pilot_enabled(ctx, session=session))
     row = session.get(TenantAssistantConversation, conversation_id)
     if row is None:
         raise HTTPException(status_code=404, detail="Conversation not found")
