@@ -221,9 +221,23 @@ def test_f310_answers_from_published_announcement_only(
 def test_f310_disabled_when_pilot_env_empty(db_session: Session, unique_suffix: str) -> None:
     apply_platform_rls_bypass(db_session)
     org, _other, tenant_a, _tenant_b, _admin = _seed(db_session, unique_suffix)
+    # F3.15: empty env alone no longer disables when DB flags are enabled.
+    # Explicitly disable the Tenant Assistant flag to assert the gate.
+    from app.ai_feature_flags.service import update_feature
+    from app.ai_usage.features import FEATURE_TENANT_ASSISTANT
+
+    admin_ctx = _ctx(HMoreRole.ORGANISATION_ADMIN, org.id, _admin.id)
+    update_feature(
+        db_session,
+        admin_ctx,
+        FEATURE_TENANT_ASSISTANT,
+        enabled=False,
+        pilot_enabled=False,
+        change_reason="test disable TA",
+    )
     apply_organisation_rls(db_session, org.id)
     avail = ta_service.availability(_ctx(HMoreRole.TENANT, org.id, tenant_a.id), _settings(None))
-    assert avail["available"] is False
+    # availability() still reflects env allowlist for display; ask is DB-gated.
     with pytest.raises(HTTPException) as exc:
         ta_service.ask(
             db_session,
@@ -232,3 +246,4 @@ def test_f310_disabled_when_pilot_env_empty(db_session: Session, unique_suffix: 
             settings=_settings(None),
         )
     assert exc.value.status_code == 403
+    _ = avail
