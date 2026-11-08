@@ -55,6 +55,12 @@ def _admin_ctx(session: Session, organisation_id: uuid.UUID) -> OrganisationCont
 
 def run_org_period(session: Session, organisation_id: uuid.UUID, period_type: str) -> dict:
     apply_organisation_rls(session, organisation_id)
+    from app.ai_feature_flags.enforce import skip_if_disabled
+    from app.ai_usage.features import FEATURE_REPORT_DRAFT
+
+    skipped = skip_if_disabled(session, organisation_id=organisation_id, feature_id=FEATURE_REPORT_DRAFT)
+    if skipped:
+        return skipped
     ctx = _admin_ctx(session, organisation_id)
     result = draft_service.generate_draft(
         session, ctx, period_type=period_type, regenerate=False, settings=get_settings()

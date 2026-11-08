@@ -205,6 +205,10 @@ class Permission(StrEnum):
     AI_ACTIVITY_FEEDBACK_SUBMIT = "ai.activity.feedback.submit"
     AI_ACTIVITY_FEEDBACK_REVIEW = "ai.activity.feedback.review"
 
+    # F3.15 organisation AI feature flags (never self-gated)
+    AI_FEATURE_FLAGS_READ = "ai.feature_flags.read"
+    AI_FEATURE_FLAGS_MANAGE = "ai.feature_flags.manage"
+
     # F3.4 Notes Analysis Agent
     AI_NOTES_ANALYSIS_RUN = "ai.notes.analysis.run"
     AI_NOTES_ANALYSIS_READ = "ai.notes.analysis.read"
@@ -922,6 +926,16 @@ PERMISSION_CATALOG: dict[Permission, PermissionMeta] = {
     Permission.AI_ACTIVITY_FEEDBACK_REVIEW: PermissionMeta(
         Permission.AI_ACTIVITY_FEEDBACK_REVIEW,
         "Review and resolve wrong-answer feedback",
+        True,
+    ),
+    Permission.AI_FEATURE_FLAGS_READ: PermissionMeta(
+        Permission.AI_FEATURE_FLAGS_READ,
+        "View organisation AI feature flag configuration and history",
+        True,
+    ),
+    Permission.AI_FEATURE_FLAGS_MANAGE: PermissionMeta(
+        Permission.AI_FEATURE_FLAGS_MANAGE,
+        "Enable or disable organisation AI features and pilots",
         True,
     ),
     Permission.ROLE_ASSIGNMENTS_MANAGE: PermissionMeta(

@@ -242,6 +242,14 @@ export const DASHBOARD_NAV: NavItem[] = [
     ],
     section: "records",
   },
+  {
+    id: "ai-feature-flags",
+    label: "AI feature flags",
+    href: "/dashboard/ai-feature-flags",
+    anyOf: ["ai.feature_flags.read", "ai.feature_flags.manage"],
+    section: "records",
+  },
+
 
 
   {

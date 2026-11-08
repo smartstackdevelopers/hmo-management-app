@@ -430,6 +430,10 @@ def list_activities(
     sources_only: bool | None = None,
 ) -> dict[str, Any]:
     tx_access.require_activity_read(ctx)
+    from app.ai_feature_flags.service import require_feature_available
+    from app.ai_usage.features import FEATURE_AI_ACTIVITY
+
+    require_feature_available(session, ctx, FEATURE_AI_ACTIVITY)
     limit = max(1, min(limit, 100))
     offset = max(0, offset)
 
@@ -496,6 +500,10 @@ def get_activity(
     audit_source_access: bool = False,
 ) -> dict[str, Any]:
     tx_access.require_activity_read(ctx)
+    from app.ai_feature_flags.service import require_feature_available
+    from app.ai_usage.features import FEATURE_AI_ACTIVITY
+
+    require_feature_available(session, ctx, FEATURE_AI_ACTIVITY)
     row = session.get(AiActivityLog, activity_id)
     if row is None or row.organisation_id != ctx.organisation_id:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="AI activity not found")
@@ -552,6 +560,10 @@ def submit_feedback(
     explanation: str | None = None,
 ) -> dict[str, Any]:
     tx_access.require_feedback_submit(ctx)
+    from app.ai_feature_flags.service import require_feature_available
+    from app.ai_usage.features import FEATURE_AI_ACTIVITY
+
+    require_feature_available(session, ctx, FEATURE_AI_ACTIVITY)
     if category not in FEEDBACK_CATEGORIES:
         raise HTTPException(
             status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,

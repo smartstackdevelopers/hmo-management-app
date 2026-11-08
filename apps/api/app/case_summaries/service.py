@@ -131,6 +131,10 @@ def generate_summary(
     settings: Settings | None = None,
 ) -> dict[str, Any]:
     _guard(ctx, lambda: case_access.require_run(ctx), tenant_id=tenant_id)
+    from app.ai_feature_flags.service import require_feature_available
+    from app.ai_usage.features import FEATURE_CASE_SUMMARY
+
+    require_feature_available(session, ctx, FEATURE_CASE_SUMMARY)
     settings = settings or get_settings()
     tenant = _guard(ctx, lambda: case_access.assert_case_access(session, ctx, tenant_id), tenant_id=tenant_id)
     packet = collect_case_packet(session, organisation_id=ctx.organisation_id, tenant=tenant)

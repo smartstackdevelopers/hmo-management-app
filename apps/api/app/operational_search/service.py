@@ -64,6 +64,10 @@ def search(
     except HTTPException:
         _denied(ctx)
         raise
+    from app.ai_feature_flags.service import require_feature_available
+    from app.ai_usage.features import FEATURE_OPERATIONAL_SEARCH
+
+    require_feature_available(session, ctx, FEATURE_OPERATIONAL_SEARCH)
 
     key = _cache_key(str(ctx.organisation_id), question)
     cached = _INTERPRET_CACHE.get(key)

@@ -67,22 +67,25 @@ def record_event(
 
     _RECORDING = True
     try:
-        event = AuditEvent(
-            organisation_id=organisation_id,
-            actor_user_id=actor_user_id,
-            actor_role=actor_role,
-            action=action,
-            resource_type=resource_type,
-            resource_id=str(resource_id) if resource_id is not None else None,
-            outcome=outcome_value,
-            correlation_id=correlation_id,
-            source=source,
-            summary=sanitize_summary(summary),
-            metadata_json=sanitize_metadata(metadata),
-        )
-        session.add(event)
-        session.flush()
-        return event
+        # Nested savepoint so an RLS/permission failure does not poison the
+        # caller's transaction (PendingRollbackError on later flushes).
+        with session.begin_nested():
+            event = AuditEvent(
+                organisation_id=organisation_id,
+                actor_user_id=actor_user_id,
+                actor_role=actor_role,
+                action=action,
+                resource_type=resource_type,
+                resource_id=str(resource_id) if resource_id is not None else None,
+                outcome=outcome_value,
+                correlation_id=correlation_id,
+                source=source,
+                summary=sanitize_summary(summary),
+                metadata_json=sanitize_metadata(metadata),
+            )
+            session.add(event)
+            session.flush()
+            return event
     except Exception:
         logger.exception("Failed to persist audit event action=%s", action)
         if raise_on_error:

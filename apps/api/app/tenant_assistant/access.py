@@ -5,6 +5,7 @@ from __future__ import annotations
 import uuid
 
 from fastapi import HTTPException, status
+from sqlalchemy.orm import Session
 
 from app.core.config import Settings, get_settings
 from app.db.models.enums import HMoreRole
@@ -27,7 +28,31 @@ def pilot_org_ids(settings: Settings | None = None) -> set[uuid.UUID]:
     return out
 
 
-def require_pilot_enabled(ctx: OrganisationContext, settings: Settings | None = None) -> None:
+def require_pilot_enabled(
+    ctx: OrganisationContext,
+    settings: Settings | None = None,
+    session: Session | None = None,
+) -> None:
+    """Pilot gate: F3.15 org flags when session is provided; else legacy env allowlist.
+
+    When a session is provided, DB feature flags are authoritative. An optional
+    non-empty env allowlist can further restrict. An empty env allowlist does
+    not block DB-enabled organisations.
+    """
+    settings = settings or get_settings()
+    if session is not None:
+        from app.ai_feature_flags.service import require_feature_available
+        from app.ai_usage.features import FEATURE_TENANT_ASSISTANT
+
+        require_feature_available(session, ctx, FEATURE_TENANT_ASSISTANT)
+        allowed = pilot_org_ids(settings)
+        if allowed and ctx.organisation_id not in allowed:
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail="Tenant Assistant pilot is not enabled for this organisation",
+            )
+        return
+
     allowed = pilot_org_ids(settings)
     if not allowed:
         raise HTTPException(

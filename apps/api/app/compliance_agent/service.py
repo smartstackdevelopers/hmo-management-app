@@ -268,6 +268,10 @@ def run_sweep(
     settings: Settings | None = None,
 ) -> dict[str, Any]:
     _guard(ctx, lambda: compliance_access.require_run(ctx))
+    from app.ai_feature_flags.service import require_feature_available
+    from app.ai_usage.features import FEATURE_COMPLIANCE
+
+    require_feature_available(session, ctx, FEATURE_COMPLIANCE)
     settings = settings or get_settings()
     scope = modules or ["training", "safeguarding", "incidents", "support_plans", "documents", "complaints"]
     sweep = ComplianceSweep(

@@ -108,6 +108,8 @@ ROLE_PERMISSIONS: dict[HMoreRole, frozenset[Permission]] = {
             Permission.AI_ACTIVITY_READ,
             Permission.AI_ACTIVITY_FEEDBACK_SUBMIT,
             Permission.AI_ACTIVITY_FEEDBACK_REVIEW,
+            Permission.AI_FEATURE_FLAGS_READ,
+            Permission.AI_FEATURE_FLAGS_MANAGE,
         }
     ),
     HMoreRole.ORGANISATION_ADMIN: frozenset(
@@ -262,6 +264,8 @@ ROLE_PERMISSIONS: dict[HMoreRole, frozenset[Permission]] = {
             Permission.AI_ACTIVITY_READ,
             Permission.AI_ACTIVITY_FEEDBACK_SUBMIT,
             Permission.AI_ACTIVITY_FEEDBACK_REVIEW,
+            Permission.AI_FEATURE_FLAGS_READ,
+            Permission.AI_FEATURE_FLAGS_MANAGE,
         }
     ),
     HMoreRole.LANDLORD: frozenset(

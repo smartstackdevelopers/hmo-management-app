@@ -145,6 +145,10 @@ from app.db.models.ai_activity import (
     AiFeedbackReviewEvent,
     AiWrongAnswerFeedback,
 )
+from app.db.models.ai_feature_flags import (
+    OrganisationAiFeatureFlag,
+    OrganisationAiFeatureFlagHistory,
+)
 
 __all__ = [
     "AuditEvent",
@@ -270,4 +274,6 @@ __all__ = [
     "AiActivityLog",
     "AiWrongAnswerFeedback",
     "AiFeedbackReviewEvent",
+    "OrganisationAiFeatureFlag",
+    "OrganisationAiFeatureFlagHistory",
 ]
