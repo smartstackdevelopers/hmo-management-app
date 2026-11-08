@@ -10,13 +10,15 @@ import { EmptyState, ErrorState, LoadingScreen } from '@/components/ui/States';
 import { BIRMINGHAM_COUNCIL, isBirminghamPostcode, TENANT_RIGHTS_BIRMINGHAM } from '@/constants/birmingham';
 import { FONT_BOLD, FONT_MEDIUM, FONT_SEMIBOLD } from '@/constants/fonts';
 import { formatGBP, formatUKDate } from '@/constants/uk';
+import { TenantHousing } from '@/components/tenant/TenantHousing';
 import { theme } from '@/constants/theme';
 import { TAB_ROLES } from '@/constants/permissions';
+import { useAuth } from '@/contexts/AuthContext';
 import { useApplications, useTenancies } from '@/hooks/useApi';
 import { useRoleGuard } from '@/hooks/useRoleGuard';
 import { propertyCoverUrl } from '@/lib/propertyCovers';
 
-export default function TenancyScreen() {
+function LegacyTenancyScreen() {
   const guard = useRoleGuard(TAB_ROLES.tenancy);
   if (guard) return guard;
 
@@ -226,3 +228,9 @@ const styles = StyleSheet.create({
   appMeta: { color: theme.colors.textMuted, fontSize: 13, marginTop: 4, fontFamily: FONT_MEDIUM },
   browseBtn: { marginTop: theme.spacing.md },
 });
+
+export default function TenancyScreen() {
+  const { hmore, user } = useAuth();
+  if (hmore && user?.role === 'tenant') return <TenantHousing />;
+  return <LegacyTenancyScreen />;
+}

@@ -1,8 +1,7 @@
 /**
- * Auth0 Authorization Code + PKCE foundation for Expo (F1.3).
- *
- * This module does not replace the legacy Room Ready local JWT AuthContext.
- * Wire screens to these helpers after a UK/EU Auth0 Native application is configured.
+ * Auth0 Authorization Code + PKCE for the Expo tenant app.
+ * Tokens stay in SecureStore. Access tokens are refreshed with the refresh-token grant
+ * before they expire. Nothing in this module writes tokens to logs.
  */
 import * as AuthSession from "expo-auth-session";
 import * as SecureStore from "expo-secure-store";
@@ -14,6 +13,17 @@ const ACCESS_TOKEN_KEY = "hmore.auth0.accessToken";
 const REFRESH_TOKEN_KEY = "hmore.auth0.refreshToken";
 const ID_TOKEN_KEY = "hmore.auth0.idToken";
 const EXPIRES_AT_KEY = "hmore.auth0.expiresAt";
+
+/** Refresh shortly before expiry so API calls do not race an expired access token. */
+export const ACCESS_TOKEN_REFRESH_SKEW_MS = 60_000;
+
+export function accessTokenNeedsRefresh(
+  expiresAt: number | null | undefined,
+  now = Date.now(),
+): boolean {
+  if (expiresAt == null || !Number.isFinite(expiresAt)) return false;
+  return now >= expiresAt - ACCESS_TOKEN_REFRESH_SKEW_MS;
+}
 
 export type HMoreAuth0Config = {
   domain: string;
@@ -120,16 +130,74 @@ export async function storeAuth0Tokens(tokens: HMoreAuth0Tokens): Promise<void> 
   }
 }
 
-export async function getStoredAccessToken(): Promise<string | null> {
-  const expiresAtRaw = await SecureStore.getItemAsync(EXPIRES_AT_KEY);
-  if (expiresAtRaw) {
-    const expiresAt = Number(expiresAtRaw);
-    if (Number.isFinite(expiresAt) && Date.now() >= expiresAt - 30_000) {
-      await clearAuth0Tokens();
-      return null;
-    }
+let refreshInFlight: Promise<string | null> | null = null;
+
+async function refreshAuth0AccessToken(): Promise<string | null> {
+  const refreshToken = await SecureStore.getItemAsync(REFRESH_TOKEN_KEY);
+  const config = readAuth0ConfigFromEnv();
+  if (!refreshToken || !config?.domain || !config.clientId) {
+    await clearAuth0Tokens();
+    return null;
   }
-  return SecureStore.getItemAsync(ACCESS_TOKEN_KEY);
+
+  const body = new URLSearchParams({
+    grant_type: "refresh_token",
+    client_id: config.clientId,
+    refresh_token: refreshToken,
+  });
+
+  let response: Response;
+  try {
+    response = await fetch(`https://${config.domain}/oauth/token`, {
+      method: "POST",
+      headers: { "Content-Type": "application/x-www-form-urlencoded" },
+      body: body.toString(),
+    });
+  } catch {
+    return null;
+  }
+
+  if (!response.ok) {
+    await clearAuth0Tokens();
+    return null;
+  }
+
+  const payload = (await response.json().catch(() => null)) as {
+    access_token?: string;
+    id_token?: string;
+    refresh_token?: string;
+    expires_in?: number;
+  } | null;
+
+  if (!payload?.access_token) {
+    await clearAuth0Tokens();
+    return null;
+  }
+
+  const tokens: HMoreAuth0Tokens = {
+    accessToken: payload.access_token,
+    idToken: payload.id_token,
+    refreshToken: payload.refresh_token ?? refreshToken,
+    expiresAt: payload.expires_in ? Date.now() + payload.expires_in * 1000 : undefined,
+  };
+  await storeAuth0Tokens(tokens);
+  return tokens.accessToken;
+}
+
+export async function getStoredAccessToken(): Promise<string | null> {
+  const accessToken = await SecureStore.getItemAsync(ACCESS_TOKEN_KEY);
+  if (!accessToken) return null;
+
+  const expiresAtRaw = await SecureStore.getItemAsync(EXPIRES_AT_KEY);
+  const expiresAt = expiresAtRaw ? Number(expiresAtRaw) : null;
+  if (!accessTokenNeedsRefresh(expiresAt)) return accessToken;
+
+  if (!refreshInFlight) {
+    refreshInFlight = refreshAuth0AccessToken().finally(() => {
+      refreshInFlight = null;
+    });
+  }
+  return refreshInFlight;
 }
 
 export async function clearAuth0Tokens(): Promise<void> {

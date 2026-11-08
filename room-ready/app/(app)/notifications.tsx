@@ -1,12 +1,14 @@
 import { FlatList, RefreshControl, StyleSheet, Text, View } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 
+import { HmoreNotifications } from '@/components/tenant/HmoreNotifications';
 import { Badge } from '@/components/ui/Badge';
 import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
 import { EmptyState, ErrorState, LoadingScreen } from '@/components/ui/States';
 import { formatUKDate } from '@/constants/uk';
 import { theme } from '@/constants/theme';
+import { useAuth } from '@/contexts/AuthContext';
 import { NotificationItem } from '@/lib/api';
 import { useMarkAllNotificationsRead, useMarkNotificationRead, useNotifications, useRunComplianceScan } from '@/hooks/useApi';
 import { navigateFromNotification } from '@/lib/notificationNavigation';
@@ -19,7 +21,7 @@ const TYPE_ICONS: Record<string, keyof typeof Ionicons.glyphMap> = {
   inspection: 'clipboard-outline',
 };
 
-export default function NotificationsScreen() {
+function LegacyNotificationsScreen() {
   const { data, isLoading, error, refetch, isRefetching } = useNotifications();
   const markRead = useMarkNotificationRead();
   const markAll = useMarkAllNotificationsRead();
@@ -122,3 +124,9 @@ const styles = StyleSheet.create({
   body: { color: theme.colors.textSecondary, marginTop: 4, lineHeight: 20, fontSize: 14 },
   date: { color: theme.colors.textMuted, fontSize: 12, marginTop: 6 },
 });
+
+export default function NotificationsScreen() {
+  const { hmore } = useAuth();
+  if (hmore) return <HmoreNotifications />;
+  return <LegacyNotificationsScreen />;
+}

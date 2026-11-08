@@ -1,8 +1,18 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { createContext, useCallback, useContext, useEffect, useState } from 'react';
 
+import { queryClient } from '@/contexts/QueryProvider';
 import { api, AuthResponse, clearToken, loadToken, saveToken } from '@/lib/api';
-import { AuthState, User } from '@/types';
+import { clearRequestContext, loadRequestContext } from '@/lib/hmore/requestContext';
+import { loadHmoreSession, type HmoreSession } from '@/lib/hmore/services/session';
+import {
+  clearAuth0Tokens,
+  getStoredAccessToken,
+  isAuth0MobileConfigured,
+  loginWithAuth0,
+  logoutAuth0,
+} from '@/lib/hmoreAuth0';
+import { AuthState, User, UserRole } from '@/types';
 
 interface RegisterData {
   email: string;
@@ -14,21 +24,86 @@ interface RegisterData {
 }
 
 interface AuthContextValue extends AuthState {
+  /** Auth0 + FastAPI when configured; local password API only when Auth0 env is unset. */
+  authMode: 'auth0' | 'legacy';
+  hmore: HmoreSession | null;
   signIn: (email: string, password: string) => Promise<void>;
+  signInWithAuth0: () => Promise<void>;
   signUp: (data: RegisterData) => Promise<void>;
   signOut: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextValue | null>(null);
 
+const AUTH0_ONLY = 'Sign in with your organisation account.';
+
+function mapHmoreRole(role: string | null): UserRole {
+  switch (role) {
+    case 'landlord':
+      return 'landlord';
+    case 'tenant':
+      return 'tenant';
+    case 'maintenance_contractor':
+      return 'contractor';
+    case 'support_worker':
+      return 'property_manager';
+    case 'organisation_admin':
+    case 'super_admin':
+      return 'admin';
+    default:
+      return 'admin';
+  }
+}
+
+export function userFromHmoreSession(session: HmoreSession): User {
+  const name = session.auth.display_name?.trim() || session.auth.email || 'Account';
+  const parts = name.split(/\s+/).filter(Boolean);
+  return {
+    id: session.auth.id,
+    email: session.auth.email ?? '',
+    firstName: parts[0] || 'Account',
+    lastName: parts.slice(1).join(' '),
+    role: mapHmoreRole(session.rbac.active_role),
+    verified: true,
+    active: true,
+    createdAt: new Date(0).toISOString(),
+  };
+}
+
 export function AuthProvider({ children }: { children: React.ReactNode }) {
+  const authMode = isAuth0MobileConfigured() ? 'auth0' : 'legacy';
   const [state, setState] = useState<AuthState>({
     user: null,
     isLoading: true,
     isAuthenticated: false,
   });
+  const [hmore, setHmore] = useState<HmoreSession | null>(null);
+
+  const applyHmore = useCallback((session: HmoreSession) => {
+    setHmore(session);
+    setState({ user: userFromHmoreSession(session), isLoading: false, isAuthenticated: true });
+  }, []);
 
   const bootstrap = useCallback(async () => {
+    if (isAuth0MobileConfigured()) {
+      try {
+        await loadRequestContext();
+        const token = await getStoredAccessToken();
+        if (!token) {
+          setHmore(null);
+          setState({ user: null, isLoading: false, isAuthenticated: false });
+          return;
+        }
+        applyHmore(await loadHmoreSession());
+      } catch {
+        await clearAuth0Tokens();
+        await clearRequestContext();
+        setHmore(null);
+        setState({ user: null, isLoading: false, isAuthenticated: false });
+      }
+      return;
+    }
+
     try {
       const token = await loadToken();
       if (!token) {
@@ -36,37 +111,61 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         return;
       }
       const { user } = await api.get<{ user: User }>('/auth/me');
+      setHmore(null);
       setState({ user, isLoading: false, isAuthenticated: true });
     } catch {
       await clearToken();
       setState({ user: null, isLoading: false, isAuthenticated: false });
     }
-  }, []);
+  }, [applyHmore]);
 
   useEffect(() => {
     bootstrap();
   }, [bootstrap]);
 
+  const signInWithAuth0 = useCallback(async () => {
+    if (!isAuth0MobileConfigured()) {
+      throw new Error('Organisation sign-in is not configured.');
+    }
+    await loginWithAuth0();
+    await clearToken();
+    applyHmore(await loadHmoreSession());
+  }, [applyHmore]);
+
   const signIn = useCallback(async (email: string, password: string) => {
+    if (isAuth0MobileConfigured()) {
+      throw new Error(AUTH0_ONLY);
+    }
     const { user, token } = await api.post<AuthResponse>('/auth/login', { email, password });
     await saveToken(token);
+    setHmore(null);
     setState({ user, isLoading: false, isAuthenticated: true });
   }, []);
 
   const signUp = useCallback(async (data: RegisterData) => {
+    if (isAuth0MobileConfigured()) {
+      throw new Error(AUTH0_ONLY);
+    }
     const { user, token } = await api.post<AuthResponse>('/auth/register', data);
     await saveToken(token);
+    setHmore(null);
     setState({ user, isLoading: false, isAuthenticated: true });
   }, []);
 
   const signOut = useCallback(async () => {
+    queryClient.clear();
+    if (isAuth0MobileConfigured()) {
+      await logoutAuth0();
+      await clearRequestContext();
+    }
     await clearToken();
     await AsyncStorage.removeItem('@roomready_auth');
+    setHmore(null);
     setState({ user: null, isLoading: false, isAuthenticated: false });
   }, []);
 
   return (
-    <AuthContext.Provider value={{ ...state, signIn, signUp, signOut }}>
+    <AuthContext.Provider value={{ ...state, authMode, hmore, signIn, signInWithAuth0, signUp, signOut }}>
       {children}
     </AuthContext.Provider>
   );

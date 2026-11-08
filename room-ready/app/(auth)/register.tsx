@@ -32,7 +32,7 @@ const ROLE_ICONS: Record<UserRole, keyof typeof Ionicons.glyphMap> = {
 
 export default function RegisterScreen() {
   const insets = useSafeAreaInsets();
-  const { signUp } = useAuth();
+  const { signUp, authMode } = useAuth();
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
   const [email, setEmail] = useState('');
@@ -60,6 +60,23 @@ export default function RegisterScreen() {
     } finally {
       setLoading(false);
     }
+  }
+
+  if (authMode === 'auth0') {
+    return (
+      <View style={[styles.flex, { padding: 24, paddingTop: insets.top + 32 }]}>
+        <RoomReadyLogo size="sm" />
+        <Text style={styles.title}>Organisation sign-in</Text>
+        <Text style={styles.subtitle}>
+          New accounts are created by your organisation. Use the sign-in screen to continue with Auth0.
+        </Text>
+        <Link href="/(auth)/login" asChild>
+          <Pressable>
+            <Text style={styles.link}>Go to sign in</Text>
+          </Pressable>
+        </Link>
+      </View>
+    );
   }
 
   return (

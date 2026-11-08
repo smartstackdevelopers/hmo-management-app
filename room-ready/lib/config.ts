@@ -1,7 +1,7 @@
 import { Platform } from 'react-native';
 import Constants from 'expo-constants';
 
-function resolveDevHost(): string {
+export function resolveDevHost(): string {
   if (Platform.OS === 'android') return '10.0.2.2';
   if (Platform.OS === 'web') return 'localhost';
 
