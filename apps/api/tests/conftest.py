@@ -118,24 +118,36 @@ def auto_enable_ai_feature_flags(
 
     db_session: Session = request.getfixturevalue("db_session")
 
-    from sqlalchemy import event
+    from sqlalchemy import event, insert
 
+    from app.ai_feature_flags.cache import cache_invalidate
+    from app.ai_feature_flags.registry import REGISTRY
+    from app.db.models.ai_feature_flags import OrganisationAiFeatureFlag
     from app.db.models.organisation import Organisation
-    from tests.ai_feature_flag_fixtures import enable_all_controllable_ai_features
 
-    def _before_flush(session: Session, _flush_context: object, _instances: object) -> None:
-        for obj in list(session.new):
-            if not isinstance(obj, Organisation):
-                continue
-            if getattr(obj, "_hmore_ai_flags_seeded", False):
-                continue
-            if obj.id is None:
-                obj.id = uuid.uuid4()
-            obj._hmore_ai_flags_seeded = True  # type: ignore[attr-defined]
-            enable_all_controllable_ai_features(session, obj.id)
+    def _after_org_insert(_mapper, connection, target: Organisation) -> None:
+        # Seed after the organisation row exists (FK-safe). Uses Core insert so
+        # we stay inside the same flush/transaction without recursive ORM flushes.
+        rows = []
+        for definition in REGISTRY:
+            pilot = bool(definition.pilot_eligible)
+            rows.append(
+                {
+                    "id": uuid.uuid4(),
+                    "organisation_id": target.id,
+                    "feature_id": definition.feature_id,
+                    "enabled": True,
+                    "pilot_enabled": pilot,
+                    "change_reason": "test_auto_enable",
+                    "revision": 1,
+                    "metadata_json": {},
+                }
+            )
+        connection.execute(insert(OrganisationAiFeatureFlag.__table__), rows)
+        cache_invalidate(target.id)
 
-    event.listen(db_session, "before_flush", _before_flush)
+    event.listen(Organisation, "after_insert", _after_org_insert)
     try:
         yield
     finally:
-        event.remove(db_session, "before_flush", _before_flush)
+        event.remove(Organisation, "after_insert", _after_org_insert)
