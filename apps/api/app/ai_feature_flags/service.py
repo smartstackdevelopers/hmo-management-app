@@ -373,16 +373,15 @@ def update_feature(
     previous_enabled = bool(row.enabled) if row else None
     previous_pilot = bool(row.pilot_enabled) if row else None
 
-    # Pilot-eligible features require pilot_enabled when enabled.
-    resolved_pilot = bool(pilot_enabled) if pilot_enabled is not None else (
-        bool(row.pilot_enabled) if row else False
-    )
-    if definition.pilot_eligible and enabled and not resolved_pilot:
-        # Enabling a pilot feature implicitly enables pilot status.
-        resolved_pilot = True
+    # Pilot-eligible: explicit pilot_enabled wins; omitted on first enable defaults pilot on.
     if not definition.pilot_eligible:
-        # Non-pilot features do not use pilot gate for availability.
         resolved_pilot = bool(pilot_enabled) if pilot_enabled is not None else False
+    elif pilot_enabled is not None:
+        resolved_pilot = bool(pilot_enabled)
+    elif row is not None:
+        resolved_pilot = bool(row.pilot_enabled)
+    else:
+        resolved_pilot = bool(enabled)
 
     created = row is None
     if row is None:

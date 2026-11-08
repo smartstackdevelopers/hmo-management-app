@@ -42,6 +42,7 @@ def _ctx(role: HMoreRole, org_id: uuid.UUID, user_id: uuid.UUID) -> Organisation
 
 
 @pytest.mark.postgres
+@pytest.mark.no_ai_feature_flag_auto_enable
 def test_f315_flags_isolation_and_enforcement(db_session: Session, unique_suffix: str) -> None:
     cache_clear_all()
     apply_platform_rls_bypass(db_session)

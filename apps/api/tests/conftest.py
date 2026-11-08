@@ -25,6 +25,10 @@ def pytest_configure(config: pytest.Config) -> None:
         "markers",
         "postgres: requires a live PostgreSQL database with pgvector",
     )
+    config.addinivalue_line(
+        "markers",
+        "no_ai_feature_flag_auto_enable: skip F3.15 auto-enable of AI features for this test",
+    )
 
 
 def _database_url() -> str | None:
@@ -89,3 +93,49 @@ def db_session(migrated_engine: Engine) -> Generator[Session, None, None]:
 @pytest.fixture()
 def unique_suffix() -> str:
     return uuid.uuid4().hex[:8]
+
+
+@pytest.fixture(autouse=True)
+def auto_enable_ai_feature_flags(
+    request: pytest.FixtureRequest,
+) -> Generator[None, None, None]:
+    """Preserve pre-F3.15 AI availability for existing Phase 3 tests.
+
+    Production remains fail-closed for missing config. Tests that assert
+    missing-config behaviour should mark ``no_ai_feature_flag_auto_enable``.
+    """
+    if request.node.get_closest_marker("postgres") is None:
+        yield
+        return
+    if request.node.get_closest_marker("no_ai_feature_flag_auto_enable") is not None:
+        yield
+        return
+
+    # Resolve db_session only for postgres tests that request it.
+    if "db_session" not in request.fixturenames:
+        yield
+        return
+
+    db_session: Session = request.getfixturevalue("db_session")
+
+    from sqlalchemy import event
+
+    from app.db.models.organisation import Organisation
+    from tests.ai_feature_flag_fixtures import enable_all_controllable_ai_features
+
+    def _before_flush(session: Session, _flush_context: object, _instances: object) -> None:
+        for obj in list(session.new):
+            if not isinstance(obj, Organisation):
+                continue
+            if getattr(obj, "_hmore_ai_flags_seeded", False):
+                continue
+            if obj.id is None:
+                obj.id = uuid.uuid4()
+            obj._hmore_ai_flags_seeded = True  # type: ignore[attr-defined]
+            enable_all_controllable_ai_features(session, obj.id)
+
+    event.listen(db_session, "before_flush", _before_flush)
+    try:
+        yield
+    finally:
+        event.remove(db_session, "before_flush", _before_flush)
