@@ -11,7 +11,7 @@ npm run start -w room-ready
 
 ## API
 
-Run the FastAPI app on port 8000. The mobile client calls `/api/v1`.
+Run the FastAPI app on port 8000. The mobile client calls `/api/v1`. Offline repair drafts use the same Sync Now flow as staff. See `docs/development/OFFLINE_SYNC_SETUP.md`.
 
 Tenant calls used by this app include `GET` and `PATCH /tenant/me`, `GET /tenant/me/housing`, `POST /tenant/me/documents`, `GET /community-services`, and `GET /opportunities`. Those catalogue endpoints return an empty list until an organisation admin publishes rows. No sample listings are shipped with the app.
 

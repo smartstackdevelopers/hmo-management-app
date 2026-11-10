@@ -23,7 +23,7 @@ import {
 } from '@/lib/hmore/staff/voiceNotes';
 import { listCaseload } from '@/lib/hmore/services/staff/caseload';
 import { reportIncorrectRewrite, rewriteDailyLogNote } from '@/lib/hmore/services/staff/dailyLogRewrite';
-import { ACTIVITY_CATEGORIES, createDailyLog, listDailyLogs, type DailyLogInput } from '@/lib/hmore/services/staff/dailyLogs';
+import { ACTIVITY_CATEGORIES, listDailyLogs, type DailyLogInput } from '@/lib/hmore/services/staff/dailyLogs';
 
 export function DailyNoteEditor() {
   const { user } = useAuth();
@@ -109,16 +109,18 @@ export function DailyNoteEditor() {
     setBusy(true);
     setSavedOnServer(false);
     try {
+      const draft = await drafts.save({ type: 'daily_log', payload: payload as unknown as Record<string, unknown> });
       const online = await isDeviceOnline({ ping: pingHmoreHealth });
       if (!online) {
-        await drafts.save({ type: 'daily_log', payload: payload as unknown as Record<string, unknown> });
         setFeedback('Saved on this device. It is not on the server yet.');
         return;
       }
-      const created = await createDailyLog(payload);
-      if (!created?.id) throw new Error('The server did not confirm the note.');
-      const existing = drafts.drafts.find((draft) => draft.type === 'daily_log' && draft.payload.tenant_id === selectedTenant);
-      if (existing) await drafts.remove(existing.id);
+      const report = await drafts.sync();
+      const result = report.results.find((item) => item.id === draft.id);
+      if (!result?.saved) {
+        setFeedback(`${result?.error || 'Could not save the note.'} The note is still a draft on this device.`);
+        return;
+      }
       setSavedOnServer(true);
       setFeedback('Saved on the server.');
       setSummary('');
@@ -127,7 +129,6 @@ export function DailyNoteEditor() {
       setComparison(null);
       await logs.refetch();
     } catch (error) {
-      await drafts.save({ type: 'daily_log', payload: payload as unknown as Record<string, unknown> });
       setFeedback(`${hmoreErrorMessage(error, 'Could not save the note.')} The note is still a draft on this device.`);
     } finally {
       setBusy(false);
@@ -229,6 +230,9 @@ export function DailyNoteEditor() {
       refreshing={logs.isRefetching}
     >
       <DraftBadge count={drafts.drafts.filter((draft) => draft.type === 'daily_log').length} />
+      {drafts.drafts.filter((draft) => draft.type === 'daily_log' && draft.payload.tenant_id === selectedTenant && draft.lastError).map((draft) => (
+        <Feedback key={draft.id} text={draft.lastError || ''} tone="warn" />
+      ))}
       {tenants.length === 0 ? <RecordCard title="No tenants" detail="A note needs someone on your caseload." /> : (
         <ChoiceRow
           value={selectedTenant}

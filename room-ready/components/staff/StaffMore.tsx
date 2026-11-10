@@ -36,6 +36,11 @@ export function StaffMore() {
         ) : null}
       </Card>
       <DraftBadge count={drafts.count} />
+      <RecordCard
+        title="Offline drafts"
+        detail={drafts.count ? `${drafts.count} on this device` : 'Sync now, or retry a failed draft'}
+        onPress={() => router.push('/(app)/offline-drafts')}
+      />
       <RecordCard title="Notifications" detail="In-app alerts" onPress={() => router.push('/(app)/notifications')} />
       {support ? (
         <>

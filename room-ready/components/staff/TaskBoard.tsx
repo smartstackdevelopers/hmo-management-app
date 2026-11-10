@@ -9,7 +9,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useStaffDrafts } from '@/hooks/useStaffDrafts';
 import { hmoreErrorMessage } from '@/lib/hmore/client';
 import { isDeviceOnline, pingHmoreHealth } from '@/lib/hmore/staff/network';
-import { listOwnTasks, updateTask } from '@/lib/hmore/services/staff/tasks';
+import { listOwnTasks } from '@/lib/hmore/services/staff/tasks';
 
 const STATUSES = ['open', 'in_progress', 'blocked', 'completed', 'cancelled'];
 
@@ -36,24 +36,27 @@ export function TaskBoard() {
 
   async function save() {
     if (!current) return;
-    const payload = { task_id: current.id, status };
+    const payload = { task_id: current.id, status, if_match_updated_at: current.updated_at };
     setBusy(true);
     setSavedOnServer(false);
     try {
+      const draft = await drafts.save({ type: 'task_update', payload, serverUpdatedAt: current.updated_at });
       const online = await isDeviceOnline({ ping: pingHmoreHealth });
       if (!online) {
-        await drafts.save({ type: 'task_update', payload });
         setFeedback('Saved on this device. It is not on the server yet.');
         return;
       }
-      const updated = await updateTask(current.id, { status });
+      const report = await drafts.sync();
+      const result = report.results.find((item) => item.id === draft.id);
+      if (!result?.saved) {
+        setFeedback(result?.error || 'The update is still a draft.');
+        return;
+      }
       setSavedOnServer(true);
-      setFeedback(`Server status: ${updated.status}`);
-      const existing = drafts.drafts.find((draft) => draft.payload.task_id === current.id);
-      if (existing) await drafts.remove(existing.id);
-      await query.refetch();
+      const refreshed = await query.refetch();
+      const confirmed = refreshed.data?.items.find((task) => task.id === current.id);
+      setFeedback(`Server status: ${confirmed?.status ?? status}`);
     } catch (error) {
-      await drafts.save({ type: 'task_update', payload });
       setFeedback(`${hmoreErrorMessage(error)} The update is still a draft.`);
     } finally {
       setBusy(false);
@@ -63,6 +66,9 @@ export function TaskBoard() {
   return (
     <StaffPage title="Tasks" subtitle="Assigned tasks. The status label is the one returned by the server." onRefresh={query.refetch} refreshing={query.isRefetching}>
       <DraftBadge count={drafts.drafts.filter((draft) => draft.type === 'task_update').length} />
+      {current ? drafts.drafts.filter((draft) => draft.payload.task_id === current.id && draft.lastError).map((draft) => (
+        <Feedback key={draft.id} text={draft.lastError || ''} tone="warn" />
+      )) : null}
       {tasks.length === 0 ? <RecordCard title="No tasks" detail="No assigned tasks were returned." /> : null}
       {tasks.map((task) => (
         <RecordCard

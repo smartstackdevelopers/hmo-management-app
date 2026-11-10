@@ -18,8 +18,21 @@ export function getMaintenance(id: string): Promise<MaintenanceRequest> {
   return hmoreFetch<MaintenanceRequest>(`/maintenance/${id}`, { method: 'GET' });
 }
 
-export function createMaintenance(body: MaintenanceCreateInput): Promise<MaintenanceRequest> {
-  return hmoreFetch<MaintenanceRequest>('/maintenance', { method: 'POST', body });
+export function createMaintenance(body: MaintenanceCreateInput, idempotencyKey?: string): Promise<MaintenanceRequest> {
+  return hmoreFetch<MaintenanceRequest>('/maintenance', { method: 'POST', body, idempotencyKey });
+}
+
+export function patchMaintenance(
+  id: string,
+  body: {
+    title?: string;
+    description?: string;
+    category_code?: string;
+    if_match_updated_at?: string;
+  },
+  idempotencyKey?: string,
+): Promise<MaintenanceRequest> {
+  return hmoreFetch<MaintenanceRequest>(`/maintenance/${id}`, { method: 'PATCH', body, idempotencyKey });
 }
 
 export function listMaintenanceCategories(): Promise<MaintenanceCategory[]> {
@@ -44,22 +57,30 @@ export function listMaintenanceVisits(requestId: string): Promise<MaintenanceVis
 
 export function transitionMaintenance(
   requestId: string,
-  body: { status: string; note?: string },
+  body: { status: string; note?: string; if_match_updated_at?: string },
+  idempotencyKey?: string,
 ): Promise<MaintenanceRequest> {
-  return hmoreFetch<MaintenanceRequest>(`/maintenance/${requestId}/transition`, { method: 'POST', body });
+  return hmoreFetch<MaintenanceRequest>(`/maintenance/${requestId}/transition`, { method: 'POST', body, idempotencyKey });
 }
 
 export function completeMaintenance(
   requestId: string,
-  body: { work_notes: string; completion_summary?: string },
+  body: { work_notes: string; completion_summary?: string; if_match_updated_at?: string },
+  idempotencyKey?: string,
 ): Promise<MaintenanceRequest> {
-  return hmoreFetch<MaintenanceRequest>(`/maintenance/${requestId}/complete`, { method: 'POST', body });
+  return hmoreFetch<MaintenanceRequest>(`/maintenance/${requestId}/complete`, { method: 'POST', body, idempotencyKey });
 }
 
-export function addMaintenanceNote(requestId: string, body: string): Promise<{ id: string; body: string }> {
+export function addMaintenanceNote(
+  requestId: string,
+  body: string,
+  idempotencyKey?: string,
+  ifMatchUpdatedAt?: string,
+): Promise<{ id: string; body: string }> {
   return hmoreFetch(`/maintenance/${requestId}/notes`, {
     method: 'POST',
-    body: { body, visibility: 'internal' },
+    body: { body, visibility: 'internal', if_match_updated_at: ifMatchUpdatedAt },
+    idempotencyKey,
   });
 }
 

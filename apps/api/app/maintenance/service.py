@@ -11,6 +11,7 @@ from sqlalchemy import func, or_, select
 from sqlalchemy.orm import Session
 
 from app.audit import events as audit_events
+from app.idempotency.service import assert_if_match, without_match_field
 from app.audit.service import AuditOutcome, record_event
 from app.db.models.enums import HMoreRole
 from app.db.models.file_metadata import FileMetadata
@@ -276,6 +277,7 @@ def request_out_dict(session: Session, ctx: OrganisationContext, row: Maintenanc
         "emergency_kind_hint": ek,
         "file_ids": file_ids,
         "created_at": row.created_at,
+        "updated_at": row.updated_at,
     }
 
 
@@ -472,7 +474,8 @@ def update_request(
     else:
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Access denied")
 
-    for k, v in data.model_dump(exclude_unset=True).items():
+    assert_if_match(row.updated_at, data.if_match_updated_at)
+    for k, v in without_match_field(data.model_dump(exclude_unset=True)).items():
         setattr(row, k, v)
     session.flush()
     _history(session, ctx, row, event_type="updated", summary="Request updated", tenant_visible=True)
@@ -629,6 +632,7 @@ def transition_status(
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Reason required")
 
     _approval_gate(row, target)
+    assert_if_match(row.updated_at, data.if_match_updated_at)
 
     if target == "completed":
         raise HTTPException(
@@ -1019,6 +1023,7 @@ def add_note(session: Session, ctx: OrganisationContext, request_id: uuid.UUID, 
             raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Tenants may only add tenant-visible notes")
     elif ctx.role != HMoreRole.SUPER_ADMIN:
         require_permission(ctx.authorization, Permission.MAINTENANCE_NOTES_ADD)
+    assert_if_match(row.updated_at, data.if_match_updated_at)
     note = MaintenanceNote(
         organisation_id=ctx.organisation_id,
         request_id=row.id,
@@ -1157,6 +1162,7 @@ def complete_request(
         if v is None:
             raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Access denied")
 
+    assert_if_match(row.updated_at, data.if_match_updated_at)
     _approval_gate(row, "completed")
     prev = row.status
     row.status = "completed"

@@ -10,6 +10,17 @@ from fastapi import APIRouter, Depends, File, Form, Query, UploadFile
 from fastapi.responses import Response
 from sqlalchemy.orm import Session
 
+from app.idempotency.deps import IdempotencyKey
+from app.idempotency.service import (
+    SCOPE_MAINTENANCE_COMPLETE,
+    SCOPE_MAINTENANCE_CREATE,
+    SCOPE_MAINTENANCE_NOTE,
+    SCOPE_MAINTENANCE_TRANSITION,
+    SCOPE_MAINTENANCE_UPDATE,
+    apply_idempotent,
+    fresh_or_replay,
+    jsonable,
+)
 from app.maintenance import service as maintenance_service
 from app.maintenance.access import assert_can_access_maintenance_photo
 from app.maintenance.schemas import (
@@ -88,9 +99,27 @@ def create_maintenance(
     body: MaintenanceCreate,
     org: OrganisationContext = Depends(get_organisation_context),
     session: Session = Depends(get_session),
+    idempotency_key: IdempotencyKey,
 ) -> Any:
-    row = maintenance_service.create_request(session, org, body)
-    return maintenance_service.request_out_dict(session, org, row)
+    holder: dict[str, Any] = {}
+
+    def produce() -> tuple[Any, dict[str, Any]]:
+        row = maintenance_service.create_request(session, org, body)
+        payload = maintenance_service.request_out_dict(session, org, row)
+        holder["row"] = payload
+        return row.id, jsonable(payload)
+
+    result = apply_idempotent(
+        session,
+        organisation_id=org.organisation_id,
+        user_id=org.user_id,
+        scope=SCOPE_MAINTENANCE_CREATE,
+        key=idempotency_key,
+        resource_type="maintenance_request",
+        success_status=201,
+        produce=produce,
+    )
+    return fresh_or_replay(result, holder.get("row"))
 
 
 @router.get("", response_model=dict[str, Any])
@@ -181,9 +210,27 @@ def patch_maintenance(
     body: MaintenanceUpdate,
     org: OrganisationContext = Depends(get_organisation_context),
     session: Session = Depends(get_session),
+    idempotency_key: IdempotencyKey,
 ) -> Any:
-    row = maintenance_service.update_request(session, org, request_id, body)
-    return maintenance_service.request_out_dict(session, org, row)
+    holder: dict[str, Any] = {}
+
+    def produce() -> tuple[Any, dict[str, Any]]:
+        row = maintenance_service.update_request(session, org, request_id, body)
+        payload = maintenance_service.request_out_dict(session, org, row)
+        holder["row"] = payload
+        return row.id, jsonable(payload)
+
+    result = apply_idempotent(
+        session,
+        organisation_id=org.organisation_id,
+        user_id=org.user_id,
+        scope=f"{SCOPE_MAINTENANCE_UPDATE}:{request_id}",
+        key=idempotency_key,
+        resource_type="maintenance_request",
+        success_status=200,
+        produce=produce,
+    )
+    return fresh_or_replay(result, holder.get("row"))
 
 
 @router.post("/{request_id}/assign", response_model=MaintenanceOut)
@@ -214,9 +261,27 @@ def transition_maintenance(
     body: StatusTransitionRequest,
     org: OrganisationContext = Depends(get_organisation_context),
     session: Session = Depends(get_session),
+    idempotency_key: IdempotencyKey,
 ) -> Any:
-    row = maintenance_service.transition_status(session, org, request_id, body)
-    return maintenance_service.request_out_dict(session, org, row)
+    holder: dict[str, Any] = {}
+
+    def produce() -> tuple[Any, dict[str, Any]]:
+        row = maintenance_service.transition_status(session, org, request_id, body)
+        payload = maintenance_service.request_out_dict(session, org, row)
+        holder["row"] = payload
+        return row.id, jsonable(payload)
+
+    result = apply_idempotent(
+        session,
+        organisation_id=org.organisation_id,
+        user_id=org.user_id,
+        scope=f"{SCOPE_MAINTENANCE_TRANSITION}:{request_id}",
+        key=idempotency_key,
+        resource_type="maintenance_request",
+        success_status=200,
+        produce=produce,
+    )
+    return fresh_or_replay(result, holder.get("row"))
 
 
 @router.post("/{request_id}/approval", response_model=MaintenanceOut)
@@ -288,8 +353,26 @@ def add_maintenance_note(
     body: NoteCreate,
     org: OrganisationContext = Depends(get_organisation_context),
     session: Session = Depends(get_session),
+    idempotency_key: IdempotencyKey,
 ) -> Any:
-    return maintenance_service.add_note(session, org, request_id, body)
+    holder: dict[str, Any] = {}
+
+    def produce() -> tuple[Any, dict[str, Any]]:
+        row = maintenance_service.add_note(session, org, request_id, body)
+        holder["row"] = row
+        return row.id, jsonable(NoteOut.model_validate(row).model_dump(mode="json"))
+
+    result = apply_idempotent(
+        session,
+        organisation_id=org.organisation_id,
+        user_id=org.user_id,
+        scope=f"{SCOPE_MAINTENANCE_NOTE}:{request_id}",
+        key=idempotency_key,
+        resource_type="maintenance_note",
+        success_status=201,
+        produce=produce,
+    )
+    return fresh_or_replay(result, holder.get("row"))
 
 
 @router.get("/{request_id}/notes", response_model=list[NoteOut])
@@ -389,6 +472,24 @@ def complete_maintenance(
     body: CompleteRequest,
     org: OrganisationContext = Depends(get_organisation_context),
     session: Session = Depends(get_session),
+    idempotency_key: IdempotencyKey,
 ) -> Any:
-    row = maintenance_service.complete_request(session, org, request_id, body)
-    return maintenance_service.request_out_dict(session, org, row)
+    holder: dict[str, Any] = {}
+
+    def produce() -> tuple[Any, dict[str, Any]]:
+        row = maintenance_service.complete_request(session, org, request_id, body)
+        payload = maintenance_service.request_out_dict(session, org, row)
+        holder["row"] = payload
+        return row.id, jsonable(payload)
+
+    result = apply_idempotent(
+        session,
+        organisation_id=org.organisation_id,
+        user_id=org.user_id,
+        scope=f"{SCOPE_MAINTENANCE_COMPLETE}:{request_id}",
+        key=idempotency_key,
+        resource_type="maintenance_request",
+        success_status=200,
+        produce=produce,
+    )
+    return fresh_or_replay(result, holder.get("row"))

@@ -11,6 +11,7 @@ export interface StaffTask {
   due_at: string | null;
   status: string;
   overdue: boolean;
+  updated_at?: string;
 }
 
 export function listOwnTasks(userId: string): Promise<Page<StaffTask>> {
@@ -20,6 +21,10 @@ export function listOwnTasks(userId: string): Promise<Page<StaffTask>> {
   });
 }
 
-export function updateTask(taskId: string, body: { status?: string; description?: string | null }): Promise<StaffTask> {
-  return hmoreFetch<StaffTask>(`/tasks/${taskId}`, { method: 'PATCH', body });
+export function updateTask(
+  taskId: string,
+  body: { status?: string; description?: string | null; if_match_updated_at?: string },
+  idempotencyKey?: string,
+): Promise<StaffTask> {
+  return hmoreFetch<StaffTask>(`/tasks/${taskId}`, { method: 'PATCH', body, idempotencyKey });
 }
