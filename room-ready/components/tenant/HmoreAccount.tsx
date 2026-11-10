@@ -3,6 +3,7 @@ import { router } from 'expo-router';
 import { useEffect, useState } from 'react';
 import { ScrollView, StyleSheet, Text, View } from 'react-native';
 
+import { PushPreferenceToggle } from '@/components/PushPreferenceToggle';
 import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
 import { Input } from '@/components/ui/Input';
@@ -142,6 +143,7 @@ export function HmoreAccount() {
         <ListRow title={t('profile.accessibility')} icon="accessibility-outline" onPress={() => router.push('/(app)/accessibility')} />
       </Card>
 
+      <PushPreferenceToggle />
       <Text style={styles.version}>{t('profile.version')}</Text>
       <Button title={t('profile.signOut')} accessibilityLabel={t('profile.signOut')} variant="outline" onPress={handleSignOut} fullWidth />
     </ScrollView>

@@ -10,6 +10,7 @@ Run beat (periodic dispatch):
 from __future__ import annotations
 
 import logging
+import uuid
 
 from app.db.session import session_scope
 from app.communication.jobs import dispatch_due_communication_reminders
@@ -230,4 +231,26 @@ def dispatch_monthly_report_drafts_task(self) -> dict:
     with session_scope() as session:
         result = dispatch_period_drafts(session, "monthly")
         logger.info("dispatch_monthly_report_drafts result=%s", result)
+        return result
+
+
+@celery_app.task(name="hmore.push.dispatch_delivery")
+def dispatch_push_delivery_task(delivery_id: str) -> dict:
+    """Send one queued push delivery. No-op when it is already sent or failed."""
+    from app.push.delivery import dispatch_delivery_by_id
+
+    with session_scope() as session:
+        result = dispatch_delivery_by_id(session, uuid.UUID(str(delivery_id)))
+        logger.info("dispatch_push_delivery result=%s", result)
+        return result
+
+
+@celery_app.task(name="hmore.push.dispatch_pending")
+def dispatch_pending_push_task() -> dict:
+    """Beat sweep for push deliveries still queued."""
+    from app.push.delivery import dispatch_pending
+
+    with session_scope() as session:
+        result = dispatch_pending(session)
+        logger.info("dispatch_pending_push result=%s", result)
         return result

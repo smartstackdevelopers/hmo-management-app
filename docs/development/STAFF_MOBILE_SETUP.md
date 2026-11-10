@@ -26,7 +26,7 @@ Run the FastAPI app on port 8000. Staff screens call the existing `/api/v1` rout
 - Dictation needs a development build that includes `expo-speech-recognition`. In Expo Go, or when the recogniser is missing, the note screen says speech recognition is not available and the text field still works. Dictated text is not rewritten by AI.
 - Drafts stay on the device until a sync receives HTTP 2xx. Turn on airplane mode, save a note, and the screen should say it is not on the server yet.
 - Occupancy shows surveys or an empty list, plus a Phase 6 notice. It does not show a live people count.
-- Notifications are the in-app inbox. The app does not register a push token. Device push is F4.3.
+- Notifications are still the in-app inbox. The app registers an Expo push token when notification permission and a real EAS project id are present. Without Expo API credentials that registration does not deliver a notification to the device. See `docs/development/PUSH_NOTIFICATIONS_SETUP.md`.
 - Photo upload accepts JPEG, PNG, and WebP up to 10 MB. A larger or different file is rejected before upload.
 
 `apps/mobile` remains a pointer to this Expo project. Do not use Expo web as the admin dashboard.

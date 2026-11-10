@@ -22,6 +22,8 @@ Workflow modules (appointments, complaints, documents, …) continue to use `rem
 | `queued` | Marked for worker / synchronous dispatch |
 | `attempted` | Provider call started |
 | `provider_accepted` | SMTP accepted / Twilio SID returned — **not** proof of inbox/handset delivery |
+| `sending` | Push worker started an attempt. Not handset receipt. |
+| `sent` | Expo push ticket status was `ok`. Not handset receipt. See `PUSH_NOTIFICATIONS_ARCHITECTURE.md`. |
 | `delivered` | In-app content stored for retrieval |
 | `failed` | Terminal failure |
 | `retrying` | Reserved |

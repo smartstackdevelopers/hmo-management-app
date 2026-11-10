@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import hashlib
+import logging
 import re
 import uuid
 from datetime import datetime, timezone
@@ -45,6 +46,8 @@ from app.db.models.enums import HMoreRole, MembershipStatus
 from app.db.models.membership import OrganisationMembership
 from app.db.models.tenant import Tenant
 from app.db.models.user import User
+
+logger = logging.getLogger("hmore.communication")
 from app.ops.notifications import CommunicationNotificationProvider, ReminderMessage
 from app.tenancy.session_rls import apply_organisation_rls
 from app.rbac.permissions import Permission
@@ -398,6 +401,17 @@ def send_message(session: Session, ctx: OrganisationContext, body: MessageSend) 
         summary="In-app message created",
         metadata={"recipient": str(body.recipient_user_id)},
     )
+    try:
+        from app.push.delivery import enqueue_push_for_message
+
+        enqueue_push_for_message(
+            session,
+            organisation_id=ctx.organisation_id,
+            recipient_user_id=body.recipient_user_id,
+            message_id=msg.id,
+        )
+    except Exception:
+        logger.exception("message_push_enqueue_failed message_id=%s", msg.id)
     return {"message_id": str(msg.id), "conversation_id": str(conv_id)}
 
 
@@ -547,6 +561,17 @@ def get_or_create_prefs(session: Session, ctx: OrganisationContext) -> Communica
     return row
 
 
+def preference_payload(row: CommunicationUserPreference) -> dict[str, Any]:
+    return {
+        "allow_in_app": row.allow_in_app,
+        "allow_email": row.allow_email,
+        "allow_sms": row.allow_sms,
+        "allow_push": row.allow_push,
+        "marketing_opt_out": row.marketing_opt_out,
+        "sms_suppressed": row.sms_suppressed,
+    }
+
+
 def update_prefs(session: Session, ctx: OrganisationContext, body: PreferenceUpdate) -> dict[str, Any]:
     row = get_or_create_prefs(session, ctx)
     if body.allow_in_app is not None:
@@ -555,6 +580,8 @@ def update_prefs(session: Session, ctx: OrganisationContext, body: PreferenceUpd
         row.allow_email = body.allow_email
     if body.allow_sms is not None:
         row.allow_sms = body.allow_sms
+    if body.allow_push is not None:
+        row.allow_push = body.allow_push
     if body.marketing_opt_out is not None:
         row.marketing_opt_out = body.marketing_opt_out
     if body.sms_suppressed is not None:
@@ -568,15 +595,9 @@ def update_prefs(session: Session, ctx: OrganisationContext, body: PreferenceUpd
         actor_user_id=ctx.user_id,
         outcome=AuditOutcome.SUCCESS.value,
         summary="Communication preferences updated",
-        metadata={k: getattr(row, k) for k in ("allow_in_app", "allow_email", "allow_sms", "marketing_opt_out", "sms_suppressed")},
+        metadata=preference_payload(row),
     )
-    return {
-        "allow_in_app": row.allow_in_app,
-        "allow_email": row.allow_email,
-        "allow_sms": row.allow_sms,
-        "marketing_opt_out": row.marketing_opt_out,
-        "sms_suppressed": row.sms_suppressed,
-    }
+    return preference_payload(row)
 
 
 def create_reminder(session: Session, ctx: OrganisationContext, body: ReminderCreate) -> dict[str, Any]:
@@ -735,7 +756,7 @@ def create_announcement(session: Session, ctx: OrganisationContext, body: Announ
             detail="Only Organisation Admin or Super Admin may create emergency announcements",
         )
     channels = body.channels
-    if not any(channels.get(k) for k in ("in_app", "email", "sms")):
+    if not any(channels.get(k) for k in ("in_app", "email", "sms", "push")):
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Select at least one channel")
     ref = _next_ann_reference(session, ctx.organisation_id)
     custom_ids = list(body.custom_user_ids or [])
@@ -834,6 +855,7 @@ def publish_announcement(session: Session, ctx: OrganisationContext, announcemen
                 user_id=uid,
             )
         )
+        inbox_message_id: uuid.UUID | None = None
         if ann.channels.get("in_app"):
             conv_id = ann.id
             msg = CommunicationMessage(
@@ -848,6 +870,7 @@ def publish_announcement(session: Session, ctx: OrganisationContext, announcemen
             )
             session.add(msg)
             session.flush()
+            inbox_message_id = msg.id
             session.add(
                 CommunicationMessageRecipient(
                     organisation_id=ctx.organisation_id,
@@ -885,6 +908,26 @@ def publish_announcement(session: Session, ctx: OrganisationContext, announcemen
                     essential_operational=True,
                 ),
             )
+        if ann.channels.get("push"):
+            try:
+                from app.push.delivery import enqueue_push_for_announcement, enqueue_push_for_message
+
+                if inbox_message_id is not None:
+                    enqueue_push_for_message(
+                        session,
+                        organisation_id=ctx.organisation_id,
+                        recipient_user_id=uid,
+                        message_id=inbox_message_id,
+                    )
+                else:
+                    enqueue_push_for_announcement(
+                        session,
+                        organisation_id=ctx.organisation_id,
+                        recipient_user_id=uid,
+                        announcement_id=ann.id,
+                    )
+            except Exception:
+                logger.exception("announcement_push_enqueue_failed announcement_id=%s", ann.id)
 
     record_event(
         session,

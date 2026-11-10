@@ -31,6 +31,7 @@ class PreferenceUpdate(BaseModel):
     allow_in_app: bool | None = None
     allow_email: bool | None = None
     allow_sms: bool | None = None
+    allow_push: bool | None = None
     marketing_opt_out: bool | None = None
     sms_suppressed: bool | None = None
 
@@ -51,7 +52,7 @@ class OperationalSend(BaseModel):
 class ReminderCreate(BaseModel):
     recipient_user_id: uuid.UUID
     reminder_kind: str = Field(..., max_length=64)
-    channel: Literal["in_app", "email", "sms"]
+    channel: Literal["in_app", "email", "sms", "push"]
     body: str = Field(..., max_length=MAX_BODY_LEN)
     subject: str | None = Field(default=None, max_length=500)
     scheduled_at: datetime
@@ -71,11 +72,22 @@ class AnnouncementCreate(BaseModel):
     body: str = Field(..., max_length=MAX_BODY_LEN)
     priority: Literal["normal", "high", "emergency"] = "normal"
     audience: Literal["organisation_all", "staff_only", "tenants_only", "landlords_only", "custom_users"]
-    channels: dict[str, bool]  # in_app, email, sms
+    channels: dict[str, bool]
     expires_at: datetime | None = None
     custom_user_ids: list[uuid.UUID] | None = None
     target_language: str | None = Field(default=None, max_length=16)
     require_translation_review: bool = False
+
+    @field_validator("channels")
+    @classmethod
+    def known_channels(cls, value: dict[str, bool]) -> dict[str, bool]:
+        allowed = {"in_app", "email", "sms", "push"}
+        unknown = set(value) - allowed
+        if unknown:
+            raise ValueError("Unknown announcement channel")
+        if not any(value.get(name) for name in allowed):
+            raise ValueError("Select at least one channel")
+        return value
 
 
 class TranslationRequest(BaseModel):

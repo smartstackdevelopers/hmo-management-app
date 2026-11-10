@@ -1,4 +1,5 @@
 from functools import lru_cache
+from typing import Literal
 
 from pydantic import Field, field_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
@@ -75,6 +76,10 @@ class Settings(BaseSettings):
     twilio_from_number: str | None = None
     sms_adapter_mode: str = Field(default="test")  # test | twilio
 
+    # F4.3 Expo push. Default log never calls Expo and never marks a device as having received a push.
+    expo_access_token: str | None = None
+    push_adapter_mode: Literal["expo", "log"] = "log"
+
     # F3.3 — shared secret for AI service → core API metering/budget calls
     ai_service_token: str = Field(default="", validation_alias="AI_SERVICE_TOKEN")
     # F3.4 — core API → AI service workflow execution
@@ -102,6 +107,19 @@ class Settings(BaseSettings):
     @classmethod
     def normalize_environment(cls, value: str) -> str:
         return (value or "development").strip().lower()
+
+    @field_validator("expo_access_token", mode="before")
+    @classmethod
+    def blank_expo_token(cls, value: object) -> str | None:
+        if value is None:
+            return None
+        text = str(value).strip()
+        return text or None
+
+    @field_validator("push_adapter_mode", mode="before")
+    @classmethod
+    def normalize_push_mode(cls, value: object) -> str:
+        return str(value or "log").strip().lower()
 
     @property
     def is_production(self) -> bool:
