@@ -6,16 +6,27 @@ import { TabIcon } from '@/components/ui/TabIcon';
 import { LEGACY_TENANT_TABS, ROLE_TABS, TAB_SCREEN_TITLES, TabConfig } from '@/constants/navigation';
 import { theme } from '@/constants/theme';
 import { useAuth } from '@/contexts/AuthContext';
+import { useI18n } from '@/hooks/useI18n';
 
 const ALL_SCREENS = [
   'index', 'find', 'properties', 'compliance', 'tenancy', 'maintenance', 'support', 'inspections',
   'schedule', 'messages', 'users', 'listings', 'settings', 'more',
 ] as const;
 
+const TENANT_TAB_KEYS: Record<string, string> = {
+  index: 'nav.home',
+  tenancy: 'nav.housing',
+  maintenance: 'nav.repairs',
+  support: 'nav.support',
+  more: 'nav.account',
+};
+
 export default function TabLayout() {
   const { user, hmore } = useAuth();
+  const { t } = useI18n();
   const insets = useSafeAreaInsets();
   const role = user?.role;
+  const tenantApp = !!hmore && role === 'tenant';
   const visibleTabs = role === 'tenant' && !hmore ? LEGACY_TENANT_TABS : role ? ROLE_TABS[role] : [];
   const visibleNames = new Set(visibleTabs.map((t) => t.name));
   const tabBarHeight = theme.layout.tabBarBase + insets.bottom;
@@ -55,7 +66,7 @@ export default function TabLayout() {
             key={name}
             name={name}
             options={{
-              title: tab?.title ?? TAB_SCREEN_TITLES[name] ?? name,
+              title: tenantApp && TENANT_TAB_KEYS[name] ? t(TENANT_TAB_KEYS[name]) : tab?.title ?? TAB_SCREEN_TITLES[name] ?? name,
               href: isVisible ? undefined : null,
               headerShown: name !== 'index' && name !== 'more',
               tabBarIcon: tab

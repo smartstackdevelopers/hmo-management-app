@@ -5,6 +5,7 @@ import {
   DEFAULT_ACCESSIBILITY,
   loadAccessibilityPrefs,
   saveAccessibilityPrefs,
+  subscribeAccessibilityPrefs,
   textScaleMultiplier,
 } from '@/lib/hmore/accessibility';
 
@@ -19,8 +20,13 @@ export function useAccessibilityPrefs() {
       setPrefs(loaded);
       setReady(true);
     });
+    const unsubscribe = subscribeAccessibilityPrefs((loaded) => {
+      if (!active) return;
+      setPrefs(loaded);
+    });
     return () => {
       active = false;
+      unsubscribe();
     };
   }, []);
 

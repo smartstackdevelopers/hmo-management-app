@@ -14,15 +14,16 @@ After Auth0, the app calls `GET /auth/me` and `GET /rbac/me`, then sends `X-Orga
 
 | Area | API | Behaviour |
 | --- | --- | --- |
-| Home and profile | `GET /tenants` | Own row only. Read-only. The app does not call `PATCH /tenants`. |
-| Housing | `GET /tenants`, `GET /housing-applications` | Shows the linked housing record and the tenant's applications. |
-| Repairs | `GET/POST /maintenance`, photo upload | Tenants can report a repair when a property id is already on an application or an existing repair. Emergency priority is not offered; immediate danger is directed to 999. |
+| Home and profile | `GET /tenant/me`, `PATCH /tenant/me` | Own row only. The tenant can change `preferred_name` and `phone`. The response omits notes, consent notes, and needs/goals. Staff `PATCH /tenants/{id}` stays forbidden for the tenant role. |
+| Housing | `GET /tenant/me/housing`, `GET /housing-applications` | Shows the assigned property and room when those foreign keys are set. If nothing is assigned, the screen says housing has not been assigned. Addresses are not invented. |
+| Repairs | `GET/POST /maintenance`, photo upload | A new repair uses `assigned_property_id` from `/tenant/me/housing`. If that property is null, the form explains that staff must assign housing before a repair can be sent. Photos can be previewed and removed before submit. Emergency priority is not offered; immediate danger is directed to 999. |
 | Support | `GET /tenant/support-plans`, timeline appointments | Read-only plan, appointments, and recent timeline items the tenant can view. |
-| Files | `GET /documents` | Metadata, plus an authenticated content fetch. |
+| Files | `GET /documents`, `POST /tenant/me/documents` | Existing list and content endpoints stay the read path. A tenant can upload a PDF or image for their own record. That upload does not grant general `documents.upload`. |
 | Alerts | Communications inbox and announcements | In-app messages can be marked read. |
-| Assistant | `/tenant-assistant` | Asks only when the pilot says the assistant is available. Answers are not official decisions. |
-| Local services, jobs | none | UI returns `phase5_pending`. No sample listings. |
-| Language and accessibility | device storage | Text size, contrast, and a saved language preference. |
+| Assistant | `/tenant-assistant`, `POST /ai-activity/{activity_id}/feedback` | Asks only when the pilot says the assistant is available. If the ask response includes an activity id, the tenant can send wrong-answer feedback. If it does not, sources already returned are shown and feedback is not reported as sent. Answers are not official decisions. |
+| Local services | `GET /community-services?q=&category=` | Published rows for the caller's organisation. An empty list is valid. There is no sample catalogue and no postcode search. |
+| Jobs and training | `GET /opportunities?kind=&q=` | Published job rows require `jobs.discover`. Training rows require `training.discover`. Empty catalogues stay empty. |
+| Language and accessibility | device storage | Text size, contrast, and a saved language preference. The picker offers English and Urdu. A missing translation falls back to English. |
 
 Tabs for a tenant are Home, My home, Repairs, Support, and Account.
 

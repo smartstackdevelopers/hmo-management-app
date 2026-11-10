@@ -14,6 +14,8 @@ from app.db.models.mixins import OrganisationScopedMixin, TimestampMixin, UUIDPr
 
 if TYPE_CHECKING:
     from app.db.models.organisation import Organisation
+    from app.db.models.property import Property
+    from app.db.models.room import Room
     from app.db.models.user import User
 
 
@@ -50,6 +52,20 @@ class Tenant(UUIDPrimaryKeyMixin, OrganisationScopedMixin, TimestampMixin, Base)
         server_default=RecordStatus.ACTIVE.value,
     )
     notes: Mapped[str | None] = mapped_column(Text, nullable=True)
+    assigned_property_id: Mapped[uuid.UUID | None] = mapped_column(
+        UUID(as_uuid=True),
+        ForeignKey("properties.id", ondelete="SET NULL"),
+        nullable=True,
+        index=True,
+    )
+    assigned_room_id: Mapped[uuid.UUID | None] = mapped_column(
+        UUID(as_uuid=True),
+        ForeignKey("rooms.id", ondelete="SET NULL"),
+        nullable=True,
+        index=True,
+    )
 
     organisation: Mapped[Organisation] = relationship(back_populates="tenants")
     user: Mapped[User | None] = relationship(back_populates="tenant_profiles")
+    assigned_property: Mapped[Property | None] = relationship(foreign_keys=[assigned_property_id])
+    assigned_room: Mapped[Room | None] = relationship(foreign_keys=[assigned_room_id])

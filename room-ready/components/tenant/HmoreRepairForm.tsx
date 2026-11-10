@@ -1,7 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { router } from 'expo-router';
-import { useMemo, useState } from 'react';
-import { Alert, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { useState } from 'react';
+import { Alert, Image, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 
 import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
@@ -9,11 +9,11 @@ import { Input } from '@/components/ui/Input';
 import { ErrorState, LoadingScreen } from '@/components/ui/States';
 import { FONT_MEDIUM, FONT_SEMIBOLD } from '@/constants/fonts';
 import { theme } from '@/constants/theme';
-import { useAuth } from '@/contexts/AuthContext';
+import { useI18n } from '@/hooks/useI18n';
 import { hmoreErrorMessage } from '@/lib/hmore/client';
-import { createMaintenance, listMaintenance, listMaintenanceCategories, uploadMaintenancePhoto } from '@/lib/hmore/services/maintenance';
-import { listHousingApplications } from '@/lib/hmore/services/housingApplications';
-import { getOwnTenant } from '@/lib/hmore/services/tenants';
+import { assignedPropertyId, formatAssignedAddress, getOwnHousing } from '@/lib/hmore/services/housing';
+import { createMaintenance, listMaintenanceCategories, uploadMaintenancePhoto } from '@/lib/hmore/services/maintenance';
+import { getOwnProfile } from '@/lib/hmore/services/tenants';
 import { pickImage } from '@/lib/uploads';
 
 const FALLBACK_CATEGORIES = [
@@ -25,66 +25,55 @@ const FALLBACK_CATEGORIES = [
   { code: 'other', title: 'Other' },
 ];
 
-const PRIORITIES = [
-  { id: 'low' as const, label: 'Low' },
-  { id: 'normal' as const, label: 'Normal' },
-  { id: 'high' as const, label: 'High' },
-  { id: 'urgent' as const, label: 'Urgent' },
-];
+type Photo = { uri: string; name: string; mimeType: string };
 
 export function HmoreRepairForm() {
-  const { hmore } = useAuth();
+  const { t, fontScale, prefs } = useI18n();
   const client = useQueryClient();
-  const userId = hmore?.auth.id ?? '';
-  const tenantQuery = useQuery({
-    queryKey: ['hmore', 'tenant', userId],
-    queryFn: () => getOwnTenant(userId),
-    enabled: !!userId,
+  const profileQuery = useQuery({
+    queryKey: ['hmore', 'tenant-me'],
+    queryFn: getOwnProfile,
   });
-  const appsQuery = useQuery({ queryKey: ['hmore', 'housing-applications'], queryFn: listHousingApplications });
-  const repairsQuery = useQuery({
-    queryKey: ['hmore', 'maintenance'],
-    queryFn: () => listMaintenance({ page: 1, page_size: 50 }),
+  const housingQuery = useQuery({
+    queryKey: ['hmore', 'tenant-housing'],
+    queryFn: getOwnHousing,
   });
   const categoriesQuery = useQuery({
     queryKey: ['hmore', 'maintenance-categories'],
     queryFn: listMaintenanceCategories,
   });
 
-  const propertyIds = useMemo(() => {
-    const ids = new Set<string>();
-    for (const app of appsQuery.data?.items ?? []) {
-      if (app.preferred_property_id) ids.add(app.preferred_property_id);
-    }
-    for (const repair of repairsQuery.data?.items ?? []) {
-      if (repair.property_id) ids.add(repair.property_id);
-    }
-    return [...ids];
-  }, [appsQuery.data, repairsQuery.data]);
-
   const categories = categoriesQuery.data?.length ? categoriesQuery.data : FALLBACK_CATEGORIES;
-  const [propertyId, setPropertyId] = useState('');
+  const priorities = [
+    { id: 'low' as const, label: t('repairs.low') },
+    { id: 'normal' as const, label: t('repairs.normal') },
+    { id: 'high' as const, label: t('repairs.high') },
+    { id: 'urgent' as const, label: t('repairs.urgent') },
+  ];
   const [category, setCategory] = useState('general');
-  const [priority, setPriority] = useState<(typeof PRIORITIES)[number]['id']>('normal');
+  const [priority, setPriority] = useState<(typeof priorities)[number]['id']>('normal');
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
-  const [photo, setPhoto] = useState<{ uri: string; name: string; mimeType: string } | null>(null);
+  const [photos, setPhotos] = useState<Photo[]>([]);
 
-  const selectedProperty = propertyId || propertyIds[0] || '';
+  const propertyId = assignedPropertyId(housingQuery.data);
+  const address = formatAssignedAddress(housingQuery.data);
+  const roomId = housingQuery.data?.room?.id ?? null;
 
   const create = useMutation({
     mutationFn: async () => {
-      if (!tenantQuery.data) throw new Error('Your login is not linked to a housing record yet.');
-      if (!selectedProperty) throw new Error('No property is linked yet, so a repair cannot be filed.');
+      if (!profileQuery.data) throw new Error(t('repairs.unlinked'));
+      if (!propertyId) throw new Error(t('repairs.needAssignment'));
       const created = await createMaintenance({
         title: title.trim(),
         description: description.trim(),
         category_code: category,
         priority,
-        property_id: selectedProperty,
-        tenant_id: tenantQuery.data.id,
+        property_id: propertyId,
+        room_id: roomId,
+        tenant_id: profileQuery.data.id,
       });
-      if (photo) {
+      for (const photo of photos) {
         await uploadMaintenancePhoto(created.id, photo, title.trim());
       }
       return created;
@@ -95,81 +84,141 @@ export function HmoreRepairForm() {
     },
   });
 
-  if (tenantQuery.isLoading || appsQuery.isLoading || repairsQuery.isLoading) {
-    return <LoadingScreen message="Preparing the repair form..." />;
+  if (profileQuery.isLoading || housingQuery.isLoading) {
+    return <LoadingScreen message={t('repairs.preparing')} />;
   }
-  if (tenantQuery.error || appsQuery.error || repairsQuery.error) {
-    return <ErrorState message={hmoreErrorMessage(tenantQuery.error ?? appsQuery.error ?? repairsQuery.error)} />;
+  if (profileQuery.error || housingQuery.error) {
+    return <ErrorState message={hmoreErrorMessage(profileQuery.error ?? housingQuery.error)} />;
   }
 
   async function choosePhoto() {
     const image = await pickImage();
     if (!image) return;
-    setPhoto({
-      uri: image.uri,
-      name: image.fileName || 'repair.jpg',
-      mimeType: image.mimeType || 'image/jpeg',
-    });
+    setPhotos((current) => [
+      ...current,
+      {
+        uri: image.uri,
+        name: image.fileName || 'repair.jpg',
+        mimeType: image.mimeType || 'image/jpeg',
+      },
+    ]);
+  }
+
+  function removePhoto(index: number) {
+    setPhotos((current) => current.filter((_, itemIndex) => itemIndex !== index));
   }
 
   function submit() {
     if (!title.trim() || !description.trim()) {
-      Alert.alert('Add a title and description', 'Tell us what needs repairing.');
+      Alert.alert(t('repairs.missing'), t('repairs.missingBody'));
       return;
     }
     create.mutate();
   }
 
+  const contrast = prefs.highContrast;
+
   return (
-    <ScrollView style={styles.page} contentContainerStyle={styles.content} keyboardShouldPersistTaps="handled">
-      <Text style={styles.note}>
-        If someone is in immediate danger, call 999. Urgent is the highest priority you can set — staff review emergency priority.
-      </Text>
-      {!selectedProperty ? (
+    <ScrollView
+      style={[styles.page, contrast && styles.contrast]}
+      contentContainerStyle={styles.content}
+      keyboardShouldPersistTaps="handled"
+    >
+      <Text style={[styles.note, { fontSize: 14 * fontScale }]}>{t('repairs.danger')}</Text>
+      {!propertyId ? (
         <Card>
-          <Text style={styles.note}>
-            No property is on your housing applications or existing repairs. You can view repairs, and your organisation needs to link a property before a new report can be sent.
-          </Text>
+          <Text style={[styles.note, { fontSize: 14 * fontScale }]}>{t('repairs.needAssignment')}</Text>
         </Card>
       ) : (
         <Card>
-          <Text style={styles.label}>Property</Text>
-          {propertyIds.map((id) => (
-            <Pressable key={id} onPress={() => setPropertyId(id)} style={[styles.choice, selectedProperty === id && styles.choiceOn]}>
-              <Text style={styles.choiceText}>{id}</Text>
-            </Pressable>
-          ))}
+          <Text style={styles.label}>{t('repairs.property')}</Text>
+          <Text style={styles.choiceText}>{housingQuery.data?.property?.name}</Text>
+          {address ? <Text style={styles.note}>{address}</Text> : null}
         </Card>
       )}
       <Card style={styles.gap}>
-        <Text style={styles.label}>Category</Text>
+        <Text style={styles.label}>{t('repairs.category')}</Text>
         <View style={styles.wrap}>
           {categories.map((item) => (
-            <Pressable key={item.code} onPress={() => setCategory(item.code)} style={[styles.choice, category === item.code && styles.choiceOn]}>
+            <Pressable
+              key={item.code}
+              accessibilityRole="button"
+              accessibilityLabel={item.title}
+              accessibilityState={{ selected: category === item.code }}
+              onPress={() => setCategory(item.code)}
+              style={[styles.choice, category === item.code && styles.choiceOn]}
+            >
               <Text style={styles.choiceText}>{item.title}</Text>
             </Pressable>
           ))}
         </View>
-        <Text style={styles.label}>Priority</Text>
+        <Text style={styles.label}>{t('repairs.priority')}</Text>
         <View style={styles.wrap}>
-          {PRIORITIES.map((item) => (
-            <Pressable key={item.id} onPress={() => setPriority(item.id)} style={[styles.choice, priority === item.id && styles.choiceOn]}>
+          {priorities.map((item) => (
+            <Pressable
+              key={item.id}
+              accessibilityRole="button"
+              accessibilityLabel={item.label}
+              accessibilityState={{ selected: priority === item.id }}
+              onPress={() => setPriority(item.id)}
+              style={[styles.choice, priority === item.id && styles.choiceOn]}
+            >
               <Text style={styles.choiceText}>{item.label}</Text>
             </Pressable>
           ))}
         </View>
-        <Input label="Title" value={title} onChangeText={setTitle} placeholder="For example, leaking tap" />
-        <Input label="What happened" value={description} onChangeText={setDescription} multiline placeholder="Where it is and what you noticed" />
-        <Button title={photo ? 'Photo added' : 'Add a photo'} variant="outline" onPress={choosePhoto} fullWidth />
+        <Input
+          label={t('repairs.title')}
+          value={title}
+          onChangeText={setTitle}
+          placeholder={t('repairs.titlePlaceholder')}
+          accessibilityLabel={t('repairs.title')}
+        />
+        <Input
+          label={t('repairs.description')}
+          value={description}
+          onChangeText={setDescription}
+          multiline
+          placeholder={t('repairs.descriptionPlaceholder')}
+          accessibilityLabel={t('repairs.description')}
+        />
+        <Button
+          title={t('repairs.addPhoto')}
+          accessibilityLabel={t('repairs.addPhoto')}
+          variant="outline"
+          onPress={choosePhoto}
+          fullWidth
+        />
+        {photos.map((photo, index) => (
+          <View key={`${photo.uri}-${index}`} style={styles.photoRow}>
+            <Image source={{ uri: photo.uri }} style={styles.preview} accessibilityLabel={t('repairs.photoAdded')} />
+            <Pressable
+              accessibilityRole="button"
+              accessibilityLabel={t('repairs.removePhoto')}
+              onPress={() => removePhoto(index)}
+              style={styles.remove}
+            >
+              <Text style={styles.removeText}>{t('repairs.removePhoto')}</Text>
+            </Pressable>
+          </View>
+        ))}
       </Card>
       {create.error ? <Text style={styles.error}>{hmoreErrorMessage(create.error)}</Text> : null}
-      <Button title="Send repair" onPress={submit} loading={create.isPending} disabled={!selectedProperty} fullWidth />
+      <Button
+        title={t('repairs.send')}
+        accessibilityLabel={t('repairs.send')}
+        onPress={submit}
+        loading={create.isPending}
+        disabled={!propertyId}
+        fullWidth
+      />
     </ScrollView>
   );
 }
 
 const styles = StyleSheet.create({
   page: { flex: 1, backgroundColor: theme.colors.background },
+  contrast: { backgroundColor: '#FFFFFF' },
   content: { padding: theme.spacing.md, paddingBottom: 40 },
   note: { fontFamily: FONT_MEDIUM, fontSize: 14, lineHeight: 20, color: theme.colors.textSecondary, marginBottom: theme.spacing.md },
   gap: { marginTop: theme.spacing.md, marginBottom: theme.spacing.md },
@@ -185,5 +234,9 @@ const styles = StyleSheet.create({
   },
   choiceOn: { borderColor: theme.colors.secondary, backgroundColor: theme.colors.accentLight },
   choiceText: { fontFamily: FONT_MEDIUM, fontSize: 13, color: theme.colors.text },
+  photoRow: { flexDirection: 'row', alignItems: 'center', gap: 12, marginTop: 12 },
+  preview: { width: 72, height: 72, borderRadius: theme.radius.md, backgroundColor: theme.colors.surfaceMuted },
+  remove: { paddingVertical: 8 },
+  removeText: { fontFamily: FONT_SEMIBOLD, color: theme.colors.error, fontSize: 14 },
   error: { color: theme.colors.error, fontFamily: FONT_MEDIUM, marginBottom: theme.spacing.sm },
 });

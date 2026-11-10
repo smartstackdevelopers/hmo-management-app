@@ -13,6 +13,8 @@ npm run start -w room-ready
 
 Run the FastAPI app on port 8000. The mobile client calls `/api/v1`.
 
+Tenant calls used by this app include `GET` and `PATCH /tenant/me`, `GET /tenant/me/housing`, `POST /tenant/me/documents`, `GET /community-services`, and `GET /opportunities`. Those catalogue endpoints return an empty list until an organisation admin publishes rows. No sample listings are shipped with the app.
+
 Set the base explicitly when the device cannot reach the dev host:
 
 ```bash
@@ -40,12 +42,11 @@ Leave the Auth0 variables unset only if you still need the legacy Room Ready pas
 
 ## What you should see
 
-A tenant can open housing details, repairs, support, documents, notifications, the assistant (when the pilot organisation is enabled), and accessibility settings. Local services and jobs explain that they depend on Phase 5 and do not show sample listings. Profile fields are read-only.
+A tenant can open assigned housing, repairs, support, documents (including their own PDF or image submission), notifications, the assistant (when the pilot organisation is enabled), local services, jobs and training, and accessibility settings. Community services and opportunities show only published rows for the signed-in organisation. If none have been published, the screen says no verified listings have been published for this organisation. Preferred name and phone can be saved from Account; other profile fields stay with staff. English and Urdu are the languages in the picker.
 
 ## Known limitations
 
-- New repair reports need a `property_id`. The tenant role cannot list properties, so the form reuses `preferred_property_id` from housing applications or an existing repair. If none exist, the form explains that staff must link a property first.
-- There is no `/tenant/me` bootstrap aggregate; the app uses `GET /tenants` (own row) plus related modules.
-- Community directory and jobs/training listings are Phase 5 — screens show a dependency notice only.
+- A new repair needs an assigned property. `GET /tenant/me/housing` returns that property id when staff have set `assigned_property_id`. If the property is null, the form explains that staff must assign housing before a new repair can be sent.
+- Catalogue tables start empty. Nothing in the migration inserts food banks, jobs, training, or housing.
 - In-app notifications use the communications inbox. Device push is F4.3 (not included).
-- Emulator/device UI passes are environment-dependent; CI covers typecheck and unit tests.
+- iOS and Android device runs were not executed in CI. CI covers typecheck and unit tests. Auth0 still has to be configured on a real tenant before a signed-in device session works.

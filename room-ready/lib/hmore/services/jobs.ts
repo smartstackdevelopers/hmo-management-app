@@ -1,8 +1,19 @@
-import { PHASE5_PENDING, type Phase5PendingResult } from '@/lib/hmore/types';
+import { hmoreFetch } from '@/lib/hmore/client';
+import type { OpportunityItem } from '@/lib/hmore/types';
 
-const MESSAGE =
-  'Jobs and training ideas are a Phase 5 module. This screen stays empty until that service is connected. There is no sample list.';
+export function opportunityItemsFromResponse(
+  response: { items?: OpportunityItem[] } | null | undefined,
+): OpportunityItem[] {
+  return response?.items ?? [];
+}
 
-export function jobsAndTrainingStatus(): Phase5PendingResult {
-  return { status: PHASE5_PENDING, feature: 'jobs', message: MESSAGE };
+export async function listOpportunities(query?: {
+  kind?: string;
+  q?: string;
+}): Promise<OpportunityItem[]> {
+  const response = await hmoreFetch<{ items?: OpportunityItem[] }>('/opportunities', {
+    method: 'GET',
+    query,
+  });
+  return opportunityItemsFromResponse(response);
 }

@@ -12,6 +12,16 @@ export function getDocument(id: string): Promise<ManagedDocument> {
   return hmoreFetch<ManagedDocument>(`/documents/${id}`, { method: 'GET' });
 }
 
+export function uploadOwnDocument(
+  file: { uri: string; name: string; mimeType: string },
+  title: string,
+): Promise<ManagedDocument> {
+  const formData = new FormData();
+  formData.append('file', { uri: file.uri, name: file.name, type: file.mimeType } as unknown as Blob);
+  formData.append('title', title.trim());
+  return hmoreFetch<ManagedDocument>('/tenant/me/documents', { method: 'POST', formData });
+}
+
 export async function fetchDocumentContent(id: string): Promise<{ bytes: ArrayBuffer; contentType: string }> {
   const response = await hmoreRequestResponse(`/documents/${id}/content`, { method: 'GET' });
   if (!response.ok) {

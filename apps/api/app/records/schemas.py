@@ -35,6 +35,8 @@ class TenantUpdate(BaseModel):
     notes: str | None = None
     status: RecordStatus | None = None
     user_id: uuid.UUID | None = None
+    assigned_property_id: uuid.UUID | None = None
+    assigned_room_id: uuid.UUID | None = None
 
 
 class TenantOut(BaseModel):
@@ -54,6 +56,8 @@ class TenantOut(BaseModel):
     needs_goals: str | None
     status: RecordStatus
     notes: str | None
+    assigned_property_id: uuid.UUID | None = None
+    assigned_room_id: uuid.UUID | None = None
     created_at: datetime
     updated_at: datetime
 

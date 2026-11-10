@@ -10,50 +10,49 @@ import { FONT_BOLD, FONT_MEDIUM, FONT_SEMIBOLD } from '@/constants/fonts';
 import { formatUKDate } from '@/constants/uk';
 import { theme } from '@/constants/theme';
 import { useAuth } from '@/contexts/AuthContext';
-import { useAccessibilityPrefs } from '@/hooks/useAccessibilityPrefs';
+import { useI18n } from '@/hooks/useI18n';
 import { hmoreErrorMessage } from '@/lib/hmore/client';
 import { listMaintenance } from '@/lib/hmore/services/maintenance';
-import { getOwnTenant } from '@/lib/hmore/services/tenants';
+import { getOwnProfile } from '@/lib/hmore/services/tenants';
 import { listAppointments } from '@/lib/hmore/services/timeline';
 
 const CLOSED = new Set(['completed', 'closed', 'cancelled']);
 
 export function TenantHome() {
   const { user, hmore } = useAuth();
-  const { prefs, fontScale } = useAccessibilityPrefs();
-  const userId = hmore?.auth.id ?? '';
-  const tenantQuery = useQuery({
-    queryKey: ['hmore', 'tenant', userId],
-    queryFn: () => getOwnTenant(userId),
-    enabled: !!userId,
+  const { prefs, fontScale, t } = useI18n();
+  const profileQuery = useQuery({
+    queryKey: ['hmore', 'tenant-me'],
+    queryFn: getOwnProfile,
+    enabled: !!hmore,
   });
   const repairsQuery = useQuery({
     queryKey: ['hmore', 'maintenance'],
     queryFn: () => listMaintenance({ page: 1, page_size: 50 }),
   });
-  const tenantId = tenantQuery.data?.id;
+  const tenantId = profileQuery.data?.id;
   const appointmentsQuery = useQuery({
     queryKey: ['hmore', 'appointments', tenantId],
     queryFn: () => listAppointments(tenantId!),
     enabled: !!tenantId,
   });
 
-  const loading = tenantQuery.isLoading || repairsQuery.isLoading;
-  const error = tenantQuery.error ?? repairsQuery.error;
-  if (loading) return <LoadingScreen message="Loading your home..." />;
+  const loading = profileQuery.isLoading || repairsQuery.isLoading;
+  const error = profileQuery.error ?? repairsQuery.error;
+  if (loading) return <LoadingScreen message={t('housing.loading')} />;
   if (error) {
     return (
       <ErrorState
-        message={hmoreErrorMessage(error, 'Could not load your home')}
+        message={hmoreErrorMessage(error, t('housing.error'))}
         onRetry={() => {
-          tenantQuery.refetch();
+          profileQuery.refetch();
           repairsQuery.refetch();
         }}
       />
     );
   }
 
-  const tenant = tenantQuery.data;
+  const tenant = profileQuery.data;
   const openRepairs = (repairsQuery.data?.items ?? []).filter((row) => !CLOSED.has(row.status)).length;
   const nextAppointment = (appointmentsQuery.data?.items ?? [])
     .filter((row) => row.status !== 'cancelled' && new Date(row.starts_at).getTime() >= Date.now())
@@ -66,9 +65,9 @@ export function TenantHome() {
       style={contrast ? styles.contrast : undefined}
       refreshControl={
         <RefreshControl
-          refreshing={tenantQuery.isRefetching || repairsQuery.isRefetching}
+          refreshing={profileQuery.isRefetching || repairsQuery.isRefetching}
           onRefresh={() => {
-            tenantQuery.refetch();
+            profileQuery.refetch();
             repairsQuery.refetch();
             if (tenantId) appointmentsQuery.refetch();
           }}
@@ -76,43 +75,43 @@ export function TenantHome() {
         />
       }
     >
-      <Text style={[styles.kicker, contrast && styles.contrastText]}>Hello</Text>
+      <Text style={[styles.kicker, contrast && styles.contrastText]}>{t('home.hello')}</Text>
       <Text style={[styles.title, contrast && styles.contrastText, { fontSize: titleSize }]}>
-        {tenant?.preferred_name || user?.firstName || 'there'}
+        {tenant?.preferred_name || user?.firstName || t('home.hello')}
       </Text>
       <Text style={[styles.lead, contrast && styles.contrastMuted]}>
-        Your housing record is read-only here. Ask your organisation if a detail needs changing.
+        {t('home.lead')}
       </Text>
 
       <Card style={contrast ? styles.contrastCard : undefined}>
-        <Text style={styles.section}>Housing</Text>
+        <Text style={styles.section}>{t('home.housing')}</Text>
         {tenant ? (
           <>
-            <Fact label="Name" value={tenant.full_name || tenant.preferred_name} />
-            <Fact label="Reference" value={tenant.tenancy_reference || 'Not recorded'} />
-            <Fact label="Status" value={tenant.status} />
+            <Fact label={t('home.name')} value={tenant.full_name || tenant.preferred_name} />
+            <Fact label={t('home.reference')} value={tenant.tenancy_reference || t('home.notRecorded')} />
+            <Fact label={t('home.status')} value={tenant.status} />
           </>
         ) : (
-          <Text style={styles.muted}>No housing record is linked to this login yet.</Text>
+          <Text style={styles.muted}>{t('home.noRecord')}</Text>
         )}
-        <Button title="My home" variant="outline" onPress={() => router.push('/(app)/(tabs)/tenancy')} fullWidth style={styles.button} />
+        <Button title={t('nav.housing')} accessibilityLabel={t('nav.housing')} variant="outline" onPress={() => router.push('/(app)/(tabs)/tenancy')} fullWidth style={styles.button} />
       </Card>
 
       <View style={styles.stats}>
         <Card style={styles.stat}>
           <Text style={styles.statValue}>{openRepairs}</Text>
-          <Text style={styles.statLabel}>Open repairs</Text>
+          <Text style={styles.statLabel}>{t('home.openRepairs')}</Text>
         </Card>
         <Card style={styles.stat}>
-          <Text style={styles.statValue}>{nextAppointment ? formatUKDate(nextAppointment.starts_at) : 'None'}</Text>
-          <Text style={styles.statLabel}>{nextAppointment?.title || 'Next appointment'}</Text>
+          <Text style={styles.statValue}>{nextAppointment ? formatUKDate(nextAppointment.starts_at) : t('home.none')}</Text>
+          <Text style={styles.statLabel}>{nextAppointment?.title || t('home.nextAppointment')}</Text>
         </Card>
       </View>
 
-      <Button title="Report a repair" onPress={() => router.push('/(app)/maintenance/new')} fullWidth />
+      <Button title={t('home.reportRepair')} accessibilityLabel={t('home.reportRepair')} onPress={() => router.push('/(app)/maintenance/new')} fullWidth />
       <View style={styles.row}>
-        <Button title="Support" variant="outline" onPress={() => router.push('/(app)/(tabs)/support')} style={styles.half} />
-        <Button title="Assistant" variant="outline" onPress={() => router.push('/(app)/assistant')} style={styles.half} />
+        <Button title={t('home.support')} accessibilityLabel={t('home.support')} variant="outline" onPress={() => router.push('/(app)/(tabs)/support')} style={styles.half} />
+        <Button title={t('home.assistant')} accessibilityLabel={t('home.assistant')} variant="outline" onPress={() => router.push('/(app)/assistant')} style={styles.half} />
       </View>
     </Screen>
   );

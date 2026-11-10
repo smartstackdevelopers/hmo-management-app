@@ -51,6 +51,66 @@ export interface Tenant {
   updated_at: string;
 }
 
+/** GET/PATCH /tenant/me. Notes, consent notes, and needs/goals are not returned. */
+export interface TenantSelf {
+  id: string;
+  organisation_id: string;
+  user_id: string | null;
+  preferred_name: string;
+  full_name: string | null;
+  email: string | null;
+  phone: string | null;
+  tenancy_reference: string | null;
+  status: string;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface AssignedProperty {
+  id: string;
+  name: string;
+  address_line1: string;
+  address_line2: string | null;
+  city: string;
+  postcode: string;
+}
+
+export interface AssignedRoom {
+  id: string;
+  label: string;
+  floor_label: string | null;
+}
+
+export interface TenantHousing {
+  tenancy_reference: string | null;
+  status: string;
+  property: AssignedProperty | null;
+  room: AssignedRoom | null;
+}
+
+export interface CommunityServiceItem {
+  id: string;
+  category: string;
+  name: string;
+  description: string | null;
+  address_line: string | null;
+  opening_hours: string | null;
+  eligibility: string | null;
+  contact: string | null;
+  is_published?: boolean;
+}
+
+export interface OpportunityItem {
+  id: string;
+  kind: string;
+  title: string;
+  description: string | null;
+  eligibility: string | null;
+  source_name: string | null;
+  source_url: string | null;
+  is_published?: boolean;
+}
+
 export interface MaintenanceRequest {
   id: string;
   reference_number: string;
@@ -231,6 +291,7 @@ export interface AssistantAskResult {
   notice: string;
   makes_official_decisions: boolean;
   approved_content_count: number;
+  activity_id?: string | null;
 }
 
 export interface AssistantConversationSummary {

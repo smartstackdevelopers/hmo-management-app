@@ -15,6 +15,7 @@ interface ButtonProps {
   loading?: boolean;
   fullWidth?: boolean;
   style?: ViewStyle;
+  accessibilityLabel?: string;
 }
 
 export function Button({
@@ -26,6 +27,7 @@ export function Button({
   loading = false,
   fullWidth = false,
   style,
+  accessibilityLabel,
 }: ButtonProps) {
   const isDisabled = disabled || loading;
   const spinnerColor =
@@ -35,6 +37,9 @@ export function Button({
 
   return (
     <Pressable
+      accessibilityRole="button"
+      accessibilityLabel={accessibilityLabel ?? title}
+      accessibilityState={{ disabled: isDisabled, busy: loading }}
       onPress={onPress ?? (() => {})}
       disabled={isDisabled}
       style={({ pressed }) => [

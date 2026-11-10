@@ -38,6 +38,9 @@ from app.api.v1.rbac import router as rbac_router
 from app.api.v1.rooms import router as rooms_router
 from app.api.v1.support import router as support_router
 from app.api.v1.tenants import router as tenants_router
+from app.api.v1.tenant_me import router as tenant_me_router
+from app.api.v1.community_services import router as community_services_router
+from app.api.v1.opportunities import router as opportunities_router
 from app.api.v1.tenant_timeline import router as tenant_timeline_router
 from app.api.v1.support_plans import dash_router as support_plans_dash_router
 from app.api.v1.support_plans import router as support_plans_router
@@ -50,6 +53,9 @@ api_v1_router.include_router(rbac_router)
 api_v1_router.include_router(organisations_router)
 api_v1_router.include_router(isolation_router)
 api_v1_router.include_router(tenants_router)
+api_v1_router.include_router(tenant_me_router)
+api_v1_router.include_router(community_services_router)
+api_v1_router.include_router(opportunities_router)
 api_v1_router.include_router(tenant_timeline_router)
 api_v1_router.include_router(support_plans_router)
 api_v1_router.include_router(support_plans_dash_router)

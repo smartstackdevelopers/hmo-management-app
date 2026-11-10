@@ -3,9 +3,14 @@ import path from 'path';
 
 import { hmoreRequest, HmoreApiError } from '@/lib/hmore/client';
 import { resolveHmoreApiBase } from '@/lib/hmore/config';
-import { communityServicesStatus } from '@/lib/hmore/services/community';
-import { jobsAndTrainingStatus } from '@/lib/hmore/services/jobs';
-import * as tenants from '@/lib/hmore/services/tenants';
+import { LANGUAGE_OPTIONS } from '@/lib/hmore/accessibility';
+import { activityIdFromAsk } from '@/lib/hmore/services/assistant';
+import { communityItemsFromResponse } from '@/lib/hmore/services/community';
+import { assignedPropertyId, formatAssignedAddress } from '@/lib/hmore/services/housing';
+import { opportunityItemsFromResponse } from '@/lib/hmore/services/jobs';
+import { tenantSelfPatchBody } from '@/lib/hmore/services/tenants';
+import { translate } from '@/lib/i18n';
+import type { TenantHousing } from '@/lib/hmore/types';
 import { accessTokenNeedsRefresh, getStoredAccessToken } from '@/lib/hmoreAuth0';
 import * as SecureStore from 'expo-secure-store';
 
@@ -24,6 +29,12 @@ jest.mock('expo-auth-session', () => ({
   makeRedirectUri: jest.fn(() => 'roomready://auth/callback'),
   AuthRequest: jest.fn(),
   exchangeCodeAsync: jest.fn(),
+}));
+
+jest.mock('@react-native-async-storage/async-storage', () => ({
+  getItem: jest.fn(async () => null),
+  setItem: jest.fn(async () => undefined),
+  removeItem: jest.fn(async () => undefined),
 }));
 
 describe('resolveHmoreApiBase', () => {
@@ -95,27 +106,80 @@ describe('hmoreRequest', () => {
   });
 });
 
-describe('phase 5 surfaces', () => {
-  it('returns phase5_pending and no listings', () => {
-    const community = communityServicesStatus();
-    const jobs = jobsAndTrainingStatus();
-    expect(community.status).toBe('phase5_pending');
-    expect(jobs.status).toBe('phase5_pending');
-    expect(community).not.toHaveProperty('items');
-    expect(jobs).not.toHaveProperty('items');
-    expect(community.message.toLowerCase()).toContain('phase 5');
-    expect(jobs.message.toLowerCase()).toContain('phase 5');
+describe('tenant catalogue clients', () => {
+  it('returns community items only from the client response', () => {
+    const fromApi = [{ id: 'svc-1', category: 'local_service', name: 'Published by API', description: null, address_line: null, opening_hours: null, eligibility: null, contact: null }];
+    expect(communityItemsFromResponse({ items: fromApi })).toEqual(fromApi);
+    expect(communityItemsFromResponse({ items: [] })).toEqual([]);
+    expect(communityItemsFromResponse(null)).toEqual([]);
+    const src = readFileSync(path.join(__dirname, '../lib/hmore/services/community.ts'), 'utf8');
+    expect(src).toContain('communityItemsFromResponse');
+    expect(src.toLowerCase()).not.toContain('food bank');
+    expect(src.toLowerCase()).not.toContain('sample');
+  });
+
+  it('returns opportunities only from the client response', () => {
+    const fromApi = [{ id: 'job-1', kind: 'job', title: 'Published by API', description: null, eligibility: null, source_name: null, source_url: null }];
+    expect(opportunityItemsFromResponse({ items: fromApi })).toEqual(fromApi);
+    expect(opportunityItemsFromResponse({ items: [] })).toEqual([]);
+    const src = readFileSync(path.join(__dirname, '../lib/hmore/services/jobs.ts'), 'utf8');
+    expect(src).toContain('opportunityItemsFromResponse');
+    expect(src.toLowerCase()).not.toContain('sample');
+    expect(src).not.toMatch(/warehouse|barista|apprentice/i);
   });
 });
 
 describe('tenant profile writes', () => {
-  it('does not expose a tenant update', () => {
-    expect(tenants).not.toHaveProperty('updateTenant');
-    expect(tenants).not.toHaveProperty('patchTenant');
+  it('whitelists preferred_name and phone on the self-update payload', () => {
+    expect(
+      tenantSelfPatchBody({
+        preferred_name: 'Amina',
+        phone: '07000',
+        notes: 'secret',
+        assigned_property_id: 'property-1',
+        email: 'a@example.com',
+        needs_goals: 'private',
+      }),
+    ).toEqual({ preferred_name: 'Amina', phone: '07000' });
     const src = readFileSync(path.join(__dirname, '../lib/hmore/services/tenants.ts'), 'utf8');
-    expect(src).not.toContain("method: 'PATCH'");
-    expect(src).not.toContain('method: "PATCH"');
-    expect(src).not.toContain("method: 'POST'");
+    expect(src).toContain("'/tenant/me'");
+    expect(src).toContain('tenantSelfPatchBody');
+  });
+});
+
+describe('assigned housing', () => {
+  it('does not invent an address when property is null', () => {
+    const housing: TenantHousing = {
+      tenancy_reference: 'REF-1',
+      status: 'active',
+      property: null,
+      room: null,
+    };
+    expect(assignedPropertyId(housing)).toBeNull();
+    expect(formatAssignedAddress(housing)).toBeNull();
+    expect(formatAssignedAddress(null)).toBeNull();
+    const src = readFileSync(path.join(__dirname, '../lib/hmore/services/housing.ts'), 'utf8');
+    expect(src).toContain("'/tenant/me/housing'");
+    expect(src).not.toMatch(/\d+\s+[A-Z][a-z]+\s+(Street|Road|Avenue)/);
+  });
+});
+
+describe('language', () => {
+  it('offers only English and Urdu and falls back to English', () => {
+    expect(LANGUAGE_OPTIONS.map((item) => item.id)).toEqual(['en', 'ur']);
+    expect(translate('ur', 'nav.home')).not.toBe('nav.home');
+    expect(translate('ur', 'missing.key')).toBe('missing.key');
+    expect(translate('cy', 'nav.home')).toBe('Home');
+    expect(translate('ur', 'nav.home')).not.toBe(translate('en', 'nav.doesNotExist'));
+  });
+});
+
+describe('assistant feedback', () => {
+  it('does not treat a missing activity id as feedback that can be sent', () => {
+    expect(activityIdFromAsk({ activity_id: null })).toBeNull();
+    expect(activityIdFromAsk({})).toBeNull();
+    expect(activityIdFromAsk({ activity_id: '  ' })).toBeNull();
+    expect(activityIdFromAsk({ activity_id: 'act-1' })).toBe('act-1');
   });
 });
 

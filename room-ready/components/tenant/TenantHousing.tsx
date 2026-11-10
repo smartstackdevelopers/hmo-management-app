@@ -8,81 +8,90 @@ import { EmptyState, ErrorState, LoadingScreen } from '@/components/ui/States';
 import { FONT_BOLD, FONT_MEDIUM, FONT_SEMIBOLD } from '@/constants/fonts';
 import { formatUKDate } from '@/constants/uk';
 import { theme } from '@/constants/theme';
-import { useAuth } from '@/contexts/AuthContext';
+import { useI18n } from '@/hooks/useI18n';
 import { hmoreErrorMessage } from '@/lib/hmore/client';
+import { formatAssignedAddress, getOwnHousing } from '@/lib/hmore/services/housing';
 import { listHousingApplications } from '@/lib/hmore/services/housingApplications';
-import { getOwnTenant } from '@/lib/hmore/services/tenants';
 
 export function TenantHousing() {
-  const { hmore } = useAuth();
-  const userId = hmore?.auth.id ?? '';
-  const tenantQuery = useQuery({
-    queryKey: ['hmore', 'tenant', userId],
-    queryFn: () => getOwnTenant(userId),
-    enabled: !!userId,
+  const { t, fontScale, prefs } = useI18n();
+  const housingQuery = useQuery({
+    queryKey: ['hmore', 'tenant-housing'],
+    queryFn: getOwnHousing,
   });
   const appsQuery = useQuery({
     queryKey: ['hmore', 'housing-applications'],
     queryFn: listHousingApplications,
   });
 
-  if (tenantQuery.isLoading || appsQuery.isLoading) return <LoadingScreen message="Loading your housing..." />;
-  const error = tenantQuery.error ?? appsQuery.error;
+  if (housingQuery.isLoading || appsQuery.isLoading) return <LoadingScreen message={t('housing.loading')} />;
+  const error = housingQuery.error ?? appsQuery.error;
   if (error) {
     return (
       <ErrorState
-        message={hmoreErrorMessage(error, 'Could not load housing')}
+        message={hmoreErrorMessage(error, t('housing.error'))}
         onRetry={() => {
-          tenantQuery.refetch();
+          housingQuery.refetch();
           appsQuery.refetch();
         }}
       />
     );
   }
 
-  const tenant = tenantQuery.data;
+  const housing = housingQuery.data;
   const applications = appsQuery.data?.items ?? [];
+  const address = formatAssignedAddress(housing);
+  const contrast = prefs.highContrast;
 
   return (
     <Screen
+      style={contrast ? styles.contrast : undefined}
       refreshControl={
         <RefreshControl
-          refreshing={tenantQuery.isRefetching || appsQuery.isRefetching}
+          refreshing={housingQuery.isRefetching || appsQuery.isRefetching}
           onRefresh={() => {
-            tenantQuery.refetch();
+            housingQuery.refetch();
             appsQuery.refetch();
           }}
           tintColor={theme.colors.secondary}
         />
       }
     >
-      <Text style={styles.note}>
-        This is your organisation housing record. Tenants cannot edit it in the app.
-      </Text>
-      {!tenant ? (
-        <EmptyState
-          title="No housing record"
-          message="When your organisation links a tenant profile to this login, it will show here."
-          icon="home-outline"
-        />
+      <Text style={[styles.note, { fontSize: 14 * fontScale }, contrast && styles.contrastText]}>{t('housing.intro')}</Text>
+      {!housing ? (
+        <EmptyState title={t('housing.noProfileTitle')} message={t('housing.noProfile')} icon="home-outline" />
       ) : (
-        <Card>
+        <Card style={contrast ? styles.contrastCard : undefined}>
           <View style={styles.header}>
-            <Text style={styles.name}>{tenant.preferred_name}</Text>
-            <Badge label={tenant.status} variant={tenant.status === 'active' ? 'success' : 'default'} format={false} />
+            <Text style={[styles.name, contrast && styles.contrastText, { fontSize: 20 * fontScale }]}>
+              {housing.property?.name || t('housing.property')}
+            </Text>
+            <Badge label={housing.status} variant={housing.status === 'active' ? 'success' : 'default'} format={false} />
           </View>
-          <Row label="Full name" value={tenant.full_name} />
-          <Row label="Email" value={tenant.email} />
-          <Row label="Phone" value={tenant.phone} />
-          <Row label="Tenancy reference" value={tenant.tenancy_reference} />
-          <Row label="Needs and goals" value={tenant.needs_goals} />
-          <Row label="Preferences" value={tenant.preferences} />
+          <Row label={t('housing.reference')} value={housing.tenancy_reference} empty={t('housing.notRecorded')} />
+          <Row label={t('housing.status')} value={housing.status} empty={t('housing.notRecorded')} />
+          {housing.property && address ? (
+            <>
+              <Row label={t('housing.property')} value={address} empty={t('housing.notRecorded')} />
+              {housing.room ? (
+                <Row
+                  label={t('housing.room')}
+                  value={[housing.room.label, housing.room.floor_label ? `${t('housing.floor')} ${housing.room.floor_label}` : null]
+                    .filter(Boolean)
+                    .join(' · ')}
+                  empty={t('housing.notRecorded')}
+                />
+              ) : null}
+            </>
+          ) : (
+            <Text style={[styles.unassigned, { fontSize: 16 * fontScale }]}>{t('housing.unassigned')}</Text>
+          )}
         </Card>
       )}
 
-      <SectionHeader title="Housing applications" />
+      <SectionHeader title={t('housing.applications')} />
       {applications.length === 0 ? (
-        <Text style={styles.empty}>No applications are linked to you.</Text>
+        <Text style={styles.empty}>{t('housing.noApplications')}</Text>
       ) : (
         applications.map((app) => (
           <Card key={app.id} style={styles.app}>
@@ -92,16 +101,19 @@ export function TenantHousing() {
             </View>
             <Text style={styles.body}>{app.housing_requirements}</Text>
             <Text style={styles.meta}>
-              {app.accommodation_type || 'Accommodation type not set'}
-              {app.submitted_at ? ` · Submitted ${formatUKDate(app.submitted_at)}` : ''}
+              {app.accommodation_type || t('housing.accommodationUnset')}
+              {app.submitted_at ? ` · ${t('housing.submitted')} ${formatUKDate(app.submitted_at)}` : ''}
             </Text>
             {app.on_waiting_list ? (
               <Text style={styles.meta}>
-                Waiting list{app.waiting_list_position ? ` · position ${app.waiting_list_position}` : ''}
+                {t('housing.waiting')}
+                {app.waiting_list_position ? ` · ${t('housing.position')} ${app.waiting_list_position}` : ''}
               </Text>
             ) : null}
             {app.information_required_notes ? (
-              <Text style={styles.warn}>Information requested: {app.information_required_notes}</Text>
+              <Text style={styles.warn}>
+                {t('housing.information')}: {app.information_required_notes}
+              </Text>
             ) : null}
           </Card>
         ))
@@ -110,25 +122,28 @@ export function TenantHousing() {
   );
 }
 
-function Row({ label, value }: { label: string; value: string | null }) {
+function Row({ label, value, empty }: { label: string; value: string | null; empty: string }) {
   return (
     <View style={styles.row}>
       <Text style={styles.label}>{label}</Text>
-      <Text style={styles.value}>{value?.trim() ? value : 'Not recorded'}</Text>
+      <Text style={styles.value}>{value?.trim() ? value : empty}</Text>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
+  contrast: { backgroundColor: '#FFFFFF' },
+  contrastText: { color: '#000000' },
+  contrastCard: { borderWidth: 2, borderColor: '#000000' },
   note: {
     fontFamily: FONT_MEDIUM,
     color: theme.colors.textSecondary,
-    fontSize: 14,
     lineHeight: 20,
     marginBottom: theme.spacing.md,
   },
   header: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', gap: 8, marginBottom: 8 },
-  name: { fontFamily: FONT_BOLD, fontSize: 20, color: theme.colors.text, flex: 1 },
+  name: { fontFamily: FONT_BOLD, color: theme.colors.text, flex: 1 },
+  unassigned: { fontFamily: FONT_SEMIBOLD, color: theme.colors.text, marginTop: 12 },
   row: { marginTop: 10 },
   label: { fontFamily: FONT_MEDIUM, fontSize: 12, color: theme.colors.textMuted },
   value: { fontFamily: FONT_SEMIBOLD, fontSize: 15, color: theme.colors.text, marginTop: 2 },
