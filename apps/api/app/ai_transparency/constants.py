@@ -41,6 +41,7 @@ FEATURE_AGENT_NAMES = {
     "ai.agent.operational_search": "Natural-Language Operational Search",
     "ai.agent.report_draft": "Weekly/Monthly Report Drafts",
     "ai.agent.duplicate_detection": "Duplicate Detection",
+    "ai.workflow.daily_log_rewrite": "Daily Log Professional Rewrite",
 }
 
 MAX_FEEDBACK_EXPLANATION = 2000

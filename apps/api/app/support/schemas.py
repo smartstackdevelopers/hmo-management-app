@@ -156,6 +156,28 @@ class DailyLogUpdate(BaseModel):
         return cleaned
 
 
+class DailyLogRewriteIn(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    text: str = Field(min_length=1, max_length=20000)
+    tenant_id: uuid.UUID | None = None
+
+    @field_validator("text")
+    @classmethod
+    def strip_text(cls, value: str) -> str:
+        cleaned = value.strip()
+        if not cleaned:
+            raise ValueError("must not be blank")
+        return cleaned
+
+
+class DailyLogRewriteOut(BaseModel):
+    rewritten_text: str
+    activity_id: uuid.UUID | None = None
+    request_id: str | None = None
+    prompt_version: str | None = None
+
+
 class DailyLogOut(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 

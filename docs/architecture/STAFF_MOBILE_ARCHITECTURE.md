@@ -16,7 +16,7 @@ The app reuses `room-ready/lib/hmore/client.ts` and Auth0. Staff calls live unde
 | --- | --- |
 | My tenants | `GET /caseload`, `GET /caseload/tenants/{id}` |
 | Shifts | `GET /shifts?staff_user_id=` (the caller's own id) |
-| Notes | `GET/POST /daily-logs` |
+| Notes | `GET/POST /daily-logs`, `POST /daily-logs/rewrite` |
 | Visits | `GET /visits`, `PATCH /visits/{id}` |
 | Tasks | `GET /tasks?assigned_user_id=`, `PATCH /tasks/{id}` |
 | Incidents | `GET/POST /incidents`. A photo is uploaded with `POST /documents` only when a document category exists, linked as `other`. There is no incident-specific file endpoint. |
@@ -39,9 +39,11 @@ Draft types are `daily_log`, `visit_update`, `task_update`, and `work_order_upda
 
 Online detection uses `@react-native-community/netinfo` when the module loads. If it does not, the app pings `GET /health`.
 
-## Voice
+## Voice (F4.4)
 
-Daily notes can use `expo-speech-recognition` through `useDeviceSpeechToText`. The hook asks for microphone permission, and on a supported device appends final text into the note, which stays editable. If the native module is missing or recognition is unavailable, the note field stays usable and the screen says speech recognition is not available. Package `58.0.1` installs beside Expo 57, but a development build is required before the native module is actually present. AI rewrite of the note is F4.4 and is not implemented.
+Daily notes use device speech first, through `useDeviceSpeechToText` and `expo-speech-recognition`. The hook asks for microphone permission. Partial text is shown while listening and is not written into the note until a final result. Stop commits a leftover partial. Cancel discards it and does not emit text. If the note field is empty, including after Clear, the final text fills it. If the field already has text, including text the staff member edited, the final text is appended after a newline and does not replace the edit. If the native module is missing, permission is denied, or recognition fails, the note field stays usable and the screen says so. An empty capture says that no speech was captured. Package `58.0.1` installs beside Expo 57, but a development build is required before the native module is actually present.
+
+AI professional rewrite is optional. The button calls `POST /api/v1/daily-logs/rewrite` and shows the original beside the rewritten text. Accept copies the rewrite into the note field. Reject leaves the note field as it is. Edit changes the rewritten draft before accept. Report incorrect sends existing AI activity feedback when the response includes an `activity_id`. None of those actions create a daily log. Save original note asks for confirmation, then calls `POST /daily-logs`. Save draft still writes only to the on-device draft store. A disabled feature (403), a usage cap (402), a missing model, or a network error leaves the original note in place and does not claim the rewrite or the save succeeded. The mobile app does not hold an LLM key. Organisation flag `ai.workflow.daily_log_rewrite` is pilot-eligible and stays off until an administrator enables it. See `docs/architecture/VOICE_NOTES_ARCHITECTURE.md`.
 
 ## Occupancy
 

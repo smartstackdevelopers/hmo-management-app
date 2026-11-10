@@ -23,6 +23,7 @@ Stable IDs (see `app/ai_feature_flags/registry.py`):
 | `ai.workflow.operational_search` | NL Operational Search | F3.12 | No |
 | `ai.workflow.report_draft` | Report Drafts | F3.13 | No |
 | `ai.activity.transparency` | AI Activity Transparency | F3.14 | No |
+| `ai.workflow.daily_log_rewrite` | Daily Log Professional Rewrite | F4.4 | **Yes** |
 
 **Not org-toggled (platform infra F3.1–F3.3):** model routing, cache, batch, budgets, cost dashboard.
 
@@ -49,7 +50,7 @@ Fields: `enabled`, `pilot_enabled`, `revision`, `change_reason`, `updated_by_use
 
 ## Pilot enablement
 
-For pilot-eligible features (`tenant_assistant`):
+For pilot-eligible features (`tenant_assistant`, `daily_log_rewrite`):
 
 - Availability requires `enabled=true` **and** `pilot_enabled=true`.
 - Enabling with pilot_eligible=true sets pilot on when enabling.
@@ -68,7 +69,7 @@ Pilot enablement never bypasses RBAC, budgets, human approval, or org isolation.
 
 `evaluate_availability` / `require_feature_available` / `is_feature_available`.
 
-Wired into AI execution paths (notes, case summaries, document checks, support plans, housing, compliance, tenant assistant, duplicates, operational search, report drafts, AI activity) and scheduled jobs (skip with audit when disabled).
+Wired into AI execution paths (notes, case summaries, document checks, support plans, housing, compliance, tenant assistant, duplicates, operational search, report drafts, AI activity, daily-log rewrite) and scheduled jobs (skip with audit when disabled).
 
 ## Cache invalidation
 

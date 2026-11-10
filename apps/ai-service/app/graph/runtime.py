@@ -32,6 +32,7 @@ SUPPORTED_WORKFLOWS = frozenset(
         "tenant_assistant",
         "operational_search",
         "report_draft_narrative",
+        "daily_log_rewrite",
     }
 )
 
@@ -413,6 +414,36 @@ def execute_workflow(
                 "requires_approval": False,
                 "approval_id": None,
                 "provider_request_id": answered.get("provider_request_id"),
+            }
+
+        if workflow_id == "daily_log_rewrite":
+            from app.graph.daily_log_rewrite import run_daily_log_rewrite
+
+            _reject_body_org()
+            rewritten = run_daily_log_rewrite(
+                settings=settings,
+                organisation_id=ctx.organisation_id,
+                text=str((input_payload or {}).get("text") or ""),
+                locale=(input_payload or {}).get("locale"),
+            )
+            usage.prompt_id = rewritten.get("prompt_id")
+            usage.prompt_version = rewritten.get("prompt_version")
+            usage.provider = rewritten.get("provider")
+            usage.model = rewritten.get("model_id")
+            usage.prompt_tokens = rewritten.get("prompt_tokens")
+            usage.completion_tokens = rewritten.get("completion_tokens")
+            usage.total_tokens = rewritten.get("total_tokens")
+            usage.cache_hit = rewritten.get("cache_status") == "hit"
+            esc = rewritten.get("escalation")
+            usage.escalation_occurred = bool(esc)
+            usage.escalation_reason = (esc or {}).get("reason") if esc else None
+            return {
+                "workflow_id": workflow_id,
+                "status": "completed",
+                "result": rewritten,
+                "requires_approval": True,
+                "approval_id": None,
+                "provider_request_id": rewritten.get("provider_request_id"),
             }
 
         _reject_body_org()
