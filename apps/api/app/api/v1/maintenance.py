@@ -97,9 +97,9 @@ def seed_defaults(
 @router.post("", response_model=MaintenanceOut, status_code=201)
 def create_maintenance(
     body: MaintenanceCreate,
+    idempotency_key: IdempotencyKey,
     org: OrganisationContext = Depends(get_organisation_context),
     session: Session = Depends(get_session),
-    idempotency_key: IdempotencyKey,
 ) -> Any:
     holder: dict[str, Any] = {}
 
@@ -208,9 +208,9 @@ def get_maintenance(
 def patch_maintenance(
     request_id: uuid.UUID,
     body: MaintenanceUpdate,
+    idempotency_key: IdempotencyKey,
     org: OrganisationContext = Depends(get_organisation_context),
     session: Session = Depends(get_session),
-    idempotency_key: IdempotencyKey,
 ) -> Any:
     holder: dict[str, Any] = {}
 
@@ -259,9 +259,9 @@ def priority_maintenance(
 def transition_maintenance(
     request_id: uuid.UUID,
     body: StatusTransitionRequest,
+    idempotency_key: IdempotencyKey,
     org: OrganisationContext = Depends(get_organisation_context),
     session: Session = Depends(get_session),
-    idempotency_key: IdempotencyKey,
 ) -> Any:
     holder: dict[str, Any] = {}
 
@@ -351,9 +351,9 @@ def list_maintenance_visits(
 def add_maintenance_note(
     request_id: uuid.UUID,
     body: NoteCreate,
+    idempotency_key: IdempotencyKey,
     org: OrganisationContext = Depends(get_organisation_context),
     session: Session = Depends(get_session),
-    idempotency_key: IdempotencyKey,
 ) -> Any:
     holder: dict[str, Any] = {}
 
@@ -470,9 +470,9 @@ def download_maintenance_file(
 def complete_maintenance(
     request_id: uuid.UUID,
     body: CompleteRequest,
+    idempotency_key: IdempotencyKey,
     org: OrganisationContext = Depends(get_organisation_context),
     session: Session = Depends(get_session),
-    idempotency_key: IdempotencyKey,
 ) -> Any:
     holder: dict[str, Any] = {}
 

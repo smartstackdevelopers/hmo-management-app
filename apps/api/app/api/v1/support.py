@@ -101,9 +101,9 @@ def end_assignment(
 @logs_router.post("", response_model=DailyLogOut, status_code=201)
 def create_daily_log(
     body: DailyLogCreate,
+    idempotency_key: IdempotencyKey,
     org: OrganisationContext = Depends(get_organisation_context),
     session: Session = Depends(get_session),
-    idempotency_key: IdempotencyKey,
 ) -> Any:
     holder: dict[str, Any] = {}
 
