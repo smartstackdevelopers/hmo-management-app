@@ -13,6 +13,7 @@ FEATURE_COMPLIANCE = "ai.agent.compliance"
 FEATURE_TENANT_ASSISTANT = "ai.agent.tenant_assistant"
 FEATURE_OPERATIONAL_SEARCH = "ai.workflow.operational_search"
 FEATURE_REPORT_DRAFT = "ai.workflow.report_draft"
+FEATURE_DAILY_LOG_REWRITE = "ai.workflow.daily_log_rewrite"
 FEATURE_UNKNOWN = "ai.infra.unattributed"
 
 WORKFLOW_FEATURE_MAP: dict[str, str] = {
@@ -28,6 +29,7 @@ WORKFLOW_FEATURE_MAP: dict[str, str] = {
     "tenant_assistant": FEATURE_TENANT_ASSISTANT,
     "operational_search": FEATURE_OPERATIONAL_SEARCH,
     "report_draft_narrative": FEATURE_REPORT_DRAFT,
+    "daily_log_rewrite": FEATURE_DAILY_LOG_REWRITE,
 }
 
 

@@ -50,23 +50,37 @@ function buildUrl(baseUrl: string, path: string, query?: HmoreRequestInit['query
   return url.toString();
 }
 
+function messageFromDetail(detail: unknown): string | null {
+  if (typeof detail === 'string' && detail.trim()) return detail;
+  if (Array.isArray(detail)) {
+    const messages = detail
+      .map((item) => {
+        if (item && typeof item === 'object' && 'msg' in item) {
+          const msg = (item as { msg?: unknown }).msg;
+          return typeof msg === 'string' ? msg : null;
+        }
+        return null;
+      })
+      .filter((item): item is string => !!item);
+    return messages.length > 0 ? messages.join('. ') : null;
+  }
+  if (detail && typeof detail === 'object') {
+    const obj = detail as { message?: unknown; detail?: unknown };
+    if (typeof obj.message === 'string' && obj.message.trim()) return obj.message;
+    if (typeof obj.detail === 'string' && obj.detail.trim()) return obj.detail;
+  }
+  return null;
+}
+
 function readDetail(data: unknown, status: number): string {
   if (data && typeof data === 'object') {
-    const record = data as { detail?: unknown; error?: unknown };
-    if (typeof record.detail === 'string' && record.detail.trim()) return record.detail;
-    if (Array.isArray(record.detail)) {
-      const messages = record.detail
-        .map((item) => {
-          if (item && typeof item === 'object' && 'msg' in item) {
-            const msg = (item as { msg?: unknown }).msg;
-            return typeof msg === 'string' ? msg : null;
-          }
-          return null;
-        })
-        .filter((item): item is string => !!item);
-      if (messages.length > 0) return messages.join('. ');
+    const record = data as { detail?: unknown; error?: unknown; message?: unknown };
+    const fromDetail = messageFromDetail(record.detail);
+    if (fromDetail) return fromDetail;
+    if (typeof record.message === 'string' && record.message.trim()) return record.message;
+    if (typeof record.error === 'string' && record.error.trim() && record.error !== 'ai_budget_exceeded') {
+      return record.error;
     }
-    if (typeof record.error === 'string' && record.error.trim()) return record.error;
   }
   return `Request failed (${status})`;
 }

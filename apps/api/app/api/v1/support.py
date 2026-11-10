@@ -10,11 +10,14 @@ from sqlalchemy.orm import Session
 
 from app.db.session import get_session
 from app.support import service as support_service
+from app.daily_log_rewrite import service as rewrite_service
 from app.support.schemas import (
     CaseAssignmentCreate,
     CaseAssignmentOut,
     DailyLogCreate,
     DailyLogOut,
+    DailyLogRewriteIn,
+    DailyLogRewriteOut,
     DailyLogUpdate,
     HandoverCreate,
     HandoverOut,
@@ -100,6 +103,18 @@ def create_daily_log(
     session: Session = Depends(get_session),
 ) -> Any:
     return support_service.create_daily_log(session, org, body)
+
+
+@logs_router.post("/rewrite", response_model=DailyLogRewriteOut)
+def rewrite_daily_log(
+    body: DailyLogRewriteIn,
+    org: OrganisationContext = Depends(get_organisation_context),
+    session: Session = Depends(get_session),
+) -> Any:
+    """Rewrite draft text. Does not create a daily log."""
+    return rewrite_service.rewrite_daily_log_draft(
+        session, org, text=body.text, tenant_id=body.tenant_id
+    )
 
 
 @logs_router.get("", response_model=dict[str, Any])

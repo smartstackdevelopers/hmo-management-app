@@ -11,6 +11,7 @@ from dataclasses import dataclass
 from app.ai_usage.features import (
     FEATURE_CASE_SUMMARY,
     FEATURE_COMPLIANCE,
+    FEATURE_DAILY_LOG_REWRITE,
     FEATURE_DOCUMENT_CHECK,
     FEATURE_HOUSING_APPLICATION,
     FEATURE_NOTES_ANALYSIS,
@@ -134,6 +135,14 @@ REGISTRY: tuple[AiFeatureDefinition, ...] = (
         "F3.14",
         False,
         True,
+    ),
+    AiFeatureDefinition(
+        FEATURE_DAILY_LOG_REWRITE,
+        "Daily Log Professional Rewrite",
+        "Optional grammar and clarity rewrite of a draft daily note. Staff confirm the text before it is saved.",
+        "F4.4",
+        True,
+        False,
     ),
 )
 

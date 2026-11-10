@@ -39,6 +39,7 @@ def run_routed_completion(
     user_message: str,
     quality_requirement: str | None = None,
     cache_eligible: bool = True,
+    user_message_limit: int = 4000,
 ) -> dict[str, Any]:
     decision = route_for_workflow(
         settings,
@@ -54,7 +55,7 @@ def run_routed_completion(
                 model=current.model_id,
                 messages=[
                     LlmMessage(role="system", content=rendered_prompt[:8000]),
-                    LlmMessage(role="user", content=user_message[:4000]),
+                    LlmMessage(role="user", content=user_message[:user_message_limit]),
                 ],
                 timeout_seconds=settings.llm_timeout_seconds,
             )
