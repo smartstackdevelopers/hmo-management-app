@@ -2,6 +2,7 @@ import type { AttachmentFileStore } from '@/lib/hmore/offline/attachments';
 import { releaseAttachment } from '@/lib/hmore/offline/attachments';
 import type { DraftOwner, DraftStorage, OfflineDraft, SyncState } from '@/lib/hmore/offline/store';
 import { clearDraft, loadDrafts, updateDraft } from '@/lib/hmore/offline/store';
+import { deviceSessionAllowsSync } from '@/lib/hmore/security/deviceSessionGate';
 
 export interface SyncAck {
   status: number;
@@ -22,6 +23,7 @@ export interface SyncResultItem {
 export interface SyncReport {
   offline: boolean;
   results: SyncResultItem[];
+  blockedReason?: 'device_session_revoked';
 }
 
 export interface SyncNowOptions {
@@ -34,6 +36,8 @@ export interface SyncNowOptions {
   files?: AttachmentFileStore;
   /** Defaults to drafts that can be retried. Conflict and needs-attention stay for the user. */
   states?: SyncState[];
+  /** When omitted, sync checks the stored device-session status and skips a revoked device. */
+  deviceSessionAllowsSync?: () => Promise<boolean>;
 }
 
 const RETRY_STATES: SyncState[] = ['draft', 'pending', 'failed', 'syncing'];
@@ -75,6 +79,10 @@ async function withLock<T>(store: DraftStorage, run: () => Promise<T>): Promise<
  * This is not a continuous background sync. Call it from Sync Now or after reconnect.
  */
 export async function syncNow(options: SyncNowOptions): Promise<SyncReport> {
+  const allows = options.deviceSessionAllowsSync ?? deviceSessionAllowsSync;
+  if (!(await allows())) {
+    return { offline: false, results: [], blockedReason: 'device_session_revoked' };
+  }
   if (!(await options.isOnline())) return { offline: true, results: [] };
   const store = options.store;
   if (!store) {

@@ -200,6 +200,26 @@ export async function getStoredAccessToken(): Promise<string | null> {
   return refreshInFlight;
 }
 
+export async function revokeAuth0RefreshToken(): Promise<void> {
+  const refreshToken = await SecureStore.getItemAsync(REFRESH_TOKEN_KEY);
+  const config = readAuth0ConfigFromEnv();
+  if (!refreshToken || !config?.domain || !config.clientId) return;
+  const body = new URLSearchParams({
+    client_id: config.clientId,
+    token: refreshToken,
+    token_type_hint: 'refresh_token',
+  });
+  try {
+    await fetch(`https://${config.domain}/oauth/revoke`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      body: body.toString(),
+    });
+  } catch {
+    // Local sign-out continues when Auth0 cannot be reached.
+  }
+}
+
 export async function clearAuth0Tokens(): Promise<void> {
   await SecureStore.deleteItemAsync(ACCESS_TOKEN_KEY);
   await SecureStore.deleteItemAsync(ID_TOKEN_KEY);

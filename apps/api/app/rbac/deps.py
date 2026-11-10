@@ -14,16 +14,17 @@ from app.auth.tokens import http_403
 from app.db.models import OrganisationMembership, User
 from app.db.models.enums import HMoreRole, MembershipStatus
 from app.db.session import get_session
+from app.device_sessions.guard import enforce_device_session
 from app.rbac.context import AuthorizationContext, MembershipView, membership_views
 from app.rbac.permissions import Permission, parse_permission
 from app.rbac.service import require_permission
 
 
-def get_authorization_context(
-    user: User = Depends(get_current_user),
-    session: Session = Depends(get_session),
-    x_organisation_id: Annotated[str | None, Header(alias="X-Organisation-Id")] = None,
-    x_hmore_role: Annotated[str | None, Header(alias="X-HMore-Role")] = None,
+def _authorization_context(
+    user: User,
+    session: Session,
+    x_organisation_id: str | None,
+    x_hmore_role: str | None,
 ) -> AuthorizationContext:
     """Build authz context from DB memberships.
 
@@ -65,6 +66,29 @@ def get_authorization_context(
         ),
         active_role=selected.role,
     )
+
+
+def get_authorization_context(
+    user: User = Depends(get_current_user),
+    session: Session = Depends(get_session),
+    x_organisation_id: Annotated[str | None, Header(alias="X-Organisation-Id")] = None,
+    x_hmore_role: Annotated[str | None, Header(alias="X-HMore-Role")] = None,
+    x_device_session_id: Annotated[str | None, Header(alias="X-Device-Session-Id")] = None,
+) -> AuthorizationContext:
+    """Authz context, then device-session enforcement when the header is present."""
+    ctx = _authorization_context(user, session, x_organisation_id, x_hmore_role)
+    enforce_device_session(session, ctx.user.id, x_device_session_id)
+    return ctx
+
+
+def get_authorization_context_without_device_check(
+    user: User = Depends(get_current_user),
+    session: Session = Depends(get_session),
+    x_organisation_id: Annotated[str | None, Header(alias="X-Organisation-Id")] = None,
+    x_hmore_role: Annotated[str | None, Header(alias="X-HMore-Role")] = None,
+) -> AuthorizationContext:
+    """Authz without the device-session block. Used by GET /device-sessions/current."""
+    return _authorization_context(user, session, x_organisation_id, x_hmore_role)
 
 
 def _select_membership(

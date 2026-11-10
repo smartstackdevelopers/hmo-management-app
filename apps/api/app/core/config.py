@@ -41,6 +41,10 @@ class Settings(BaseSettings):
     auth0_audience: str | None = None
     auth0_issuer: str | None = None
     auth0_require_mfa_claim: bool = False
+    # Optional. F4.6 does not call the Auth0 Management API. See device_sessions.auth0_management.
+    auth0_mgmt_domain: str | None = None
+    auth0_mgmt_client_id: str | None = None
+    auth0_mgmt_client_secret: str | None = None
 
     # Private file storage (F1.8) — never commit real credentials.
     # provider: memory | local | s3
@@ -107,6 +111,14 @@ class Settings(BaseSettings):
     @classmethod
     def normalize_environment(cls, value: str) -> str:
         return (value or "development").strip().lower()
+
+    @field_validator("auth0_mgmt_domain", "auth0_mgmt_client_id", "auth0_mgmt_client_secret", mode="before")
+    @classmethod
+    def blank_auth0_mgmt(cls, value: object) -> str | None:
+        if value is None:
+            return None
+        text = str(value).strip()
+        return text or None
 
     @field_validator("expo_access_token", mode="before")
     @classmethod

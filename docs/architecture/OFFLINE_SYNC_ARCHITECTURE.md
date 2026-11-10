@@ -20,6 +20,8 @@ Types are `daily_log`, `repair_create`, `visit_update`, `task_update`, and `work
 
 The status bar is on the signed-in app shell. Staff More and the tenant Account screen open the offline drafts list.
 
+F4.6 skips Sync Now when this device's session is revoked or reported lost. The drafts stay on the device. See `docs/architecture/BIOMETRIC_REMOTE_SIGNOUT_ARCHITECTURE.md`.
+
 ## Server
 
 Migration `20261110_3200_f45` adds `client_idempotency_keys`, revises `20261110_3000_f43`, and keeps organisation row-level security. The unique key is `(organisation_id, user_id, scope, key)`. The first success stores `resource_type`, `resource_id`, and `response_snapshot`. A repeat of that key returns the stored status and body and does not insert another row.

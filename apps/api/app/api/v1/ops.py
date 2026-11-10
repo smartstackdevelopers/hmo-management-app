@@ -171,9 +171,9 @@ def get_visit(
 def patch_visit(
     visit_id: uuid.UUID,
     body: VisitUpdate,
+    idempotency_key: IdempotencyKey,
     org: OrganisationContext = Depends(get_organisation_context),
     session: Session = Depends(get_session),
-    idempotency_key: IdempotencyKey,
 ) -> Any:
     holder: dict[str, Any] = {}
 
@@ -242,9 +242,9 @@ def get_task(
 def patch_task(
     task_id: uuid.UUID,
     body: TaskUpdate,
+    idempotency_key: IdempotencyKey,
     org: OrganisationContext = Depends(get_organisation_context),
     session: Session = Depends(get_session),
-    idempotency_key: IdempotencyKey,
 ) -> Any:
     holder: dict[str, Any] = {}
 
