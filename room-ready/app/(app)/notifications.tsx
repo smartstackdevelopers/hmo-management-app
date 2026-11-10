@@ -1,7 +1,9 @@
 import { FlatList, RefreshControl, StyleSheet, Text, View } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 
+import { StaffAlertList } from '@/components/staff/StaffAlertList';
 import { HmoreNotifications } from '@/components/tenant/HmoreNotifications';
+import { staffShellActive } from '@/constants/navigation';
 import { Badge } from '@/components/ui/Badge';
 import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
@@ -126,7 +128,8 @@ const styles = StyleSheet.create({
 });
 
 export default function NotificationsScreen() {
-  const { hmore } = useAuth();
+  const { hmore, user } = useAuth();
+  if (staffShellActive(user?.role, !!hmore)) return <StaffAlertList />;
   if (hmore) return <HmoreNotifications />;
   return <LegacyNotificationsScreen />;
 }

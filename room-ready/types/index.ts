@@ -3,7 +3,9 @@ export type UserRole =
   | 'tenant'
   | 'property_manager'
   | 'contractor'
-  | 'admin';
+  | 'admin'
+  | 'support_worker'
+  | 'organisation_admin';
 
 export interface User {
   id: string;
@@ -29,6 +31,8 @@ export const ROLE_LABELS: Record<UserRole, string> = {
   property_manager: 'Property Manager',
   contractor: 'Contractor',
   admin: 'Administrator',
+  support_worker: 'Support Worker',
+  organisation_admin: 'Organisation Admin',
 };
 
 export const ROLE_DESCRIPTIONS: Record<UserRole, string> = {
@@ -37,4 +41,6 @@ export const ROLE_DESCRIPTIONS: Record<UserRole, string> = {
   property_manager: 'Manage properties on behalf of landlords',
   contractor: 'Receive jobs, update progress and submit invoices',
   admin: 'Oversee platform users, listings and settings',
+  support_worker: 'Work with an assigned caseload, notes, visits and incidents',
+  organisation_admin: 'Review staff work and approvals for one organisation',
 };

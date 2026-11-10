@@ -210,9 +210,20 @@ def list_inbox(
                 "created_at": msg.created_at.isoformat(),
                 "read_at": rec.read_at.isoformat() if rec.read_at else None,
                 "sender_user_id": str(msg.sender_user_id) if msg.sender_user_id else None,
+                **message_resource_fields(msg),
             }
         )
     return {"items": items, "page": page, "page_size": page_size, "total": int(total)}
+
+
+def message_resource_fields(message: Any) -> dict[str, str | None]:
+    """Expose an existing message link so the staff app can open the record. No new data is created."""
+    resource_id = getattr(message, "related_resource_id", None)
+    resource_type = getattr(message, "related_resource_type", None)
+    return {
+        "related_resource_type": resource_type if isinstance(resource_type, str) else None,
+        "related_resource_id": str(resource_id) if resource_id else None,
+    }
 
 
 def list_sent(
@@ -270,6 +281,7 @@ def get_message(session: Session, ctx: OrganisationContext, message_id: uuid.UUI
         "sender_user_id": str(msg.sender_user_id) if msg.sender_user_id else None,
         "created_at": msg.created_at.isoformat(),
         "read_at": rec.read_at.isoformat() if rec and rec.read_at else None,
+        **message_resource_fields(msg),
     }
 
 

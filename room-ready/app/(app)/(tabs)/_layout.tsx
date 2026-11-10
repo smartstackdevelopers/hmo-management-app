@@ -3,7 +3,7 @@ import { Platform, StyleSheet } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { TabIcon } from '@/components/ui/TabIcon';
-import { LEGACY_TENANT_TABS, ROLE_TABS, TAB_SCREEN_TITLES, TabConfig } from '@/constants/navigation';
+import { tabsForRole, TAB_SCREEN_TITLES, TabConfig } from '@/constants/navigation';
 import { theme } from '@/constants/theme';
 import { useAuth } from '@/contexts/AuthContext';
 import { useI18n } from '@/hooks/useI18n';
@@ -11,6 +11,7 @@ import { useI18n } from '@/hooks/useI18n';
 const ALL_SCREENS = [
   'index', 'find', 'properties', 'compliance', 'tenancy', 'maintenance', 'support', 'inspections',
   'schedule', 'messages', 'users', 'listings', 'settings', 'more',
+  'caseload', 'shifts', 'notes', 'work-orders', 'evidence',
 ] as const;
 
 const TENANT_TAB_KEYS: Record<string, string> = {
@@ -27,7 +28,7 @@ export default function TabLayout() {
   const insets = useSafeAreaInsets();
   const role = user?.role;
   const tenantApp = !!hmore && role === 'tenant';
-  const visibleTabs = role === 'tenant' && !hmore ? LEGACY_TENANT_TABS : role ? ROLE_TABS[role] : [];
+  const visibleTabs = tabsForRole(role, { hmore: !!hmore });
   const visibleNames = new Set(visibleTabs.map((t) => t.name));
   const tabBarHeight = theme.layout.tabBarBase + insets.bottom;
 
