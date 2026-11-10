@@ -21,6 +21,7 @@
         "NSPhotoLibraryUsageDescription": "Room Ready needs photo library access to attach images to repairs and uploads.",
         "NSMicrophoneUsageDescription": "Room Ready uses the microphone to dictate support notes on this device.",
         "NSSpeechRecognitionUsageDescription": "Room Ready transcribes dictated support notes on this device.",
+        "NSFaceIDUsageDescription": "Room Ready uses Face ID to unlock a session that is already signed in on this device. Face data stays on the device and is not sent to HMore.",
         "UIBackgroundModes": ["remote-notification"]
       },
       "config": {
@@ -43,7 +44,9 @@
         "WRITE_EXTERNAL_STORAGE",
         "READ_MEDIA_IMAGES",
         "RECORD_AUDIO",
-        "POST_NOTIFICATIONS"
+        "POST_NOTIFICATIONS",
+        "USE_BIOMETRIC",
+        "USE_FINGERPRINT"
       ]
     },
     "web": {
@@ -91,6 +94,12 @@
         {
           "microphonePermission": "Room Ready uses the microphone to dictate support notes on this device.",
           "speechRecognitionPermission": "Room Ready transcribes dictated support notes on this device."
+        }
+      ],
+      [
+        "expo-local-authentication",
+        {
+          "faceIDPermission": "Room Ready uses Face ID to unlock a session that is already signed in on this device. Face data stays on the device and is not sent to HMore."
         }
       ]
     ],

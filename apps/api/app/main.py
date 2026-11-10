@@ -23,7 +23,14 @@ app.add_middleware(
     allow_origins=settings.cors_origins_list(),
     allow_credentials=True,
     allow_methods=["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
-    allow_headers=["Authorization", "Content-Type", "X-Organisation-Id", "X-HMore-Role", "X-Correlation-Id"],
+    allow_headers=[
+        "Authorization",
+        "Content-Type",
+        "X-Organisation-Id",
+        "X-HMore-Role",
+        "X-Correlation-Id",
+        "X-Device-Session-Id",
+    ],
 )
 
 register_exception_handlers(app)

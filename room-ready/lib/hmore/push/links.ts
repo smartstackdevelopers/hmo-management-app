@@ -1,4 +1,5 @@
 import { staffAlertHref } from '@/lib/hmore/staff/alerts';
+import { protectedNavigationBlocked } from '@/lib/hmore/security/accessGate';
 
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 
@@ -47,8 +48,13 @@ export async function handlePushOpen(
   deps: {
     navigate: (href: string) => void;
     markRead: (messageId: string) => Promise<unknown>;
+    allowProtectedNavigation?: () => Promise<boolean>;
   },
 ): Promise<string> {
+  const allowed = deps.allowProtectedNavigation
+    ? await deps.allowProtectedNavigation()
+    : !(await protectedNavigationBlocked());
+  if (!allowed) return '';
   const href = pushOpenHref(data, isStaff);
   deps.navigate(href);
   if (data.message_id && UUID.test(data.message_id)) {

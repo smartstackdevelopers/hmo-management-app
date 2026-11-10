@@ -4,6 +4,7 @@ import { ScrollView, StyleSheet, Text, View } from 'react-native';
 
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
+import { DeviceSecurityPanel } from '@/components/security/DeviceSecurityPanel';
 import { theme } from '@/constants/theme';
 import { useChangePassword } from '@/hooks/useApi';
 
@@ -39,7 +40,8 @@ export default function SecurityScreen() {
 
   return (
     <ScrollView style={styles.container} contentContainerStyle={styles.content} keyboardShouldPersistTaps="handled">
-      <Text style={styles.hint}>Update your account password. Use at least 8 characters.</Text>
+      <DeviceSecurityPanel onSignedOut={() => router.replace('/(auth)/welcome')} />
+      <Text style={styles.hint}>Update your account password. Use at least 8 characters. This password form is separate from fingerprint or face unlock.</Text>
       {success && (
         <View style={styles.successBanner}>
           <Text style={styles.successText}>Password updated successfully</Text>

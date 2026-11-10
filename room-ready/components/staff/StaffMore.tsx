@@ -2,6 +2,7 @@ import { router } from 'expo-router';
 import { Text } from 'react-native';
 
 import { PushPreferenceToggle } from '@/components/PushPreferenceToggle';
+import { DeviceSecurityPanel } from '@/components/security/DeviceSecurityPanel';
 import { DraftBadge, RecordCard, StaffPage } from '@/components/staff/ui';
 import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
@@ -54,6 +55,7 @@ export function StaffMore() {
       {user?.role === 'organisation_admin' ? (
         <RecordCard title="Organisation tools" detail="Approvals and caseload are in this app. Platform administration stays on the web." />
       ) : null}
+      <DeviceSecurityPanel onSignedOut={() => router.replace('/(auth)/welcome')} />
       <PushPreferenceToggle />
       <Button title="Sign out" variant="outline" onPress={handleSignOut} fullWidth />
     </StaffPage>

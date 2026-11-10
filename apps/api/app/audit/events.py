@@ -383,3 +383,8 @@ AI_FEATURE_CONFIG_UPDATED = "ai.feature.config.updated"
 AI_FEATURE_CONFIG_REJECTED = "ai.feature.config.rejected"
 AI_FEATURE_EXECUTION_BLOCKED = "ai.feature.execution.blocked"
 AI_FEATURE_DEFAULTS_ASSIGNED = "ai.feature.defaults.assigned"
+
+# F4.6 device sessions. Metadata must not include biometric samples or tokens.
+DEVICE_SESSION_REGISTERED = "device_session.registered"
+DEVICE_SESSION_REVOKED = "device_session.revoked"
+DEVICE_SESSION_LOST = "device_session.reported_lost"

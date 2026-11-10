@@ -13,6 +13,8 @@ import {
   logoutAuth0,
 } from '@/lib/hmoreAuth0';
 import { deactivateRegisteredPush, registerPushAfterSession } from '@/lib/hmore/push/register';
+import { registerCurrentDeviceSession, revokeCurrentDeviceSession } from '@/lib/hmore/security/deviceSession';
+import { endLocalSession, subscribeLocalSessionEnded } from '@/lib/hmore/security/deviceSessionRevoke';
 import { mapHmoreRole } from '@/lib/hmore/roles';
 import { AuthState, User } from '@/types';
 
@@ -108,6 +110,30 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, [bootstrap]);
 
   useEffect(() => {
+    return subscribeLocalSessionEnded(() => {
+      queryClient.clear();
+      setHmore(null);
+      setState({ user: null, isLoading: false, isAuthenticated: false });
+    });
+  }, []);
+
+  useEffect(() => {
+    if (!state.isAuthenticated || !hmore) return;
+    let cancelled = false;
+    void registerCurrentDeviceSession()
+      .then(() => {
+        void queryClient.invalidateQueries({ queryKey: ['hmore', 'device-sessions'] });
+        void queryClient.invalidateQueries({ queryKey: ['hmore', 'device-session', 'local'] });
+      })
+      .catch(() => {
+        if (cancelled) return;
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [state.isAuthenticated, hmore]);
+
+  useEffect(() => {
     if (!state.isAuthenticated || !hmore) return;
     void registerPushAfterSession();
   }, [state.isAuthenticated, hmore]);
@@ -143,16 +169,20 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const signOut = useCallback(async () => {
     try {
+      await revokeCurrentDeviceSession();
+    } catch {
+      // The device row may already be revoked, or the phone may be offline.
+    }
+    try {
       await deactivateRegisteredPush();
     } catch {
       // Local sign-out continues when the device row cannot be reached.
     }
+    await endLocalSession();
     queryClient.clear();
     if (isAuth0MobileConfigured()) {
       await logoutAuth0();
-      await clearRequestContext();
     }
-    await clearToken();
     await AsyncStorage.removeItem('@roomready_auth');
     setHmore(null);
     setState({ user: null, isLoading: false, isAuthenticated: false });

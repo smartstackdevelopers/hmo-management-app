@@ -3,6 +3,8 @@ import { useEffect } from 'react';
 import { StyleSheet, View } from 'react-native';
 
 import { SyncStatusBanner } from '@/components/offline/SyncStatusBanner';
+import { BiometricLockGate } from '@/components/security/BiometricLockGate';
+import { DeviceSessionRevokedNotice } from '@/components/security/DeviceSessionRevokedNotice';
 import { LoadingScreen } from '@/components/ui/States';
 import { theme } from '@/constants/theme';
 import { useAuth } from '@/contexts/AuthContext';
@@ -36,8 +38,10 @@ export default function AppLayout() {
   }
 
   return (
-    <View style={styles.root}>
-      <SyncStatusBanner />
+    <BiometricLockGate>
+      <View style={styles.root}>
+        <DeviceSessionRevokedNotice />
+        <SyncStatusBanner />
       <Stack screenOptions={{ headerShown: false, contentStyle: { flex: 1, backgroundColor: theme.colors.background } }}>
         <Stack.Screen name="(tabs)" />
         <Stack.Screen name="property/[id]" options={{ ...headerOptions, headerShown: true, title: 'Property Details' }} />
@@ -71,7 +75,8 @@ export default function AppLayout() {
         <Stack.Screen name="browse" options={{ ...headerOptions, headerShown: true, title: 'Find a Room' }} />
         <Stack.Screen name="wishlist" options={{ ...headerOptions, headerShown: true, title: 'Wishlist' }} />
       </Stack>
-    </View>
+      </View>
+    </BiometricLockGate>
   );
 }
 

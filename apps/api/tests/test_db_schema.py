@@ -73,6 +73,7 @@ def test_expected_tables_exist(migrated_engine: Engine) -> None:
         "housing_application_decisions",
         "waiting_list_entries",
         "alembic_version",
+        "mobile_device_sessions",
     }
     assert expected.issubset(tables)
 
@@ -86,7 +87,7 @@ def test_users_authorization_version_column(migrated_engine: Engine) -> None:
 def test_migration_history_has_single_head(alembic_config) -> None:
     script = ScriptDirectory.from_config(alembic_config)
     heads = script.get_heads()
-    assert heads == ["20261110_3200_f45"]
+    assert heads == ["20261110_3300_f46"]
 
 
 def test_upgrade_downgrade_roundtrip(alembic_config, migrated_engine: Engine) -> None:

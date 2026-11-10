@@ -152,6 +152,7 @@ from app.db.models.ai_feature_flags import (
 from app.db.models.catalogue import CommunityService, OpportunityListing
 from app.db.models.push_devices import PushDeviceToken
 from app.db.models.idempotency import ClientIdempotencyKey
+from app.db.models.device_sessions import MobileDeviceSession
 
 __all__ = [
     "AuditEvent",
@@ -203,6 +204,7 @@ __all__ = [
     "IncidentFollowUp",
     "IncidentStatusHistory",
     "MembershipStatus",
+    "MobileDeviceSession",
     "OccupancySiteSurvey",
     "OpportunityListing",
     "OccupancySurveyFinding",

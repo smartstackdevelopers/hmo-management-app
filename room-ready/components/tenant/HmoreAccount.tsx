@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import { ScrollView, StyleSheet, Text, View } from 'react-native';
 
 import { PushPreferenceToggle } from '@/components/PushPreferenceToggle';
+import { DeviceSecurityPanel } from '@/components/security/DeviceSecurityPanel';
 import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
 import { Input } from '@/components/ui/Input';
@@ -145,6 +146,7 @@ export function HmoreAccount() {
         <ListRow title={t('profile.accessibility')} icon="accessibility-outline" onPress={() => router.push('/(app)/accessibility')} />
       </Card>
 
+      <DeviceSecurityPanel onSignedOut={() => router.replace('/(auth)/welcome')} />
       <PushPreferenceToggle />
       <Text style={styles.version}>{t('profile.version')}</Text>
       <Button title={t('profile.signOut')} accessibilityLabel={t('profile.signOut')} variant="outline" onPress={handleSignOut} fullWidth />

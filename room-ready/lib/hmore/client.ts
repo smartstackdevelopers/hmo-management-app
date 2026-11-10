@@ -2,6 +2,8 @@ import { getStoredAccessToken } from '@/lib/hmoreAuth0';
 
 import { HMORE_API_BASE_URL } from './config';
 import { getRequestContext, type HmoreRequestContext } from './requestContext';
+import { readDeviceSessionId } from './security/deviceSessionStore';
+import { handleRemoteDeviceSessionRevoked } from './security/deviceSessionRevoke';
 
 export class HmoreApiError extends Error {
   readonly status: number;
@@ -32,6 +34,8 @@ export type HmoreClientDeps = {
   getContext: () => HmoreRequestContext;
   fetchImpl: typeof fetch;
   baseUrl: string;
+  getDeviceSessionId?: () => Promise<string | null>;
+  onDeviceSessionRevoked?: () => Promise<void>;
 };
 
 const defaultDeps: HmoreClientDeps = {
@@ -124,6 +128,10 @@ export async function hmoreRequestResponse(
   if (init.idempotencyKey) {
     headers['Idempotency-Key'] = init.idempotencyKey;
   }
+  const sessionId = await (deps.getDeviceSessionId ?? readDeviceSessionId)();
+  if (sessionId) {
+    headers['X-Device-Session-Id'] = sessionId;
+  }
   if (init.headers) {
     Object.assign(headers, init.headers);
   }
@@ -149,10 +157,21 @@ export async function hmoreRequestResponse(
   }
 
   if (!response.ok && init.formData) {
+    await noteDeviceSessionRevoked(response, deps);
     const data = await response.json().catch(() => ({}));
     throw new HmoreApiError(response.status, readDetail(data, response.status), data);
   }
+  await noteDeviceSessionRevoked(response, deps);
   return response;
+}
+
+async function noteDeviceSessionRevoked(response: Response, deps: HmoreClientDeps): Promise<void> {
+  if (response.status !== 401 || typeof response.clone !== 'function') return;
+  const data = await response.clone().json().catch(() => null);
+  const detail = data && typeof data === 'object' ? (data as { detail?: unknown }).detail : undefined;
+  if (detail !== 'device_session_revoked') return;
+  const handler = deps.onDeviceSessionRevoked ?? handleRemoteDeviceSessionRevoked;
+  await handler();
 }
 
 export function hmoreFetch<T>(path: string, init?: HmoreRequestInit): Promise<T> {
