@@ -36,4 +36,14 @@ export const DASHBOARD_ACTIONS: Record<UserRole, DashboardAction[]> = {
     { label: 'Listings', icon: 'list-outline', route: '/(app)/(tabs)/listings' },
     { label: 'Alerts', icon: 'notifications-outline', route: '/(app)/notifications' },
   ],
+  support_worker: [
+    { label: 'Tenants', icon: 'people', route: '/(app)/(tabs)/caseload', primary: true },
+    { label: 'Notes', icon: 'document-text-outline', route: '/(app)/(tabs)/notes' },
+    { label: 'Shifts', icon: 'time-outline', route: '/(app)/(tabs)/shifts' },
+  ],
+  organisation_admin: [
+    { label: 'Tenants', icon: 'people', route: '/(app)/(tabs)/caseload', primary: true },
+    { label: 'Notes', icon: 'document-text-outline', route: '/(app)/(tabs)/notes' },
+    { label: 'Approvals', icon: 'checkmark-circle-outline', route: '/(app)/staff/approvals' },
+  ],
 };

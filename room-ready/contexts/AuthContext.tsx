@@ -12,7 +12,8 @@ import {
   loginWithAuth0,
   logoutAuth0,
 } from '@/lib/hmoreAuth0';
-import { AuthState, User, UserRole } from '@/types';
+import { mapHmoreRole } from '@/lib/hmore/roles';
+import { AuthState, User } from '@/types';
 
 interface RegisterData {
   email: string;
@@ -36,24 +37,6 @@ interface AuthContextValue extends AuthState {
 const AuthContext = createContext<AuthContextValue | null>(null);
 
 const AUTH0_ONLY = 'Sign in with your organisation account.';
-
-function mapHmoreRole(role: string | null): UserRole {
-  switch (role) {
-    case 'landlord':
-      return 'landlord';
-    case 'tenant':
-      return 'tenant';
-    case 'maintenance_contractor':
-      return 'contractor';
-    case 'support_worker':
-      return 'property_manager';
-    case 'organisation_admin':
-    case 'super_admin':
-      return 'admin';
-    default:
-      return 'admin';
-  }
-}
 
 export function userFromHmoreSession(session: HmoreSession): User {
   const name = session.auth.display_name?.trim() || session.auth.email || 'Account';

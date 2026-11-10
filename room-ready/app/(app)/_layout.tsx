@@ -44,6 +44,14 @@ export default function AppLayout() {
         <Stack.Screen name="inspection/new" options={{ ...headerOptions, headerShown: true, title: 'Schedule Inspection' }} />
         <Stack.Screen name="documents" options={{ ...headerOptions, headerShown: true, title: tenant ? t('nav.files') : 'My files' }} />
         <Stack.Screen name="notifications" options={{ ...headerOptions, headerShown: true, title: tenant ? t('nav.alerts') : 'Notifications' }} />
+        <Stack.Screen name="staff/visits" options={{ ...headerOptions, headerShown: true, title: 'Visits' }} />
+        <Stack.Screen name="staff/tasks" options={{ ...headerOptions, headerShown: true, title: 'Tasks' }} />
+        <Stack.Screen name="staff/incidents" options={{ ...headerOptions, headerShown: true, title: 'Incidents' }} />
+        <Stack.Screen name="staff/occupancy" options={{ ...headerOptions, headerShown: true, title: 'Occupancy surveys' }} />
+        <Stack.Screen name="staff/approvals" options={{ ...headerOptions, headerShown: true, title: 'Approvals' }} />
+        <Stack.Screen name="staff/case/[tenantId]" options={{ ...headerOptions, headerShown: true, title: 'Tenant' }} />
+        <Stack.Screen name="staff/incident/[id]" options={{ ...headerOptions, headerShown: true, title: 'Incident' }} />
+        <Stack.Screen name="staff/work-order/[id]" options={{ ...headerOptions, headerShown: true, title: 'Work order' }} />
         <Stack.Screen name="community" options={{ ...headerOptions, headerShown: true, title: tenant ? t('nav.services') : 'Local services' }} />
         <Stack.Screen name="jobs" options={{ ...headerOptions, headerShown: true, title: tenant ? t('nav.jobs') : 'Jobs and training' }} />
         <Stack.Screen name="assistant" options={{ ...headerOptions, headerShown: true, title: tenant ? t('nav.assistant') : 'Assistant' }} />

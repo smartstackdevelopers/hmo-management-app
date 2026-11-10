@@ -49,4 +49,14 @@ export const ROLE_POWER_FEATURES: Record<UserRole, PowerFeature[]> = {
     { id: 'council', title: 'Council dashboard', subtitle: 'City-wide HMO oversight', icon: 'earth-outline', comingSoon: true },
     { id: 'mandate', title: 'Mandatory licensing', subtitle: 'Council integration API', icon: 'link-outline', comingSoon: true },
   ],
+  support_worker: [
+    { id: 'caseload', title: 'My tenants', subtitle: 'Assigned caseload', icon: 'people-outline', route: '/(app)/(tabs)/caseload' },
+    { id: 'notes', title: 'Daily notes', subtitle: 'Logs and device dictation', icon: 'document-text-outline', route: '/(app)/(tabs)/notes' },
+    { id: 'visits', title: 'Visits and tasks', subtitle: 'Assigned work', icon: 'walk-outline', route: '/(app)/staff/visits' },
+  ],
+  organisation_admin: [
+    { id: 'caseload', title: 'Caseload', subtitle: 'Organisation tenants', icon: 'people-outline', route: '/(app)/(tabs)/caseload' },
+    { id: 'approvals', title: 'Approvals', subtitle: 'Inbox from the server', icon: 'checkmark-circle-outline', route: '/(app)/staff/approvals' },
+    { id: 'alerts', title: 'Alerts', subtitle: 'In-app messages', icon: 'notifications-outline', route: '/(app)/notifications' },
+  ],
 };

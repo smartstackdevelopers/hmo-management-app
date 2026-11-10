@@ -235,6 +235,8 @@ export interface InboxMessage {
   created_at: string;
   read_at: string | null;
   sender_user_id: string | null;
+  related_resource_type?: string | null;
+  related_resource_id?: string | null;
 }
 
 export interface MessageDetail {

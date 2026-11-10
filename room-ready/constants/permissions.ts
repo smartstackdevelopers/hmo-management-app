@@ -1,6 +1,16 @@
 import { UserRole } from '@/types';
 
-const ALL: UserRole[] = ['landlord', 'tenant', 'property_manager', 'contractor', 'admin'];
+const ALL: UserRole[] = [
+  'landlord',
+  'tenant',
+  'property_manager',
+  'contractor',
+  'admin',
+  'support_worker',
+  'organisation_admin',
+];
+
+const SUPPORT: UserRole[] = ['support_worker', 'organisation_admin'];
 
 export const TAB_ROLES: Record<string, UserRole[]> = {
   index: ALL,
@@ -12,6 +22,11 @@ export const TAB_ROLES: Record<string, UserRole[]> = {
   support: ['tenant'],
   inspections: ['property_manager'],
   schedule: ['contractor'],
+  caseload: SUPPORT,
+  shifts: SUPPORT,
+  notes: SUPPORT,
+  'work-orders': ['contractor'],
+  evidence: ['contractor'],
   messages: ['landlord', 'tenant', 'property_manager', 'contractor'],
   users: ['admin'],
   listings: ['landlord', 'property_manager', 'admin'],

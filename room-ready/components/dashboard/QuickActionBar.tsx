@@ -37,6 +37,16 @@ const ACTIONS: Record<UserRole, QuickAction[]> = {
     { label: 'Listings', icon: 'list-outline', route: '/(app)/(tabs)/listings' },
     { label: 'Alerts', icon: 'notifications-outline', route: '/(app)/notifications' },
   ],
+  support_worker: [
+    { label: 'Tenants', icon: 'people-outline', route: '/(app)/(tabs)/caseload' },
+    { label: 'Notes', icon: 'document-text-outline', route: '/(app)/(tabs)/notes' },
+    { label: 'Visits', icon: 'walk-outline', route: '/(app)/staff/visits' },
+  ],
+  organisation_admin: [
+    { label: 'Tenants', icon: 'people-outline', route: '/(app)/(tabs)/caseload' },
+    { label: 'Approvals', icon: 'checkmark-circle-outline', route: '/(app)/staff/approvals' },
+    { label: 'Alerts', icon: 'notifications-outline', route: '/(app)/notifications' },
+  ],
 };
 
 export function QuickActionBar({ role }: { role: UserRole }) {

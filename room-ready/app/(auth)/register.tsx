@@ -28,6 +28,8 @@ const ROLE_ICONS: Record<UserRole, keyof typeof Ionicons.glyphMap> = {
   property_manager: 'clipboard-outline',
   contractor: 'construct-outline',
   admin: 'shield-outline',
+  support_worker: 'people-outline',
+  organisation_admin: 'briefcase-outline',
 };
 
 export default function RegisterScreen() {

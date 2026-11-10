@@ -1,7 +1,9 @@
 import { router } from 'expo-router';
 import { Linking, RefreshControl, ScrollView, StyleSheet, Text, View } from 'react-native';
 
+import { StaffMore } from '@/components/staff/StaffMore';
 import { HmoreAccount } from '@/components/tenant/HmoreAccount';
+import { staffShellActive } from '@/constants/navigation';
 import { Badge } from '@/components/ui/Badge';
 import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
@@ -147,7 +149,8 @@ const styles = StyleSheet.create({
 });
 
 export default function MoreScreen() {
-  const { hmore } = useAuth();
+  const { hmore, user } = useAuth();
+  if (staffShellActive(user?.role, !!hmore)) return <StaffMore />;
   if (hmore) return <HmoreAccount />;
   return <LegacyMoreScreen />;
 }

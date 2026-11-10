@@ -13,8 +13,9 @@ export function StaffMobileLater() {
       <Text style={styles.title}>Tenant app</Text>
       <Card>
         <Text style={styles.body}>
-          This release is the tenant mobile app. Housing, repairs, support, documents and the assistant
-          are available on a tenant account. The staff mobile app is a later phase.
+          Support workers, organisation admins, and maintenance contractors use the staff tools after
+          organisation sign-in. This account does not include those tools. Super admin platform
+          administration stays on the web dashboard.
         </Text>
       </Card>
       <View style={styles.actions}>

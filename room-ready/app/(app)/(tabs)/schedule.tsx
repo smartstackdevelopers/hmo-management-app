@@ -1,4 +1,7 @@
 import { router } from 'expo-router';
+
+import { ContractorSchedule } from '@/components/staff/ContractorSchedule';
+import { useAuth } from '@/contexts/AuthContext';
 import { SectionList, StyleSheet, Text, View } from 'react-native';
 
 import { Badge } from '@/components/ui/Badge';
@@ -43,6 +46,12 @@ function groupJobs(jobs: MaintenanceItem[]): JobSection[] {
 }
 
 export default function ScheduleScreen() {
+  const { hmore, user } = useAuth();
+  if (hmore && user?.role === 'contractor') return <ContractorSchedule />;
+  return <LegacyScheduleScreen />;
+}
+
+function LegacyScheduleScreen() {
   const bottomPad = useTabClearance();
   const guard = useRoleGuard(TAB_ROLES.schedule);
   if (guard) return guard;
