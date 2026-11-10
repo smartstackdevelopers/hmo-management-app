@@ -20,7 +20,8 @@
         "NSCameraUsageDescription": "Room Ready uses the camera to photograph maintenance issues and property documents.",
         "NSPhotoLibraryUsageDescription": "Room Ready needs photo library access to attach images to repairs and uploads.",
         "NSMicrophoneUsageDescription": "Room Ready uses the microphone to dictate support notes on this device.",
-        "NSSpeechRecognitionUsageDescription": "Room Ready transcribes dictated support notes on this device."
+        "NSSpeechRecognitionUsageDescription": "Room Ready transcribes dictated support notes on this device.",
+        "UIBackgroundModes": ["remote-notification"]
       },
       "config": {
         "usesNonExemptEncryption": false
@@ -41,7 +42,8 @@
         "READ_EXTERNAL_STORAGE",
         "WRITE_EXTERNAL_STORAGE",
         "READ_MEDIA_IMAGES",
-        "RECORD_AUDIO"
+        "RECORD_AUDIO",
+        "POST_NOTIFICATIONS"
       ]
     },
     "web": {
@@ -73,6 +75,15 @@
         "expo-document-picker",
         {
           "iCloudContainerEnvironment": "Production"
+        }
+      ],
+      [
+        "expo-notifications",
+        {
+          "color": "#0C2340",
+          "defaultChannel": "default",
+          "mode": "production",
+          "enableBackgroundRemoteNotifications": true
         }
       ],
       [

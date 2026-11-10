@@ -1,5 +1,6 @@
 import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 
+import { PushPreferenceToggle } from '@/components/PushPreferenceToggle';
 import { Card } from '@/components/ui/Card';
 import { FONT_BOLD, FONT_MEDIUM, FONT_SEMIBOLD } from '@/constants/fonts';
 import { theme } from '@/constants/theme';
@@ -62,6 +63,7 @@ export function AccessibilitySettings() {
           </Pressable>
         ))}
       </Card>
+      <PushPreferenceToggle />
     </ScrollView>
   );
 }

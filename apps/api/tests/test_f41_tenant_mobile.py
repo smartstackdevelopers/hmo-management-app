@@ -31,14 +31,19 @@ from app.tenant_portal.schemas import (
 from app.tenancy.context import OrganisationContext
 
 
-def test_alembic_single_head_is_f41() -> None:
+def test_alembic_head_revises_f41_tenant_mobile() -> None:
+    """F4.1 stays in the migration chain. F4.3 push notifications is the single head."""
     from pathlib import Path
 
     api_root = Path(__file__).resolve().parents[1]
     config = Config(str(api_root / "alembic.ini"))
     config.set_main_option("script_location", str(api_root / "migrations"))
-    heads = ScriptDirectory.from_config(config).get_heads()
-    assert heads == ["20261110_2900_f41"]
+    script = ScriptDirectory.from_config(config)
+    heads = script.get_heads()
+    assert heads == ["20261110_3000_f43"]
+    f43 = script.get_revision("20261110_3000_f43")
+    assert f43 is not None
+    assert f43.down_revision == "20261110_2900_f41"
 
 
 def test_self_profile_schema_hides_staff_notes() -> None:

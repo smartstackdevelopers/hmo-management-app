@@ -26,3 +26,22 @@ export function listAnnouncements(): Promise<AnnouncementSummary[]> {
 export function getAnnouncement(id: string): Promise<AnnouncementDetail> {
   return hmoreFetch<AnnouncementDetail>(`/communications/announcements/${id}`, { method: 'GET' });
 }
+
+export interface CommunicationPreferences {
+  allow_in_app: boolean;
+  allow_email: boolean;
+  allow_sms: boolean;
+  allow_push: boolean;
+  marketing_opt_out: boolean;
+  sms_suppressed: boolean;
+}
+
+export function getCommunicationPreferences(): Promise<CommunicationPreferences> {
+  return hmoreFetch<CommunicationPreferences>('/communications/preferences', { method: 'GET' });
+}
+
+export function patchCommunicationPreferences(
+  body: Partial<CommunicationPreferences>,
+): Promise<CommunicationPreferences> {
+  return hmoreFetch<CommunicationPreferences>('/communications/preferences', { method: 'PATCH', body });
+}

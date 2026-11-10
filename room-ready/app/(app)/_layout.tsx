@@ -1,10 +1,13 @@
 import { Redirect, Stack } from 'expo-router';
+import { useEffect } from 'react';
 import { StyleSheet, View } from 'react-native';
 
 import { LoadingScreen } from '@/components/ui/States';
 import { theme } from '@/constants/theme';
 import { useAuth } from '@/contexts/AuthContext';
 import { useI18n } from '@/hooks/useI18n';
+import { installPushResponseListener } from '@/lib/hmore/push/handler';
+import { isStaffShellRole } from '@/lib/hmore/roles';
 
 const headerOptions = {
   headerStyle: { backgroundColor: theme.colors.background },
@@ -19,6 +22,11 @@ export default function AppLayout() {
   const { isAuthenticated, isLoading, hmore, user } = useAuth();
   const { t } = useI18n();
   const tenant = !!hmore && user?.role === 'tenant';
+
+  useEffect(() => {
+    if (!isAuthenticated) return;
+    return installPushResponseListener(isStaffShellRole(user?.role));
+  }, [isAuthenticated, user?.role]);
 
   if (isLoading) return <LoadingScreen message="Loading your account..." />;
 

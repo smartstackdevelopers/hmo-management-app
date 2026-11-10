@@ -29,7 +29,7 @@ def _now() -> datetime:
     return datetime.now(timezone.utc)
 
 
-VALID_CHANNELS = frozenset({"in_app", "email", "sms"})
+VALID_CHANNELS = frozenset({"in_app", "email", "sms", "push"})
 
 
 @dataclass(frozen=True)
@@ -88,6 +88,8 @@ def _channel_allowed(
         if essential_operational:
             return True
         return prefs.allow_sms and not prefs.sms_suppressed and not prefs.marketing_opt_out
+    if channel == "push":
+        return bool(prefs.allow_push)
     return False
 
 
@@ -133,6 +135,26 @@ class CommunicationNotificationProvider:
                 success=False,
                 provider="preferences",
                 detail="Recipient channel disabled by communication preferences",
+            )
+
+        if channel == "push":
+            from app.push.delivery import enqueue_push_for_target
+
+            target = uuid.UUID(message.target_id) if message.target_id else org_uuid
+            queued = enqueue_push_for_target(
+                session,
+                organisation_id=org_uuid,
+                recipient_user_id=recipient_uuid,
+                target_type=message.target_type,
+                target_id=target,
+                idempotency_base=message.idempotency_key,
+            )
+            if not queued:
+                return DeliveryResult(success=False, provider="push", detail="no_active_push_tokens")
+            return DeliveryResult(
+                success=True,
+                provider="push_outbox",
+                detail="queued_not_device_received",
             )
 
         idem = message.idempotency_key

@@ -57,6 +57,7 @@ class CommunicationUserPreference(UUIDPrimaryKeyMixin, OrganisationScopedMixin, 
     allow_in_app: Mapped[bool] = mapped_column(Boolean, nullable=False, default=True)
     allow_email: Mapped[bool] = mapped_column(Boolean, nullable=False, default=True)
     allow_sms: Mapped[bool] = mapped_column(Boolean, nullable=False, default=False)
+    allow_push: Mapped[bool] = mapped_column(Boolean, nullable=False, default=True)
     marketing_opt_out: Mapped[bool] = mapped_column(Boolean, nullable=False, default=True)
     sms_suppressed: Mapped[bool] = mapped_column(Boolean, nullable=False, default=False)
 
@@ -171,12 +172,12 @@ class CommunicationDelivery(UUIDPrimaryKeyMixin, OrganisationScopedMixin, Timest
         UniqueConstraint("organisation_id", "idempotency_key", name="uq_comm_del_idempotency"),
         Index("ix_comm_del_pending", "organisation_id", "status", "scheduled_at"),
         CheckConstraint(
-            "channel IN ('in_app', 'email', 'sms')",
+            "channel IN ('in_app', 'email', 'sms', 'push')",
             name="ck_comm_del_channel",
         ),
         CheckConstraint(
             "status IN ("
-            "'created', 'queued', 'attempted', 'provider_accepted', 'delivered', "
+            "'created', 'queued', 'sending', 'sent', 'attempted', 'provider_accepted', 'delivered', "
             "'failed', 'retrying', 'cancelled'"
             ")",
             name="ck_comm_del_status",

@@ -150,6 +150,7 @@ from app.db.models.ai_feature_flags import (
     OrganisationAiFeatureFlagHistory,
 )
 from app.db.models.catalogue import CommunityService, OpportunityListing
+from app.db.models.push_devices import PushDeviceToken
 
 __all__ = [
     "AuditEvent",
@@ -209,6 +210,7 @@ __all__ = [
     "Organisation",
     "OrganisationMembership",
     "Property",
+    "PushDeviceToken",
     "RecordStatus",
     "ReminderRecord",
     "Room",

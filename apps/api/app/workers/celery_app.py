@@ -41,6 +41,10 @@ celery_app.conf.update(
             "task": "hmore.communication.dispatch_scheduled_reminders",
             "schedule": 60.0,
         },
+        "dispatch-pending-push-every-45-seconds": {
+            "task": "hmore.push.dispatch_pending",
+            "schedule": 45.0,
+        },
         # F3.9 — daily compliance rules sweep (AI explains afterward inside the sweep)
         "dispatch-compliance-sweeps-daily": {
             "task": "hmore.compliance.dispatch_scheduled_sweeps",

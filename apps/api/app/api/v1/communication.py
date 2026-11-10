@@ -118,13 +118,7 @@ def get_preferences(
     session: Session = Depends(get_session),
 ) -> dict:
     row = comm_service.get_or_create_prefs(session, org)
-    return {
-        "allow_in_app": row.allow_in_app,
-        "allow_email": row.allow_email,
-        "allow_sms": row.allow_sms,
-        "marketing_opt_out": row.marketing_opt_out,
-        "sms_suppressed": row.sms_suppressed,
-    }
+    return comm_service.preference_payload(row)
 
 
 @router.patch("/preferences")

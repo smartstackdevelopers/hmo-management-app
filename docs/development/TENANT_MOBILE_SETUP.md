@@ -48,5 +48,5 @@ A tenant can open assigned housing, repairs, support, documents (including their
 
 - A new repair needs an assigned property. `GET /tenant/me/housing` returns that property id when staff have set `assigned_property_id`. If the property is null, the form explains that staff must assign housing before a new repair can be sent.
 - Catalogue tables start empty. Nothing in the migration inserts food banks, jobs, training, or housing.
-- In-app notifications use the communications inbox. Device push is F4.3 (not included).
+- In-app notifications use the communications inbox. The app can register an Expo push token; a handset only receives it when the API has Expo credentials and the build has a real EAS project id. See `docs/development/PUSH_NOTIFICATIONS_SETUP.md`.
 - iOS and Android device runs were not executed in CI. CI covers typecheck and unit tests. Auth0 still has to be configured on a real tenant before a signed-in device session works.

@@ -12,6 +12,7 @@ import {
   loginWithAuth0,
   logoutAuth0,
 } from '@/lib/hmoreAuth0';
+import { deactivateRegisteredPush, registerPushAfterSession } from '@/lib/hmore/push/register';
 import { mapHmoreRole } from '@/lib/hmore/roles';
 import { AuthState, User } from '@/types';
 
@@ -106,6 +107,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     bootstrap();
   }, [bootstrap]);
 
+  useEffect(() => {
+    if (!state.isAuthenticated || !hmore) return;
+    void registerPushAfterSession();
+  }, [state.isAuthenticated, hmore]);
+
   const signInWithAuth0 = useCallback(async () => {
     if (!isAuth0MobileConfigured()) {
       throw new Error('Organisation sign-in is not configured.');
@@ -136,6 +142,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   const signOut = useCallback(async () => {
+    try {
+      await deactivateRegisteredPush();
+    } catch {
+      // Local sign-out continues when the device row cannot be reached.
+    }
     queryClient.clear();
     if (isAuth0MobileConfigured()) {
       await logoutAuth0();

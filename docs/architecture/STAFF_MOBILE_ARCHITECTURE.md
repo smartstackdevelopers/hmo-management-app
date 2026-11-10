@@ -49,7 +49,9 @@ The occupancy screen lists site-survey summaries: status, date, feasibility stat
 
 ## Push
 
-F4.2 does not register a device push token. Alerts are the communications inbox. `StaffAlertList` opens a staff record when the message has a known `related_resource_type` and id, or an explicit `hmore://` link in the body. End-to-end device push is F4.3.
+F4.3 registers an Expo push token after the HMore session is ready and deactivates it on sign-out. Alerts are still the communications inbox. `StaffAlertList` opens a staff record when the message has a known `related_resource_type` and id, or an explicit `hmore://` link in the body. A push tap uses that same `staffAlertHref` helper, then marks the inbox message read when `message_id` is present. The push body is a generic line, not the incident or note text.
+
+Device delivery needs `PUSH_ADAPTER_MODE=expo`, an `EXPO_ACCESS_TOKEN` on the API, and `EXPO_PUBLIC_EAS_PROJECT_ID` on a development or EAS build. Expo Go and the placeholder project id do not deliver a push. See `docs/architecture/PUSH_NOTIFICATIONS_ARCHITECTURE.md`.
 
 ## Uploads
 
