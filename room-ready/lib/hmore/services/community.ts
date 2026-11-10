@@ -1,8 +1,19 @@
-import { PHASE5_PENDING, type Phase5PendingResult } from '@/lib/hmore/types';
+import { hmoreFetch } from '@/lib/hmore/client';
+import type { CommunityServiceItem } from '@/lib/hmore/types';
 
-const MESSAGE =
-  'Food banks and local services are a Phase 5 module. This screen stays empty until that service is connected. There is no sample list.';
+export function communityItemsFromResponse(
+  response: { items?: CommunityServiceItem[] } | null | undefined,
+): CommunityServiceItem[] {
+  return response?.items ?? [];
+}
 
-export function communityServicesStatus(): Phase5PendingResult {
-  return { status: PHASE5_PENDING, feature: 'community', message: MESSAGE };
+export async function listCommunityServices(query?: {
+  q?: string;
+  category?: string;
+}): Promise<CommunityServiceItem[]> {
+  const response = await hmoreFetch<{ items?: CommunityServiceItem[] }>('/community-services', {
+    method: 'GET',
+    query,
+  });
+  return communityItemsFromResponse(response);
 }

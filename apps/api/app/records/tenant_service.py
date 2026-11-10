@@ -7,6 +7,8 @@ from sqlalchemy import func, or_, select
 from sqlalchemy.orm import Session
 
 from app.db.models.enums import HMoreRole, RecordStatus
+from app.db.models.property import Property
+from app.db.models.room import Room
 from app.db.models.tenant import Tenant
 from app.records.audit_hook import record_crud_event
 from app.records.pagination import offset_limit
@@ -90,6 +92,34 @@ def list_tenants(
     return rows, total
 
 
+def _validate_housing_assignment(
+    session: Session,
+    ctx: OrganisationContext,
+    property_id: uuid.UUID | None,
+    room_id: uuid.UUID | None,
+) -> None:
+    if property_id is not None:
+        prop = session.get(Property, property_id)
+        if prop is None or prop.organisation_id != ctx.organisation_id:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Assigned property is not in this organisation",
+            )
+    if room_id is None:
+        return
+    room = session.get(Room, room_id)
+    if room is None or room.organisation_id != ctx.organisation_id:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Assigned room is not in this organisation",
+        )
+    if property_id is None or room.property_id != property_id:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Assigned room does not belong to the assigned property",
+        )
+
+
 def update_tenant(
     session: Session,
     ctx: OrganisationContext,
@@ -102,6 +132,14 @@ def update_tenant(
     payload = data.model_dump(exclude_unset=True)
     if "preferred_name" in payload and payload["preferred_name"] is not None:
         payload["preferred_name"] = payload["preferred_name"].strip()
+    if "assigned_property_id" in payload or "assigned_room_id" in payload:
+        property_id = (
+            payload["assigned_property_id"]
+            if "assigned_property_id" in payload
+            else tenant.assigned_property_id
+        )
+        room_id = payload["assigned_room_id"] if "assigned_room_id" in payload else tenant.assigned_room_id
+        _validate_housing_assignment(session, ctx, property_id, room_id)
     for key, value in payload.items():
         setattr(tenant, key, value)
     session.add(tenant)

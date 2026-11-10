@@ -11,7 +11,16 @@ interface InputProps extends TextInputProps {
   hint?: string;
 }
 
-export function Input({ label, error, hint, style, secureTextEntry, editable = true, ...props }: InputProps) {
+export function Input({
+  label,
+  error,
+  hint,
+  style,
+  secureTextEntry,
+  editable = true,
+  accessibilityLabel,
+  ...props
+}: InputProps) {
   const [focused, setFocused] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const isPassword = secureTextEntry === true;
@@ -41,6 +50,7 @@ export function Input({ label, error, hint, style, secureTextEntry, editable = t
             props.onBlur?.(e);
           }}
           {...props}
+          accessibilityLabel={accessibilityLabel ?? label}
         />
         {isPassword && (
           <Pressable style={styles.eyeBtn} onPress={() => setShowPassword((v) => !v)} hitSlop={8}>

@@ -10,21 +10,29 @@ export interface AccessibilityPrefs {
   language: string;
 }
 
+type PrefsListener = (prefs: AccessibilityPrefs) => void;
+const listeners = new Set<PrefsListener>();
+
+export function subscribeAccessibilityPrefs(listener: PrefsListener): () => void {
+  listeners.add(listener);
+  return () => {
+    listeners.delete(listener);
+  };
+}
+
+function publishAccessibilityPrefs(prefs: AccessibilityPrefs) {
+  listeners.forEach((listener) => listener(prefs));
+}
+
 export const DEFAULT_ACCESSIBILITY: AccessibilityPrefs = {
   textScale: 'default',
   highContrast: false,
   language: 'en',
 };
 
-export const LANGUAGE_OPTIONS: { id: string; label: string }[] = [
+export const LANGUAGE_OPTIONS: { id: 'en' | 'ur'; label: string }[] = [
   { id: 'en', label: 'English' },
-  { id: 'cy', label: 'Cymraeg' },
-  { id: 'pl', label: 'Polski' },
   { id: 'ur', label: 'اردو' },
-  { id: 'pa', label: 'ਪੰਜਾਬੀ' },
-  { id: 'bn', label: 'বাংলা' },
-  { id: 'so', label: 'Soomaali' },
-  { id: 'ar', label: 'العربية' },
 ];
 
 export function textScaleMultiplier(scale: TextScale): number {
@@ -43,7 +51,7 @@ export async function loadAccessibilityPrefs(): Promise<AccessibilityPrefs> {
     return {
       textScale,
       highContrast: parsed.highContrast === true,
-      language: typeof parsed.language === 'string' ? parsed.language : 'en',
+      language: parsed.language === 'ur' ? 'ur' : 'en',
     };
   } catch {
     return DEFAULT_ACCESSIBILITY;
@@ -51,5 +59,10 @@ export async function loadAccessibilityPrefs(): Promise<AccessibilityPrefs> {
 }
 
 export async function saveAccessibilityPrefs(prefs: AccessibilityPrefs): Promise<void> {
-  await AsyncStorage.setItem(KEY, JSON.stringify(prefs));
+  const next: AccessibilityPrefs = {
+    ...prefs,
+    language: prefs.language === 'ur' ? 'ur' : 'en',
+  };
+  await AsyncStorage.setItem(KEY, JSON.stringify(next));
+  publishAccessibilityPrefs(next);
 }

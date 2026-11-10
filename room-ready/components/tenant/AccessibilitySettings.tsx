@@ -3,52 +3,62 @@ import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { Card } from '@/components/ui/Card';
 import { FONT_BOLD, FONT_MEDIUM, FONT_SEMIBOLD } from '@/constants/fonts';
 import { theme } from '@/constants/theme';
-import { useAccessibilityPrefs } from '@/hooks/useAccessibilityPrefs';
+import { useI18n } from '@/hooks/useI18n';
 import { LANGUAGE_OPTIONS, TextScale } from '@/lib/hmore/accessibility';
 
-const SCALES: { id: TextScale; label: string }[] = [
-  { id: 'default', label: 'Default' },
-  { id: 'large', label: 'Large' },
-  { id: 'xlarge', label: 'Extra large' },
+const SCALES: { id: TextScale; labelKey: 'settings.default' | 'settings.large' | 'settings.extraLarge' }[] = [
+  { id: 'default', labelKey: 'settings.default' },
+  { id: 'large', labelKey: 'settings.large' },
+  { id: 'xlarge', labelKey: 'settings.extraLarge' },
 ];
 
 export function AccessibilitySettings() {
-  const { prefs, update, fontScale } = useAccessibilityPrefs();
-  const language = LANGUAGE_OPTIONS.find((item) => item.id === prefs.language)?.label ?? prefs.language;
+  const { prefs, update, fontScale, t } = useI18n();
 
   return (
     <ScrollView style={[styles.page, prefs.highContrast && styles.contrast]} contentContainerStyle={styles.content}>
-      <Text style={[styles.lead, { fontSize: 15 * fontScale }, prefs.highContrast && styles.contrastText]}>
-        Text size and contrast apply on your home screen and this page. Your language preference is saved on this device.
-        Full in-app translation is not available in this version. Current language: {language}.
-      </Text>
+      <Text style={[styles.lead, { fontSize: 15 * fontScale }, prefs.highContrast && styles.contrastText]}>{t('settings.lead')}</Text>
 
-      <Text style={[styles.heading, prefs.highContrast && styles.contrastText]}>Text size</Text>
+      <Text style={[styles.heading, prefs.highContrast && styles.contrastText]}>{t('settings.textSize')}</Text>
       <View style={styles.wrap}>
         {SCALES.map((scale) => (
           <Pressable
             key={scale.id}
+            accessibilityRole="button"
+            accessibilityLabel={t(scale.labelKey)}
+            accessibilityState={{ selected: prefs.textScale === scale.id }}
             onPress={() => update({ textScale: scale.id })}
             style={[styles.choice, prefs.textScale === scale.id && styles.choiceOn, prefs.highContrast && styles.contrastChoice]}
           >
-            <Text style={[styles.choiceText, { fontSize: 14 * fontScale }]}>{scale.label}</Text>
+            <Text style={[styles.choiceText, { fontSize: 14 * fontScale }]}>{t(scale.labelKey)}</Text>
           </Pressable>
         ))}
       </View>
 
-      <Text style={[styles.heading, prefs.highContrast && styles.contrastText]}>Contrast</Text>
+      <Text style={[styles.heading, prefs.highContrast && styles.contrastText]}>{t('settings.contrast')}</Text>
       <Pressable
+        accessibilityRole="button"
+        accessibilityLabel={prefs.highContrast ? t('settings.contrastOn') : t('settings.contrastOff')}
         onPress={() => update({ highContrast: !prefs.highContrast })}
         style={[styles.choice, prefs.highContrast && styles.choiceOn]}
       >
-        <Text style={styles.choiceText}>{prefs.highContrast ? 'High contrast on' : 'High contrast off'}</Text>
+        <Text style={styles.choiceText}>{prefs.highContrast ? t('settings.contrastOn') : t('settings.contrastOff')}</Text>
       </Pressable>
 
-      <Text style={[styles.heading, prefs.highContrast && styles.contrastText]}>Language</Text>
+      <Text style={[styles.heading, prefs.highContrast && styles.contrastText]}>{t('settings.language')}</Text>
       <Card style={prefs.highContrast ? styles.contrastCard : undefined}>
         {LANGUAGE_OPTIONS.map((item) => (
-          <Pressable key={item.id} onPress={() => update({ language: item.id })} style={styles.lang}>
-            <Text style={[styles.choiceText, prefs.language === item.id && styles.selected]}>{item.label}</Text>
+          <Pressable
+            key={item.id}
+            accessibilityRole="button"
+            accessibilityLabel={item.id === 'ur' ? t('settings.urdu') : t('settings.english')}
+            accessibilityState={{ selected: prefs.language === item.id }}
+            onPress={() => update({ language: item.id })}
+            style={styles.lang}
+          >
+            <Text style={[styles.choiceText, prefs.language === item.id && styles.selected]}>
+              {item.id === 'ur' ? t('settings.urdu') : t('settings.english')}
+            </Text>
           </Pressable>
         ))}
       </Card>

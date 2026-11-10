@@ -11,16 +11,15 @@ import { theme } from '@/constants/theme';
 import { useAuth } from '@/contexts/AuthContext';
 import { hmoreErrorMessage } from '@/lib/hmore/client';
 import { listOwnSupportPlans } from '@/lib/hmore/services/supportPlans';
-import { getOwnTenant } from '@/lib/hmore/services/tenants';
+import { getOwnProfile } from '@/lib/hmore/services/tenants';
 import { getTimeline, listAppointments } from '@/lib/hmore/services/timeline';
 
 export function TenantSupport() {
   const { hmore } = useAuth();
-  const userId = hmore?.auth.id ?? '';
   const tenantQuery = useQuery({
-    queryKey: ['hmore', 'tenant', userId],
-    queryFn: () => getOwnTenant(userId),
-    enabled: !!userId,
+    queryKey: ['hmore', 'tenant-me'],
+    queryFn: getOwnProfile,
+    enabled: hmore?.rbac.active_role === 'tenant',
   });
   const plansQuery = useQuery({
     queryKey: ['hmore', 'support-plans'],

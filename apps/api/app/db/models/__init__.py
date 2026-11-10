@@ -149,10 +149,12 @@ from app.db.models.ai_feature_flags import (
     OrganisationAiFeatureFlag,
     OrganisationAiFeatureFlagHistory,
 )
+from app.db.models.catalogue import CommunityService, OpportunityListing
 
 __all__ = [
     "AuditEvent",
     "CaseAssignment",
+    "CommunityService",
     "Complaint",
     "ComplaintCategory",
     "ComplaintDeadlineChange",
@@ -199,6 +201,7 @@ __all__ = [
     "IncidentStatusHistory",
     "MembershipStatus",
     "OccupancySiteSurvey",
+    "OpportunityListing",
     "OccupancySurveyFinding",
     "OccupancySurveyRoomAssessment",
     "OperationalTask",

@@ -4,6 +4,7 @@ import { StyleSheet, View } from 'react-native';
 import { LoadingScreen } from '@/components/ui/States';
 import { theme } from '@/constants/theme';
 import { useAuth } from '@/contexts/AuthContext';
+import { useI18n } from '@/hooks/useI18n';
 
 const headerOptions = {
   headerStyle: { backgroundColor: theme.colors.background },
@@ -15,7 +16,9 @@ const headerOptions = {
 };
 
 export default function AppLayout() {
-  const { isAuthenticated, isLoading } = useAuth();
+  const { isAuthenticated, isLoading, hmore, user } = useAuth();
+  const { t } = useI18n();
+  const tenant = !!hmore && user?.role === 'tenant';
 
   if (isLoading) return <LoadingScreen message="Loading your account..." />;
 
@@ -32,19 +35,19 @@ export default function AppLayout() {
         <Stack.Screen name="property/add-room" options={{ ...headerOptions, headerShown: true, title: 'Add Room' }} />
         <Stack.Screen name="property/upload-document" options={{ ...headerOptions, headerShown: true, title: 'Upload Document' }} />
         <Stack.Screen name="maintenance/[id]" options={{ ...headerOptions, headerShown: true, title: 'Repair Details' }} />
-        <Stack.Screen name="maintenance/new" options={{ ...headerOptions, headerShown: true, title: 'Report Repair' }} />
+        <Stack.Screen name="maintenance/new" options={{ ...headerOptions, headerShown: true, title: tenant ? t('repairs.newTitle') : 'Report Repair' }} />
         <Stack.Screen name="conversation/[id]" options={{ ...headerOptions, headerShown: true, title: 'Conversation' }} />
         <Stack.Screen name="conversation/new" options={{ ...headerOptions, headerShown: true, title: 'New Message' }} />
         <Stack.Screen name="listing/[id]" options={{ ...headerOptions, headerShown: true, title: 'Room Listing' }} />
         <Stack.Screen name="listing/new" options={{ ...headerOptions, headerShown: true, title: 'Create Listing' }} />
         <Stack.Screen name="inspection/[id]" options={{ ...headerOptions, headerShown: true, title: 'Inspection' }} />
         <Stack.Screen name="inspection/new" options={{ ...headerOptions, headerShown: true, title: 'Schedule Inspection' }} />
-        <Stack.Screen name="documents" options={{ ...headerOptions, headerShown: true, title: 'My files' }} />
-        <Stack.Screen name="notifications" options={{ ...headerOptions, headerShown: true, title: 'Notifications' }} />
-        <Stack.Screen name="community" options={{ ...headerOptions, headerShown: true, title: 'Local services' }} />
-        <Stack.Screen name="jobs" options={{ ...headerOptions, headerShown: true, title: 'Jobs and training' }} />
-        <Stack.Screen name="assistant" options={{ ...headerOptions, headerShown: true, title: 'Assistant' }} />
-        <Stack.Screen name="accessibility" options={{ ...headerOptions, headerShown: true, title: 'Accessibility' }} />
+        <Stack.Screen name="documents" options={{ ...headerOptions, headerShown: true, title: tenant ? t('nav.files') : 'My files' }} />
+        <Stack.Screen name="notifications" options={{ ...headerOptions, headerShown: true, title: tenant ? t('nav.alerts') : 'Notifications' }} />
+        <Stack.Screen name="community" options={{ ...headerOptions, headerShown: true, title: tenant ? t('nav.services') : 'Local services' }} />
+        <Stack.Screen name="jobs" options={{ ...headerOptions, headerShown: true, title: tenant ? t('nav.jobs') : 'Jobs and training' }} />
+        <Stack.Screen name="assistant" options={{ ...headerOptions, headerShown: true, title: tenant ? t('nav.assistant') : 'Assistant' }} />
+        <Stack.Screen name="accessibility" options={{ ...headerOptions, headerShown: true, title: tenant ? t('nav.settings') : 'Accessibility' }} />
         <Stack.Screen name="security" options={{ ...headerOptions, headerShown: true, title: 'Privacy & Security' }} />
         <Stack.Screen name="browse" options={{ ...headerOptions, headerShown: true, title: 'Find a Room' }} />
         <Stack.Screen name="wishlist" options={{ ...headerOptions, headerShown: true, title: 'Wishlist' }} />

@@ -411,7 +411,7 @@ def ask(
         exec_status = "rejected_budget"
     else:
         exec_status = "completed"
-    if not attach_transparency(
+    activity = attach_transparency(
         session,
         request_id=str(ta_request_id),
         organisation_id=ctx.organisation_id,
@@ -422,8 +422,9 @@ def ask(
         output_ref={"type": "tenant_assistant_message", "id": str(assistant_msg.id)},
         operation_type="tenant_assistant",
         visibility="initiator",
-    ):
-        record_local_activity(
+    )
+    if activity is None:
+        activity = record_local_activity(
             session,
             organisation_id=ctx.organisation_id,
             request_id=str(ta_request_id),
@@ -452,6 +453,7 @@ def ask(
         "makes_official_decisions": False,
         "approved_content_count": len(relevant),
         "content_fingerprint": fingerprint,
+        "activity_id": str(activity.id) if activity is not None else None,
     }
 
 
