@@ -32,7 +32,7 @@ from app.tenancy.context import OrganisationContext
 
 
 def test_alembic_head_revises_f41_tenant_mobile() -> None:
-    """F4.1 stays in the migration chain. F4.3 push notifications is the single head."""
+    """F4.1 stays in the chain. F4.5 idempotency is the single head and revises F4.3."""
     from pathlib import Path
 
     api_root = Path(__file__).resolve().parents[1]
@@ -40,10 +40,13 @@ def test_alembic_head_revises_f41_tenant_mobile() -> None:
     config.set_main_option("script_location", str(api_root / "migrations"))
     script = ScriptDirectory.from_config(config)
     heads = script.get_heads()
-    assert heads == ["20261110_3000_f43"]
+    assert heads == ["20261110_3200_f45"]
     f43 = script.get_revision("20261110_3000_f43")
     assert f43 is not None
     assert f43.down_revision == "20261110_2900_f41"
+    f45 = script.get_revision("20261110_3200_f45")
+    assert f45 is not None
+    assert f45.down_revision == "20261110_3000_f43"
 
 
 def test_self_profile_schema_hides_staff_notes() -> None:

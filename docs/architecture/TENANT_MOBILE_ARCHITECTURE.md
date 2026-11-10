@@ -1,6 +1,6 @@
 # Tenant mobile architecture (F4.1)
 
-The tenant mobile app is the Expo project in `room-ready/`. `apps/mobile` stays a pointer. This release wires that app to the FastAPI `/api/v1` API for a signed-in tenant. Staff mobile (F4.2), push, biometrics, and offline drafts are out of scope.
+The tenant mobile app is the Expo project in `room-ready/`. `apps/mobile` stays a pointer. This release wires that app to the FastAPI `/api/v1` API for a signed-in tenant. Staff mobile (F4.2) and push are separate. F4.5 adds offline repair drafts: if the repair form is offline, the repair and its photos stay on the device until Sync Now or a reconnect sync gets a 2xx. See `docs/architecture/OFFLINE_SYNC_ARCHITECTURE.md`.
 
 ## Sign-in
 

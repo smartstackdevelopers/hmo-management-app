@@ -9,6 +9,8 @@ from fastapi import APIRouter, Depends, Query
 from sqlalchemy.orm import Session
 
 from app.db.session import get_session
+from app.idempotency.deps import IdempotencyKey
+from app.idempotency.service import SCOPE_DAILY_LOG_CREATE, apply_idempotent, fresh_or_replay, jsonable
 from app.support import service as support_service
 from app.daily_log_rewrite import service as rewrite_service
 from app.support.schemas import (
@@ -101,8 +103,26 @@ def create_daily_log(
     body: DailyLogCreate,
     org: OrganisationContext = Depends(get_organisation_context),
     session: Session = Depends(get_session),
+    idempotency_key: IdempotencyKey,
 ) -> Any:
-    return support_service.create_daily_log(session, org, body)
+    holder: dict[str, Any] = {}
+
+    def produce() -> tuple[Any, dict[str, Any]]:
+        row = support_service.create_daily_log(session, org, body)
+        holder["row"] = row
+        return row.id, jsonable(DailyLogOut.model_validate(row).model_dump(mode="json"))
+
+    result = apply_idempotent(
+        session,
+        organisation_id=org.organisation_id,
+        user_id=org.user_id,
+        scope=SCOPE_DAILY_LOG_CREATE,
+        key=idempotency_key,
+        resource_type="daily_log",
+        success_status=201,
+        produce=produce,
+    )
+    return fresh_or_replay(result, holder.get("row"))
 
 
 @logs_router.post("/rewrite", response_model=DailyLogRewriteOut)

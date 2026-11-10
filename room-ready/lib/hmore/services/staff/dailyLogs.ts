@@ -44,6 +44,6 @@ export function listDailyLogs(query?: { page?: number; page_size?: number; tenan
   return hmoreFetch<Page<DailyLog>>('/daily-logs', { method: 'GET', query });
 }
 
-export function createDailyLog(body: DailyLogInput): Promise<DailyLog> {
-  return hmoreFetch<DailyLog>('/daily-logs', { method: 'POST', body });
+export function createDailyLog(body: DailyLogInput, idempotencyKey?: string): Promise<DailyLog> {
+  return hmoreFetch<DailyLog>('/daily-logs', { method: 'POST', body, idempotencyKey });
 }

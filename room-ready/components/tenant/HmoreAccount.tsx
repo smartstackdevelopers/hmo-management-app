@@ -122,6 +122,8 @@ export function HmoreAccount() {
       </Card>
 
       <Card padded={false}>
+        <ListRow title={t('profile.offlineDrafts')} icon="cloud-offline-outline" onPress={() => router.push('/(app)/offline-drafts')} />
+        <View style={styles.divider} />
         <ListRow title={t('profile.alerts')} icon="notifications-outline" onPress={() => router.push('/(app)/notifications')} />
         <View style={styles.divider} />
         <ListRow title={t('profile.files')} icon="folder-outline" onPress={() => router.push('/(app)/documents')} />

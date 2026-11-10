@@ -4,6 +4,9 @@ import { useState } from 'react';
 import { Alert, Image, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 
 import { Button } from '@/components/ui/Button';
+import { useOfflineDrafts } from '@/hooks/useStaffDrafts';
+import { retainAttachment } from '@/lib/hmore/offline/attachments';
+import { readConnectivity } from '@/lib/hmore/offline/network';
 import { Card } from '@/components/ui/Card';
 import { Input } from '@/components/ui/Input';
 import { ErrorState, LoadingScreen } from '@/components/ui/States';
@@ -12,7 +15,7 @@ import { theme } from '@/constants/theme';
 import { useI18n } from '@/hooks/useI18n';
 import { hmoreErrorMessage } from '@/lib/hmore/client';
 import { assignedPropertyId, formatAssignedAddress, getOwnHousing } from '@/lib/hmore/services/housing';
-import { createMaintenance, listMaintenanceCategories, uploadMaintenancePhoto } from '@/lib/hmore/services/maintenance';
+import { listMaintenanceCategories } from '@/lib/hmore/services/maintenance';
 import { getOwnProfile } from '@/lib/hmore/services/tenants';
 import { pickImage } from '@/lib/uploads';
 
@@ -30,6 +33,8 @@ type Photo = { uri: string; name: string; mimeType: string };
 export function HmoreRepairForm() {
   const { t, fontScale, prefs } = useI18n();
   const client = useQueryClient();
+  const drafts = useOfflineDrafts();
+  const [notice, setNotice] = useState('');
   const profileQuery = useQuery({
     queryKey: ['hmore', 'tenant-me'],
     queryFn: getOwnProfile,
@@ -64,21 +69,41 @@ export function HmoreRepairForm() {
     mutationFn: async () => {
       if (!profileQuery.data) throw new Error(t('repairs.unlinked'));
       if (!propertyId) throw new Error(t('repairs.needAssignment'));
-      const created = await createMaintenance({
-        title: title.trim(),
-        description: description.trim(),
-        category_code: category,
-        priority,
-        property_id: propertyId,
-        room_id: roomId,
-        tenant_id: profileQuery.data.id,
-      });
+      const stored = [];
       for (const photo of photos) {
-        await uploadMaintenancePhoto(created.id, photo, title.trim());
+        const uri = drafts.owner
+          ? await retainAttachment(drafts.owner, photo.uri, profileQuery.data.id, undefined, photo.name)
+          : photo.uri;
+        stored.push({ ...photo, uri });
       }
-      return created;
+      const draft = await drafts.save({
+        type: 'repair_create',
+        payload: {
+          title: title.trim(),
+          description: description.trim(),
+          category_code: category,
+          priority,
+          property_id: propertyId,
+          room_id: roomId,
+          tenant_id: profileQuery.data.id,
+          local_files: stored,
+        },
+        localAttachmentUris: stored.map((photo) => photo.uri),
+      });
+      if ((await readConnectivity()) !== 'online') return { offline: true as const, id: '' };
+      const report = await drafts.sync();
+      const result = report.results.find((item) => item.id === draft.id);
+      if (!result?.saved || !result.serverResourceId) {
+        throw new Error(result?.error || t('repairs.savedOffline'));
+      }
+      return { offline: false as const, id: result.serverResourceId };
     },
     onSuccess: async (created) => {
+      if (created.offline) {
+        setNotice(t('repairs.savedOffline'));
+        return;
+      }
+      setNotice('');
       await client.invalidateQueries({ queryKey: ['hmore', 'maintenance'] });
       router.replace(`/(app)/maintenance/${created.id}`);
     },
@@ -203,6 +228,7 @@ export function HmoreRepairForm() {
           </View>
         ))}
       </Card>
+      {notice ? <Text style={styles.note}>{notice}</Text> : null}
       {create.error ? <Text style={styles.error}>{hmoreErrorMessage(create.error)}</Text> : null}
       <Button
         title={t('repairs.send')}

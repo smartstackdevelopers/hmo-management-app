@@ -44,6 +44,7 @@ class MaintenanceUpdate(BaseModel):
     title: str | None = Field(default=None, min_length=1, max_length=255)
     description: str | None = Field(default=None, min_length=1, max_length=8000)
     category_code: str | None = Field(default=None, max_length=64)
+    if_match_updated_at: datetime | None = None
 
 
 class AssignRequest(BaseModel):
@@ -59,6 +60,7 @@ class PriorityRequest(BaseModel):
 class StatusTransitionRequest(BaseModel):
     status: MaintStatus
     note: str | None = Field(default=None, max_length=1000)
+    if_match_updated_at: datetime | None = None
 
 
 class ScheduleVisitRequest(BaseModel):
@@ -91,11 +93,13 @@ class ApprovalDecisionRequest(BaseModel):
 class NoteCreate(BaseModel):
     body: str = Field(min_length=1, max_length=8000)
     visibility: NoteVisibility = "internal"
+    if_match_updated_at: datetime | None = None
 
 
 class CompleteRequest(BaseModel):
     work_notes: str = Field(min_length=1, max_length=8000)
     completion_summary: str | None = Field(default=None, max_length=8000)
+    if_match_updated_at: datetime | None = None
 
 
 class AssociatePhotoRequest(BaseModel):
@@ -160,6 +164,7 @@ class MaintenanceOut(BaseModel):
     emergency_kind_hint: str | None = None
     file_ids: list[uuid.UUID] = []
     created_at: datetime
+    updated_at: datetime
 
 
 class VisitOut(BaseModel):

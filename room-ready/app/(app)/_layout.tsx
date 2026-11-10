@@ -2,6 +2,7 @@ import { Redirect, Stack } from 'expo-router';
 import { useEffect } from 'react';
 import { StyleSheet, View } from 'react-native';
 
+import { SyncStatusBanner } from '@/components/offline/SyncStatusBanner';
 import { LoadingScreen } from '@/components/ui/States';
 import { theme } from '@/constants/theme';
 import { useAuth } from '@/contexts/AuthContext';
@@ -36,6 +37,7 @@ export default function AppLayout() {
 
   return (
     <View style={styles.root}>
+      <SyncStatusBanner />
       <Stack screenOptions={{ headerShown: false, contentStyle: { flex: 1, backgroundColor: theme.colors.background } }}>
         <Stack.Screen name="(tabs)" />
         <Stack.Screen name="property/[id]" options={{ ...headerOptions, headerShown: true, title: 'Property Details' }} />
@@ -65,6 +67,7 @@ export default function AppLayout() {
         <Stack.Screen name="assistant" options={{ ...headerOptions, headerShown: true, title: tenant ? t('nav.assistant') : 'Assistant' }} />
         <Stack.Screen name="accessibility" options={{ ...headerOptions, headerShown: true, title: tenant ? t('nav.settings') : 'Accessibility' }} />
         <Stack.Screen name="security" options={{ ...headerOptions, headerShown: true, title: 'Privacy & Security' }} />
+        <Stack.Screen name="offline-drafts" options={{ ...headerOptions, headerShown: true, title: 'Offline drafts' }} />
         <Stack.Screen name="browse" options={{ ...headerOptions, headerShown: true, title: 'Find a Room' }} />
         <Stack.Screen name="wishlist" options={{ ...headerOptions, headerShown: true, title: 'Wishlist' }} />
       </Stack>

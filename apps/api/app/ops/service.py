@@ -11,6 +11,7 @@ from sqlalchemy import func, select
 from sqlalchemy.orm import Session
 
 from app.audit import events as audit_events
+from app.idempotency.service import assert_if_match, without_match_field
 from app.audit.service import AuditOutcome, record_event
 from app.core.config import get_settings
 from app.db.models.enums import HMoreRole
@@ -359,7 +360,8 @@ def update_visit(
     session: Session, ctx: OrganisationContext, visit_id: uuid.UUID, data: VisitUpdate
 ) -> TenantVisit:
     row = get_visit(session, ctx, visit_id)
-    payload = data.model_dump(exclude_unset=True)
+    assert_if_match(row.updated_at, data.if_match_updated_at)
+    payload = without_match_field(data.model_dump(exclude_unset=True))
     if "status" in payload:
         target = payload["status"]
         allowed = VISIT_TRANSITIONS.get(row.status, frozenset())
@@ -507,7 +509,8 @@ def update_task(
     session: Session, ctx: OrganisationContext, task_id: uuid.UUID, data: TaskUpdate
 ) -> OperationalTask:
     row = get_task(session, ctx, task_id)
-    payload = data.model_dump(exclude_unset=True)
+    assert_if_match(row.updated_at, data.if_match_updated_at)
+    payload = without_match_field(data.model_dump(exclude_unset=True))
     if "assigned_user_id" in payload and payload["assigned_user_id"] is not None:
         access.assert_task_assignee_scope(
             session,

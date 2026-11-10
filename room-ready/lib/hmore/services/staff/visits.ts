@@ -12,6 +12,7 @@ export interface StaffVisit {
   status: string;
   outcome: string | null;
   notes: string | null;
+  updated_at?: string;
 }
 
 export function listVisits(query?: { page?: number; page_size?: number; status?: string }): Promise<Page<StaffVisit>> {
@@ -20,7 +21,8 @@ export function listVisits(query?: { page?: number; page_size?: number; status?:
 
 export function updateVisit(
   visitId: string,
-  body: { status?: string; outcome?: string | null; notes?: string | null },
+  body: { status?: string; outcome?: string | null; notes?: string | null; if_match_updated_at?: string },
+  idempotencyKey?: string,
 ): Promise<StaffVisit> {
-  return hmoreFetch<StaffVisit>(`/visits/${visitId}`, { method: 'PATCH', body });
+  return hmoreFetch<StaffVisit>(`/visits/${visitId}`, { method: 'PATCH', body, idempotencyKey });
 }

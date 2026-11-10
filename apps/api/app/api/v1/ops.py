@@ -10,6 +10,14 @@ from fastapi import APIRouter, Depends, Query
 from sqlalchemy.orm import Session
 
 from app.db.session import get_session
+from app.idempotency.deps import IdempotencyKey
+from app.idempotency.service import (
+    SCOPE_TASK_UPDATE,
+    SCOPE_VISIT_UPDATE,
+    apply_idempotent,
+    fresh_or_replay,
+    jsonable,
+)
 from app.ops import service as ops_service
 from app.ops.schemas import (
     ReminderOut,
@@ -165,8 +173,26 @@ def patch_visit(
     body: VisitUpdate,
     org: OrganisationContext = Depends(get_organisation_context),
     session: Session = Depends(get_session),
+    idempotency_key: IdempotencyKey,
 ) -> Any:
-    return ops_service.update_visit(session, org, visit_id, body)
+    holder: dict[str, Any] = {}
+
+    def produce() -> tuple[Any, dict[str, Any]]:
+        row = ops_service.update_visit(session, org, visit_id, body)
+        holder["row"] = row
+        return row.id, jsonable(VisitOut.model_validate(row).model_dump(mode="json"))
+
+    result = apply_idempotent(
+        session,
+        organisation_id=org.organisation_id,
+        user_id=org.user_id,
+        scope=f"{SCOPE_VISIT_UPDATE}:{visit_id}",
+        key=idempotency_key,
+        resource_type="tenant_visit",
+        success_status=200,
+        produce=produce,
+    )
+    return fresh_or_replay(result, holder.get("row"))
 
 
 @tasks_router.post("", response_model=TaskOut, status_code=201)
@@ -218,8 +244,26 @@ def patch_task(
     body: TaskUpdate,
     org: OrganisationContext = Depends(get_organisation_context),
     session: Session = Depends(get_session),
+    idempotency_key: IdempotencyKey,
 ) -> Any:
-    return ops_service.task_out_dict(ops_service.update_task(session, org, task_id, body))
+    holder: dict[str, Any] = {}
+
+    def produce() -> tuple[Any, dict[str, Any]]:
+        payload = ops_service.task_out_dict(ops_service.update_task(session, org, task_id, body))
+        holder["row"] = payload
+        return payload["id"], jsonable(payload)
+
+    result = apply_idempotent(
+        session,
+        organisation_id=org.organisation_id,
+        user_id=org.user_id,
+        scope=f"{SCOPE_TASK_UPDATE}:{task_id}",
+        key=idempotency_key,
+        resource_type="operational_task",
+        success_status=200,
+        produce=produce,
+    )
+    return fresh_or_replay(result, holder.get("row"))
 
 
 @reminders_router.get("", response_model=dict[str, Any])

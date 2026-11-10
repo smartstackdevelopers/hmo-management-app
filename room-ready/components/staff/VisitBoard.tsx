@@ -10,7 +10,7 @@ import { formatUKDate } from '@/constants/uk';
 import { useStaffDrafts } from '@/hooks/useStaffDrafts';
 import { hmoreErrorMessage } from '@/lib/hmore/client';
 import { isDeviceOnline, pingHmoreHealth } from '@/lib/hmore/staff/network';
-import { listVisits, updateVisit } from '@/lib/hmore/services/staff/visits';
+import { listVisits } from '@/lib/hmore/services/staff/visits';
 
 const STATUSES = ['scheduled', 'confirmed', 'in_progress', 'completed', 'missed', 'cancelled'];
 
@@ -33,24 +33,37 @@ export function VisitBoard() {
 
   async function save() {
     if (!current) return;
-    const payload = { visit_id: current.id, status, outcome: outcome.trim(), notes: current.notes };
+    const payload = {
+      visit_id: current.id,
+      status,
+      outcome: outcome.trim(),
+      notes: current.notes,
+      if_match_updated_at: current.updated_at,
+    };
     setBusy(true);
     setSavedOnServer(false);
     try {
+      const draft = await drafts.save({
+        type: 'visit_update',
+        payload,
+        serverUpdatedAt: current.updated_at,
+      });
       const online = await isDeviceOnline({ ping: pingHmoreHealth });
       if (!online) {
-        await drafts.save({ type: 'visit_update', payload });
         setFeedback('Saved on this device. The visit status is still the server status until sync.');
         return;
       }
-      const updated = await updateVisit(current.id, { status, outcome: outcome.trim() || null });
+      const report = await drafts.sync();
+      const result = report.results.find((item) => item.id === draft.id);
+      if (!result?.saved) {
+        setFeedback(result?.error || 'The update is still a draft.');
+        return;
+      }
       setSavedOnServer(true);
-      setFeedback(`Server status: ${updated.status}`);
-      const existing = drafts.drafts.find((draft) => draft.payload.visit_id === current.id);
-      if (existing) await drafts.remove(existing.id);
-      await query.refetch();
+      const refreshed = await query.refetch();
+      const confirmed = refreshed.data?.items.find((visit) => visit.id === current.id);
+      setFeedback(`Server status: ${confirmed?.status ?? status}`);
     } catch (error) {
-      await drafts.save({ type: 'visit_update', payload });
       setFeedback(`${hmoreErrorMessage(error)} The update is still a draft.`);
     } finally {
       setBusy(false);
@@ -60,6 +73,9 @@ export function VisitBoard() {
   return (
     <StaffPage title="Visits" subtitle="Status shown here is the status returned by the server." onRefresh={query.refetch} refreshing={query.isRefetching}>
       <DraftBadge count={drafts.drafts.filter((draft) => draft.type === 'visit_update').length} />
+      {current ? drafts.drafts.filter((draft) => draft.payload.visit_id === current.id && draft.lastError).map((draft) => (
+        <Feedback key={draft.id} text={draft.lastError || ''} tone="warn" />
+      )) : null}
       {visits.length === 0 ? <RecordCard title="No visits" detail="No assigned visits were returned." /> : null}
       {visits.map((visit) => (
         <RecordCard

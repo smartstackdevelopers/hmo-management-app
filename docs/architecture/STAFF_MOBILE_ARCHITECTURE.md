@@ -33,11 +33,7 @@ Status labels are the values returned by the server. The app does not invent an 
 
 ## Offline drafts
 
-`room-ready/lib/hmore/staff/offlineDrafts.ts` stores a 32-byte key in SecureStore and the draft list in AsyncStorage. SecureStore values are limited to about 2048 bytes, and a daily note can be much larger, so the note body is not written to SecureStore. The AsyncStorage value is XOR-encrypted with the SecureStore key. That hides drafts from a casual read of AsyncStorage. It is not a substitute for device encryption.
-
-Draft types are `daily_log`, `visit_update`, `task_update`, and `work_order_update`. Each draft has a `clientRequestId`. The API does not accept that field, so it is not posted. After a 2xx response the draft is deleted by its id and a later sync does not send it again. A 4xx, 5xx, or network failure leaves the draft on the device. The UI does not say the record is on the server until that 2xx response.
-
-Online detection uses `@react-native-community/netinfo` when the module loads. If it does not, the app pings `GET /health`.
+F4.5 replaces the F4.2 queue with `room-ready/lib/hmore/offline/`. A 32-byte key stays in SecureStore and the draft list is XOR-encrypted in AsyncStorage. Drafts are bound to the signed-in user and organisation. `clientRequestId` is sent as `Idempotency-Key`. A draft is deleted only after the server returns 2xx, and local photos are deleted only after their upload returns 2xx. A 409 keeps the draft as a conflict. Sync Now and a single reconnect sync are the only triggers. See `docs/architecture/OFFLINE_SYNC_ARCHITECTURE.md`.
 
 ## Voice (F4.4)
 

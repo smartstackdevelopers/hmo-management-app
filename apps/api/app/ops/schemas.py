@@ -106,6 +106,7 @@ class VisitUpdate(BaseModel):
     outcome: str | None = Field(default=None, max_length=10000)
     cancel_reason: str | None = Field(default=None, max_length=2000)
     linked_daily_log_id: uuid.UUID | None = None
+    if_match_updated_at: datetime | None = None
 
 
 class VisitOut(BaseModel):
@@ -149,6 +150,7 @@ class TaskUpdate(BaseModel):
     priority: TaskPriority | None = None
     due_at: datetime | None = None
     status: TaskStatus | None = None
+    if_match_updated_at: datetime | None = None
 
 
 class TaskOut(BaseModel):
