@@ -61,9 +61,12 @@ WORKFLOW_FEATURES: frozenset[str] = frozenset(
         FEATURE_AI_ACTIVITY,
         FEATURE_DAILY_LOG_REWRITE,
         FEATURE_CV_WORDING,
+        FEATURE_JOB_MATCHING,
     }
 )
 
+# Job matching is implemented (F5.4); keep id in PLANNED set for catalogue continuity
+# but also expose as a controllable workflow feature.
 ALL_FEATURE_IDS: frozenset[str] = PLANNED_AGENT_FEATURES | INFRA_FEATURES | WORKFLOW_FEATURES
 
 WORKFLOW_FEATURE_MAP: dict[str, str] = {
@@ -82,6 +85,7 @@ WORKFLOW_FEATURE_MAP: dict[str, str] = {
     "duplicate_detection": FEATURE_DUPLICATE_DETECTION,
     "daily_log_rewrite": FEATURE_DAILY_LOG_REWRITE,
     "cv_wording_assist": FEATURE_CV_WORDING,
+    "job_match_explain": FEATURE_JOB_MATCHING,
 }
 
 
