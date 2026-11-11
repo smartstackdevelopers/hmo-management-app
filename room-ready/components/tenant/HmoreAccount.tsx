@@ -139,6 +139,7 @@ export function HmoreAccount() {
             <View style={styles.divider} />
             <ListRow title={t('profile.services')} icon="location-outline" onPress={() => router.push('/(app)/community')} />
             <ListRow title={t('profile.helpNearMe')} icon="navigate-outline" onPress={() => router.push('/(app)/help-near-me')} />
+            <ListRow title={t('profile.employment')} icon="briefcase-outline" onPress={() => router.push('/(app)/employment')} />
             <View style={styles.divider} />
             <ListRow title={t('profile.jobs')} icon="briefcase-outline" onPress={() => router.push('/(app)/jobs')} />
           </>

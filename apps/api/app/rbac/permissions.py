@@ -151,6 +151,9 @@ class Permission(StrEnum):
     VISITS_MANAGE_ASSIGNED = "visits.manage.assigned"
     TASKS_MANAGE_ASSIGNED = "tasks.manage.assigned"
     EMPLOYMENT_SUPPORT_MANAGE_ASSIGNED = "employment_support.manage.assigned"
+    # F5.3 tenant employment preparation (skills, CV, applications, roadmap)
+    EMPLOYMENT_PREP_MANAGE_OWN = "employment.prep.manage.own"
+    EMPLOYMENT_PREP_READ_ASSIGNED = "employment.prep.read.assigned"
     INCIDENTS_CREATE_ASSIGNED = "incidents.create.assigned"
     INCIDENTS_READ_ASSIGNED = "incidents.read.assigned"
     INCIDENTS_MANAGE = "incidents.manage"
@@ -674,6 +677,15 @@ PERMISSION_CATALOG: dict[Permission, PermissionMeta] = {
     Permission.EMPLOYMENT_SUPPORT_MANAGE_ASSIGNED: PermissionMeta(
         Permission.EMPLOYMENT_SUPPORT_MANAGE_ASSIGNED,
         "Manage employment support for assigned tenants",
+    ),
+    Permission.EMPLOYMENT_PREP_MANAGE_OWN: PermissionMeta(
+        Permission.EMPLOYMENT_PREP_MANAGE_OWN,
+        "Manage own skills assessment, CVs and job applications",
+    ),
+    Permission.EMPLOYMENT_PREP_READ_ASSIGNED: PermissionMeta(
+        Permission.EMPLOYMENT_PREP_READ_ASSIGNED,
+        "Read employment preparation summaries for assigned tenants",
+        True,
     ),
     Permission.INCIDENTS_CREATE_ASSIGNED: PermissionMeta(
         Permission.INCIDENTS_CREATE_ASSIGNED, "Create incident reports for assigned work"

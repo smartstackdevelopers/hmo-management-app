@@ -158,6 +158,14 @@ from app.db.models.help_near_me import (
     CommunityServiceOutdatedReport,
     HelpNearMeSearchEvent,
 )
+from app.db.models.employment import (
+    TenantCareerGoal,
+    TenantCv,
+    TenantInterviewNote,
+    TenantJobApplication,
+    TenantJobApplicationEvent,
+    TenantSkillAssessment,
+)
 from app.db.models.push_devices import PushDeviceToken
 from app.db.models.idempotency import ClientIdempotencyKey
 from app.db.models.device_sessions import MobileDeviceSession
@@ -171,6 +179,12 @@ __all__ = [
     "CommunityServiceVerificationEvent",
     "Complaint",
     "HelpNearMeSearchEvent",
+    "TenantCareerGoal",
+    "TenantCv",
+    "TenantInterviewNote",
+    "TenantJobApplication",
+    "TenantJobApplicationEvent",
+    "TenantSkillAssessment",
     "ComplaintCategory",
     "ComplaintDeadlineChange",
     "ComplaintDeadlineRule",

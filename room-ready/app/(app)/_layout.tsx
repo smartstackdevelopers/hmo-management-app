@@ -70,6 +70,13 @@ export default function AppLayout() {
         <Stack.Screen name="community/[id]" options={{ ...headerOptions, headerShown: true, title: tenant ? t('nav.services') : 'Service details' }} />
         <Stack.Screen name="help-near-me" options={{ ...headerOptions, headerShown: true, title: tenant ? t('nav.helpNearMe') : 'Help near me' }} />
         <Stack.Screen name="help-near-me/[id]" options={{ ...headerOptions, headerShown: true, title: tenant ? t('nav.helpNearMe') : 'Nearby service' }} />
+        <Stack.Screen name="employment" options={{ ...headerOptions, headerShown: true, title: tenant ? t('nav.employment') : 'Employment prep' }} />
+        <Stack.Screen name="employment-skills" options={{ ...headerOptions, headerShown: true, title: tenant ? t('employment.skills') : 'Skills' }} />
+        <Stack.Screen name="employment-cvs" options={{ ...headerOptions, headerShown: true, title: tenant ? t('employment.cvs') : 'CVs' }} />
+        <Stack.Screen name="employment-cv/[id]" options={{ ...headerOptions, headerShown: true, title: tenant ? t('employment.preview') : 'CV preview' }} />
+        <Stack.Screen name="employment-applications" options={{ ...headerOptions, headerShown: true, title: tenant ? t('employment.applications') : 'Applications' }} />
+        <Stack.Screen name="employment-interview" options={{ ...headerOptions, headerShown: true, title: tenant ? t('employment.interview') : 'Interview prep' }} />
+        <Stack.Screen name="employment-roadmap" options={{ ...headerOptions, headerShown: true, title: tenant ? t('employment.roadmap') : 'Career roadmap' }} />
         <Stack.Screen name="jobs" options={{ ...headerOptions, headerShown: true, title: tenant ? t('nav.jobs') : 'Jobs and training' }} />
         <Stack.Screen name="assistant" options={{ ...headerOptions, headerShown: true, title: tenant ? t('nav.assistant') : 'Assistant' }} />
         <Stack.Screen name="accessibility" options={{ ...headerOptions, headerShown: true, title: tenant ? t('nav.settings') : 'Accessibility' }} />

@@ -43,6 +43,7 @@ from app.api.v1.tenants import router as tenants_router
 from app.api.v1.tenant_me import router as tenant_me_router
 from app.api.v1.community_services import router as community_services_router
 from app.api.v1.help_near_me import router as help_near_me_router
+from app.api.v1.employment import router as employment_router
 from app.api.v1.opportunities import router as opportunities_router
 from app.api.v1.tenant_timeline import router as tenant_timeline_router
 from app.api.v1.support_plans import dash_router as support_plans_dash_router
@@ -59,6 +60,7 @@ api_v1_router.include_router(tenants_router)
 api_v1_router.include_router(tenant_me_router)
 api_v1_router.include_router(community_services_router)
 api_v1_router.include_router(help_near_me_router)
+api_v1_router.include_router(employment_router)
 api_v1_router.include_router(opportunities_router)
 api_v1_router.include_router(tenant_timeline_router)
 api_v1_router.include_router(support_plans_router)
