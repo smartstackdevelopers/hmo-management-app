@@ -154,6 +154,10 @@ from app.db.models.catalogue import (
     CommunityServiceVerificationEvent,
     OpportunityListing,
 )
+from app.db.models.help_near_me import (
+    CommunityServiceOutdatedReport,
+    HelpNearMeSearchEvent,
+)
 from app.db.models.push_devices import PushDeviceToken
 from app.db.models.idempotency import ClientIdempotencyKey
 from app.db.models.device_sessions import MobileDeviceSession
@@ -163,8 +167,10 @@ __all__ = [
     "CaseAssignment",
     "ClientIdempotencyKey",
     "CommunityService",
+    "CommunityServiceOutdatedReport",
     "CommunityServiceVerificationEvent",
     "Complaint",
+    "HelpNearMeSearchEvent",
     "ComplaintCategory",
     "ComplaintDeadlineChange",
     "ComplaintDeadlineRule",

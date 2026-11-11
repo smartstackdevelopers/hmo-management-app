@@ -68,6 +68,8 @@ export default function AppLayout() {
         <Stack.Screen name="staff/work-order/[id]" options={{ ...headerOptions, headerShown: true, title: 'Work order' }} />
         <Stack.Screen name="community" options={{ ...headerOptions, headerShown: true, title: tenant ? t('nav.services') : 'Community directory' }} />
         <Stack.Screen name="community/[id]" options={{ ...headerOptions, headerShown: true, title: tenant ? t('nav.services') : 'Service details' }} />
+        <Stack.Screen name="help-near-me" options={{ ...headerOptions, headerShown: true, title: tenant ? t('nav.helpNearMe') : 'Help near me' }} />
+        <Stack.Screen name="help-near-me/[id]" options={{ ...headerOptions, headerShown: true, title: tenant ? t('nav.helpNearMe') : 'Nearby service' }} />
         <Stack.Screen name="jobs" options={{ ...headerOptions, headerShown: true, title: tenant ? t('nav.jobs') : 'Jobs and training' }} />
         <Stack.Screen name="assistant" options={{ ...headerOptions, headerShown: true, title: tenant ? t('nav.assistant') : 'Assistant' }} />
         <Stack.Screen name="accessibility" options={{ ...headerOptions, headerShown: true, title: tenant ? t('nav.settings') : 'Accessibility' }} />

@@ -135,12 +135,17 @@ class CommunityServiceOut(BaseModel):
 
 
 class CommunityServiceAdminOut(CommunityServiceOut):
-    """Admin view includes verification notes and actor ids."""
+    """Admin view includes verification notes, actor ids, and geocode metadata."""
 
     verification_notes: str | None = None
     created_by_user_id: uuid.UUID | None = None
     updated_by_user_id: uuid.UUID | None = None
     verified_by_user_id: uuid.UUID | None = None
+    latitude: float | None = None
+    longitude: float | None = None
+    geocode_status: str | None = None
+    geocode_provider: str | None = None
+    geocoded_at: datetime | None = None
 
 
 class CommunityServiceVerifyBody(BaseModel):

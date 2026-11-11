@@ -65,6 +65,12 @@ export default function CommunityScreen() {
       <Text style={[styles.title, { fontSize: 24 * fontScale }, contrast && styles.contrastText]}>
         {t('community.title')}
       </Text>
+      <Button
+        title={t('nav.helpNearMe')}
+        accessibilityLabel={t('nav.helpNearMe')}
+        variant="secondary"
+        onPress={() => router.push('/(app)/help-near-me')}
+      />
       <Input
         label={t('community.search')}
         value={draft}

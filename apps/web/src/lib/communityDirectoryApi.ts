@@ -29,6 +29,11 @@ export type CommunityService = {
   created_by_user_id?: string | null;
   updated_by_user_id?: string | null;
   verified_by_user_id?: string | null;
+  latitude?: number | null;
+  longitude?: number | null;
+  geocode_status?: string | null;
+  geocode_provider?: string | null;
+  geocoded_at?: string | null;
 };
 
 export type VerificationEvent = {
