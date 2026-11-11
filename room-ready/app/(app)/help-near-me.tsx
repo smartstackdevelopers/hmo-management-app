@@ -76,6 +76,12 @@ export default function HelpNearMeScreen() {
     <Screen>
       <Text style={[styles.title, { fontSize: 24 * fontScale }]}>{t('helpNearMe.title')}</Text>
       <Text style={styles.lead}>{t('helpNearMe.lead')}</Text>
+      <Button
+        title={t('communityHub.title')}
+        variant="secondary"
+        onPress={() => router.push('/(app)/community-hub')}
+        accessibilityLabel={t('communityHub.title')}
+      />
       <Input
         label={t('helpNearMe.postcode')}
         value={draft}

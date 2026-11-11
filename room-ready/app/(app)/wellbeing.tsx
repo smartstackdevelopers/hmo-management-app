@@ -47,6 +47,7 @@ export default function WellbeingHubScreen() {
         <Button title={t('wellbeing.mindfulness')} variant="secondary" onPress={() => router.push('/(app)/wellbeing-mindfulness')} />
         <Button title={t('wellbeing.directory')} variant="secondary" onPress={() => router.push('/(app)/wellbeing-directory')} />
         <Button title={t('wellbeing.navigator')} variant="secondary" onPress={() => router.push('/(app)/wellbeing-navigator')} />
+        <Button title={t('communityHub.title')} variant="secondary" onPress={() => router.push('/(app)/community-hub')} />
       </View>
     </Screen>
   );

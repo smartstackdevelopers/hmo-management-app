@@ -113,6 +113,18 @@ export function TenantHome() {
         <Button title={t('home.support')} accessibilityLabel={t('home.support')} variant="outline" onPress={() => router.push('/(app)/(tabs)/support')} style={styles.half} />
         <Button title={t('home.assistant')} accessibilityLabel={t('home.assistant')} variant="outline" onPress={() => router.push('/(app)/assistant')} style={styles.half} />
       </View>
+
+      <Card style={[styles.communityCard, contrast ? styles.contrastCard : undefined]}>
+        <Text style={styles.section}>{t('home.community')}</Text>
+        <Text style={[styles.muted, contrast && styles.contrastMuted]}>{t('home.communityLead')}</Text>
+        <Button
+          title={t('home.openCommunity')}
+          accessibilityLabel={t('home.openCommunity')}
+          onPress={() => router.push('/(app)/community-hub')}
+          fullWidth
+          style={styles.button}
+        />
+      </Card>
     </Screen>
   );
 }
@@ -146,4 +158,5 @@ const styles = StyleSheet.create({
   statLabel: { fontFamily: FONT_MEDIUM, fontSize: 12, color: theme.colors.textSecondary, marginTop: 4 },
   row: { flexDirection: 'row', gap: theme.spacing.sm, marginTop: theme.spacing.sm },
   half: { flex: 1 },
+  communityCard: { marginTop: theme.spacing.md },
 });

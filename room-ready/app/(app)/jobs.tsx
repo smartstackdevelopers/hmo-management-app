@@ -1,4 +1,5 @@
 import { useQuery } from '@tanstack/react-query';
+import { useRouter } from 'expo-router';
 import { useState } from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 
@@ -21,6 +22,7 @@ const KINDS = [
 
 export default function JobsScreen() {
   const { t, fontScale, prefs } = useI18n();
+  const router = useRouter();
   const [draft, setDraft] = useState('');
   const [q, setQ] = useState('');
   const [kind, setKind] = useState('');
@@ -38,6 +40,20 @@ export default function JobsScreen() {
   return (
     <Screen style={contrast ? styles.contrast : undefined}>
       <Text style={[styles.title, { fontSize: 24 * fontScale }, contrast && styles.contrastText]}>{t('jobs.title')}</Text>
+      <View style={styles.linkRow}>
+        <Button
+          title={t('jobMatching.title')}
+          variant="secondary"
+          style={styles.linkHalf}
+          onPress={() => router.push('/(app)/job-matching')}
+        />
+        <Button
+          title={t('communityHub.title')}
+          variant="secondary"
+          style={styles.linkHalf}
+          onPress={() => router.push('/(app)/community-hub')}
+        />
+      </View>
       <Input label={t('jobs.search')} value={draft} onChangeText={setDraft} accessibilityLabel={t('jobs.search')} />
       <Button title={t('jobs.searchAction')} accessibilityLabel={t('jobs.searchAction')} onPress={() => setQ(draft.trim())} />
       <View style={styles.filters}>
@@ -86,6 +102,8 @@ const styles = StyleSheet.create({
   contrast: { backgroundColor: '#FFFFFF' },
   contrastText: { color: '#000000' },
   title: { fontFamily: FONT_BOLD, color: theme.colors.text, marginBottom: theme.spacing.md },
+  linkRow: { flexDirection: 'row', gap: 8, marginBottom: theme.spacing.sm },
+  linkHalf: { flex: 1 },
   filters: { flexDirection: 'row', flexWrap: 'wrap', gap: 8, marginVertical: theme.spacing.md },
   chip: {
     borderWidth: 1,

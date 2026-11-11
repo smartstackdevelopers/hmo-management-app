@@ -137,11 +137,12 @@ export function HmoreAccount() {
             <View style={styles.divider} />
             <ListRow title={t('profile.assistant')} icon="chatbubble-ellipses-outline" onPress={() => router.push('/(app)/assistant')} />
             <View style={styles.divider} />
-            <ListRow title={t('profile.services')} icon="location-outline" onPress={() => router.push('/(app)/community')} />
-            <ListRow title={t('profile.helpNearMe')} icon="navigate-outline" onPress={() => router.push('/(app)/help-near-me')} />
-            <ListRow title={t('profile.employment')} icon="briefcase-outline" onPress={() => router.push('/(app)/employment')} />
-            <ListRow title={t('jobMatching.title')} icon="search-outline" onPress={() => router.push('/(app)/job-matching')} />
-            <ListRow title={t('wellbeing.title')} icon="heart-outline" onPress={() => router.push('/(app)/wellbeing')} />
+            <ListRow
+              title={t('profile.communityHub')}
+              subtitle={t('profile.communityHubLead')}
+              icon="people-outline"
+              onPress={() => router.push('/(app)/community-hub')}
+            />
             <View style={styles.divider} />
             <ListRow title={t('profile.jobs')} icon="briefcase-outline" onPress={() => router.push('/(app)/jobs')} />
           </>

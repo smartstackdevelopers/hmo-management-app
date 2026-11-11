@@ -65,12 +65,22 @@ export default function CommunityScreen() {
       <Text style={[styles.title, { fontSize: 24 * fontScale }, contrast && styles.contrastText]}>
         {t('community.title')}
       </Text>
-      <Button
-        title={t('nav.helpNearMe')}
-        accessibilityLabel={t('nav.helpNearMe')}
-        variant="secondary"
-        onPress={() => router.push('/(app)/help-near-me')}
-      />
+      <View style={styles.linkRow}>
+        <Button
+          title={t('nav.helpNearMe')}
+          accessibilityLabel={t('nav.helpNearMe')}
+          variant="secondary"
+          onPress={() => router.push('/(app)/help-near-me')}
+          style={styles.linkHalf}
+        />
+        <Button
+          title={t('communityHub.title')}
+          accessibilityLabel={t('communityHub.title')}
+          variant="secondary"
+          onPress={() => router.push('/(app)/community-hub')}
+          style={styles.linkHalf}
+        />
+      </View>
       <Input
         label={t('community.search')}
         value={draft}
@@ -186,6 +196,8 @@ const styles = StyleSheet.create({
   contrast: { backgroundColor: '#FFFFFF' },
   contrastText: { color: '#000000' },
   title: { fontFamily: FONT_BOLD, color: theme.colors.text, marginBottom: theme.spacing.md },
+  linkRow: { flexDirection: 'row', gap: 8, marginBottom: theme.spacing.sm },
+  linkHalf: { flex: 1 },
   searchRow: { flexDirection: 'row', flexWrap: 'wrap', gap: 8, marginTop: theme.spacing.sm },
   filters: { flexDirection: 'row', flexWrap: 'wrap', gap: 8, marginVertical: theme.spacing.md },
   chip: {
