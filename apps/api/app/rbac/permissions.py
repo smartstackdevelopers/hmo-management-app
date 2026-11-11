@@ -154,6 +154,9 @@ class Permission(StrEnum):
     # F5.3 tenant employment preparation (skills, CV, applications, roadmap)
     EMPLOYMENT_PREP_MANAGE_OWN = "employment.prep.manage.own"
     EMPLOYMENT_PREP_READ_ASSIGNED = "employment.prep.read.assigned"
+    # F5.5 tenant wellbeing (private check-ins/routines; staff manage resources only)
+    WELLBEING_MANAGE_OWN = "wellbeing.manage.own"
+    WELLBEING_RESOURCES_MANAGE = "wellbeing.resources.manage"
     INCIDENTS_CREATE_ASSIGNED = "incidents.create.assigned"
     INCIDENTS_READ_ASSIGNED = "incidents.read.assigned"
     INCIDENTS_MANAGE = "incidents.manage"
@@ -685,6 +688,15 @@ PERMISSION_CATALOG: dict[Permission, PermissionMeta] = {
     Permission.EMPLOYMENT_PREP_READ_ASSIGNED: PermissionMeta(
         Permission.EMPLOYMENT_PREP_READ_ASSIGNED,
         "Read employment preparation summaries for assigned tenants",
+        True,
+    ),
+    Permission.WELLBEING_MANAGE_OWN: PermissionMeta(
+        Permission.WELLBEING_MANAGE_OWN,
+        "Manage own wellbeing check-ins, routines and saved resources",
+    ),
+    Permission.WELLBEING_RESOURCES_MANAGE: PermissionMeta(
+        Permission.WELLBEING_RESOURCES_MANAGE,
+        "Manage organisation wellbeing resource and directory listings",
         True,
     ),
     Permission.INCIDENTS_CREATE_ASSIGNED: PermissionMeta(

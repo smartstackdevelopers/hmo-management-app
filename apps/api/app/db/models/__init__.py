@@ -174,6 +174,15 @@ from app.db.models.job_matching import (
     TenantSavedTraining,
     TrainingOpportunity,
 )
+from app.db.models.wellbeing import (
+    WellbeingCheckin,
+    WellbeingDirectoryEntry,
+    WellbeingResource,
+    WellbeingResourceCompletion,
+    WellbeingRoutine,
+    WellbeingRoutineCompletion,
+    WellbeingSavedResource,
+)
 from app.db.models.push_devices import PushDeviceToken
 from app.db.models.idempotency import ClientIdempotencyKey
 from app.db.models.device_sessions import MobileDeviceSession
@@ -199,6 +208,13 @@ __all__ = [
     "TenantSavedJob",
     "TenantSavedTraining",
     "TrainingOpportunity",
+    "WellbeingCheckin",
+    "WellbeingDirectoryEntry",
+    "WellbeingResource",
+    "WellbeingResourceCompletion",
+    "WellbeingRoutine",
+    "WellbeingRoutineCompletion",
+    "WellbeingSavedResource",
     "ComplaintCategory",
     "ComplaintDeadlineChange",
     "ComplaintDeadlineRule",

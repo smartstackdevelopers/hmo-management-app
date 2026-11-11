@@ -1,0 +1,54 @@
+import { useQuery } from '@tanstack/react-query';
+import { Linking, StyleSheet, Text } from 'react-native';
+
+import { Button } from '@/components/ui/Button';
+import { Card } from '@/components/ui/Card';
+import { Screen } from '@/components/ui/Screen';
+import { ErrorState, LoadingScreen } from '@/components/ui/States';
+import { FONT_BOLD, FONT_MEDIUM } from '@/constants/fonts';
+import { theme } from '@/constants/theme';
+import { useI18n } from '@/hooks/useI18n';
+import { hmoreErrorMessage } from '@/lib/hmore/client';
+import { listDirectory } from '@/lib/hmore/services/wellbeing';
+
+export default function WellbeingDirectoryScreen() {
+  const { t, fontScale } = useI18n();
+  const query = useQuery({ queryKey: ['hmore', 'wellbeing-directory'], queryFn: () => listDirectory() });
+  if (query.isLoading) return <LoadingScreen message={t('wellbeing.loading')} />;
+  if (query.error) return <ErrorState message={hmoreErrorMessage(query.error)} onRetry={query.refetch} />;
+  const items = query.data?.items ?? [];
+  return (
+    <Screen>
+      <Text style={[styles.title, { fontSize: 22 * fontScale }]}>{t('wellbeing.directory')}</Text>
+      <Text style={styles.disclaimer}>{query.data?.disclaimer}</Text>
+      {items.length === 0 ? (
+        <Text style={styles.empty}>{t('wellbeing.noDirectory')}</Text>
+      ) : (
+        items.map((item) => (
+          <Card key={String(item.id)} style={styles.card}>
+            <Text style={styles.name}>{String(item.name)}</Text>
+            <Text style={styles.meta}>
+              {String(item.category)} · {String(item.verification_status)}
+              {item.is_clinical ? ` · ${t('wellbeing.clinicalLabel')}` : ` · ${t('wellbeing.communityLabel')}`}
+            </Text>
+            {item.description ? <Text style={styles.body}>{String(item.description)}</Text> : null}
+            {item.contact_info ? <Text style={styles.meta}>{String(item.contact_info)}</Text> : null}
+            {item.source_url ? (
+              <Button title={t('wellbeing.openLink')} variant="secondary" onPress={() => Linking.openURL(String(item.source_url))} />
+            ) : null}
+          </Card>
+        ))
+      )}
+    </Screen>
+  );
+}
+
+const styles = StyleSheet.create({
+  title: { fontFamily: FONT_BOLD, color: theme.colors.text, marginBottom: theme.spacing.xs },
+  disclaimer: { fontFamily: FONT_MEDIUM, color: theme.colors.textSecondary, fontSize: 12, marginBottom: theme.spacing.md },
+  card: { marginBottom: theme.spacing.sm, gap: 6 },
+  name: { fontFamily: FONT_BOLD, color: theme.colors.text },
+  meta: { fontFamily: FONT_MEDIUM, color: theme.colors.textSecondary },
+  body: { fontFamily: FONT_MEDIUM, color: theme.colors.text },
+  empty: { fontFamily: FONT_MEDIUM, color: theme.colors.textSecondary },
+});
