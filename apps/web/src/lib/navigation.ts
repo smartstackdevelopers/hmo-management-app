@@ -99,6 +99,14 @@ export const DASHBOARD_NAV: NavItem[] = [
     section: "records",
   },
   {
+    id: "wellbeing-resources",
+    label: "Wellbeing resources",
+    href: "/dashboard/wellbeing-resources",
+    anyOf: ["wellbeing.resources.manage", "tenants.manage"],
+    roles: ["organisation_admin", "super_admin"],
+    section: "records",
+  },
+  {
     id: "ali-journey",
     label: "Ali journey (F2.15)",
     href: "/dashboard/journeys/ali",

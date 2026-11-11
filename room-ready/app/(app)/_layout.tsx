@@ -84,6 +84,14 @@ export default function AppLayout() {
         <Stack.Screen name="job-matching-training" options={{ ...headerOptions, headerShown: true, title: tenant ? t('jobMatching.training') : 'Training' }} />
         <Stack.Screen name="job-matching-preferences" options={{ ...headerOptions, headerShown: true, title: tenant ? t('jobMatching.preferences') : 'Preferences' }} />
         <Stack.Screen name="job-matching-detail/[id]" options={{ ...headerOptions, headerShown: true, title: tenant ? t('jobMatching.details') : 'Job details' }} />
+        <Stack.Screen name="wellbeing" options={{ ...headerOptions, headerShown: true, title: tenant ? t('wellbeing.title') : 'My wellbeing' }} />
+        <Stack.Screen name="wellbeing-checkin" options={{ ...headerOptions, headerShown: true, title: tenant ? t('wellbeing.checkin') : 'Daily check-in' }} />
+        <Stack.Screen name="wellbeing-history" options={{ ...headerOptions, headerShown: true, title: tenant ? t('wellbeing.history') : 'Wellbeing history' }} />
+        <Stack.Screen name="wellbeing-routines" options={{ ...headerOptions, headerShown: true, title: tenant ? t('wellbeing.routines') : 'Routines' }} />
+        <Stack.Screen name="wellbeing-exercise" options={{ ...headerOptions, headerShown: true, title: tenant ? t('wellbeing.exercise') : 'Exercise' }} />
+        <Stack.Screen name="wellbeing-mindfulness" options={{ ...headerOptions, headerShown: true, title: tenant ? t('wellbeing.mindfulness') : 'Mindfulness' }} />
+        <Stack.Screen name="wellbeing-directory" options={{ ...headerOptions, headerShown: true, title: tenant ? t('wellbeing.directory') : 'Local support' }} />
+        <Stack.Screen name="wellbeing-navigator" options={{ ...headerOptions, headerShown: true, title: tenant ? t('wellbeing.navigator') : 'Support navigator' }} />
         <Stack.Screen name="jobs" options={{ ...headerOptions, headerShown: true, title: tenant ? t('nav.jobs') : 'Jobs and training' }} />
         <Stack.Screen name="assistant" options={{ ...headerOptions, headerShown: true, title: tenant ? t('nav.assistant') : 'Assistant' }} />
         <Stack.Screen name="accessibility" options={{ ...headerOptions, headerShown: true, title: tenant ? t('nav.settings') : 'Accessibility' }} />
