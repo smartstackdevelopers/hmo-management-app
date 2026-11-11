@@ -10,6 +10,17 @@ from pydantic import BaseModel, ConfigDict, Field
 from app.db.models.enums import RecordStatus
 
 COMMUNITY_CATEGORIES = frozenset({"food_bank", "kitchen", "clothing_bank", "local_service"})
+DIRECTORY_PRIMARY_CATEGORIES = ("food_bank", "kitchen", "clothing_bank")
+VERIFICATION_STATUSES = frozenset(
+    {
+        "pending_verification",
+        "verified",
+        "needs_review",
+        "outdated",
+        "inactive",
+    }
+)
+CLOTHING_SERVICE_TYPES = frozenset({"provides_clothing", "accepts_donations", "both"})
 OPPORTUNITY_KINDS = frozenset({"job", "training"})
 
 
@@ -69,9 +80,14 @@ class CommunityServiceWrite(BaseModel):
     name: str = Field(min_length=1, max_length=255)
     description: str | None = None
     address_line: str | None = Field(default=None, max_length=255)
+    opening_days: str | None = None
     opening_hours: str | None = Field(default=None, max_length=255)
     eligibility: str | None = None
+    referral_requirements: str | None = None
     contact: str | None = Field(default=None, max_length=255)
+    service_instructions: str | None = None
+    clothing_service_type: str | None = Field(default=None, max_length=32)
+    information_source: str | None = Field(default=None, max_length=255)
     is_published: bool = False
 
 
@@ -82,13 +98,20 @@ class CommunityServiceUpdate(BaseModel):
     name: str | None = Field(default=None, min_length=1, max_length=255)
     description: str | None = None
     address_line: str | None = Field(default=None, max_length=255)
+    opening_days: str | None = None
     opening_hours: str | None = Field(default=None, max_length=255)
     eligibility: str | None = None
+    referral_requirements: str | None = None
     contact: str | None = Field(default=None, max_length=255)
+    service_instructions: str | None = None
+    clothing_service_type: str | None = Field(default=None, max_length=32)
+    information_source: str | None = Field(default=None, max_length=255)
     is_published: bool | None = None
 
 
 class CommunityServiceOut(BaseModel):
+    """Tenant-facing directory record. Internal verification notes are never included."""
+
     model_config = ConfigDict(from_attributes=True)
 
     id: uuid.UUID
@@ -96,10 +119,73 @@ class CommunityServiceOut(BaseModel):
     name: str
     description: str | None
     address_line: str | None
+    opening_days: str | None = None
     opening_hours: str | None
     eligibility: str | None
+    referral_requirements: str | None = None
     contact: str | None
+    service_instructions: str | None = None
+    clothing_service_type: str | None = None
+    verification_status: str = "pending_verification"
+    information_source: str | None = None
+    verified_at: datetime | None = None
+    created_at: datetime | None = None
+    updated_at: datetime | None = None
     is_published: bool
+
+
+class CommunityServiceAdminOut(CommunityServiceOut):
+    """Admin view includes verification notes and actor ids."""
+
+    verification_notes: str | None = None
+    created_by_user_id: uuid.UUID | None = None
+    updated_by_user_id: uuid.UUID | None = None
+    verified_by_user_id: uuid.UUID | None = None
+
+
+class CommunityServiceVerifyBody(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    notes: str | None = None
+    publish: bool = True
+
+
+class CommunityServiceFlagBody(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    notes: str | None = None
+
+
+class CommunityServiceDeactivateBody(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    notes: str | None = None
+
+
+class VerificationEventOut(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
+    id: uuid.UUID
+    service_id: uuid.UUID
+    from_status: str | None
+    to_status: str
+    action: str
+    notes: str | None
+    actor_user_id: uuid.UUID | None
+    created_at: datetime
+
+
+class CommunityServicePage(BaseModel):
+    items: list[CommunityServiceOut]
+    page: int = 1
+    page_size: int
+    total: int
+
+class CommunityServiceAdminPage(BaseModel):
+    items: list[CommunityServiceAdminOut]
+    page: int = 1
+    page_size: int
+    total: int
 
 
 class OpportunityWrite(BaseModel):

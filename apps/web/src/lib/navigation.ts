@@ -71,6 +71,14 @@ export const DASHBOARD_NAV: NavItem[] = [
     section: "records",
   },
   {
+    id: "community-directory",
+    label: "Community directory",
+    href: "/dashboard/community-directory",
+    anyOf: ["organisations.manage", "organisation.settings.manage"],
+    roles: ["organisation_admin", "super_admin"],
+    section: "records",
+  },
+  {
     id: "ali-journey",
     label: "Ali journey (F2.15)",
     href: "/dashboard/journeys/ali",

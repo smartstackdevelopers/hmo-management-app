@@ -149,7 +149,11 @@ from app.db.models.ai_feature_flags import (
     OrganisationAiFeatureFlag,
     OrganisationAiFeatureFlagHistory,
 )
-from app.db.models.catalogue import CommunityService, OpportunityListing
+from app.db.models.catalogue import (
+    CommunityService,
+    CommunityServiceVerificationEvent,
+    OpportunityListing,
+)
 from app.db.models.push_devices import PushDeviceToken
 from app.db.models.idempotency import ClientIdempotencyKey
 from app.db.models.device_sessions import MobileDeviceSession
@@ -159,6 +163,7 @@ __all__ = [
     "CaseAssignment",
     "ClientIdempotencyKey",
     "CommunityService",
+    "CommunityServiceVerificationEvent",
     "Complaint",
     "ComplaintCategory",
     "ComplaintDeadlineChange",
