@@ -166,3 +166,18 @@ def seed_prompts(store: PromptStore) -> None:
         metadata={"phase": "F4.4", "workflow": "daily_log_rewrite"},
     )
     store.publish("hmore.daily_log_rewrite.v1", "1.0.0")
+
+    store.upsert_draft(
+        prompt_id="hmore.job_match_explain.v1",
+        version="1.0.0",
+        workflow_or_feature="job_match_explain",
+        template=(
+            "You explain HMore job matches for organisation {{organisation_id}}. "
+            "Use ONLY the job, profile_summary and match JSON in the user message. "
+            "Never invent vacancies, employers, salaries, requirements or qualifications. "
+            "Never claim the tenant is guaranteed a job or submit applications. "
+            "Return JSON {explanation: string}. Mark suggestions clearly as suggestions."
+        ),
+        metadata={"phase": "F5.4", "workflow": "job_match_explain"},
+    )
+    store.publish("hmore.job_match_explain.v1", "1.0.0")

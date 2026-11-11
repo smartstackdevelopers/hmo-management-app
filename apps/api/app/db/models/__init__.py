@@ -166,6 +166,14 @@ from app.db.models.employment import (
     TenantJobApplicationEvent,
     TenantSkillAssessment,
 )
+from app.db.models.job_matching import (
+    JobListing,
+    TenantJobMatch,
+    TenantJobMatchPreferences,
+    TenantSavedJob,
+    TenantSavedTraining,
+    TrainingOpportunity,
+)
 from app.db.models.push_devices import PushDeviceToken
 from app.db.models.idempotency import ClientIdempotencyKey
 from app.db.models.device_sessions import MobileDeviceSession
@@ -185,6 +193,12 @@ __all__ = [
     "TenantJobApplication",
     "TenantJobApplicationEvent",
     "TenantSkillAssessment",
+    "JobListing",
+    "TenantJobMatch",
+    "TenantJobMatchPreferences",
+    "TenantSavedJob",
+    "TenantSavedTraining",
+    "TrainingOpportunity",
     "ComplaintCategory",
     "ComplaintDeadlineChange",
     "ComplaintDeadlineRule",

@@ -3,7 +3,7 @@ import { EmptyState } from "@/components/dashboard/EmptyState";
 import { ErrorState } from "@/components/dashboard/ErrorState";
 import { PageHeader } from "@/components/dashboard/PageHeader";
 import { auth0, isAuth0Configured } from "@/lib/auth0";
-import { fetchEmploymentSummary } from "@/lib/employmentApi";
+import { fetchEmploymentSummary, fetchJobMatchProgress } from "@/lib/employmentApi";
 import { canAny } from "@/lib/rbac";
 import { requireAuthenticatedSession } from "@/lib/session";
 import { StaffNotesForm } from "./StaffNotesForm";
@@ -57,6 +57,12 @@ export default async function EmploymentSupportPage({
       role: session.authorization?.active_role,
       tenantId,
     });
+    const matchProgress = await fetchJobMatchProgress({
+      accessToken: token,
+      organisationId: orgId,
+      role: session.authorization?.active_role,
+      tenantId,
+    });
     const canWriteNotes = canAny(session.authorization?.permissions, [
       "employment_support.manage.assigned",
       "tenants.manage",
@@ -65,9 +71,9 @@ export default async function EmploymentSupportPage({
     return (
       <div className="mx-auto max-w-3xl space-y-6">
         <PageHeader
-          eyebrow="F5.3"
+          eyebrow="F5.3 / F5.4"
           title="Employment support summary"
-          description="Self-reported skills are not formally verified qualifications. CV PDFs remain privately stored."
+          description="Self-reported skills are not formally verified qualifications. CV PDFs and private applications stay restricted. Match scores are advisory only."
         />
         <dl className="grid gap-4 rounded-lg border border-slate-200 bg-white p-5 sm:grid-cols-2">
           <div>
@@ -100,6 +106,34 @@ export default async function EmploymentSupportPage({
               {summary.career_goals?.length ? summary.career_goals.join(", ") : "None recorded"}
             </dd>
           </div>
+          {matchProgress ? (
+            <>
+              <div>
+                <dt className="text-xs font-semibold uppercase text-slate-500">Saved matched jobs</dt>
+                <dd className="mt-1 text-sm">{matchProgress.saved_jobs}</dd>
+              </div>
+              <div>
+                <dt className="text-xs font-semibold uppercase text-slate-500">Match history</dt>
+                <dd className="mt-1 text-sm">{matchProgress.match_count}</dd>
+              </div>
+              <div className="sm:col-span-2">
+                <dt className="text-xs font-semibold uppercase text-slate-500">Top match scores</dt>
+                <dd className="mt-1 text-sm">
+                  {matchProgress.top_scores.length
+                    ? matchProgress.top_scores.join(", ")
+                    : "None yet"}
+                </dd>
+              </div>
+              <div className="sm:col-span-2">
+                <dt className="text-xs font-semibold uppercase text-slate-500">Preferred categories</dt>
+                <dd className="mt-1 text-sm">
+                  {matchProgress.preferred_categories.length
+                    ? matchProgress.preferred_categories.join(", ")
+                    : "None recorded"}
+                </dd>
+              </div>
+            </>
+          ) : null}
         </dl>
         {canWriteNotes ? (
           <StaffNotesForm

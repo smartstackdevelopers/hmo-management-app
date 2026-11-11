@@ -77,6 +77,13 @@ export default function AppLayout() {
         <Stack.Screen name="employment-applications" options={{ ...headerOptions, headerShown: true, title: tenant ? t('employment.applications') : 'Applications' }} />
         <Stack.Screen name="employment-interview" options={{ ...headerOptions, headerShown: true, title: tenant ? t('employment.interview') : 'Interview prep' }} />
         <Stack.Screen name="employment-roadmap" options={{ ...headerOptions, headerShown: true, title: tenant ? t('employment.roadmap') : 'Career roadmap' }} />
+        <Stack.Screen name="job-matching" options={{ ...headerOptions, headerShown: true, title: tenant ? t('jobMatching.title') : 'Find jobs' }} />
+        <Stack.Screen name="job-matching-search" options={{ ...headerOptions, headerShown: true, title: tenant ? t('jobMatching.search') : 'Job search' }} />
+        <Stack.Screen name="job-matching-recommended" options={{ ...headerOptions, headerShown: true, title: tenant ? t('jobMatching.recommended') : 'Recommended jobs' }} />
+        <Stack.Screen name="job-matching-saved" options={{ ...headerOptions, headerShown: true, title: tenant ? t('jobMatching.saved') : 'Saved jobs' }} />
+        <Stack.Screen name="job-matching-training" options={{ ...headerOptions, headerShown: true, title: tenant ? t('jobMatching.training') : 'Training' }} />
+        <Stack.Screen name="job-matching-preferences" options={{ ...headerOptions, headerShown: true, title: tenant ? t('jobMatching.preferences') : 'Preferences' }} />
+        <Stack.Screen name="job-matching-detail/[id]" options={{ ...headerOptions, headerShown: true, title: tenant ? t('jobMatching.details') : 'Job details' }} />
         <Stack.Screen name="jobs" options={{ ...headerOptions, headerShown: true, title: tenant ? t('nav.jobs') : 'Jobs and training' }} />
         <Stack.Screen name="assistant" options={{ ...headerOptions, headerShown: true, title: tenant ? t('nav.assistant') : 'Assistant' }} />
         <Stack.Screen name="accessibility" options={{ ...headerOptions, headerShown: true, title: tenant ? t('nav.settings') : 'Accessibility' }} />

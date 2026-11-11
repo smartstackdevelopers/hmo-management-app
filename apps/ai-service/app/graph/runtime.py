@@ -33,6 +33,7 @@ SUPPORTED_WORKFLOWS = frozenset(
         "operational_search",
         "report_draft_narrative",
         "daily_log_rewrite",
+        "job_match_explain",
     }
 )
 
@@ -444,6 +445,41 @@ def execute_workflow(
                 "requires_approval": True,
                 "approval_id": None,
                 "provider_request_id": rewritten.get("provider_request_id"),
+            }
+
+        if workflow_id == "job_match_explain":
+            from app.graph.job_match_explain import run_job_match_explain
+
+            _reject_body_org()
+            payload = input_payload or {}
+            explained = run_job_match_explain(
+                settings=settings,
+                organisation_id=ctx.organisation_id,
+                job=payload.get("job") if isinstance(payload.get("job"), dict) else {},
+                profile_summary=payload.get("profile_summary")
+                if isinstance(payload.get("profile_summary"), dict)
+                else {},
+                match=payload.get("match") if isinstance(payload.get("match"), dict) else {},
+                question=payload.get("question") if isinstance(payload.get("question"), str) else None,
+            )
+            usage.prompt_id = explained.get("prompt_id")
+            usage.prompt_version = explained.get("prompt_version")
+            usage.provider = explained.get("provider")
+            usage.model = explained.get("model_id")
+            usage.prompt_tokens = explained.get("prompt_tokens")
+            usage.completion_tokens = explained.get("completion_tokens")
+            usage.total_tokens = explained.get("total_tokens")
+            usage.cache_hit = explained.get("cache_status") == "hit"
+            esc = explained.get("escalation")
+            usage.escalation_occurred = bool(esc)
+            usage.escalation_reason = (esc or {}).get("reason") if esc else None
+            return {
+                "workflow_id": workflow_id,
+                "status": "completed",
+                "result": explained,
+                "requires_approval": True,
+                "approval_id": None,
+                "provider_request_id": explained.get("provider_request_id"),
             }
 
         _reject_body_org()

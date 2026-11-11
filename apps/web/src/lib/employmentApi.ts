@@ -67,3 +67,38 @@ export async function saveEmploymentSupportNotes(options: {
   }
   return (await response.json()) as EmploymentSummary;
 }
+
+export type JobMatchProgress = {
+  tenant_id: string;
+  saved_jobs: number;
+  match_count: number;
+  top_scores: number[];
+  career_goals: string[];
+  preferred_categories: string[];
+};
+
+export async function fetchJobMatchProgress(options: {
+  accessToken: string;
+  organisationId: string;
+  role?: string | null;
+  tenantId: string;
+}): Promise<JobMatchProgress | null> {
+  const response = await fetch(
+    `${API_BASE}/api/v1/job-matching/staff/tenants/${options.tenantId}/progress`,
+    {
+      headers: {
+        Authorization: `Bearer ${options.accessToken}`,
+        ...organisationRequestHeaders({
+          organisationId: options.organisationId,
+          role: options.role,
+        }),
+      },
+      cache: "no-store",
+    },
+  );
+  if (response.status === 404 || response.status === 403) return null;
+  if (!response.ok) {
+    throw new Error((await response.text()) || `Request failed (${response.status})`);
+  }
+  return (await response.json()) as JobMatchProgress;
+}

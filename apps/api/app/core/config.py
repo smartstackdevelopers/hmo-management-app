@@ -141,6 +141,17 @@ class Settings(BaseSettings):
         default=24, ge=1, le=168, validation_alias="HELP_NEAR_ME_SEARCH_RETENTION_HOURS"
     )
 
+    # F5.4 job matching — official APIs only (never scrape). Empty = source unavailable.
+    job_source_adzuna_app_id: str = Field(default="", validation_alias="JOB_SOURCE_ADZUNA_APP_ID")
+    job_source_adzuna_app_key: str = Field(default="", validation_alias="JOB_SOURCE_ADZUNA_APP_KEY")
+    job_source_reed_api_key: str = Field(default="", validation_alias="JOB_SOURCE_REED_API_KEY")
+    job_source_timeout_seconds: float = Field(
+        default=12.0, ge=2.0, le=60.0, validation_alias="JOB_SOURCE_TIMEOUT_SECONDS"
+    )
+    job_match_live_search_enabled: bool = Field(
+        default=True, validation_alias="JOB_MATCH_LIVE_SEARCH_ENABLED"
+    )
+
     @field_validator("environment")
     @classmethod
     def normalize_environment(cls, value: str) -> str:
