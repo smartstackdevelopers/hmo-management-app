@@ -54,10 +54,13 @@ def test_alembic_head_is_f51() -> None:
     config = Config(str(api_root / "alembic.ini"))
     config.set_main_option("script_location", str(api_root / "migrations"))
     script = ScriptDirectory.from_config(config)
-    assert script.get_heads() == ["20261110_3400_f51"]
+    assert script.get_heads() == ["20261110_3500_f52"]
     rev = script.get_revision("20261110_3400_f51")
     assert rev is not None
     assert rev.down_revision == "20261110_3300_f46"
+    f52 = script.get_revision("20261110_3500_f52")
+    assert f52 is not None
+    assert f52.down_revision == "20261110_3400_f51"
 
 
 def test_tenant_out_schema_hides_verification_notes() -> None:

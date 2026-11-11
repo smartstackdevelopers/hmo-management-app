@@ -40,7 +40,7 @@ def test_alembic_head_revises_f41_tenant_mobile() -> None:
     config.set_main_option("script_location", str(api_root / "migrations"))
     script = ScriptDirectory.from_config(config)
     heads = script.get_heads()
-    assert heads == ["20261110_3400_f51"]
+    assert heads == ["20261110_3500_f52"]
     f43 = script.get_revision("20261110_3000_f43")
     assert f43 is not None
     assert f43.down_revision == "20261110_2900_f41"
@@ -53,6 +53,9 @@ def test_alembic_head_revises_f41_tenant_mobile() -> None:
     f51 = script.get_revision("20261110_3400_f51")
     assert f51 is not None
     assert f51.down_revision == "20261110_3300_f46"
+    f52 = script.get_revision("20261110_3500_f52")
+    assert f52 is not None
+    assert f52.down_revision == "20261110_3400_f51"
 
 
 def test_self_profile_schema_hides_staff_notes() -> None:

@@ -11,7 +11,7 @@ from __future__ import annotations
 import uuid
 from datetime import datetime
 
-from sqlalchemy import Boolean, CheckConstraint, DateTime, ForeignKey, Index, String, Text, func
+from sqlalchemy import Boolean, CheckConstraint, DateTime, Float, ForeignKey, Index, String, Text, func
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import Mapped, mapped_column
 
@@ -57,6 +57,16 @@ class CommunityService(UUIDPrimaryKeyMixin, OrganisationScopedMixin, TimestampMi
             "category",
             "verification_status",
         ),
+        CheckConstraint(
+            "geocode_status IN ('not_geocoded', 'verified', 'failed', 'manual')",
+            name="ck_community_services_geocode_status",
+        ),
+        Index(
+            "ix_community_services_org_lat_lon",
+            "organisation_id",
+            "latitude",
+            "longitude",
+        ),
     )
 
     category: Mapped[str] = mapped_column(String(32), nullable=False)
@@ -97,6 +107,17 @@ class CommunityService(UUIDPrimaryKeyMixin, OrganisationScopedMixin, TimestampMi
     is_published: Mapped[bool] = mapped_column(
         Boolean, nullable=False, default=False, server_default="false"
     )
+    # F5.2 Help Near Me — only set from real geocoding or explicit admin coordinates.
+    latitude: Mapped[float | None] = mapped_column(Float, nullable=True)
+    longitude: Mapped[float | None] = mapped_column(Float, nullable=True)
+    geocode_provider: Mapped[str | None] = mapped_column(String(64), nullable=True)
+    geocode_status: Mapped[str] = mapped_column(
+        String(32),
+        nullable=False,
+        default="not_geocoded",
+        server_default="not_geocoded",
+    )
+    geocoded_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
 
 
 class CommunityServiceVerificationEvent(UUIDPrimaryKeyMixin, OrganisationScopedMixin, Base):

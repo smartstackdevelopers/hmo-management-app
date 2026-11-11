@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { CommunityServiceActions } from "@/components/community/CommunityServiceActions";
+import { GeocodeServiceButton } from "@/components/community/GeocodeServiceButton";
 import { EmptyState } from "@/components/dashboard/EmptyState";
 import { ErrorState } from "@/components/dashboard/ErrorState";
 import { PageHeader } from "@/components/dashboard/PageHeader";
@@ -102,7 +103,22 @@ export default async function CommunityServiceDetailPage({
           />
           <Field label="Published" value={service.is_published ? "Yes" : "No"} />
           <Field label="Internal verification notes" value={service.verification_notes} />
+          <Field
+            label="Coordinates"
+            value={
+              service.latitude != null && service.longitude != null
+                ? `${service.latitude}, ${service.longitude}`
+                : null
+            }
+          />
+          <Field label="Geocode status" value={service.geocode_status} />
         </dl>
+        <GeocodeServiceButton
+          accessToken={token}
+          organisationId={orgId}
+          role={session.authorization?.active_role}
+          serviceId={service.id}
+        />
         <CommunityServiceActions
           accessToken={token}
           organisationId={orgId}

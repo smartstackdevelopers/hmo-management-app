@@ -107,6 +107,40 @@ class Settings(BaseSettings):
         validation_alias="TENANT_ASSISTANT_HOURLY_LIMIT",
     )
 
+    # F5.2 Help Near Me geocoding (credentials via env only — never commit secrets).
+    # postcodes_io (default) needs no API key. nominatim requires a real User-Agent.
+    geocoding_provider: str = Field(default="postcodes_io", validation_alias="GEOCODING_PROVIDER")
+    geocoding_timeout_seconds: float = Field(
+        default=8.0, ge=1.0, le=30.0, validation_alias="GEOCODING_TIMEOUT_SECONDS"
+    )
+    geocoding_postcodes_io_base_url: str = Field(
+        default="https://api.postcodes.io",
+        validation_alias="GEOCODING_POSTCODES_IO_BASE_URL",
+    )
+    geocoding_nominatim_base_url: str = Field(
+        default="https://nominatim.openstreetmap.org",
+        validation_alias="GEOCODING_NOMINATIM_BASE_URL",
+    )
+    geocoding_nominatim_user_agent: str = Field(
+        default="HMore/1.0 (help-near-me; contact=ops@hmore.local)",
+        validation_alias="GEOCODING_NOMINATIM_USER_AGENT",
+    )
+    help_near_me_default_radius_km: float = Field(
+        default=5.0, ge=0.5, le=50.0, validation_alias="HELP_NEAR_ME_DEFAULT_RADIUS_KM"
+    )
+    help_near_me_max_radius_km: float = Field(
+        default=25.0, ge=1.0, le=100.0, validation_alias="HELP_NEAR_ME_MAX_RADIUS_KM"
+    )
+    help_near_me_search_hourly_limit: int = Field(
+        default=60, ge=1, le=500, validation_alias="HELP_NEAR_ME_SEARCH_HOURLY_LIMIT"
+    )
+    help_near_me_report_hourly_limit: int = Field(
+        default=10, ge=1, le=100, validation_alias="HELP_NEAR_ME_REPORT_HOURLY_LIMIT"
+    )
+    help_near_me_search_retention_hours: int = Field(
+        default=24, ge=1, le=168, validation_alias="HELP_NEAR_ME_SEARCH_RETENTION_HOURS"
+    )
+
     @field_validator("environment")
     @classmethod
     def normalize_environment(cls, value: str) -> str:

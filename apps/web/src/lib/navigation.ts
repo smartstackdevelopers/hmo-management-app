@@ -79,6 +79,14 @@ export const DASHBOARD_NAV: NavItem[] = [
     section: "records",
   },
   {
+    id: "help-near-me",
+    label: "Help Near Me reports",
+    href: "/dashboard/help-near-me",
+    anyOf: ["organisations.manage", "organisation.settings.manage"],
+    roles: ["organisation_admin", "super_admin"],
+    section: "records",
+  },
+  {
     id: "ali-journey",
     label: "Ali journey (F2.15)",
     href: "/dashboard/journeys/ali",
