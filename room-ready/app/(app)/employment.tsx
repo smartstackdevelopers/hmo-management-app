@@ -37,6 +37,11 @@ export default function EmploymentHubScreen() {
           variant="secondary"
           onPress={() => router.push('/(app)/job-matching')}
         />
+        <Button
+          title={t('communityHub.title')}
+          variant="secondary"
+          onPress={() => router.push('/(app)/community-hub')}
+        />
       </View>
     </Screen>
   );

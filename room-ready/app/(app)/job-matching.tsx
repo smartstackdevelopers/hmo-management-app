@@ -21,6 +21,7 @@ export default function JobMatchingHubScreen() {
         <Button title={t('jobMatching.training')} variant="secondary" onPress={() => router.push('/(app)/job-matching-training')} />
         <Button title={t('jobMatching.preferences')} variant="secondary" onPress={() => router.push('/(app)/job-matching-preferences')} />
         <Button title={t('employment.applications')} variant="secondary" onPress={() => router.push('/(app)/employment-applications')} />
+        <Button title={t('communityHub.title')} variant="secondary" onPress={() => router.push('/(app)/community-hub')} />
       </View>
     </Screen>
   );
