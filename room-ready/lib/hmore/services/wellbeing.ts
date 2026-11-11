@@ -12,11 +12,15 @@ export async function upsertCheckin(body: Record<string, unknown>) {
   return hmoreFetch<Record<string, unknown>>('/wellbeing/checkins', { method: 'PUT', body });
 }
 
-export async function listCheckins(query?: { days?: number }) {
+export async function listCheckins(query?: { days?: number; page?: number; page_size?: number }) {
   return hmoreFetch<{ items: Array<Record<string, unknown>>; disclaimer: string }>(
     '/wellbeing/checkins',
     { method: 'GET', query },
   );
+}
+
+export async function deleteCheckin(checkinId: string) {
+  return hmoreFetch<{ status: string }>(`/wellbeing/checkins/${checkinId}`, { method: 'DELETE' });
 }
 
 export async function listRoutines(query?: { day?: string }) {
@@ -28,6 +32,17 @@ export async function listRoutines(query?: { day?: string }) {
 
 export async function createRoutine(body: Record<string, unknown>) {
   return hmoreFetch<Record<string, unknown>>('/wellbeing/routines', { method: 'POST', body });
+}
+
+export async function updateRoutine(routineId: string, body: Record<string, unknown>) {
+  return hmoreFetch<Record<string, unknown>>(`/wellbeing/routines/${routineId}`, {
+    method: 'PUT',
+    body,
+  });
+}
+
+export async function deleteRoutine(routineId: string) {
+  return hmoreFetch<{ status: string }>(`/wellbeing/routines/${routineId}`, { method: 'DELETE' });
 }
 
 export async function setRoutineStatus(routineId: string, body: Record<string, unknown>) {
