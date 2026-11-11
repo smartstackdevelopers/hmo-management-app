@@ -94,9 +94,18 @@ export interface CommunityServiceItem {
   name: string;
   description: string | null;
   address_line: string | null;
+  opening_days?: string | null;
   opening_hours: string | null;
   eligibility: string | null;
+  referral_requirements?: string | null;
   contact: string | null;
+  service_instructions?: string | null;
+  clothing_service_type?: string | null;
+  verification_status?: string;
+  information_source?: string | null;
+  verified_at?: string | null;
+  created_at?: string | null;
+  updated_at?: string | null;
   is_published?: boolean;
 }
 

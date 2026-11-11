@@ -388,3 +388,10 @@ AI_FEATURE_DEFAULTS_ASSIGNED = "ai.feature.defaults.assigned"
 DEVICE_SESSION_REGISTERED = "device_session.registered"
 DEVICE_SESSION_REVOKED = "device_session.revoked"
 DEVICE_SESSION_LOST = "device_session.reported_lost"
+
+# F5.1 community directory. Metadata must not include confidential tenant case data.
+COMMUNITY_SERVICE_CREATE = "community_service.create"
+COMMUNITY_SERVICE_UPDATE = "community_service.update"
+COMMUNITY_SERVICE_VERIFY = "community_service.verify"
+COMMUNITY_SERVICE_FLAG_OUTDATED = "community_service.flag_outdated"
+COMMUNITY_SERVICE_DEACTIVATE = "community_service.deactivate"

@@ -32,7 +32,7 @@ from app.tenancy.context import OrganisationContext
 
 
 def test_alembic_head_revises_f41_tenant_mobile() -> None:
-    """F4.1 stays in the chain. F4.6 device sessions are the single head and revise F4.5."""
+    """F4.1 stays in the chain through F4.6; F5.1 revises F4.6 as the single head."""
     from pathlib import Path
 
     api_root = Path(__file__).resolve().parents[1]
@@ -40,7 +40,7 @@ def test_alembic_head_revises_f41_tenant_mobile() -> None:
     config.set_main_option("script_location", str(api_root / "migrations"))
     script = ScriptDirectory.from_config(config)
     heads = script.get_heads()
-    assert heads == ["20261110_3300_f46"]
+    assert heads == ["20261110_3400_f51"]
     f43 = script.get_revision("20261110_3000_f43")
     assert f43 is not None
     assert f43.down_revision == "20261110_2900_f41"
@@ -50,6 +50,9 @@ def test_alembic_head_revises_f41_tenant_mobile() -> None:
     f46 = script.get_revision("20261110_3300_f46")
     assert f46 is not None
     assert f46.down_revision == "20261110_3200_f45"
+    f51 = script.get_revision("20261110_3400_f51")
+    assert f51 is not None
+    assert f51.down_revision == "20261110_3300_f46"
 
 
 def test_self_profile_schema_hides_staff_notes() -> None:
@@ -351,7 +354,7 @@ def test_catalogues_hide_unpublished_and_other_organisations(db_session, unique_
     ctx = _ctx(HMoreRole.TENANT, org_a.id, user)
 
     services = list_community_services(db_session, ctx, q=unique_suffix, category=None)
-    assert [row.name for row in services] == [f"Published service {unique_suffix}"]
+    assert [row.name for row in services.items] == [f"Published service {unique_suffix}"]
 
     jobs = list_opportunities(db_session, ctx, kind="job", q=unique_suffix)
     assert [row.title for row in jobs] == [f"Published opening {unique_suffix}"]
