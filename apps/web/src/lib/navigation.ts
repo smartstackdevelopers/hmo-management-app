@@ -87,6 +87,18 @@ export const DASHBOARD_NAV: NavItem[] = [
     section: "records",
   },
   {
+    id: "employment-support",
+    label: "Employment support",
+    href: "/dashboard/employment-support",
+    anyOf: [
+      "employment.prep.read.assigned",
+      "employment_support.manage.assigned",
+      "tenants.manage",
+    ],
+    roles: ["support_worker", "organisation_admin", "super_admin"],
+    section: "records",
+  },
+  {
     id: "ali-journey",
     label: "Ali journey (F2.15)",
     href: "/dashboard/journeys/ali",

@@ -398,3 +398,11 @@ COMMUNITY_SERVICE_DEACTIVATE = "community_service.deactivate"
 COMMUNITY_SERVICE_GEOCODE = "community_service.geocode"
 COMMUNITY_SERVICE_REPORT_SUBMIT = "community_service.report.submit"
 COMMUNITY_SERVICE_REPORT_MODERATE = "community_service.report.moderate"
+
+# F5.3 employment preparation
+EMPLOYMENT_ASSESSMENT_UPSERT = "employment.assessment.upsert"
+EMPLOYMENT_CV_CREATE = "employment.cv.create"
+EMPLOYMENT_CV_UPDATE = "employment.cv.update"
+EMPLOYMENT_CV_DELETE = "employment.cv.delete"
+EMPLOYMENT_CV_PDF = "employment.cv.pdf"
+EMPLOYMENT_APPLICATION_UPSERT = "employment.application.upsert"

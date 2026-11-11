@@ -27,6 +27,7 @@ FEATURE_REPORT_DRAFT = "ai.workflow.report_draft"
 FEATURE_DUPLICATE_DETECTION = "ai.agent.duplicate_detection"
 FEATURE_AI_ACTIVITY = "ai.activity.transparency"
 FEATURE_DAILY_LOG_REWRITE = "ai.workflow.daily_log_rewrite"
+FEATURE_CV_WORDING = "ai.workflow.cv_wording"
 FEATURE_UNKNOWN = "ai.infra.unattributed"
 
 PLANNED_AGENT_FEATURES: frozenset[str] = frozenset(
@@ -59,6 +60,7 @@ WORKFLOW_FEATURES: frozenset[str] = frozenset(
         FEATURE_DUPLICATE_DETECTION,
         FEATURE_AI_ACTIVITY,
         FEATURE_DAILY_LOG_REWRITE,
+        FEATURE_CV_WORDING,
     }
 )
 
@@ -79,6 +81,7 @@ WORKFLOW_FEATURE_MAP: dict[str, str] = {
     "report_draft_narrative": FEATURE_REPORT_DRAFT,
     "duplicate_detection": FEATURE_DUPLICATE_DETECTION,
     "daily_log_rewrite": FEATURE_DAILY_LOG_REWRITE,
+    "cv_wording_assist": FEATURE_CV_WORDING,
 }
 
 
