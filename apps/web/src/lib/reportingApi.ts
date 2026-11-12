@@ -200,6 +200,39 @@ export function fetchAlertThresholds(options: ReportAuth) {
   return reportFetch<{ items: Record<string, unknown>[] }>("/api/v1/reports/alerts/thresholds", options);
 }
 
+export function upsertAlertThreshold(
+  options: ReportAuth,
+  body: { alert_type: string; threshold_value: number; is_enabled: boolean },
+) {
+  return reportFetch<Record<string, unknown>>("/api/v1/reports/alerts/thresholds", options, {
+    method: "PUT",
+    body: JSON.stringify(body),
+  });
+}
+
 export function evaluateAlerts(options: ReportAuth) {
   return reportFetch<Record<string, unknown>>("/api/v1/reports/alerts/evaluate", options, { method: "POST" });
+}
+
+export async function downloadStoredExport(options: ReportAuth & { exportId: string; filename?: string }) {
+  const response = await fetch(`${API_BASE}/api/v1/reports/exports/${options.exportId}/download`, {
+    headers: {
+      Authorization: `Bearer ${options.accessToken}`,
+      ...organisationRequestHeaders({
+        organisationId: options.organisationId,
+        role: options.role,
+      }),
+    },
+    cache: "no-store",
+  });
+  if (!response.ok) {
+    throw new Error((await response.text()) || `Download failed (${response.status})`);
+  }
+  const blob = await response.blob();
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = options.filename ?? `hmore-export-${options.exportId}`;
+  a.click();
+  URL.revokeObjectURL(url);
 }

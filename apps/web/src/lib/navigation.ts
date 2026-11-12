@@ -190,9 +190,15 @@ export const DASHBOARD_NAV: NavItem[] = [
     id: "council-portal",
     label: "Council Portal",
     href: "/dashboard/council-portal",
-    // Admin manage permission. Invited officers without core RBAC still open
-    // /dashboard/council-portal directly; API enforces officer grant.
-    anyOf: ["council_portal.manage"],
+    // Visible to non-tenant staff (admins + invited officers with a core membership).
+    // API still enforces council_portal.manage vs officer grant.
+    roles: [
+      "super_admin",
+      "organisation_admin",
+      "landlord",
+      "support_worker",
+      "maintenance_contractor",
+    ],
     section: "records",
   },
   {

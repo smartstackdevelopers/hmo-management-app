@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useState, useTransition } from "react";
 import {
   createSchedule,
+  downloadStoredExport,
   fetchScheduleRuns,
   fetchSchedules,
   retryScheduleRun,
@@ -182,20 +183,43 @@ export function SchedulesPanel({ accessToken, organisationId, role }: Props) {
                   </div>
                   <div className="text-slate-600">{String(run.error_message ?? run.created_at ?? "")}</div>
                 </div>
-                {run.status === "failed" ? (
-                  <button
-                    type="button"
-                    className="rounded border px-2 py-1"
-                    onClick={() =>
-                      startTransition(async () => {
-                        await retryScheduleRun(auth, String(run.id));
-                        refresh();
-                      })
-                    }
-                  >
-                    Retry
-                  </button>
-                ) : null}
+                <div className="flex gap-2">
+                  {run.report_export_id ? (
+                    <button
+                      type="button"
+                      className="rounded border px-2 py-1"
+                      onClick={() =>
+                        startTransition(async () => {
+                          try {
+                            await downloadStoredExport({
+                              ...auth,
+                              exportId: String(run.report_export_id),
+                              filename: `scheduled-report-${String(run.id)}`,
+                            });
+                          } catch (e) {
+                            setError(e instanceof Error ? e.message : "Download failed");
+                          }
+                        })
+                      }
+                    >
+                      Download export
+                    </button>
+                  ) : null}
+                  {run.status === "failed" ? (
+                    <button
+                      type="button"
+                      className="rounded border px-2 py-1"
+                      onClick={() =>
+                        startTransition(async () => {
+                          await retryScheduleRun(auth, String(run.id));
+                          refresh();
+                        })
+                      }
+                    >
+                      Retry
+                    </button>
+                  ) : null}
+                </div>
               </li>
             ))}
           </ul>
