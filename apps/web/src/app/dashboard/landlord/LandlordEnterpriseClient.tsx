@@ -30,6 +30,9 @@ function StatCard({ label, value }: { label: string; value: string | number }) {
 }
 
 export function LandlordEnterpriseClient({ accessToken, organisationId, role }: Props) {
+  // Only landlords receive rent_records.manage / inspections.manage in the RBAC matrix.
+  // Org admins may oversee portfolio/repairs via properties.*; API still enforces writes.
+  const canManageLedger = role === "landlord";
   const opts = useMemo(
     () => ({ accessToken, organisationId, role }),
     [accessToken, organisationId, role],
@@ -239,28 +242,34 @@ export function LandlordEnterpriseClient({ accessToken, organisationId, role }: 
 
       <section id="rent" className="space-y-3">
         <h2 className="text-lg font-semibold text-forest-900">Rent records ledger</h2>
-        <div className="flex flex-wrap gap-2">
-          <select
-            className="rounded border border-slate-300 px-3 py-2 text-sm"
-            value={rentPropertyId}
-            onChange={(e) => setRentPropertyId(e.target.value)}
-          >
-            {dash.properties.map((p) => (
-              <option key={p.id} value={p.id}>
-                {p.name}
-              </option>
-            ))}
-          </select>
-          <input
-            className="rounded border border-slate-300 px-3 py-2 text-sm"
-            value={rentAmount}
-            onChange={(e) => setRentAmount(e.target.value)}
-            aria-label="Rent amount"
-          />
-          <button type="button" className="rounded bg-teal-800 px-3 py-2 text-sm text-white" onClick={() => void onCreateRent()}>
-            Add rent record
-          </button>
-        </div>
+        {canManageLedger ? (
+          <div className="flex flex-wrap gap-2">
+            <select
+              className="rounded border border-slate-300 px-3 py-2 text-sm"
+              value={rentPropertyId}
+              onChange={(e) => setRentPropertyId(e.target.value)}
+            >
+              {dash.properties.map((p) => (
+                <option key={p.id} value={p.id}>
+                  {p.name}
+                </option>
+              ))}
+            </select>
+            <input
+              className="rounded border border-slate-300 px-3 py-2 text-sm"
+              value={rentAmount}
+              onChange={(e) => setRentAmount(e.target.value)}
+              aria-label="Rent amount"
+            />
+            <button type="button" className="rounded bg-teal-800 px-3 py-2 text-sm text-white" onClick={() => void onCreateRent()}>
+              Add rent record
+            </button>
+          </div>
+        ) : (
+          <p className="text-sm text-slate-600">
+            Read-only oversight. Rent ledger writes require the landlord role (`rent_records.manage`).
+          </p>
+        )}
         {rents.length === 0 ? (
           <p className="text-sm text-slate-600">No rent records yet.</p>
         ) : (
@@ -274,7 +283,7 @@ export function LandlordEnterpriseClient({ accessToken, organisationId, role }: 
                   {String(row.period_start)} → {String(row.period_end)}
                   {row.tenancy_reference ? ` · ${String(row.tenancy_reference)}` : ""}
                 </p>
-                {row.status !== "recorded_paid" ? (
+                {canManageLedger && row.status !== "recorded_paid" ? (
                   <button
                     type="button"
                     className="mt-2 text-teal-800 underline"
@@ -291,6 +300,7 @@ export function LandlordEnterpriseClient({ accessToken, organisationId, role }: 
 
       <section id="inspections" className="space-y-3">
         <h2 className="text-lg font-semibold text-forest-900">Inspections</h2>
+        {canManageLedger ? (
         <div className="flex flex-wrap gap-2">
           <select
             className="rounded border border-slate-300 px-3 py-2 text-sm"
@@ -322,6 +332,11 @@ export function LandlordEnterpriseClient({ accessToken, organisationId, role }: 
             Schedule inspection
           </button>
         </div>
+        ) : (
+          <p className="text-sm text-slate-600">
+            Read-only oversight. Inspection writes require the landlord role (`inspections.manage`).
+          </p>
+        )}
         <p className="text-sm text-slate-600">
           Upcoming: {dash.inspections.upcoming} · Overdue: {dash.inspections.overdue} · Completed:{" "}
           {dash.inspections.completed}

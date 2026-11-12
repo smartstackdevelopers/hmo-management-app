@@ -2,13 +2,22 @@ import { EmptyState } from "@/components/dashboard/EmptyState";
 import { ErrorState } from "@/components/dashboard/ErrorState";
 import { PageHeader } from "@/components/dashboard/PageHeader";
 import { auth0, isAuth0Configured } from "@/lib/auth0";
-import { canAny } from "@/lib/rbac";
-import { requireDashboardRole } from "@/lib/session";
+import { canAny, type ApprovedRole } from "@/lib/rbac";
+import { requireAuthenticatedSession } from "@/lib/session";
 import { redirect } from "next/navigation";
 import { LandlordEnterpriseClient } from "./LandlordEnterpriseClient";
 
+/** Align with F6.1 nav: landlords own the tools; org/super admins may oversee via properties.* */
+const LANDLORD_ENTERPRISE_ROLES: ApprovedRole[] = [
+  "landlord",
+  "organisation_admin",
+  "super_admin",
+];
+
 export default async function LandlordDashboardPage() {
-  const session = await requireDashboardRole("landlord", "/dashboard/landlord");
+  // F6.1 enterprise surface (also landlord role home). Do not gate on landlord-only —
+  // nav lists org_admin/super_admin and backend scopes landlords to owned properties.
+  const session = await requireAuthenticatedSession("/dashboard/landlord");
 
   if (!session.authConfigured) {
     return (
@@ -23,6 +32,11 @@ export default async function LandlordDashboardPage() {
     return (
       <ErrorState description="Authorization snapshot unavailable. Confirm API connectivity and membership." />
     );
+  }
+
+  const activeRole = session.authorization.active_role as ApprovedRole | null;
+  if (!activeRole || !LANDLORD_ENTERPRISE_ROLES.includes(activeRole)) {
+    redirect("/unauthorized");
   }
 
   if (
