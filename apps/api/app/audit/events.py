@@ -280,6 +280,15 @@ FINANCE_BUDGET_ACTIVATE = "finance.budget.activate"
 FINANCE_BUDGET_CLOSE = "finance.budget.close"
 FINANCE_EXPORT = "finance.export"
 
+# F7.2 privacy management
+PRIVACY_CATALOG_BOOTSTRAP = "privacy.catalog.bootstrap"
+PRIVACY_INVENTORY_UPDATE = "privacy.inventory.update"
+PRIVACY_DPIA_UPDATE = "privacy.dpia.update"
+PRIVACY_RETENTION_UPDATE = "privacy.retention.update"
+PRIVACY_DSR_CREATE = "privacy.dsr.create"
+PRIVACY_DSR_UPDATE = "privacy.dsr.update"
+PRIVACY_TEST_PURGE = "privacy.retention.test_purge"
+
 # F6.7 council portal (optional add-on — officer identity outside core HMoreRole)
 COUNCIL_PORTAL_OFFICER_INVITE = "council_portal.officer.invite"
 COUNCIL_PORTAL_SHARE_CREATE = "council_portal.share.create"

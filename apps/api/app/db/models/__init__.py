@@ -11,6 +11,15 @@ from app.db.models.occupancy_survey import (
     OccupancySurveyRoomAssessment,
 )
 from app.db.models.organisation import Organisation
+from app.db.models.privacy import (
+    PrivacyDataSubjectRequest,
+    PrivacyDeletionLog,
+    PrivacyDpiaRegisterEntry,
+    PrivacyInventoryItem,
+    PrivacyRetentionPolicy,
+    PrivacyRiskRegisterEntry,
+    PrivacyTestRetentionRecord,
+)
 from app.db.models.property import Property
 from app.db.models.room import Room
 from app.db.models.compliance import SafeguardingReminder, StaffTrainingRecord
@@ -403,4 +412,11 @@ __all__ = [
     "CouncilPortalOfficer",
     "CouncilPortalShare",
     "CouncilPortalAccessLog",
+    "PrivacyInventoryItem",
+    "PrivacyDpiaRegisterEntry",
+    "PrivacyRetentionPolicy",
+    "PrivacyDataSubjectRequest",
+    "PrivacyRiskRegisterEntry",
+    "PrivacyDeletionLog",
+    "PrivacyTestRetentionRecord",
 ]
