@@ -366,3 +366,27 @@ def room_occupancy_sweep_task(self) -> dict:
         result = {"offline": offline, "retention": retention}
         logger.info("room_occupancy_sweep result=%s", result)
         return result
+
+
+@celery_app.task(
+    name="hmore.backup.dispatch_and_process",
+    bind=True,
+    soft_time_limit=900,
+    time_limit=1200,
+    autoretry_for=(Exception,),
+    retry_backoff=True,
+    retry_kwargs={"max_retries": 2},
+)
+def backup_dispatch_and_process_task(self) -> dict:
+    """F7.3: schedule pending backup rows and execute when BACKUP_ENABLED=true."""
+    from app.backup import service as backup_service
+    from app.tenancy.session_rls import apply_platform_rls_bypass
+
+    with session_scope() as session:
+        apply_platform_rls_bypass(session)
+        scheduled = backup_service.dispatch_due_backups(session)
+        processed = backup_service.process_pending_backup_runs(session)
+        cleaned = backup_service.apply_retention_cleanup(session)
+        result = {**scheduled, **processed, **cleaned}
+        logger.info("backup_dispatch_and_process result=%s", result)
+        return result

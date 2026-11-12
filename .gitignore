@@ -28,6 +28,8 @@ __pycache__/
 api/uploads/*
 !api/uploads/.gitkeep
 apps/api/.hmore-private-storage/
+apps/api/.hmore-backups/
+.hmore-backups/
 api/src/generated/prisma
 
 # os / misc

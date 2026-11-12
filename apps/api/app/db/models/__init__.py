@@ -11,6 +11,12 @@ from app.db.models.occupancy_survey import (
     OccupancySurveyRoomAssessment,
 )
 from app.db.models.organisation import Organisation
+from app.db.models.backup import (
+    BackupRetentionSetting,
+    BackupRun,
+    BackupScheduleConfig,
+    RestoreDrillRun,
+)
 from app.db.models.privacy import (
     PrivacyDataSubjectRequest,
     PrivacyDeletionLog,
@@ -419,4 +425,8 @@ __all__ = [
     "PrivacyRiskRegisterEntry",
     "PrivacyDeletionLog",
     "PrivacyTestRetentionRecord",
+    "BackupScheduleConfig",
+    "BackupRun",
+    "RestoreDrillRun",
+    "BackupRetentionSetting",
 ]

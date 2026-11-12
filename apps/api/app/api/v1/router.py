@@ -22,6 +22,7 @@ from app.api.v1.room_occupancy import router as room_occupancy_router
 from app.api.v1.finance import router as finance_router
 from app.api.v1.council_portal import router as council_portal_router
 from app.api.v1.privacy import router as privacy_router
+from app.api.v1.backups import router as backups_router
 from app.api.v1.ai_usage import internal_router as ai_usage_internal_router
 from app.api.v1.ai_usage import router as ai_usage_router
 from app.api.v1.notes_analysis import router as notes_analysis_router
@@ -104,6 +105,7 @@ api_v1_router.include_router(room_occupancy_router)
 api_v1_router.include_router(finance_router)
 api_v1_router.include_router(council_portal_router)
 api_v1_router.include_router(privacy_router)
+api_v1_router.include_router(backups_router)
 api_v1_router.include_router(ai_usage_router)
 api_v1_router.include_router(ai_usage_internal_router)
 api_v1_router.include_router(notes_analysis_router)
