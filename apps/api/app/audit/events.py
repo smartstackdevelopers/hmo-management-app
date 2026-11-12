@@ -235,11 +235,16 @@ SECURE_SHARING_CREATE = "secure_sharing.create"
 SECURE_SHARING_REVOKE = "secure_sharing.revoke"
 SECURE_SHARING_ACCESS = "secure_sharing.access"
 
-# F2.14 reporting
+# F2.14 / F6.2 reporting
 REPORTS_DASHBOARD_VIEW = "reports.dashboard.view"
 REPORTS_EXPORT_CSV = "reports.export.csv"
 REPORTS_EXPORT_PDF = "reports.export.pdf"
 REPORTS_EXPORT_EXCEL = "reports.export.excel"
+REPORTS_EXPORT_STORE = "reports.export.store"
+REPORTS_EXPORT_DOWNLOAD = "reports.export.download"
+REPORTS_SCHEDULE_CREATE = "reports.schedule.create"
+REPORTS_SCHEDULE_UPDATE = "reports.schedule.update"
+REPORTS_ALERT_STATUS = "reports.alert.status"
 
 # F3.3 AI usage caps and cost tracking
 AI_BUDGET_UPSERT = "ai.budget.upsert"

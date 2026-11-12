@@ -10,7 +10,7 @@ from sqlalchemy import func, select
 from sqlalchemy.orm import Session
 
 from app.db.models.enums import HMoreRole
-from app.db.models.housing import HousingApplication
+from app.db.models.housing import HousingApplication, WaitingListEntry
 from app.reporting.access import require_housing_reports
 from app.reporting.filters import HousingReportFilters
 from app.records.pagination import offset_limit
@@ -47,6 +47,8 @@ def _base_stmt(ctx: OrganisationContext, flt: HousingReportFilters):
         stmt = stmt.where(HousingApplication.status == flt.status)
     if flt.reviewer_user_id:
         stmt = stmt.where(HousingApplication.reviewer_user_id == flt.reviewer_user_id)
+    if flt.property_id:
+        stmt = stmt.where(HousingApplication.preferred_property_id == flt.property_id)
     if ctx.role == HMoreRole.SUPPORT_WORKER:
         stmt = stmt.where(HousingApplication.reviewer_user_id == ctx.user_id)
     return stmt
@@ -90,18 +92,55 @@ def housing_summary(session: Session, ctx: OrganisationContext, flt: HousingRepo
         for row in session.execute(trends_stmt).all()
         if row[0]
     ]
+    pending = (
+        counts.get("submitted", 0)
+        + counts.get("under_review", 0)
+        + counts.get("information_required", 0)
+    )
+    by_property_stmt = (
+        select(HousingApplication.preferred_property_id, func.count())
+        .where(HousingApplication.organisation_id == ctx.organisation_id)
+        .group_by(HousingApplication.preferred_property_id)
+    )
+    if flt.created_from:
+        by_property_stmt = by_property_stmt.where(col >= flt.created_from)
+    if flt.created_to:
+        by_property_stmt = by_property_stmt.where(col <= flt.created_to)
+    if flt.property_id:
+        by_property_stmt = by_property_stmt.where(HousingApplication.preferred_property_id == flt.property_id)
+    by_property = [
+        {"property_id": str(pid) if pid else None, "count": int(cnt)}
+        for pid, cnt in session.execute(by_property_stmt).all()
+    ]
+    waiting_counts: dict[str, int] = {"active": 0, "paused": 0, "removed": 0, "allocated": 0}
+    waiting_stmt = (
+        select(WaitingListEntry.status, func.count())
+        .where(WaitingListEntry.organisation_id == ctx.organisation_id)
+        .group_by(WaitingListEntry.status)
+    )
+    for status, cnt in session.execute(waiting_stmt).all():
+        if status in waiting_counts:
+            waiting_counts[status] = int(cnt)
     return {
         "generated_at": datetime.now(timezone.utc).isoformat(),
         "date_field": flt.date_field,
         "total": total,
         "by_status": counts,
+        "pending_applications": pending,
         "awaiting_information": counts.get("information_required", 0),
         "approved_count": counts.get("approved", 0),
         "rejected_count": counts.get("rejected", 0),
+        "by_property": by_property,
+        "waiting_list": {
+            "total": sum(waiting_counts.values()),
+            "by_status": waiting_counts,
+            "active": waiting_counts.get("active", 0),
+        },
         "trends_daily": trends,
         "definitions": {
             "date_field": f"Counts filtered by {flt.date_field}",
             "trends": "Daily submission/creation counts in range",
+            "waiting_list": "Live waiting_list_entries counts (not date-filtered)",
         },
     }
 

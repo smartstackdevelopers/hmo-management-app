@@ -32,8 +32,9 @@ class ReportDateRange(BaseModel):
 class HousingReportFilters(ReportDateRange):
     status: str | None = Field(default=None, max_length=32)
     reviewer_user_id: uuid.UUID | None = None
+    property_id: uuid.UUID | None = None
     page: int = Field(default=1, ge=1)
-    page_size: int = Field(default=50, ge=1, le=200)
+    page_size: int = Field(default=50, ge=1, le=2000)
 
 
 class ComplaintsReportFilters(ReportDateRange):
@@ -42,13 +43,27 @@ class ComplaintsReportFilters(ReportDateRange):
     overdue_only: bool = False
     escalated_only: bool = False
     page: int = Field(default=1, ge=1)
-    page_size: int = Field(default=50, ge=1, le=200)
+    page_size: int = Field(default=50, ge=1, le=2000)
 
 
 class CaseloadReportFilters(ReportDateRange):
     support_worker_user_id: uuid.UUID | None = None
     page: int = Field(default=1, ge=1)
-    page_size: int = Field(default=50, ge=1, le=200)
+    page_size: int = Field(default=50, ge=1, le=2000)
+
+
+class OccupancyReportFilters(ReportDateRange):
+    property_id: uuid.UUID | None = None
+    building: str | None = Field(default=None, max_length=200)
+    page: int = Field(default=1, ge=1)
+    page_size: int = Field(default=50, ge=1, le=2000)
+
+
+class PlanReportFilters(ReportDateRange):
+    status: str | None = Field(default=None, max_length=32)
+    support_worker_user_id: uuid.UUID | None = None
+    page: int = Field(default=1, ge=1)
+    page_size: int = Field(default=50, ge=1, le=2000)
 
 
 def _now() -> datetime:

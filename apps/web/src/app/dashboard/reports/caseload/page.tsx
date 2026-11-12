@@ -1,24 +1,22 @@
-import { redirect } from "next/navigation";
-import { PageHeader } from "@/components/dashboard/PageHeader";
-import { canAny } from "@/lib/rbac";
-import { exportReportUrl } from "@/lib/reportingApi";
-import { requireAuthenticatedSession } from "@/lib/session";
+import { EmptyState } from "@/components/dashboard/EmptyState";
+import { ErrorState } from "@/components/dashboard/ErrorState";
+import { ReportCategoryPanel } from "@/components/reports/ReportCategoryPanel";
+import { requireReportAccess } from "../_reportAuth";
 
 export default async function CaseloadReportsPage() {
-  const session = await requireAuthenticatedSession("/dashboard/reports/caseload");
-  if (
-    session.authorization &&
-    !canAny(session.authorization.permissions, ["reports.caseload.view", "reports.read"])
-  ) {
-    redirect("/unauthorized");
-  }
+  const { session, token, orgId } = await requireReportAccess("/dashboard/reports/caseload", [
+    "reports.caseload.view",
+  ]);
+  if (!orgId) return <EmptyState title="Unavailable" description="Organisation context required." />;
+  if (!token) return <ErrorState description="Access token unavailable." />;
   return (
-    <div className="space-y-6">
-      <PageHeader
-        title="Caseload reports"
-        description="Assignment counts only — not staff performance scoring."
-      />
-      <p className="text-sm text-slate-600">CSV export path: {exportReportUrl("caseload", "csv")}</p>
-    </div>
+    <ReportCategoryPanel
+      category="caseload"
+      accessToken={token}
+      organisationId={orgId}
+      role={session.authorization?.active_role}
+      title="Staff caseload reports"
+      description="Assigned tenants, active cases, pending tasks and overdue follow-ups by support worker."
+    />
   );
 }

@@ -8,7 +8,7 @@ from pathlib import PurePosixPath
 
 _UNSAFE = re.compile(r"[^A-Za-z0-9._-]+")
 _ALLOWED_EXT = frozenset(
-    {".pdf", ".jpg", ".jpeg", ".png", ".webp", ".txt", ".doc", ".docx"}
+    {".pdf", ".jpg", ".jpeg", ".png", ".webp", ".txt", ".doc", ".docx", ".csv", ".xlsx"}
 )
 
 

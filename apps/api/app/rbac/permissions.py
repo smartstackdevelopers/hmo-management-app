@@ -41,6 +41,10 @@ class Permission(StrEnum):
     REPORTS_HOUSING_VIEW = "reports.housing.view"
     REPORTS_COMPLAINTS_VIEW = "reports.complaints.view"
     REPORTS_CASELOAD_VIEW = "reports.caseload.view"
+    REPORTS_OCCUPANCY_VIEW = "reports.occupancy.view"
+    REPORTS_PLANS_VIEW = "reports.plans.view"
+    REPORTS_SCHEDULE_MANAGE = "reports.schedule.manage"
+    REPORTS_ALERTS_VIEW = "reports.alerts.view"
     REPORTS_EXPORT_CSV = "reports.export.csv"
     REPORTS_EXPORT_PDF = "reports.export.pdf"
     REPORTS_EXPORT_EXCEL = "reports.export.excel"
@@ -365,6 +369,18 @@ PERMISSION_CATALOG: dict[Permission, PermissionMeta] = {
     ),
     Permission.REPORTS_CASELOAD_VIEW: PermissionMeta(
         Permission.REPORTS_CASELOAD_VIEW, "View support worker caseload reports", True
+    ),
+    Permission.REPORTS_OCCUPANCY_VIEW: PermissionMeta(
+        Permission.REPORTS_OCCUPANCY_VIEW, "View occupancy analytics reports", True
+    ),
+    Permission.REPORTS_PLANS_VIEW: PermissionMeta(
+        Permission.REPORTS_PLANS_VIEW, "View support plan completion reports", True
+    ),
+    Permission.REPORTS_SCHEDULE_MANAGE: PermissionMeta(
+        Permission.REPORTS_SCHEDULE_MANAGE, "Manage scheduled report delivery", True
+    ),
+    Permission.REPORTS_ALERTS_VIEW: PermissionMeta(
+        Permission.REPORTS_ALERTS_VIEW, "View early-warning operational alerts", True
     ),
     Permission.REPORTS_EXPORT_CSV: PermissionMeta(
         Permission.REPORTS_EXPORT_CSV, "Export reports as CSV", True
