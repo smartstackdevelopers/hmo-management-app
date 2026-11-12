@@ -52,7 +52,7 @@ def test_alembic_f66_revision_chain() -> None:
     rev = script.get_revision("20261111_4400_f66")
     assert rev is not None
     assert rev.down_revision == "20261111_4300_f65"
-    assert script.get_revision("20261111_4500_f67") is not None
+    assert script.get_revision("20261112_4600_f72") is not None
 
 
 def test_f66_permissions_matrix() -> None:

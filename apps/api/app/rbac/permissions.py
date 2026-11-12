@@ -51,6 +51,9 @@ class Permission(StrEnum):
     AUTOMATION_ESCALATIONS_MANAGE = "automation.escalations.manage"
     INTEGRATIONS_READ = "integrations.read"
     INTEGRATIONS_MANAGE = "integrations.manage"
+    # F7.2 privacy / GDPR management (technical records — not legal sign-off)
+    PRIVACY_READ = "privacy.read"
+    PRIVACY_MANAGE = "privacy.manage"
     REPORTS_EXPORT_CSV = "reports.export.csv"
     REPORTS_EXPORT_PDF = "reports.export.pdf"
     REPORTS_EXPORT_EXCEL = "reports.export.excel"
@@ -414,6 +417,12 @@ PERMISSION_CATALOG: dict[Permission, PermissionMeta] = {
     ),
     Permission.INTEGRATIONS_MANAGE: PermissionMeta(
         Permission.INTEGRATIONS_MANAGE, "Manage integration configurations and sync jobs", True
+    ),
+    Permission.PRIVACY_READ: PermissionMeta(
+        Permission.PRIVACY_READ, "View privacy inventory, DPIA register and data subject requests", True
+    ),
+    Permission.PRIVACY_MANAGE: PermissionMeta(
+        Permission.PRIVACY_MANAGE, "Manage privacy registers, retention policies and DSR workflows", True
     ),
     Permission.REPORTS_EXPORT_CSV: PermissionMeta(
         Permission.REPORTS_EXPORT_CSV, "Export reports as CSV", True

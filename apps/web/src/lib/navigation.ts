@@ -173,6 +173,13 @@ export const DASHBOARD_NAV: NavItem[] = [
     section: "records",
   },
   {
+    id: "privacy",
+    label: "Privacy",
+    href: "/dashboard/privacy",
+    anyOf: ["privacy.read", "privacy.manage"],
+    section: "records",
+  },
+  {
     id: "finance",
     label: "Finance",
     href: "/dashboard/finance",

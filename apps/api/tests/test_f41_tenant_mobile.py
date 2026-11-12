@@ -40,7 +40,7 @@ def test_alembic_head_revises_f41_tenant_mobile() -> None:
     config.set_main_option("script_location", str(api_root / "migrations"))
     script = ScriptDirectory.from_config(config)
     heads = script.get_heads()
-    assert heads == ["20261111_4500_f67"]
+    assert heads == ["20261112_4600_f72"]
     f43 = script.get_revision("20261110_3000_f43")
     assert f43 is not None
     assert f43.down_revision == "20261110_2900_f41"
