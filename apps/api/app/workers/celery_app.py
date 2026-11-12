@@ -84,6 +84,11 @@ celery_app.conf.update(
             "task": "hmore.automation.dispatch_due_rules",
             "schedule": 300.0,
         },
+        # F6.4 — optional auto health sync for connected integrations with config.auto_sync
+        "dispatch-integration-auto-sync-hourly": {
+            "task": "hmore.integrations.dispatch_auto_sync",
+            "schedule": 3600.0,
+        },
     },
 )
 

@@ -48,15 +48,16 @@ def _ctx(role: HMoreRole, organisation_id, user) -> OrganisationContext:
     )
 
 
-def test_alembic_head_is_f63() -> None:
+def test_alembic_f63_revision_chain() -> None:
     api_root = Path(__file__).resolve().parents[1]
     config = Config(str(api_root / "alembic.ini"))
     config.set_main_option("script_location", str(api_root / "migrations"))
     script = ScriptDirectory.from_config(config)
-    assert script.get_heads() == ["20261111_4100_f63"]
     rev = script.get_revision("20261111_4100_f63")
     assert rev is not None
     assert rev.down_revision == "20261111_4000_f62"
+    # Head advances with later Phase 6 features; F6.3 remains in the chain.
+    assert "20261111_4100_f63" in script.get_bases() or script.get_revision("20261111_4200_f64") is not None
 
 
 def test_f63_permissions_matrix() -> None:

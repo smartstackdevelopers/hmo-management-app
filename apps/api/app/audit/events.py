@@ -252,6 +252,15 @@ AUTOMATION_RULE_UPDATE = "automation.rule.update"
 AUTOMATION_RULE_DELETE = "automation.rule.delete"
 AUTOMATION_RULE_RUN = "automation.rule.run"
 
+# F6.4 integration hub
+INTEGRATION_CREATE = "integration.create"
+INTEGRATION_UPDATE = "integration.update"
+INTEGRATION_CONNECTION_TEST = "integration.connection_test"
+INTEGRATION_SYNC_START = "integration.sync.start"
+INTEGRATION_SYNC_COMPLETE = "integration.sync.complete"
+INTEGRATION_SYNC_FAIL = "integration.sync.fail"
+INTEGRATION_MAPPING_UPDATE = "integration.mapping.update"
+
 # F3.3 AI usage caps and cost tracking
 AI_BUDGET_UPSERT = "ai.budget.upsert"
 AI_BUDGET_ACTIVATE = "ai.budget.activate"

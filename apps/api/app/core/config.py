@@ -20,6 +20,12 @@ class Settings(BaseSettings):
     redis_url: str = "redis://localhost:6379/0"
     database_url: str | None = None
     test_database_url: str | None = None
+    # F6.4 — Fernet key (url-safe base64 32-byte) for integration credential encryption.
+    # Generate with: python -c "from cryptography.fernet import Fernet; print(Fernet.generate_key().decode())"
+    integration_secrets_key: str | None = None
+    # Optional shared pepper used only to derive a Fernet key when integration_secrets_key is unset (dev/test).
+    integration_secrets_pepper: str = Field(default="hmore-dev-integration-pepper-change-me")
+
 
     # F2.2 reminder lead times (minutes before event). Configurable via env.
     reminder_shift_lead_minutes: int = Field(default=60, ge=1, le=7 * 24 * 60)
