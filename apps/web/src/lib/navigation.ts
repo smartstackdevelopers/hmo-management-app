@@ -161,6 +161,13 @@ export const DASHBOARD_NAV: NavItem[] = [
     section: "records",
   },
   {
+    id: "finance",
+    label: "Finance",
+    href: "/dashboard/finance",
+    anyOf: ["finance.records.read", "finance.reports.view", "finance.records.manage"],
+    section: "records",
+  },
+  {
     id: "ai-costs",
     label: "AI costs",
     href: "/dashboard/ai-costs",

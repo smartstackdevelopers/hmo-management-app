@@ -59,6 +59,12 @@ class Permission(StrEnum):
     OCCUPANCY_ALERTS_MANAGE = "occupancy.alerts.manage"
     OCCUPANCY_SETTINGS_MANAGE = "occupancy.settings.manage"
     OCCUPANCY_COUNTS_CORRECT = "occupancy.counts.correct"
+    FINANCE_RECORDS_READ = "finance.records.read"
+    FINANCE_RECORDS_MANAGE = "finance.records.manage"
+    FINANCE_BUDGETS_READ = "finance.budgets.read"
+    FINANCE_BUDGETS_MANAGE = "finance.budgets.manage"
+    FINANCE_REPORTS_VIEW = "finance.reports.view"
+    FINANCE_EXPORTS = "finance.exports"
 
     # Tenant person records (distinct from Tenant login role)
     TENANTS_READ = "tenants.read"
@@ -433,6 +439,24 @@ PERMISSION_CATALOG: dict[Permission, PermissionMeta] = {
     ),
     Permission.OCCUPANCY_COUNTS_CORRECT: PermissionMeta(
         Permission.OCCUPANCY_COUNTS_CORRECT, "Correct estimated room occupancy counts", True
+    ),
+    Permission.FINANCE_RECORDS_READ: PermissionMeta(
+        Permission.FINANCE_RECORDS_READ, "View organisation finance ledger records", True
+    ),
+    Permission.FINANCE_RECORDS_MANAGE: PermissionMeta(
+        Permission.FINANCE_RECORDS_MANAGE, "Create and update finance ledger records", True
+    ),
+    Permission.FINANCE_BUDGETS_READ: PermissionMeta(
+        Permission.FINANCE_BUDGETS_READ, "View finance budgets and variance", True
+    ),
+    Permission.FINANCE_BUDGETS_MANAGE: PermissionMeta(
+        Permission.FINANCE_BUDGETS_MANAGE, "Manage finance budgets", True
+    ),
+    Permission.FINANCE_REPORTS_VIEW: PermissionMeta(
+        Permission.FINANCE_REPORTS_VIEW, "View finance dashboard summaries", True
+    ),
+    Permission.FINANCE_EXPORTS: PermissionMeta(
+        Permission.FINANCE_EXPORTS, "Export finance records (CSV/PDF/Excel)", True
     ),
     Permission.TENANTS_READ: PermissionMeta(
         Permission.TENANTS_READ, "Read organisation tenant person records", True

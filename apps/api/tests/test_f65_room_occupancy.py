@@ -48,15 +48,15 @@ def _ctx(role: HMoreRole, organisation_id, user) -> OrganisationContext:
     )
 
 
-def test_alembic_head_is_f65() -> None:
+def test_alembic_f65_revision_chain() -> None:
     api_root = Path(__file__).resolve().parents[1]
     config = Config(str(api_root / "alembic.ini"))
     config.set_main_option("script_location", str(api_root / "migrations"))
     script = ScriptDirectory.from_config(config)
-    assert script.get_heads() == ["20261111_4300_f65"]
     rev = script.get_revision("20261111_4300_f65")
     assert rev is not None
     assert rev.down_revision == "20261111_4200_f64"
+    assert script.get_revision("20261111_4400_f66") is not None
 
 
 def test_f65_permissions_matrix() -> None:
