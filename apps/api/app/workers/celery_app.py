@@ -94,6 +94,11 @@ celery_app.conf.update(
             "task": "hmore.room_occupancy.sweep",
             "schedule": 300.0,
         },
+        # F7.3 — enqueue and process platform backups (honours BACKUP_ENABLED)
+        "dispatch-backup-hourly": {
+            "task": "hmore.backup.dispatch_and_process",
+            "schedule": 3600.0,
+        },
     },
 )
 

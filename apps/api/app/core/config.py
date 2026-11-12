@@ -158,6 +158,18 @@ class Settings(BaseSettings):
         default=True, validation_alias="JOB_MATCH_LIVE_SEARCH_ENABLED"
     )
 
+    # F7.3 — backup and restore drill (never store secrets in archives)
+    backup_enabled: bool = Field(default=False, validation_alias="BACKUP_ENABLED")
+    backup_local_root: str = Field(default=".hmore-backups", validation_alias="BACKUP_LOCAL_ROOT")
+    backup_s3_bucket: str | None = Field(default=None, validation_alias="BACKUP_S3_BUCKET")
+    backup_s3_prefix: str = Field(default="platform/", validation_alias="BACKUP_S3_PREFIX")
+    backup_database_enabled: bool = Field(default=True, validation_alias="BACKUP_DATABASE_ENABLED")
+    backup_files_enabled: bool = Field(default=True, validation_alias="BACKUP_FILES_ENABLED")
+    backup_restore_drill_allowed: bool = Field(
+        default=False, validation_alias="BACKUP_RESTORE_DRILL_ALLOWED"
+    )
+    backup_max_retries: int = Field(default=2, ge=0, le=5, validation_alias="BACKUP_MAX_RETRIES")
+
     @field_validator("environment")
     @classmethod
     def normalize_environment(cls, value: str) -> str:

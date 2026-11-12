@@ -54,6 +54,10 @@ class Permission(StrEnum):
     # F7.2 privacy / GDPR management (technical records — not legal sign-off)
     PRIVACY_READ = "privacy.read"
     PRIVACY_MANAGE = "privacy.manage"
+    # F7.3 backup administration (platform)
+    BACKUP_READ = "backup.read"
+    BACKUP_MANAGE = "backup.manage"
+    BACKUP_RESTORE_DRILL = "backup.restore_drill"
     REPORTS_EXPORT_CSV = "reports.export.csv"
     REPORTS_EXPORT_PDF = "reports.export.pdf"
     REPORTS_EXPORT_EXCEL = "reports.export.excel"
@@ -423,6 +427,15 @@ PERMISSION_CATALOG: dict[Permission, PermissionMeta] = {
     ),
     Permission.PRIVACY_MANAGE: PermissionMeta(
         Permission.PRIVACY_MANAGE, "Manage privacy registers, retention policies and DSR workflows", True
+    ),
+    Permission.BACKUP_READ: PermissionMeta(
+        Permission.BACKUP_READ, "View backup status, history and monitoring dashboard", True
+    ),
+    Permission.BACKUP_MANAGE: PermissionMeta(
+        Permission.BACKUP_MANAGE, "Run and configure platform backups", True
+    ),
+    Permission.BACKUP_RESTORE_DRILL: PermissionMeta(
+        Permission.BACKUP_RESTORE_DRILL, "Execute isolated restore drills", True
     ),
     Permission.REPORTS_EXPORT_CSV: PermissionMeta(
         Permission.REPORTS_EXPORT_CSV, "Export reports as CSV", True

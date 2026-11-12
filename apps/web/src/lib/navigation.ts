@@ -180,6 +180,13 @@ export const DASHBOARD_NAV: NavItem[] = [
     section: "records",
   },
   {
+    id: "backups",
+    label: "Backups",
+    href: "/dashboard/backups",
+    anyOf: ["backup.read", "backup.manage"],
+    section: "records",
+  },
+  {
     id: "finance",
     label: "Finance",
     href: "/dashboard/finance",

@@ -289,6 +289,11 @@ PRIVACY_DSR_CREATE = "privacy.dsr.create"
 PRIVACY_DSR_UPDATE = "privacy.dsr.update"
 PRIVACY_TEST_PURGE = "privacy.retention.test_purge"
 
+# F7.3 backup and restore
+BACKUP_RUN_COMPLETE = "backup.run.complete"
+BACKUP_DRILL_RUN = "backup.restore_drill.run"
+BACKUP_RETENTION_CLEANUP = "backup.retention.cleanup"
+
 # F6.7 council portal (optional add-on — officer identity outside core HMoreRole)
 COUNCIL_PORTAL_OFFICER_INVITE = "council_portal.officer.invite"
 COUNCIL_PORTAL_SHARE_CREATE = "council_portal.share.create"
