@@ -11,6 +11,7 @@ from app.db.models.occupancy_survey import (
     OccupancySurveyRoomAssessment,
 )
 from app.db.models.organisation import Organisation
+from app.db.models.performance import PerformanceBenchmarkRun, PerformanceJourneyResult
 from app.db.models.backup import (
     BackupRetentionSetting,
     BackupRun,
@@ -429,4 +430,6 @@ __all__ = [
     "BackupRun",
     "RestoreDrillRun",
     "BackupRetentionSetting",
+    "PerformanceBenchmarkRun",
+    "PerformanceJourneyResult",
 ]

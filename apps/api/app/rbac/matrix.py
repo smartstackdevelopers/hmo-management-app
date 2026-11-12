@@ -94,6 +94,8 @@ ROLE_PERMISSIONS: dict[HMoreRole, frozenset[Permission]] = {
             Permission.BACKUP_READ,
             Permission.BACKUP_MANAGE,
             Permission.BACKUP_RESTORE_DRILL,
+            Permission.PERFORMANCE_READ,
+            Permission.PERFORMANCE_BENCHMARK_RUN,
             Permission.REPORTS_EXPORT_CSV,
             Permission.REPORTS_EXPORT_PDF,
             Permission.REPORTS_EXPORT_EXCEL,

@@ -187,6 +187,13 @@ export const DASHBOARD_NAV: NavItem[] = [
     section: "records",
   },
   {
+    id: "performance",
+    label: "Performance",
+    href: "/dashboard/performance",
+    anyOf: ["performance.read", "performance.benchmark.run", "platform.monitoring.read"],
+    section: "records",
+  },
+  {
     id: "finance",
     label: "Finance",
     href: "/dashboard/finance",
