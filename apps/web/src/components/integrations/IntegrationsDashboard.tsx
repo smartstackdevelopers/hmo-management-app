@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useState, useTransition } from "react";
 import {
   createIntegration,
+  createIntegrationMapping,
   fetchIntegrationActivity,
   fetchIntegrationSyncJobs,
   fetchIntegrations,
@@ -41,6 +42,10 @@ export function IntegrationsDashboard({ accessToken, organisationId, role, canMa
   const [baseUrl, setBaseUrl] = useState("");
   const [authType, setAuthType] = useState("api_key");
   const [apiKey, setApiKey] = useState("");
+  const [mapIntegrationId, setMapIntegrationId] = useState("");
+  const [mapSource, setMapSource] = useState("external_id");
+  const [mapDest, setMapDest] = useState("reference_code");
+  const [mapType, setMapType] = useState("string");
 
   const refresh = () => {
     startTransition(async () => {
@@ -280,6 +285,79 @@ export function IntegrationsDashboard({ accessToken, organisationId, role, canMa
           </ul>
         )}
       </section>
+
+      {canManage && items.length > 0 ? (
+        <section className="space-y-3 rounded-lg border border-slate-200 bg-white p-4 shadow-sm">
+          <h2 className="text-sm font-medium text-slate-800">Field mapping</h2>
+          <p className="text-xs text-slate-600">
+            Map partner fields explicitly. Sync import/export still requires a successful connection test.
+          </p>
+          <div className="flex flex-wrap gap-2">
+            <select
+              className="rounded border px-2 py-1.5 text-sm"
+              value={mapIntegrationId}
+              onChange={(e) => setMapIntegrationId(e.target.value)}
+            >
+              <option value="">Select integration</option>
+              {items.map((item) => (
+                <option key={String(item.id)} value={String(item.id)}>
+                  {String(item.name)}
+                </option>
+              ))}
+            </select>
+            <input
+              className="rounded border px-2 py-1.5 text-sm"
+              value={mapSource}
+              onChange={(e) => setMapSource(e.target.value)}
+              placeholder="source_field"
+              aria-label="Source field"
+            />
+            <input
+              className="rounded border px-2 py-1.5 text-sm"
+              value={mapDest}
+              onChange={(e) => setMapDest(e.target.value)}
+              placeholder="destination_field"
+              aria-label="Destination field"
+            />
+            <select className="rounded border px-2 py-1.5 text-sm" value={mapType} onChange={(e) => setMapType(e.target.value)}>
+              <option value="string">string</option>
+              <option value="integer">integer</option>
+              <option value="number">number</option>
+              <option value="boolean">boolean</option>
+              <option value="date">date</option>
+              <option value="datetime">datetime</option>
+              <option value="uuid">uuid</option>
+            </select>
+            <button
+              type="button"
+              disabled={pending || !mapIntegrationId}
+              className="rounded bg-teal-800 px-3 py-2 text-sm text-white disabled:opacity-60"
+              onClick={() =>
+                startTransition(async () => {
+                  try {
+                    await createIntegrationMapping(auth, mapIntegrationId, {
+                      name: "default",
+                      mappings: [
+                        {
+                          source_field: mapSource,
+                          destination_field: mapDest,
+                          data_type: mapType,
+                          required: false,
+                        },
+                      ],
+                    });
+                    refresh();
+                  } catch (e) {
+                    setError(e instanceof Error ? e.message : "Mapping save failed");
+                  }
+                })
+              }
+            >
+              Save mapping
+            </button>
+          </div>
+        </section>
+      ) : null}
 
       <section className="space-y-2">
         <h2 className="text-sm font-medium text-slate-800">Sync history</h2>

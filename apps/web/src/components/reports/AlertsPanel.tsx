@@ -6,6 +6,7 @@ import {
   fetchAlertThresholds,
   fetchAlerts,
   updateAlertStatus,
+  upsertAlertThreshold,
 } from "@/lib/reportingApi";
 
 type Props = { accessToken: string; organisationId: string; role?: string | null; canManage?: boolean };
@@ -17,6 +18,9 @@ export function AlertsPanel({ accessToken, organisationId, role, canManage }: Pr
   const [status, setStatus] = useState("open");
   const [error, setError] = useState<string | null>(null);
   const [pending, startTransition] = useTransition();
+  const [editType, setEditType] = useState("");
+  const [editValue, setEditValue] = useState("5");
+  const [editEnabled, setEditEnabled] = useState(true);
 
   const refresh = () => {
     startTransition(async () => {
@@ -80,8 +84,8 @@ export function AlertsPanel({ accessToken, organisationId, role, canManage }: Pr
 
       {error ? <p className="rounded border border-red-200 bg-red-50 p-3 text-sm text-red-800">{error}</p> : null}
 
-      <div className="rounded-lg border border-slate-200 bg-white p-4 shadow-sm">
-        <h2 className="mb-2 text-sm font-medium text-slate-800">Configured thresholds</h2>
+      <div className="rounded-lg border border-slate-200 bg-white p-4 shadow-sm space-y-3">
+        <h2 className="text-sm font-medium text-slate-800">Configured thresholds</h2>
         <ul className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
           {thresholds.map((t) => (
             <li key={String(t.alert_type)} className="rounded border border-slate-100 p-2 text-sm">
@@ -89,9 +93,70 @@ export function AlertsPanel({ accessToken, organisationId, role, canManage }: Pr
               <div className="text-slate-600">
                 threshold {String(t.threshold_value)} · {t.is_enabled ? "enabled" : "disabled"}
               </div>
+              {canManage ? (
+                <button
+                  type="button"
+                  className="mt-2 text-xs text-teal-800 underline"
+                  onClick={() => {
+                    setEditType(String(t.alert_type));
+                    setEditValue(String(t.threshold_value ?? "5"));
+                    setEditEnabled(Boolean(t.is_enabled));
+                  }}
+                >
+                  Edit
+                </button>
+              ) : null}
             </li>
           ))}
         </ul>
+        {canManage ? (
+          <div className="flex flex-wrap items-end gap-2 border-t border-slate-100 pt-3">
+            <label className="text-xs">
+              Alert type
+              <input
+                className="mt-1 block rounded border px-2 py-1.5 text-sm"
+                value={editType}
+                onChange={(e) => setEditType(e.target.value)}
+                placeholder="e.g. high_vacancy"
+              />
+            </label>
+            <label className="text-xs">
+              Threshold
+              <input
+                type="number"
+                min={0}
+                className="mt-1 block w-24 rounded border px-2 py-1.5 text-sm"
+                value={editValue}
+                onChange={(e) => setEditValue(e.target.value)}
+              />
+            </label>
+            <label className="flex items-center gap-2 text-xs">
+              <input type="checkbox" checked={editEnabled} onChange={(e) => setEditEnabled(e.target.checked)} />
+              Enabled
+            </label>
+            <button
+              type="button"
+              disabled={pending || !editType.trim()}
+              className="rounded bg-teal-800 px-3 py-2 text-sm text-white disabled:opacity-60"
+              onClick={() =>
+                startTransition(async () => {
+                  try {
+                    await upsertAlertThreshold(auth, {
+                      alert_type: editType.trim(),
+                      threshold_value: Number(editValue) || 0,
+                      is_enabled: editEnabled,
+                    });
+                    refresh();
+                  } catch (e) {
+                    setError(e instanceof Error ? e.message : "Threshold save failed");
+                  }
+                })
+              }
+            >
+              Save threshold
+            </button>
+          </div>
+        ) : null}
       </div>
 
       {!items.length ? (

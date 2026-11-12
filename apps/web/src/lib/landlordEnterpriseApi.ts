@@ -113,6 +113,18 @@ export function updateRentStatus(options: {
   });
 }
 
+export function archiveRentRecord(options: {
+  accessToken: string;
+  organisationId: string;
+  role?: string | null;
+  rentId: string;
+}) {
+  return landlordFetch<Record<string, unknown>>(`/rent-records/${options.rentId}`, {
+    ...options,
+    method: "DELETE",
+  });
+}
+
 export function fetchInspections(options: {
   accessToken: string;
   organisationId: string;
@@ -141,6 +153,20 @@ export function createInspection(options: {
   return landlordFetch<Record<string, unknown>>("/inspections", {
     ...options,
     method: "POST",
+    body: options.body,
+  });
+}
+
+export function updateInspection(options: {
+  accessToken: string;
+  organisationId: string;
+  role?: string | null;
+  inspectionId: string;
+  body: Record<string, unknown>;
+}) {
+  return landlordFetch<Record<string, unknown>>(`/inspections/${options.inspectionId}`, {
+    ...options,
+    method: "PUT",
     body: options.body,
   });
 }

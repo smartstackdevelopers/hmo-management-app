@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import {
+  archiveRentRecord,
   createInspection,
   createRentRecord,
   fetchInspections,
@@ -10,6 +11,7 @@ import {
   fetchPortfolio,
   fetchRentRecords,
   fetchRepairs,
+  updateInspection,
   updateRentStatus,
   type LandlordDashboard,
 } from "@/lib/landlordEnterpriseApi";
@@ -39,6 +41,7 @@ export function LandlordEnterpriseClient({ accessToken, organisationId, role }: 
   );
   const [dash, setDash] = useState<LandlordDashboard | null>(null);
   const [portfolio, setPortfolio] = useState<Array<Record<string, unknown>>>([]);
+  const [vacancyTrend, setVacancyTrend] = useState<Array<Record<string, unknown>>>([]);
   const [rents, setRents] = useState<Array<Record<string, unknown>>>([]);
   const [inspections, setInspections] = useState<Array<Record<string, unknown>>>([]);
   const [repairs, setRepairs] = useState<Array<Record<string, unknown>>>([]);
@@ -65,6 +68,7 @@ export function LandlordEnterpriseClient({ accessToken, organisationId, role }: 
       ]);
       setDash(d);
       setPortfolio(p.items);
+      setVacancyTrend(p.vacancy_trend ?? []);
       setRents(r.items);
       setInspections(i.items);
       setRepairs(rep.items);
@@ -115,6 +119,42 @@ export function LandlordEnterpriseClient({ accessToken, organisationId, role }: 
       await reload();
     } catch (err) {
       setError(err instanceof Error ? err.message : "Could not update rent status");
+    }
+  }
+
+  async function onArchiveRent(rentId: string) {
+    setMessage(null);
+    try {
+      await archiveRentRecord({ ...opts, rentId });
+      setMessage("Rent record archived.");
+      await reload();
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Could not archive rent record");
+    }
+  }
+
+  async function onCompleteInspection(row: Record<string, unknown>) {
+    setMessage(null);
+    try {
+      const today = new Date().toISOString().slice(0, 10);
+      await updateInspection({
+        ...opts,
+        inspectionId: String(row.id),
+        body: {
+          property_id: row.property_id,
+          room_id: row.room_id ?? null,
+          title: row.title,
+          scheduled_date: row.scheduled_date,
+          completed_date: today,
+          status: "completed",
+          findings: row.findings ?? "Completed via landlord enterprise dashboard",
+          follow_up_actions: row.follow_up_actions ?? null,
+        },
+      });
+      setMessage("Inspection marked completed.");
+      await reload();
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Could not update inspection");
     }
   }
 
@@ -238,6 +278,20 @@ export function LandlordEnterpriseClient({ accessToken, organisationId, role }: 
             </table>
           </div>
         )}
+        {vacancyTrend.length > 0 ? (
+          <div className="rounded-lg border border-slate-200 bg-white p-3 text-sm">
+            <h3 className="font-medium text-forest-900">Vacancy trend</h3>
+            <ul className="mt-2 space-y-1 text-slate-600">
+              {vacancyTrend.map((point, idx) => (
+                <li key={`${String(point.period ?? idx)}-${idx}`}>
+                  {String(point.period ?? point.label ?? `Point ${idx + 1}`)}: vacant{" "}
+                  {String(point.vacant_rooms ?? point.vacant ?? "—")} / rooms{" "}
+                  {String(point.total_rooms ?? point.rooms ?? "—")}
+                </li>
+              ))}
+            </ul>
+          </div>
+        ) : null}
       </section>
 
       <section id="rent" className="space-y-3">
@@ -283,14 +337,25 @@ export function LandlordEnterpriseClient({ accessToken, organisationId, role }: 
                   {String(row.period_start)} → {String(row.period_end)}
                   {row.tenancy_reference ? ` · ${String(row.tenancy_reference)}` : ""}
                 </p>
-                {canManageLedger && row.status !== "recorded_paid" ? (
-                  <button
-                    type="button"
-                    className="mt-2 text-teal-800 underline"
-                    onClick={() => void onMarkPaid(String(row.id))}
-                  >
-                    Record as paid (authorised note)
-                  </button>
+                {canManageLedger ? (
+                  <div className="mt-2 flex flex-wrap gap-3">
+                    {row.status !== "recorded_paid" ? (
+                      <button
+                        type="button"
+                        className="text-teal-800 underline"
+                        onClick={() => void onMarkPaid(String(row.id))}
+                      >
+                        Record as paid (authorised note)
+                      </button>
+                    ) : null}
+                    <button
+                      type="button"
+                      className="text-slate-700 underline"
+                      onClick={() => void onArchiveRent(String(row.id))}
+                    >
+                      Archive
+                    </button>
+                  </div>
                 ) : null}
               </li>
             ))}
@@ -356,6 +421,15 @@ export function LandlordEnterpriseClient({ accessToken, organisationId, role }: 
                 {row.findings ? <p className="mt-1 text-slate-700">Findings: {String(row.findings)}</p> : null}
                 {row.follow_up_actions ? (
                   <p className="text-slate-700">Follow-up: {String(row.follow_up_actions)}</p>
+                ) : null}
+                {canManageLedger && String(row.effective_status ?? row.status) !== "completed" ? (
+                  <button
+                    type="button"
+                    className="mt-2 text-teal-800 underline"
+                    onClick={() => void onCompleteInspection(row)}
+                  >
+                    Mark completed
+                  </button>
                 ) : null}
               </li>
             ))}
