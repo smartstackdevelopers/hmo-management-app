@@ -261,6 +261,15 @@ INTEGRATION_SYNC_COMPLETE = "integration.sync.complete"
 INTEGRATION_SYNC_FAIL = "integration.sync.fail"
 INTEGRATION_MAPPING_UPDATE = "integration.mapping.update"
 
+# F6.5 room occupancy
+ROOM_OCCUPANCY_GATE_UPDATE = "room_occupancy.gate.update"
+ROOM_OCCUPANCY_SETTINGS_UPDATE = "room_occupancy.settings.update"
+ROOM_OCCUPANCY_DEVICE_REGISTER = "room_occupancy.device.register"
+ROOM_OCCUPANCY_COUNT_INGEST = "room_occupancy.count.ingest"
+ROOM_OCCUPANCY_COUNT_CORRECT = "room_occupancy.count.correct"
+ROOM_OCCUPANCY_VIEW = "room_occupancy.view"
+ROOM_OCCUPANCY_ALERT_RAISE = "room_occupancy.alert.raise"
+
 # F3.3 AI usage caps and cost tracking
 AI_BUDGET_UPSERT = "ai.budget.upsert"
 AI_BUDGET_ACTIVATE = "ai.budget.activate"

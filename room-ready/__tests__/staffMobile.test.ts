@@ -138,6 +138,9 @@ describe('occupancy surveys', () => {
     expect(screen).toContain('OCCUPANCY_PHASE6_NOTICE');
     expect(screen).not.toMatch(/people_count|live_count|occupant_count|headcount/);
     expect(screen).not.toMatch(/There are \d+ people/);
+    const liveScreen = readFileSync(path.join(__dirname, '../app/(app)/staff/occupancy.tsx'), 'utf8');
+    expect(liveScreen).toContain("occupancy.read");
+    expect(liveScreen).toContain('RoomOccupancyLive');
   });
 });
 

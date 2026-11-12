@@ -57,6 +57,8 @@ class Permission(StrEnum):
     AUDIT_LOGS_READ = "audit_logs.read"
     OCCUPANCY_READ = "occupancy.read"
     OCCUPANCY_ALERTS_MANAGE = "occupancy.alerts.manage"
+    OCCUPANCY_SETTINGS_MANAGE = "occupancy.settings.manage"
+    OCCUPANCY_COUNTS_CORRECT = "occupancy.counts.correct"
 
     # Tenant person records (distinct from Tenant login role)
     TENANTS_READ = "tenants.read"
@@ -423,6 +425,14 @@ PERMISSION_CATALOG: dict[Permission, PermissionMeta] = {
     ),
     Permission.OCCUPANCY_ALERTS_MANAGE: PermissionMeta(
         Permission.OCCUPANCY_ALERTS_MANAGE, "Manage occupancy alerts", True
+    ),
+    Permission.OCCUPANCY_SETTINGS_MANAGE: PermissionMeta(
+        Permission.OCCUPANCY_SETTINGS_MANAGE,
+        "Manage room occupancy privacy gate, devices and thresholds",
+        True,
+    ),
+    Permission.OCCUPANCY_COUNTS_CORRECT: PermissionMeta(
+        Permission.OCCUPANCY_COUNTS_CORRECT, "Correct estimated room occupancy counts", True
     ),
     Permission.TENANTS_READ: PermissionMeta(
         Permission.TENANTS_READ, "Read organisation tenant person records", True
