@@ -1,0 +1,7 @@
+# Copy to terraform.tfvars (gitignored) after approval. Never commit real values.
+
+aws_region         = "eu-west-2"
+name_prefix        = "hmore-prod"
+stack_enabled      = false # MUST stay false until explicit F7.6+ go-live approval
+create_nat_gateway = false
+s3_bucket_suffix   = "replace-with-account-id-or-random"

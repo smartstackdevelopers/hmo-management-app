@@ -7,12 +7,14 @@ from fastapi.responses import JSONResponse
 from app import __version__
 from app.api.v1.router import router as v1_router
 from app.core.config import get_settings
+from app.core.sentry import init_sentry
 from app.core.correlation import get_correlation_id, set_correlation_id
 from app.core.errors import AiServiceError, safe_error_body
 from app.core.logging import configure_logging, get_logger
 from app.graph.foundation import ping_graph
 
 _boot = get_settings()
+init_sentry()
 configure_logging(_boot.log_level)
 logger = get_logger("hmore.ai")
 

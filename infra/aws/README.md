@@ -1,13 +1,16 @@
-# AWS infrastructure (placeholder)
+# AWS infrastructure (F7.6 prepared)
 
-This directory is reserved for authorised Infrastructure-as-Code (Terraform/CDK) for the HMore **AWS UK/EU** target.
+Terraform modules live under `infra/aws/terraform/`. Default configuration **does not create resources** (`stack_enabled = false`).
 
-**Status:** Documentation baseline only (F1.11). No resources are provisioned from this repository yet.
+Do not `terraform apply` without:
 
-Do not apply infrastructure without:
+1. Client approval of region (`eu-west-2` preferred), account, and cost.
+2. Valid AWS credentials or GitHub OIDC deploy role.
+3. Explicit production change authorisation and rollback owner.
 
-1. Client approval of region and account structure.
-2. Valid AWS credentials / OIDC role.
-3. Explicit production or staging change authorisation.
+See:
 
-See `docs/architecture/AWS_UK_EU_TARGET_ARCHITECTURE.md`.
+- `infra/aws/terraform/README.md`
+- `docs/architecture/AWS_UK_EU_TARGET_ARCHITECTURE.md`
+- `docs/operations/infrastructure/`
+- `docs/phase7/F7.6_INFRASTRUCTURE_FINAL_REPORT.md`

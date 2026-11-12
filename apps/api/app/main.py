@@ -5,10 +5,12 @@ from starlette.middleware.gzip import GZipMiddleware
 from app import __version__
 from app.api.v1.router import api_v1_router
 from app.core.config import get_settings
+from app.core.sentry import init_sentry
 from app.core.errors import register_exception_handlers
 from app.core.security_headers import SecurityHeadersMiddleware
 
 settings = get_settings()
+init_sentry()
 
 app = FastAPI(
     title=settings.app_name,

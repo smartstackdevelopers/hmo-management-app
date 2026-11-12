@@ -52,5 +52,12 @@ Never commit real secrets. Track `*.env.example` only.
 | `TWILIO_ACCOUNT_SID` | api | Twilio account SID | When `SMS_ADAPTER_MODE=twilio` |
 | `TWILIO_AUTH_TOKEN` | api | Twilio auth token | When `SMS_ADAPTER_MODE=twilio` |
 | `TWILIO_FROM_NUMBER` | api | Twilio sender number | When `SMS_ADAPTER_MODE=twilio` |
+| `SENTRY_DSN` | api, ai, web (optional) | Error monitoring | No — optional until F7.6+ go-live |
+| `SENTRY_ENVIRONMENT` | api, ai | Sentry environment tag | No |
+| `SENTRY_TRACES_SAMPLE_RATE` | api, ai | Performance trace sampling | No, default `0.1` |
+
+## Production AWS (F7.6 — prepared, not provisioned)
+
+Infrastructure definitions: `infra/aws/terraform/` with `stack_enabled = false`. Runtime secrets (`DATABASE_URL`, `REDIS_URL`, Auth0, S3 IAM) are injected via Secrets Manager at deploy time — see `docs/operations/infrastructure/SECRETS_AND_MONITORING.md`.
 
 The Node `api/` still reads `JWT_SECRET` and `DATABASE_URL` for Room Ready. That is the reference API. Do not copy its development JWT fallback into FastAPI.

@@ -89,7 +89,7 @@ flowchart TB
 
 - Separate AWS accounts or strong OU separation for prod vs non-prod (**preferred**).
 - No production deploy in Phase 1 (explicit).
-- Infrastructure as Code (Terraform/CDK) should live under `infra/aws` when authorised — this baseline is documentation + placeholders only.
+- Infrastructure as Code: **F7.6** Terraform under `infra/aws/terraform/` (`stack_enabled = false` by default — prepared, not provisioned).
 
 ## Decisions requiring client approval
 
