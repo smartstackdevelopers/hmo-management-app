@@ -31,7 +31,10 @@ export function DashboardShell({
     <div className="min-h-screen bg-cream text-slate-900">
       <MobileNav items={navItems} brand={title} />
       <div className="md:grid md:grid-cols-[16rem_1fr]">
-        <aside className="hidden bg-forest-900 px-5 py-8 text-white md:flex md:min-h-screen md:flex-col md:gap-8">
+        <aside
+          className="hidden bg-forest-900 px-5 py-8 text-white md:flex md:min-h-screen md:flex-col md:gap-8"
+          aria-label="Dashboard navigation"
+        >
           <div>
             <p className="text-xs font-semibold uppercase tracking-[0.2em] text-emerald-200">
               HMore
@@ -60,7 +63,10 @@ export function DashboardShell({
           </div>
         </aside>
         <div className="flex min-h-screen flex-col">
-          <header className="hidden border-b border-slate-200 bg-white/80 px-6 py-4 backdrop-blur md:flex md:items-center md:justify-between">
+          <header
+            className="hidden border-b border-slate-200 bg-white/80 px-6 py-4 backdrop-blur md:flex md:items-center md:justify-between"
+            aria-label="Dashboard header"
+          >
             <div>
               <p className="text-xs uppercase tracking-wide text-slate-500">Dashboard</p>
               <p className="text-sm font-medium text-forest-900">
@@ -94,7 +100,9 @@ export function DashboardShell({
               )}
             </div>
           </header>
-          <main className="flex-1 px-4 py-8 md:px-10">{children}</main>
+          <main id="main-content" tabIndex={-1} className="flex-1 px-4 py-8 md:px-10">
+            {children}
+          </main>
         </div>
       </div>
     </div>

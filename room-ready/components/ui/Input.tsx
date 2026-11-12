@@ -27,7 +27,11 @@ export function Input({
 
   return (
     <View style={styles.container}>
-      {label && <Text style={styles.label}>{label}</Text>}
+      {label ? (
+        <Text nativeID={`${props.id ?? label}-label`} style={styles.label}>
+          {label}
+        </Text>
+      ) : null}
       <View style={styles.inputWrap}>
         <TextInput
           style={[
@@ -51,14 +55,25 @@ export function Input({
           }}
           {...props}
           accessibilityLabel={accessibilityLabel ?? label}
+          accessibilityLabelledBy={label ? `${props.id ?? label}-label` : undefined}
         />
         {isPassword && (
-          <Pressable style={styles.eyeBtn} onPress={() => setShowPassword((v) => !v)} hitSlop={8}>
+          <Pressable
+            accessibilityRole="button"
+            accessibilityLabel={showPassword ? 'Hide password' : 'Show password'}
+            style={styles.eyeBtn}
+            onPress={() => setShowPassword((v) => !v)}
+            hitSlop={8}
+          >
             <Ionicons name={showPassword ? 'eye-off-outline' : 'eye-outline'} size={20} color={theme.colors.textMuted} />
           </Pressable>
         )}
       </View>
-      {error && <Text style={styles.error}>{error}</Text>}
+      {error ? (
+        <Text style={styles.error} accessibilityRole="alert" accessibilityLiveRegion="polite">
+          {error}
+        </Text>
+      ) : null}
       {hint && !error && <Text style={styles.hint}>{hint}</Text>}
     </View>
   );

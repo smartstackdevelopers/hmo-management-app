@@ -30,9 +30,13 @@ export function MaintenanceForm({
       .catch(() => setCategories([]));
   }, [accessToken, organisationId, role]);
 
+  const formErrorId = "maintenance-form-error";
+
   return (
     <form
       className="space-y-3 rounded-lg border border-slate-200 bg-white p-4"
+      aria-labelledby="maintenance-form-title"
+      noValidate
       onSubmit={(event) => {
         event.preventDefault();
         const form = new FormData(event.currentTarget);
@@ -63,21 +67,41 @@ export function MaintenanceForm({
           .finally(() => setPending(false));
       }}
     >
+      <h2 id="maintenance-form-title" className="text-lg font-semibold text-forest-900">
+        New maintenance request
+      </h2>
       <label className="block text-sm">
         Title
-        <input name="title" required className="mt-1 w-full rounded border px-3 py-2" />
+        <input
+          id="maintenance-title"
+          name="title"
+          required
+          aria-required="true"
+          className="mt-1 w-full rounded border px-3 py-2 focus:border-teal-700"
+        />
       </label>
       <label className="block text-sm">
         Description
-        <textarea name="description" required rows={5} className="mt-1 w-full rounded border px-3 py-2" />
+        <textarea
+          id="maintenance-description"
+          name="description"
+          required
+          aria-required="true"
+          rows={5}
+          className="mt-1 w-full rounded border px-3 py-2 focus:border-teal-700"
+        />
       </label>
       <label className="block text-sm">
         Property ID
         <input
+          id="maintenance-property-id"
           name="property_id"
           required
+          aria-required="true"
           defaultValue={defaultPropertyId}
-          className="mt-1 w-full rounded border px-3 py-2 font-mono text-sm"
+          aria-invalid={error?.includes("Property") ? true : undefined}
+          aria-describedby={error ? formErrorId : undefined}
+          className="mt-1 w-full rounded border px-3 py-2 font-mono text-sm focus:border-teal-700"
         />
       </label>
       <label className="block text-sm">
@@ -129,11 +153,16 @@ export function MaintenanceForm({
         Operational categories and priorities only. Tenants cannot set emergency priority here; staff must review and
         escalate if appropriate.
       </p>
-      {error ? <p className="text-sm text-red-700">{error}</p> : null}
+      {error ? (
+        <p id={formErrorId} role="alert" className="text-sm text-red-800">
+          {error}
+        </p>
+      ) : null}
       <button
         type="submit"
         disabled={pending}
-        className="rounded bg-teal-700 px-3 py-1.5 text-sm text-white disabled:opacity-50"
+        aria-busy={pending}
+        className="min-h-11 rounded bg-teal-700 px-4 py-2 text-sm font-medium text-white hover:bg-teal-800 focus:outline-none focus-visible:ring-2 focus-visible:ring-teal-700 disabled:opacity-50"
       >
         {pending ? "Submitting…" : "Submit request"}
       </button>

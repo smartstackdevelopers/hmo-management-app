@@ -6,3 +6,32 @@ html,
 body {
   min-height: 100%;
 }
+
+@layer base {
+  :focus-visible {
+    outline: 2px solid #0f766e;
+    outline-offset: 2px;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+      scroll-behavior: auto !important;
+    }
+  }
+}
+
+@layer utilities {
+  .skip-link {
+    @apply fixed left-4 top-4 z-[100] -translate-y-32 rounded-md bg-white px-4 py-2 text-sm font-semibold text-forest-900 shadow-md ring-2 ring-teal-700 transition-transform focus:translate-y-0 focus:outline-none;
+  }
+
+  .sr-only {
+    @apply absolute m-[-1px] h-px w-px overflow-hidden border-0 p-0 whitespace-nowrap;
+    clip: rect(0, 0, 0, 0);
+  }
+}

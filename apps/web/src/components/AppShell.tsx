@@ -5,7 +5,7 @@ import Link from "next/link";
 export function AppShell({ children }: { children: ReactNode }) {
   return (
     <div className="min-h-screen md:grid md:grid-cols-[16rem_1fr]">
-      <aside className="bg-forest-900 px-6 py-8 text-white">
+      <aside className="bg-forest-900 px-6 py-8 text-white" aria-label="Site navigation">
         <p className="text-xs font-semibold uppercase tracking-[0.2em] text-emerald-200">HMore</p>
         <p className="mt-3 text-2xl font-semibold">Web foundation</p>
         <p className="mt-2 text-sm text-emerald-100/80">
@@ -29,7 +29,9 @@ export function AppShell({ children }: { children: ReactNode }) {
           </Link>
         </nav>
       </aside>
-      <main className="px-6 py-10 md:px-10">{children}</main>
+      <main id="main-content" tabIndex={-1} className="px-6 py-10 md:px-10">
+        {children}
+      </main>
     </div>
   );
 }

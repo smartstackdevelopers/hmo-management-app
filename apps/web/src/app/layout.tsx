@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import type { ReactNode } from "react";
+import { SkipLink } from "@/components/a11y/SkipLink";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -10,7 +11,10 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: { children: ReactNode }) {
   return (
     <html lang="en">
-      <body className="bg-cream text-slate-900 antialiased">{children}</body>
+      <body className="bg-cream text-slate-900 antialiased">
+        <SkipLink />
+        {children}
+      </body>
     </html>
   );
 }

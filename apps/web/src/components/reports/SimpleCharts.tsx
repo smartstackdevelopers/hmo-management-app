@@ -161,9 +161,11 @@ export function PieChart({ title, items }: { title: string; items: BarItem[] }) 
 export function DataTable({
   rows,
   emptyMessage = "No records match the current filters.",
+  caption = "Report data table",
 }: {
   rows: Record<string, unknown>[];
   emptyMessage?: string;
+  caption?: string;
 }) {
   const first = rows[0];
   if (!first) {
@@ -173,10 +175,11 @@ export function DataTable({
   return (
     <div className="overflow-x-auto rounded-lg border border-slate-200 bg-white shadow-sm">
       <table className="min-w-full text-left text-sm">
+        <caption className="sr-only">{caption}</caption>
         <thead className="bg-slate-50 text-xs uppercase text-slate-500">
           <tr>
             {headers.map((h) => (
-              <th key={h} className="px-3 py-2 font-medium">
+              <th key={h} scope="col" className="px-3 py-2 font-medium">
                 {h.replaceAll("_", " ")}
               </th>
             ))}

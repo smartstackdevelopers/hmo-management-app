@@ -18,7 +18,7 @@ export function MobileNav({ items, brand }: MobileNavProps) {
         <p className="text-sm font-semibold">{brand}</p>
         <button
           type="button"
-          className="rounded-md bg-white/10 px-3 py-2 text-sm focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-200"
+          className="min-h-11 min-w-11 rounded-md bg-white/10 px-3 py-2 text-sm focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-200"
           aria-expanded={open}
           aria-controls="mobile-dashboard-nav"
           onClick={() => setOpen((value) => !value)}
@@ -36,7 +36,7 @@ export function MobileNav({ items, brand }: MobileNavProps) {
             <Link
               key={item.id}
               href={item.href}
-              className="block rounded-md px-3 py-2 text-sm hover:bg-white/10 focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-200"
+              className="block min-h-11 rounded-md px-3 py-2 text-sm hover:bg-white/10 focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-200"
               onClick={() => setOpen(false)}
             >
               {item.label}

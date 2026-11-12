@@ -127,11 +127,18 @@ export function PrivacyDashboard({ accessToken, organisationId, role, canManage 
         <h2 className="text-sm font-medium text-slate-900">DPIA register ({dpia.length})</h2>
         <div className="mt-2 overflow-x-auto">
           <table className="min-w-full text-left text-sm">
+            <caption className="sr-only">DPIA activity status</caption>
             <thead>
               <tr className="border-b text-slate-500">
-                <th className="py-2 pr-4">Activity</th>
-                <th className="py-2 pr-4">Status</th>
-                <th className="py-2">Approver</th>
+                <th scope="col" className="py-2 pr-4">
+                  Activity
+                </th>
+                <th scope="col" className="py-2 pr-4">
+                  Status
+                </th>
+                <th scope="col" className="py-2">
+                  Approver
+                </th>
               </tr>
             </thead>
             <tbody>
