@@ -58,6 +58,9 @@ class Permission(StrEnum):
     BACKUP_READ = "backup.read"
     BACKUP_MANAGE = "backup.manage"
     BACKUP_RESTORE_DRILL = "backup.restore_drill"
+    # F7.4 performance benchmarks
+    PERFORMANCE_READ = "performance.read"
+    PERFORMANCE_BENCHMARK_RUN = "performance.benchmark.run"
     REPORTS_EXPORT_CSV = "reports.export.csv"
     REPORTS_EXPORT_PDF = "reports.export.pdf"
     REPORTS_EXPORT_EXCEL = "reports.export.excel"
@@ -436,6 +439,12 @@ PERMISSION_CATALOG: dict[Permission, PermissionMeta] = {
     ),
     Permission.BACKUP_RESTORE_DRILL: PermissionMeta(
         Permission.BACKUP_RESTORE_DRILL, "Execute isolated restore drills", True
+    ),
+    Permission.PERFORMANCE_READ: PermissionMeta(
+        Permission.PERFORMANCE_READ, "View performance benchmark results", True
+    ),
+    Permission.PERFORMANCE_BENCHMARK_RUN: PermissionMeta(
+        Permission.PERFORMANCE_BENCHMARK_RUN, "Run controlled API journey benchmarks", True
     ),
     Permission.REPORTS_EXPORT_CSV: PermissionMeta(
         Permission.REPORTS_EXPORT_CSV, "Export reports as CSV", True

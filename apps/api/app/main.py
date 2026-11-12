@@ -1,5 +1,6 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from starlette.middleware.gzip import GZipMiddleware
 
 from app import __version__
 from app.api.v1.router import api_v1_router
@@ -17,6 +18,7 @@ app = FastAPI(
     openapi_url=None if settings.is_production else "/openapi.json",
 )
 
+app.add_middleware(GZipMiddleware, minimum_size=1000)
 app.add_middleware(SecurityHeadersMiddleware)
 app.add_middleware(
     CORSMiddleware,
