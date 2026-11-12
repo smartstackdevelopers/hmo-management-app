@@ -83,6 +83,10 @@ def test_expected_tables_exist(migrated_engine: Engine) -> None:
         "scheduled_report_runs",
         "early_warning_thresholds",
         "early_warning_alerts",
+        "automation_rules",
+        "automation_rule_runs",
+        "automation_escalations",
+        "automation_compliance_issues",
     }
     assert expected.issubset(tables)
 
@@ -96,7 +100,7 @@ def test_users_authorization_version_column(migrated_engine: Engine) -> None:
 def test_migration_history_has_single_head(alembic_config) -> None:
     script = ScriptDirectory.from_config(alembic_config)
     heads = script.get_heads()
-    assert heads == ["20261111_4000_f62"]
+    assert heads == ["20261111_4100_f63"]
 
 
 def test_upgrade_downgrade_roundtrip(alembic_config, migrated_engine: Engine) -> None:

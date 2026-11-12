@@ -246,6 +246,12 @@ REPORTS_SCHEDULE_CREATE = "reports.schedule.create"
 REPORTS_SCHEDULE_UPDATE = "reports.schedule.update"
 REPORTS_ALERT_STATUS = "reports.alert.status"
 
+# F6.3 automation
+AUTOMATION_RULE_CREATE = "automation.rule.create"
+AUTOMATION_RULE_UPDATE = "automation.rule.update"
+AUTOMATION_RULE_DELETE = "automation.rule.delete"
+AUTOMATION_RULE_RUN = "automation.rule.run"
+
 # F3.3 AI usage caps and cost tracking
 AI_BUDGET_UPSERT = "ai.budget.upsert"
 AI_BUDGET_ACTIVATE = "ai.budget.activate"

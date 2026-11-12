@@ -140,6 +140,13 @@ export const DASHBOARD_NAV: NavItem[] = [
     section: "records",
   },
   {
+    id: "automation",
+    label: "Automation",
+    href: "/dashboard/automation",
+    anyOf: ["automation.rules.read", "automation.rules.manage", "automation.runs.read"],
+    section: "records",
+  },
+  {
     id: "ai-costs",
     label: "AI costs",
     href: "/dashboard/ai-costs",

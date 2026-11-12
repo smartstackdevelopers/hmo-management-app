@@ -191,6 +191,12 @@ from app.db.models.reporting_analytics import (
     ScheduledReport,
     ScheduledReportRun,
 )
+from app.db.models.automation import (
+    AutomationComplianceIssue,
+    AutomationEscalation,
+    AutomationRule,
+    AutomationRuleRun,
+)
 from app.db.models.push_devices import PushDeviceToken
 from app.db.models.idempotency import ClientIdempotencyKey
 from app.db.models.device_sessions import MobileDeviceSession
@@ -355,4 +361,8 @@ __all__ = [
     "ScheduledReportRun",
     "EarlyWarningThreshold",
     "EarlyWarningAlert",
+    "AutomationRule",
+    "AutomationRuleRun",
+    "AutomationEscalation",
+    "AutomationComplianceIssue",
 ]

@@ -45,6 +45,10 @@ class Permission(StrEnum):
     REPORTS_PLANS_VIEW = "reports.plans.view"
     REPORTS_SCHEDULE_MANAGE = "reports.schedule.manage"
     REPORTS_ALERTS_VIEW = "reports.alerts.view"
+    AUTOMATION_RULES_READ = "automation.rules.read"
+    AUTOMATION_RULES_MANAGE = "automation.rules.manage"
+    AUTOMATION_RUNS_READ = "automation.runs.read"
+    AUTOMATION_ESCALATIONS_MANAGE = "automation.escalations.manage"
     REPORTS_EXPORT_CSV = "reports.export.csv"
     REPORTS_EXPORT_PDF = "reports.export.pdf"
     REPORTS_EXPORT_EXCEL = "reports.export.excel"
@@ -381,6 +385,18 @@ PERMISSION_CATALOG: dict[Permission, PermissionMeta] = {
     ),
     Permission.REPORTS_ALERTS_VIEW: PermissionMeta(
         Permission.REPORTS_ALERTS_VIEW, "View early-warning operational alerts", True
+    ),
+    Permission.AUTOMATION_RULES_READ: PermissionMeta(
+        Permission.AUTOMATION_RULES_READ, "View organisation automation rules", True
+    ),
+    Permission.AUTOMATION_RULES_MANAGE: PermissionMeta(
+        Permission.AUTOMATION_RULES_MANAGE, "Create and manage automation rules", True
+    ),
+    Permission.AUTOMATION_RUNS_READ: PermissionMeta(
+        Permission.AUTOMATION_RUNS_READ, "View automation execution history", True
+    ),
+    Permission.AUTOMATION_ESCALATIONS_MANAGE: PermissionMeta(
+        Permission.AUTOMATION_ESCALATIONS_MANAGE, "Acknowledge and resolve automation escalations", True
     ),
     Permission.REPORTS_EXPORT_CSV: PermissionMeta(
         Permission.REPORTS_EXPORT_CSV, "Export reports as CSV", True

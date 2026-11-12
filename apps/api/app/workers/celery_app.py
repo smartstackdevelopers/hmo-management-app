@@ -79,6 +79,11 @@ celery_app.conf.update(
             "task": "hmore.reporting.dispatch_early_warning_alerts",
             "schedule": 3600.0,
         },
+        # F6.3 — evaluate due automation rules (reminders / escalations / sweeps)
+        "dispatch-automation-rules-every-5-minutes": {
+            "task": "hmore.automation.dispatch_due_rules",
+            "schedule": 300.0,
+        },
     },
 )
 
