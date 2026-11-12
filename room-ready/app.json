@@ -1,6 +1,6 @@
 {
   "expo": {
-    "name": "Room Ready",
+    "name": "HMore",
     "slug": "room-ready",
     "version": "1.0.0",
     "orientation": "portrait",
@@ -13,15 +13,15 @@
       "bundleIdentifier": "com.roomready.app",
       "buildNumber": "1",
       "infoPlist": {
-        "CFBundleDisplayName": "Room Ready",
+        "CFBundleDisplayName": "HMore",
         "LSApplicationQueriesSchemes": [
           "roomready"
         ],
-        "NSCameraUsageDescription": "Room Ready uses the camera to photograph maintenance issues and property documents.",
-        "NSPhotoLibraryUsageDescription": "Room Ready needs photo library access to attach images to repairs and uploads.",
-        "NSMicrophoneUsageDescription": "Room Ready uses the microphone to dictate support notes on this device.",
-        "NSSpeechRecognitionUsageDescription": "Room Ready transcribes dictated support notes on this device.",
-        "NSFaceIDUsageDescription": "Room Ready uses Face ID to unlock a session that is already signed in on this device. Face data stays on the device and is not sent to HMore.",
+        "NSCameraUsageDescription": "HMore uses the camera to photograph maintenance issues and property documents.",
+        "NSPhotoLibraryUsageDescription": "HMore needs photo library access to attach images to repairs and uploads.",
+        "NSMicrophoneUsageDescription": "HMore uses the microphone to dictate support notes on this device.",
+        "NSSpeechRecognitionUsageDescription": "HMore transcribes dictated support notes on this device.",
+        "NSFaceIDUsageDescription": "HMore uses Face ID to unlock a session that is already signed in on this device. Face data stays on the device and is not sent to servers.",
         "UIBackgroundModes": ["remote-notification"]
       },
       "config": {
@@ -70,8 +70,8 @@
       [
         "expo-image-picker",
         {
-          "photosPermission": "Room Ready needs photo access to attach repair images and documents.",
-          "cameraPermission": "Room Ready needs camera access to photograph maintenance issues."
+          "photosPermission": "HMore needs photo access to attach repair images and documents.",
+          "cameraPermission": "HMore needs camera access to photograph maintenance issues."
         }
       ],
       [
@@ -92,14 +92,14 @@
       [
         "expo-speech-recognition",
         {
-          "microphonePermission": "Room Ready uses the microphone to dictate support notes on this device.",
-          "speechRecognitionPermission": "Room Ready transcribes dictated support notes on this device."
+          "microphonePermission": "HMore uses the microphone to dictate support notes on this device.",
+          "speechRecognitionPermission": "HMore transcribes dictated support notes on this device."
         }
       ],
       [
         "expo-local-authentication",
         {
-          "faceIDPermission": "Room Ready uses Face ID to unlock a session that is already signed in on this device. Face data stays on the device and is not sent to HMore."
+          "faceIDPermission": "HMore uses Face ID to unlock a session that is already signed in on this device. Face data stays on the device and is not sent to servers."
         }
       ]
     ],

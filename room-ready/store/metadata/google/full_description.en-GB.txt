@@ -1,0 +1,11 @@
+HMore — housing and support for tenants and staff.
+
+• Secure sign-in (Auth0) with optional biometrics on this device
+• Maintenance requests with photo evidence
+• Housing, documents, and support plan access (as enabled by your provider)
+• Staff caseload, visits, tasks, and offline drafts with sync
+• Push alerts without sensitive details in notification previews
+
+Requires an HMore organisation account. Not for public self-registration unless your provider allows it.
+
+Privacy policy: PENDING_APPROVAL URL. Support: PENDING_APPROVAL.

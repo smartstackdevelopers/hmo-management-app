@@ -44,7 +44,7 @@ export default function RootLayout() {
   }, [fontsLoaded]);
 
   if (!fontsLoaded) {
-    return <LoadingScreen message="Loading Room Ready..." />;
+    return <LoadingScreen message="Loading HMore…" />;
   }
 
   return (

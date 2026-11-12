@@ -1,5 +1,5 @@
 export const PUSH_PERMISSION_RATIONALE =
-  'Room Ready uses notifications to tell you when a message is waiting. The notification does not include case notes or medical details.';
+  'HMore uses notifications for appointments, tasks, and messages you are allowed to see. Previews stay generic and do not include tenant case notes or medical details.';
 
 const PROJECT_UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 

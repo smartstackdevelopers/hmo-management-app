@@ -57,6 +57,7 @@
     "web": "expo start --web",
     "typecheck": "tsc --noEmit",
     "test": "jest --watchman=false",
+    "test:release": "jest --watchman=false --testPathPattern=f77ReleaseReadiness",
     "build:ios": "eas build --platform ios --profile production",
     "build:android": "eas build --platform android --profile production"
   },

@@ -1,0 +1,2 @@
+# Optional: add to .github/workflows/ci.yml under the mobile job (requires workflow scope to push):
+#      - run: npm run test:release -w room-ready

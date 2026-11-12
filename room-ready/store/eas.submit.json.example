@@ -1,0 +1,15 @@
+{
+  "submit": {
+    "production": {
+      "ios": {
+        "appleId": "PENDING_APPROVAL@example.com",
+        "ascAppId": "PENDING_APP_STORE_CONNECT_APP_ID",
+        "appleTeamId": "PENDING_TEAM_ID"
+      },
+      "android": {
+        "serviceAccountKeyPath": "./google-play-service-account.json",
+        "track": "internal"
+      }
+    }
+  }
+}
