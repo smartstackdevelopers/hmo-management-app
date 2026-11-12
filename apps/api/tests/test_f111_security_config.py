@@ -136,3 +136,24 @@ def test_gitignore_covers_dotenv() -> None:
     root = Path(__file__).resolve().parents[3]
     gitignore = (root / ".gitignore").read_text(encoding="utf-8")
     assert ".env" in gitignore
+
+
+def test_auth_failure_response_is_generic() -> None:
+    """Invalid tokens must not leak JWT validation internals in HTTP bodies."""
+    from unittest.mock import patch
+
+    from app.auth.tokens import TokenValidationError
+
+    client = TestClient(app)
+    with patch(
+        "app.auth.deps.validate_access_token",
+        side_effect=TokenValidationError("Signing key not found in JWKS"),
+    ):
+        response = client.get(
+            "/api/v1/isolation/properties",
+            headers={"Authorization": "Bearer synthetic-token"},
+        )
+    assert response.status_code == 401
+    detail = response.json().get("detail")
+    assert detail == "Invalid or missing access token"
+    assert "JWKS" not in str(detail)

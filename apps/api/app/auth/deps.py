@@ -47,7 +47,8 @@ def get_token_claims(
             summary="Access token validation failed",
             metadata={"reason": "invalid_or_expired_token"},
         )
-        raise http_401(str(exc) or "Invalid or missing access token") from exc
+        # Never echo PyJWT / JWKS internals to clients (F7.1 API error hygiene).
+        raise http_401("Invalid or missing access token") from exc
 
 
 def get_current_user(
