@@ -288,3 +288,41 @@ def dispatch_early_warning_alerts_task(self) -> dict:
         result = dispatch_early_warning_scan(session)
         logger.info("dispatch_early_warning_alerts result=%s", result)
         return result
+
+
+@celery_app.task(
+    name="hmore.automation.dispatch_due_rules",
+    bind=True,
+    soft_time_limit=240,
+    time_limit=300,
+    autoretry_for=(Exception,),
+    retry_backoff=True,
+    retry_kwargs={"max_retries": 2},
+)
+def dispatch_due_automation_rules_task(self) -> dict:
+    """F6.3: evaluate due automation rules; isolate per-rule failures."""
+    from app.automation.jobs import dispatch_due_automation_rules
+
+    with session_scope() as session:
+        result = dispatch_due_automation_rules(session)
+        logger.info("dispatch_due_automation_rules result=%s", result)
+        return result
+
+
+@celery_app.task(
+    name="hmore.automation.retry_failed_run",
+    bind=True,
+    soft_time_limit=120,
+    time_limit=180,
+    autoretry_for=(Exception,),
+    retry_backoff=True,
+    retry_kwargs={"max_retries": 2},
+)
+def retry_failed_automation_run_task(self, run_id: str) -> dict:
+    """F6.3: safely retry a failed automation run."""
+    from app.automation.jobs import retry_failed_run
+
+    with session_scope() as session:
+        result = retry_failed_run(session, uuid.UUID(str(run_id)))
+        logger.info("retry_failed_automation_run result=%s", result)
+        return result
