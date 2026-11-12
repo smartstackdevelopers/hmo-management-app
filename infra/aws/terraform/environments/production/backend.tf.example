@@ -1,0 +1,12 @@
+# Rename to backend.tf when S3+DynamoDB remote state is approved.
+# Never commit terraform.tfstate.
+
+terraform {
+  backend "s3" {
+    bucket         = "hmore-terraform-state-ACCOUNT_ID"
+    key            = "production/terraform.tfstate"
+    region         = "eu-west-2"
+    dynamodb_table = "hmore-terraform-locks"
+    encrypt        = true
+  }
+}

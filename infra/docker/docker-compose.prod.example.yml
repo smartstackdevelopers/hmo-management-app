@@ -1,0 +1,50 @@
+# Reference production-style compose for isolated validation only — NOT live AWS.
+# Secrets must come from env files / Secrets Manager injection at runtime.
+
+services:
+  api:
+    build:
+      context: ../..
+      dockerfile: infra/docker/Dockerfile.api
+    environment:
+      ENVIRONMENT: production
+      ENFORCE_HTTPS_ORIGINS: "true"
+      STORAGE_PROVIDER: s3
+      S3_REGION: eu-west-2
+    ports:
+      - "8000:8000"
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/health')"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+
+  worker:
+    build:
+      context: ../..
+      dockerfile: infra/docker/Dockerfile.worker
+    environment:
+      ENVIRONMENT: production
+      REDIS_URL: ${REDIS_URL}
+      DATABASE_URL: ${DATABASE_URL}
+    depends_on:
+      - api
+
+  ai:
+    build:
+      context: ../..
+      dockerfile: infra/docker/Dockerfile.ai
+    ports:
+      - "8001:8001"
+
+  web:
+    build:
+      context: ../..
+      dockerfile: infra/docker/Dockerfile.web
+    environment:
+      NEXT_PUBLIC_API_BASE_URL: https://api.example.hmore.uk
+      APP_BASE_URL: https://app.example.hmore.uk
+    ports:
+      - "3000:3000"
+    depends_on:
+      - api

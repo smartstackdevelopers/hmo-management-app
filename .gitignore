@@ -32,6 +32,14 @@ apps/api/.hmore-backups/
 .hmore-backups/
 api/src/generated/prisma
 
+# terraform (never commit state or local secrets)
+.terraform/
+*.tfstate
+*.tfstate.*
+*.tfvars
+!*.tfvars.example
+infra/aws/terraform/**/backend.tf
+
 # os / misc
 .DS_Store
 npm-debug.*

@@ -1,0 +1,51 @@
+name: Infrastructure validation (F7.6)
+
+on:
+  pull_request:
+    branches: [develop, main]
+    paths:
+      - "infra/**"
+      - ".github/workflows/infra-validate.yml"
+      - "apps/api/app/core/sentry.py"
+      - "apps/ai-service/app/core/sentry.py"
+  push:
+    branches: [develop, main]
+    paths:
+      - "infra/**"
+      - ".github/workflows/infra-validate.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  terraform:
+    name: Terraform fmt & validate
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: infra/aws/terraform/environments/production
+    steps:
+      - uses: actions/checkout@v4
+      - uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: 1.9.8
+      - name: Format check
+        run: terraform fmt -check -recursive ../../..
+      - name: Init (local backend)
+        run: terraform init -backend=false
+      - name: Validate
+        run: terraform validate
+
+  docker-build:
+    name: Docker production images
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build API image
+        run: docker build -f infra/docker/Dockerfile.api -t hmore-api:ci .
+      - name: Build AI image
+        run: docker build -f infra/docker/Dockerfile.ai -t hmore-ai:ci .
+      - name: Build Web image
+        run: docker build -f infra/docker/Dockerfile.web -t hmore-web:ci .
+      - name: Build Worker image
+        run: docker build -f infra/docker/Dockerfile.worker -t hmore-worker:ci .
