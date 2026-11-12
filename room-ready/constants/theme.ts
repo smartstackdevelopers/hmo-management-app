@@ -36,6 +36,9 @@ export const theme = {
     warningLight: '#FFFBEB',
     error: '#DC2626',
     errorLight: '#FEF2F2',
+    /** Alias used by wellbeing/job-matching screens */
+    danger: '#DC2626',
+    dangerLight: '#FEF2F2',
     info: '#0284C7',
     infoLight: '#F0F9FF',
 

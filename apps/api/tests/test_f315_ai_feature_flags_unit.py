@@ -19,7 +19,7 @@ def test_registry_covers_phase3_agents_not_f315_itself() -> None:
     assert "ai.activity.transparency" in ids
     assert "ai.workflow.daily_log_rewrite" in ids
     assert "ai.feature_flags" not in ids
-    assert len(CONTROLLABLE_FEATURE_IDS) == 12
+    assert len(CONTROLLABLE_FEATURE_IDS) == 14
 
 
 def test_aliases_resolve() -> None:
