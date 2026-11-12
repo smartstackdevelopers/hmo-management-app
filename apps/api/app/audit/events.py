@@ -279,6 +279,12 @@ FINANCE_BUDGET_ACTIVATE = "finance.budget.activate"
 FINANCE_BUDGET_CLOSE = "finance.budget.close"
 FINANCE_EXPORT = "finance.export"
 
+# F6.7 council portal (optional add-on — officer identity outside core HMoreRole)
+COUNCIL_PORTAL_OFFICER_INVITE = "council_portal.officer.invite"
+COUNCIL_PORTAL_SHARE_CREATE = "council_portal.share.create"
+COUNCIL_PORTAL_SHARE_REVOKE = "council_portal.share.revoke"
+COUNCIL_PORTAL_VIEW = "council_portal.view"
+
 # F3.3 AI usage caps and cost tracking
 AI_BUDGET_UPSERT = "ai.budget.upsert"
 AI_BUDGET_ACTIVATE = "ai.budget.activate"
