@@ -614,7 +614,7 @@ def create_test_retention_record(session: Session, ctx: OrganisationContext, lab
     row = PrivacyTestRetentionRecord(
         organisation_id=ctx.organisation_id,
         label=label,
-        expires_at=_now() - timedelta(days=expire_days) if expire_days < 0 else _now() + timedelta(days=expire_days),
+        expires_at=_now() + timedelta(days=expire_days),
     )
     session.add(row)
     session.flush()

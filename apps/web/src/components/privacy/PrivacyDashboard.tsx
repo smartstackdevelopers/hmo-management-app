@@ -80,13 +80,15 @@ export function PrivacyDashboard({ accessToken, organisationId, role, canManage 
       </header>
 
       <section className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        {[
-          ["Inventory items", dash?.inventory_item_count],
-          ["Open DSRs", dash?.open_data_subject_requests],
-          ["Open privacy risks", dash?.open_privacy_risks],
-          ["Occupancy live", dash?.occupancy_live_status],
-        ].map(([label, value]) => (
-          <div key={String(label)} className="rounded-lg border border-slate-200 bg-white p-4 shadow-sm">
+        {(
+          [
+            ["Inventory items", dash?.inventory_item_count],
+            ["Open DSRs", dash?.open_data_subject_requests],
+            ["Open privacy risks", dash?.open_privacy_risks],
+            ["Occupancy live", dash?.occupancy_live_status],
+          ] as const
+        ).map(([label, value]) => (
+          <div key={label} className="rounded-lg border border-slate-200 bg-white p-4 shadow-sm">
             <p className="text-xs uppercase tracking-wide text-slate-500">{label}</p>
             <p className="mt-1 text-xl font-semibold text-slate-900">{String(value ?? "—")}</p>
           </div>
