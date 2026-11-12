@@ -147,6 +147,13 @@ export const DASHBOARD_NAV: NavItem[] = [
     section: "records",
   },
   {
+    id: "integrations",
+    label: "Integrations",
+    href: "/dashboard/integrations",
+    anyOf: ["integrations.read", "integrations.manage"],
+    section: "records",
+  },
+  {
     id: "ai-costs",
     label: "AI costs",
     href: "/dashboard/ai-costs",

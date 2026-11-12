@@ -49,6 +49,8 @@ class Permission(StrEnum):
     AUTOMATION_RULES_MANAGE = "automation.rules.manage"
     AUTOMATION_RUNS_READ = "automation.runs.read"
     AUTOMATION_ESCALATIONS_MANAGE = "automation.escalations.manage"
+    INTEGRATIONS_READ = "integrations.read"
+    INTEGRATIONS_MANAGE = "integrations.manage"
     REPORTS_EXPORT_CSV = "reports.export.csv"
     REPORTS_EXPORT_PDF = "reports.export.pdf"
     REPORTS_EXPORT_EXCEL = "reports.export.excel"
@@ -397,6 +399,12 @@ PERMISSION_CATALOG: dict[Permission, PermissionMeta] = {
     ),
     Permission.AUTOMATION_ESCALATIONS_MANAGE: PermissionMeta(
         Permission.AUTOMATION_ESCALATIONS_MANAGE, "Acknowledge and resolve automation escalations", True
+    ),
+    Permission.INTEGRATIONS_READ: PermissionMeta(
+        Permission.INTEGRATIONS_READ, "View organisation integration hub configurations", True
+    ),
+    Permission.INTEGRATIONS_MANAGE: PermissionMeta(
+        Permission.INTEGRATIONS_MANAGE, "Manage integration configurations and sync jobs", True
     ),
     Permission.REPORTS_EXPORT_CSV: PermissionMeta(
         Permission.REPORTS_EXPORT_CSV, "Export reports as CSV", True

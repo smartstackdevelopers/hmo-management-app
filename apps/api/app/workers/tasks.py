@@ -326,3 +326,22 @@ def retry_failed_automation_run_task(self, run_id: str) -> dict:
         result = retry_failed_run(session, uuid.UUID(str(run_id)))
         logger.info("retry_failed_automation_run result=%s", result)
         return result
+
+
+@celery_app.task(
+    name="hmore.integrations.dispatch_auto_sync",
+    bind=True,
+    soft_time_limit=240,
+    time_limit=300,
+    autoretry_for=(Exception,),
+    retry_backoff=True,
+    retry_kwargs={"max_retries": 2},
+)
+def dispatch_integration_auto_sync_task(self) -> dict:
+    """F6.4: hourly health sync for connected integrations with auto_sync enabled."""
+    from app.integrations.sync import dispatch_due_scheduled_syncs
+
+    with session_scope() as session:
+        result = dispatch_due_scheduled_syncs(session)
+        logger.info("dispatch_integration_auto_sync result=%s", result)
+        return result

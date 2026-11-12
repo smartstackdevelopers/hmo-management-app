@@ -197,6 +197,12 @@ from app.db.models.automation import (
     AutomationRule,
     AutomationRuleRun,
 )
+from app.db.models.integrations import (
+    Integration,
+    IntegrationActivityLog,
+    IntegrationFieldMapping,
+    IntegrationSyncJob,
+)
 from app.db.models.push_devices import PushDeviceToken
 from app.db.models.idempotency import ClientIdempotencyKey
 from app.db.models.device_sessions import MobileDeviceSession
@@ -365,4 +371,8 @@ __all__ = [
     "AutomationRuleRun",
     "AutomationEscalation",
     "AutomationComplianceIssue",
+    "Integration",
+    "IntegrationFieldMapping",
+    "IntegrationSyncJob",
+    "IntegrationActivityLog",
 ]
