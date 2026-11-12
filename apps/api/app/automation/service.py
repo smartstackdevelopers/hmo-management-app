@@ -360,6 +360,7 @@ def update_escalation_status(
     row = session.get(AutomationEscalation, escalation_id)
     if row is None or row.organisation_id != ctx.organisation_id:
         raise HTTPException(status_code=404, detail="Escalation not found")
+    previous = row.status
     row.status = new_status
     if new_status == "acknowledged":
         row.acknowledged_at = _now()
@@ -368,6 +369,19 @@ def update_escalation_status(
         row.resolved_at = _now()
         row.resolution_note = resolution_note
     session.flush()
+    record_event(
+        session,
+        action=audit_events.AUTOMATION_ESCALATION_STATUS,
+        resource_type="automation_escalation",
+        resource_id=row.id,
+        organisation_id=ctx.organisation_id,
+        actor_user_id=ctx.user_id,
+        actor_role=ctx.role.value,
+        outcome=AuditOutcome.SUCCESS,
+        summary=f"Escalation status {previous} → {new_status}",
+        metadata={"from": previous, "to": new_status},
+        raise_on_error=False,
+    )
     return escalation_to_dict(row)
 
 

@@ -5,7 +5,7 @@ from __future__ import annotations
 import uuid
 
 from fastapi import HTTPException
-from sqlalchemy import or_, select
+from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 from app.auth.tokens import http_403
@@ -17,7 +17,27 @@ from app.rbac.permissions import Permission
 from app.tenancy.context import OrganisationContext
 
 
+# F6.1 enterprise portfolio/rent/inspection surfaces — not every role with properties.read.
+_LANDLORD_ENTERPRISE_ROLES = frozenset(
+    {
+        HMoreRole.LANDLORD,
+        HMoreRole.ORGANISATION_ADMIN,
+        HMoreRole.SUPER_ADMIN,
+    }
+)
+
+
 def require_landlord_enterprise_read(ctx: OrganisationContext) -> None:
+    """Restrict F6.1 reads to landlord / org admin / super admin.
+
+    Support workers and maintenance contractors often hold ``properties.read`` for
+    operational work; they must not pull landlord rent/portfolio dashboards via API.
+    Super Admin may oversee when an organisation context is already established.
+    """
+    if ctx.role not in _LANDLORD_ENTERPRISE_ROLES:
+        raise http_403("Landlord enterprise access is limited to landlord and organisation administrators")
+    if ctx.role == HMoreRole.SUPER_ADMIN:
+        return
     if ctx.authorization.has_permission(Permission.PROPERTIES_READ) or ctx.authorization.has_permission(
         Permission.PROPERTIES_MANAGE
     ):
@@ -44,9 +64,13 @@ def require_repairs_read(ctx: OrganisationContext) -> None:
 
 
 def landlord_property_filter(ctx: OrganisationContext):
-    """SQLAlchemy filter limiting landlords to own (or unassigned) properties."""
+    """SQLAlchemy filter limiting landlords to properties they own.
+
+    Unassigned properties (``landlord_user_id IS NULL``) are visible to organisation
+    admins only — not to every landlord in the organisation.
+    """
     if ctx.role == HMoreRole.LANDLORD:
-        return or_(Property.landlord_user_id == ctx.user_id, Property.landlord_user_id.is_(None))
+        return Property.landlord_user_id == ctx.user_id
     return True
 
 
@@ -66,7 +90,7 @@ def get_accessible_property(session: Session, ctx: OrganisationContext, property
     if row is None or row.organisation_id != ctx.organisation_id:
         raise HTTPException(status_code=404, detail="Property not found")
     if ctx.role == HMoreRole.LANDLORD:
-        if row.landlord_user_id is not None and row.landlord_user_id != ctx.user_id:
+        if row.landlord_user_id != ctx.user_id:
             raise http_403("Landlord may only access own properties")
     return row
 

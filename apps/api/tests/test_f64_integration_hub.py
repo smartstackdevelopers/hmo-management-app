@@ -110,6 +110,18 @@ def test_https_required_for_external_urls() -> None:
         request_json(method="GET", base_url="http://partner.example/api", path="/health", max_retries=0)
 
 
+def test_api_base_url_blocks_private_and_metadata_hosts() -> None:
+    with pytest.raises(HTTPException) as exc:
+        integration_service._validate_base_url("https://169.254.169.254/latest/meta-data")
+    assert exc.value.status_code == 400
+    with pytest.raises(HTTPException):
+        integration_service._validate_base_url("https://10.0.0.5/internal")
+    with pytest.raises(HTTPException):
+        integration_service._validate_base_url("https://127.0.0.1/admin")
+    assert integration_service._validate_base_url("https://partner.example/api") == "https://partner.example/api"
+    assert integration_service._validate_base_url("http://localhost:8080/api") == "http://localhost:8080/api"
+
+
 def test_connection_timeout_handling() -> None:
     import httpx
 

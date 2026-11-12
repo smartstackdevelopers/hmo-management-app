@@ -211,6 +211,10 @@ class Settings(BaseSettings):
         if not self.auth0_audience:
             errors.append("AUTH0_AUDIENCE is required in production")
 
+        # F6.4 / F6.5 — never derive Fernet from the default pepper in production.
+        if not (self.integration_secrets_key or "").strip():
+            errors.append("INTEGRATION_SECRETS_KEY is required in production")
+
         provider = (self.storage_provider or "").strip().lower()
         if provider == "memory":
             errors.append("STORAGE_PROVIDER=memory is not allowed in production")
