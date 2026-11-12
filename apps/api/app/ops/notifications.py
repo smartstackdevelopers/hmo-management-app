@@ -137,10 +137,19 @@ class CommunicationNotificationProvider:
                 detail="Recipient channel disabled by communication preferences",
             )
 
+        def _parse_target_uuid(raw: str | None) -> uuid.UUID:
+            if not raw:
+                return org_uuid
+            try:
+                return uuid.UUID(str(raw))
+            except ValueError:
+                # Composite automation keys (run:resource) are not UUIDs — fall back to org.
+                return org_uuid
+
         if channel == "push":
             from app.push.delivery import enqueue_push_for_target
 
-            target = uuid.UUID(message.target_id) if message.target_id else org_uuid
+            target = _parse_target_uuid(message.target_id)
             queued = enqueue_push_for_target(
                 session,
                 organisation_id=org_uuid,
@@ -158,7 +167,7 @@ class CommunicationNotificationProvider:
             )
 
         idem = message.idempotency_key
-        target_uuid = uuid.UUID(message.target_id) if message.target_id else org_uuid
+        target_uuid = _parse_target_uuid(message.target_id)
 
         existing = session.scalar(
             select(CommunicationDelivery).where(

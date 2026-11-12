@@ -228,7 +228,7 @@ def test_f315_flags_isolation_and_enforcement(db_session: Session, unique_suffix
     created = ff_service.seed_defaults_for_organisation(
         db_session, organisation_id=new_org.id, actor_user_id=admin_a.id
     )
-    assert created == 12
+    assert created == 14
     assert (
         ff_service.is_feature_available(
             db_session, organisation_id=new_org.id, feature_id=FEATURE_NOTES_ANALYSIS, use_cache=False

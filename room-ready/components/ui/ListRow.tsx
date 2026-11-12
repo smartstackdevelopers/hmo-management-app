@@ -43,6 +43,7 @@ interface ListRowProps {
   onPress?: () => void;
   right?: React.ReactNode;
   chevron?: boolean;
+  accessibilityLabel?: string;
 }
 
 export function ListRow({
@@ -55,6 +56,7 @@ export function ListRow({
   onPress,
   right,
   chevron = !!onPress,
+  accessibilityLabel,
 }: ListRowProps) {
   const content = (
     <View style={styles.row}>
@@ -77,13 +79,22 @@ export function ListRow({
 
   if (onPress) {
     return (
-      <Pressable onPress={onPress} style={({ pressed }) => [styles.pressable, pressed && styles.pressed]}>
+      <Pressable
+        onPress={onPress}
+        accessibilityRole="button"
+        accessibilityLabel={accessibilityLabel ?? title}
+        style={({ pressed }) => [styles.pressable, pressed && styles.pressed]}
+      >
         {content}
       </Pressable>
     );
   }
 
-  return <View style={styles.pressable}>{content}</View>;
+  return (
+    <View style={styles.pressable} accessibilityLabel={accessibilityLabel ?? title}>
+      {content}
+    </View>
+  );
 }
 
 const styles = StyleSheet.create({

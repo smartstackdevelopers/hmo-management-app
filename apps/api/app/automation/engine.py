@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import hashlib
 import logging
 import uuid
 from datetime import date, datetime, timedelta, timezone
@@ -527,6 +528,13 @@ def _notify(
     target_id: str,
     channel: str = "in_app",
 ) -> None:
+    # Keep idempotency keys within CommunicationDelivery.idempotency_key varchar(128).
+    digest = hashlib.sha256(
+        f"{target_type}:{target_id}:{recipient_user_id}:{channel}".encode("utf-8")
+    ).hexdigest()[:40]
+    idem = f"auto:{digest}"
+    # Delivery.target_id is UUID — use a stable UUID5 from the composite key.
+    target_uuid = str(uuid.uuid5(uuid.NAMESPACE_URL, f"hmore:automation:{target_type}:{target_id}"))
     provider = CommunicationNotificationProvider()
     provider.send(
         session,
@@ -537,8 +545,8 @@ def _notify(
             body=body,
             channel=channel if channel in {"in_app", "email", "sms", "push"} else "in_app",
             target_type=target_type,
-            target_id=target_id,
-            idempotency_key=f"automation:{target_type}:{target_id}:{recipient_user_id}:{channel}",
+            target_id=target_uuid,
+            idempotency_key=idem,
             essential_operational=True,
         ),
     )
