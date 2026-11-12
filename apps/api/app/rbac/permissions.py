@@ -65,6 +65,7 @@ class Permission(StrEnum):
     FINANCE_BUDGETS_MANAGE = "finance.budgets.manage"
     FINANCE_REPORTS_VIEW = "finance.reports.view"
     FINANCE_EXPORTS = "finance.exports"
+    COUNCIL_PORTAL_MANAGE = "council_portal.manage"
 
     # Tenant person records (distinct from Tenant login role)
     TENANTS_READ = "tenants.read"
@@ -457,6 +458,11 @@ PERMISSION_CATALOG: dict[Permission, PermissionMeta] = {
     ),
     Permission.FINANCE_EXPORTS: PermissionMeta(
         Permission.FINANCE_EXPORTS, "Export finance records (CSV/PDF/Excel)", True
+    ),
+    Permission.COUNCIL_PORTAL_MANAGE: PermissionMeta(
+        Permission.COUNCIL_PORTAL_MANAGE,
+        "Manage Council Portal add-on officers and application shares (not a core role)",
+        True,
     ),
     Permission.TENANTS_READ: PermissionMeta(
         Permission.TENANTS_READ, "Read organisation tenant person records", True

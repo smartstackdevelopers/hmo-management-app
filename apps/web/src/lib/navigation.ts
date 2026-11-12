@@ -168,6 +168,13 @@ export const DASHBOARD_NAV: NavItem[] = [
     section: "records",
   },
   {
+    id: "council-portal",
+    label: "Council Portal",
+    href: "/dashboard/council-portal",
+    anyOf: ["council_portal.manage"],
+    section: "records",
+  },
+  {
     id: "ai-costs",
     label: "AI costs",
     href: "/dashboard/ai-costs",

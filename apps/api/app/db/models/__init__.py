@@ -213,6 +213,11 @@ from app.db.models.room_occupancy import (
     RoomOccupancyState,
 )
 from app.db.models.finance import FinanceBudget, FinanceBudgetLine, FinanceRecord
+from app.db.models.council_portal import (
+    CouncilPortalAccessLog,
+    CouncilPortalOfficer,
+    CouncilPortalShare,
+)
 from app.db.models.push_devices import PushDeviceToken
 from app.db.models.idempotency import ClientIdempotencyKey
 from app.db.models.device_sessions import MobileDeviceSession
@@ -395,4 +400,7 @@ __all__ = [
     "FinanceRecord",
     "FinanceBudget",
     "FinanceBudgetLine",
+    "CouncilPortalOfficer",
+    "CouncilPortalShare",
+    "CouncilPortalAccessLog",
 ]
