@@ -80,6 +80,27 @@ def test_tenant_cannot_require_rent_manage() -> None:
     assert getattr(exc.value, "status_code", None) in {403, None} or "403" in str(exc.value)
 
 
+def test_support_worker_cannot_read_landlord_enterprise() -> None:
+    """properties.read alone must not unlock F6.1 dashboards (API bypass fix)."""
+    from app.landlord_enterprise.access import require_landlord_enterprise_read
+
+    user = SimpleNamespace(id=uuid.uuid4())
+    ctx = _ctx(HMoreRole.SUPPORT_WORKER, uuid.uuid4(), user)
+    with pytest.raises(HTTPException) as exc:
+        require_landlord_enterprise_read(ctx)
+    assert exc.value.status_code == 403
+
+
+def test_maintenance_contractor_cannot_read_landlord_enterprise() -> None:
+    from app.landlord_enterprise.access import require_landlord_enterprise_read
+
+    user = SimpleNamespace(id=uuid.uuid4())
+    ctx = _ctx(HMoreRole.MAINTENANCE_CONTRACTOR, uuid.uuid4(), user)
+    with pytest.raises(HTTPException) as exc:
+        require_landlord_enterprise_read(ctx)
+    assert exc.value.status_code == 403
+
+
 @pytest.mark.postgres
 def test_landlord_enterprise_flow_and_isolation(db_session, unique_suffix: str) -> None:
     from app.db.models import Organisation, Property, Room, Tenant, User

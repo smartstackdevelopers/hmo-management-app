@@ -33,6 +33,56 @@ def _now() -> datetime:
     return datetime.now(timezone.utc)
 
 
+def _is_blocked_egress_host(host: str) -> bool:
+    """Block obvious SSRF targets (loopback / link-local / cloud metadata / private RFC1918)."""
+    import ipaddress
+    import socket
+
+    h = (host or "").strip().lower().rstrip(".")
+    if not h:
+        return True
+    if h in {"localhost", "metadata.google.internal"}:
+        return True
+    if h.endswith(".local") or h.endswith(".internal"):
+        return True
+    # Literal IPs
+    try:
+        ip = ipaddress.ip_address(h)
+        return bool(
+            ip.is_private
+            or ip.is_loopback
+            or ip.is_link_local
+            or ip.is_reserved
+            or ip.is_multicast
+            or ip.is_unspecified
+        )
+    except ValueError:
+        pass
+    # Resolve hostname once; if any address is private/metadata, block.
+    try:
+        infos = socket.getaddrinfo(h, None)
+    except OSError:
+        # Unresolvable hosts fail later at connection test; allow registration of public DNS names.
+        return False
+    for info in infos:
+        addr = info[4][0]
+        try:
+            ip = ipaddress.ip_address(addr)
+        except ValueError:
+            continue
+        if (
+            ip.is_private
+            or ip.is_loopback
+            or ip.is_link_local
+            or ip.is_reserved
+            or ip.is_multicast
+            or ip.is_unspecified
+            or str(ip) == "169.254.169.254"
+        ):
+            return True
+    return False
+
+
 def _validate_base_url(url: str | None) -> str | None:
     if url is None or url.strip() == "":
         return None
@@ -43,6 +93,9 @@ def _validate_base_url(url: str | None) -> str | None:
     host = (parsed.hostname or "").lower()
     if parsed.scheme == "http" and host not in {"localhost", "127.0.0.1", "::1"}:
         raise HTTPException(status_code=400, detail="Non-local api_base_url must use HTTPS")
+    # Local HTTP allowed for developer connectors; block private/metadata HTTPS SSRF targets.
+    if parsed.scheme == "https" and _is_blocked_egress_host(host):
+        raise HTTPException(status_code=400, detail="api_base_url host is not allowed (private or metadata)")
     return cleaned.rstrip("/")
 
 

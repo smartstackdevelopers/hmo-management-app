@@ -13,6 +13,7 @@ from sqlalchemy.orm import Session
 
 from app.audit import events as audit_events
 from app.audit.service import AuditOutcome, record_event
+from app.db.models.file_metadata import FileMetadata
 from app.db.models.finance import FinanceBudget, FinanceBudgetLine, FinanceRecord
 from app.db.models.landlord_enterprise import RentRecord
 from app.db.models.property import Property
@@ -35,6 +36,17 @@ def _now() -> datetime:
 
 def _dec(value: Decimal | float | int | str) -> Decimal:
     return Decimal(str(value)).quantize(Decimal("0.01"))
+
+
+def _assert_supporting_file(session: Session, ctx: OrganisationContext, file_id: uuid.UUID) -> None:
+    meta = session.get(FileMetadata, file_id)
+    if meta is None or meta.organisation_id != ctx.organisation_id or meta.status != "active":
+        raise HTTPException(status_code=404, detail="Supporting file not found")
+    if not (
+        ctx.authorization.has_permission(Permission.FILES_READ)
+        or ctx.authorization.has_permission(Permission.FILES_MANAGE)
+    ):
+        raise HTTPException(status_code=403, detail="Missing permission to link supporting files")
 
 
 def _append_history(row: FinanceRecord, entry: dict[str, Any]) -> None:
@@ -132,6 +144,8 @@ def create_record(
             raise HTTPException(status_code=404, detail="Rent record not found")
         if property_id is None:
             property_id = rent.property_id
+    if supporting_file_id is not None:
+        _assert_supporting_file(session, ctx, supporting_file_id)
 
     row = FinanceRecord(
         organisation_id=ctx.organisation_id,
@@ -233,6 +247,7 @@ def update_record(
         row.supporting_file_id = None
         changes["supporting_file_id"] = None
     elif supporting_file_id is not None:
+        _assert_supporting_file(session, ctx, supporting_file_id)
         row.supporting_file_id = supporting_file_id
         changes["supporting_file_id"] = str(supporting_file_id)
     row.updated_by_user_id = ctx.user_id

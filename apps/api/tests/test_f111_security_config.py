@@ -24,11 +24,13 @@ def test_production_requires_critical_settings() -> None:
         auth0_audience=None,
         storage_provider="memory",
         cors_allowed_origins="*",
+        integration_secrets_key=None,
     )
     errors = settings.production_validation_errors()
     assert any("DATABASE_URL" in item for item in errors)
     assert any("AUTH0_DOMAIN" in item for item in errors)
     assert any("AUTH0_AUDIENCE" in item for item in errors)
+    assert any("INTEGRATION_SECRETS_KEY" in item for item in errors)
     assert any("memory" in item for item in errors)
     assert any("'*'" in item or "*" in item for item in errors)
 
@@ -45,6 +47,7 @@ def test_production_accepts_iam_style_s3_without_static_keys() -> None:
         s3_secret_access_key=None,
         cors_allowed_origins="https://app.hmore.example",
         enforce_https_origins=True,
+        integration_secrets_key="dGVzdC1rZXktMzItYnl0ZXMtZm9yLWZlcm5ldCEhIQ==",
     )
     assert settings.production_validation_errors() == []
 
@@ -60,6 +63,7 @@ def test_production_rejects_partial_s3_keys_and_http_origins() -> None:
         s3_access_key_id="AKIAEXAMPLE",
         s3_secret_access_key=None,
         cors_allowed_origins="http://app.hmore.example",
+        integration_secrets_key="dGVzdC1rZXktMzItYnl0ZXMtZm9yLWZlcm5ldCEhIQ==",
     )
     errors = settings.production_validation_errors()
     assert any("both be set or both omitted" in item for item in errors)

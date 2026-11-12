@@ -251,6 +251,7 @@ AUTOMATION_RULE_CREATE = "automation.rule.create"
 AUTOMATION_RULE_UPDATE = "automation.rule.update"
 AUTOMATION_RULE_DELETE = "automation.rule.delete"
 AUTOMATION_RULE_RUN = "automation.rule.run"
+AUTOMATION_ESCALATION_STATUS = "automation.escalation.status"
 
 # F6.4 integration hub
 INTEGRATION_CREATE = "integration.create"
