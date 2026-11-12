@@ -69,6 +69,16 @@ celery_app.conf.update(
             "task": "hmore.report_drafts.dispatch_monthly",
             "schedule": 2592000.0,
         },
+        # F6.2 — scheduled operational report delivery
+        "dispatch-scheduled-reports-every-5-minutes": {
+            "task": "hmore.reporting.dispatch_scheduled_reports",
+            "schedule": 300.0,
+        },
+        # F6.2 — early-warning operational alerts (not F6.3 automation rules)
+        "dispatch-early-warning-alerts-hourly": {
+            "task": "hmore.reporting.dispatch_early_warning_alerts",
+            "schedule": 3600.0,
+        },
     },
 )
 

@@ -1,4 +1,4 @@
-"""RBAC for F2.14 reporting."""
+"""RBAC for F2.14 / F6.2 reporting."""
 
 from __future__ import annotations
 
@@ -21,6 +21,22 @@ def require_complaints_reports(ctx: OrganisationContext) -> None:
 
 def require_caseload_reports(ctx: OrganisationContext) -> None:
     require_permission(ctx.authorization, Permission.REPORTS_CASELOAD_VIEW)
+
+
+def require_occupancy_reports(ctx: OrganisationContext) -> None:
+    require_permission(ctx.authorization, Permission.REPORTS_OCCUPANCY_VIEW)
+
+
+def require_plans_reports(ctx: OrganisationContext) -> None:
+    require_permission(ctx.authorization, Permission.REPORTS_PLANS_VIEW)
+
+
+def require_schedule_manage(ctx: OrganisationContext) -> None:
+    require_permission(ctx.authorization, Permission.REPORTS_SCHEDULE_MANAGE)
+
+
+def require_alerts_view(ctx: OrganisationContext) -> None:
+    require_permission(ctx.authorization, Permission.REPORTS_ALERTS_VIEW)
 
 
 def require_export_csv(ctx: OrganisationContext) -> None:

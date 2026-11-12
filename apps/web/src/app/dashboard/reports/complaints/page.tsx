@@ -1,24 +1,22 @@
-import { redirect } from "next/navigation";
-import { PageHeader } from "@/components/dashboard/PageHeader";
-import { canAny } from "@/lib/rbac";
-import { exportReportUrl } from "@/lib/reportingApi";
-import { requireAuthenticatedSession } from "@/lib/session";
+import { EmptyState } from "@/components/dashboard/EmptyState";
+import { ErrorState } from "@/components/dashboard/ErrorState";
+import { ReportCategoryPanel } from "@/components/reports/ReportCategoryPanel";
+import { requireReportAccess } from "../_reportAuth";
 
 export default async function ComplaintsReportsPage() {
-  const session = await requireAuthenticatedSession("/dashboard/reports/complaints");
-  if (
-    session.authorization &&
-    !canAny(session.authorization.permissions, ["reports.complaints.view", "reports.read"])
-  ) {
-    redirect("/unauthorized");
-  }
+  const { session, token, orgId } = await requireReportAccess("/dashboard/reports/complaints", [
+    "reports.complaints.view",
+  ]);
+  if (!orgId) return <EmptyState title="Unavailable" description="Organisation context required." />;
+  if (!token) return <ErrorState description="Access token unavailable." />;
   return (
-    <div className="space-y-6">
-      <PageHeader
-        title="Complaints reports"
-        description="Operational deadlines from organisation rules — not statutory response periods."
-      />
-      <p className="text-sm text-slate-600">CSV export path: {exportReportUrl("complaints", "csv")}</p>
-    </div>
+    <ReportCategoryPanel
+      category="complaints"
+      accessToken={token}
+      organisationId={orgId}
+      role={session.authorization?.active_role}
+      title="Complaints reports"
+      description="Open, resolved and overdue complaints with priority and category distributions from operational records."
+    />
   );
 }

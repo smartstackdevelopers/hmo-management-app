@@ -254,3 +254,37 @@ def dispatch_pending_push_task() -> dict:
         result = dispatch_pending(session)
         logger.info("dispatch_pending_push result=%s", result)
         return result
+
+
+@celery_app.task(
+    name="hmore.reporting.dispatch_scheduled_reports",
+    bind=True,
+    autoretry_for=(Exception,),
+    retry_backoff=True,
+    retry_kwargs={"max_retries": 2},
+)
+def dispatch_scheduled_reports_task(self) -> dict:
+    """F6.2: generate due scheduled reports and notify authorised recipients."""
+    from app.reporting.jobs import dispatch_due_scheduled_reports
+
+    with session_scope() as session:
+        result = dispatch_due_scheduled_reports(session)
+        logger.info("dispatch_scheduled_reports result=%s", result)
+        return result
+
+
+@celery_app.task(
+    name="hmore.reporting.dispatch_early_warning_alerts",
+    bind=True,
+    autoretry_for=(Exception,),
+    retry_backoff=True,
+    retry_kwargs={"max_retries": 2},
+)
+def dispatch_early_warning_alerts_task(self) -> dict:
+    """F6.2: evaluate early-warning thresholds from live operational data."""
+    from app.reporting.jobs import dispatch_early_warning_scan
+
+    with session_scope() as session:
+        result = dispatch_early_warning_scan(session)
+        logger.info("dispatch_early_warning_alerts result=%s", result)
+        return result
