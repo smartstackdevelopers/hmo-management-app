@@ -7,6 +7,11 @@ venv/
 .env
 .env*.local
 !.env.example
+!**/.env.production.example
+room-ready/google-play-service-account.json
+room-ready/*.p12
+room-ready/*.jks
+room-ready/*.keystore
 
 # builds
 dist/

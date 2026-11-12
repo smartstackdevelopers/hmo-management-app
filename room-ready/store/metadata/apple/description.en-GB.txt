@@ -1,0 +1,7 @@
+HMore helps tenants and support staff manage housing, repairs, support plans, and local services in one secure app.
+
+Sign in with your organisation’s account. Report maintenance with photos, view housing information, read messages, and access community and employment tools where your provider has enabled them.
+
+Support workers can manage caseloads, visits, tasks, daily notes, and approvals according to their role permissions.
+
+PENDING_APPROVAL: Replace with client-approved marketing copy. Privacy policy: PENDING_APPROVAL URL.

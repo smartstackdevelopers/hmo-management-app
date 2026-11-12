@@ -17,6 +17,8 @@ export function installPushResponseListener(isStaff: boolean): () => void {
           shouldSetBadge: false,
           shouldShowBanner: true,
           shouldShowList: true,
+          // Prefer generic server payloads; avoid lock-screen sensitive previews (F7.7).
+          priority: Notifications.AndroidNotificationPriority.DEFAULT,
         }),
       });
       subscription = Notifications.addNotificationResponseReceivedListener((response) => {
