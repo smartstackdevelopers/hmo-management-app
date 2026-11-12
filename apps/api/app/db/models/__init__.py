@@ -203,6 +203,15 @@ from app.db.models.integrations import (
     IntegrationFieldMapping,
     IntegrationSyncJob,
 )
+from app.db.models.room_occupancy import (
+    OccupancyCountingDevice,
+    RoomOccupancyAlert,
+    RoomOccupancyApprovalGate,
+    RoomOccupancyCountHistory,
+    RoomOccupancyManualCorrection,
+    RoomOccupancySettings,
+    RoomOccupancyState,
+)
 from app.db.models.push_devices import PushDeviceToken
 from app.db.models.idempotency import ClientIdempotencyKey
 from app.db.models.device_sessions import MobileDeviceSession
@@ -375,4 +384,11 @@ __all__ = [
     "IntegrationFieldMapping",
     "IntegrationSyncJob",
     "IntegrationActivityLog",
+    "RoomOccupancyApprovalGate",
+    "RoomOccupancySettings",
+    "OccupancyCountingDevice",
+    "RoomOccupancyState",
+    "RoomOccupancyCountHistory",
+    "RoomOccupancyManualCorrection",
+    "RoomOccupancyAlert",
 ]

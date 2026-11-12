@@ -345,3 +345,24 @@ def dispatch_integration_auto_sync_task(self) -> dict:
         result = dispatch_due_scheduled_syncs(session)
         logger.info("dispatch_integration_auto_sync result=%s", result)
         return result
+
+
+@celery_app.task(
+    name="hmore.room_occupancy.sweep",
+    bind=True,
+    soft_time_limit=180,
+    time_limit=240,
+    autoretry_for=(Exception,),
+    retry_backoff=True,
+    retry_kwargs={"max_retries": 2},
+)
+def room_occupancy_sweep_task(self) -> dict:
+    """F6.5: stale offline marking + retention deletion (counts only)."""
+    from app.room_occupancy import service as occupancy_service
+
+    with session_scope() as session:
+        offline = occupancy_service.mark_stale_offline(session)
+        retention = occupancy_service.apply_retention(session)
+        result = {"offline": offline, "retention": retention}
+        logger.info("room_occupancy_sweep result=%s", result)
+        return result

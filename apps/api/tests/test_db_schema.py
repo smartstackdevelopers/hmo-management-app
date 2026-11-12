@@ -91,6 +91,13 @@ def test_expected_tables_exist(migrated_engine: Engine) -> None:
         "integration_field_mappings",
         "integration_sync_jobs",
         "integration_activity_logs",
+        "room_occupancy_approval_gates",
+        "room_occupancy_settings",
+        "occupancy_counting_devices",
+        "room_occupancy_states",
+        "room_occupancy_count_history",
+        "room_occupancy_manual_corrections",
+        "room_occupancy_alerts",
     }
     assert expected.issubset(tables)
 
@@ -104,7 +111,7 @@ def test_users_authorization_version_column(migrated_engine: Engine) -> None:
 def test_migration_history_has_single_head(alembic_config) -> None:
     script = ScriptDirectory.from_config(alembic_config)
     heads = script.get_heads()
-    assert heads == ["20261111_4200_f64"]
+    assert heads == ["20261111_4300_f65"]
 
 
 def test_upgrade_downgrade_roundtrip(alembic_config, migrated_engine: Engine) -> None:

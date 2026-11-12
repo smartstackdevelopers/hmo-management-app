@@ -1,5 +1,8 @@
 export const OCCUPANCY_PHASE6_NOTICE =
-  'Live camera counts are not available in this app. They are planned for Phase 6. This screen lists occupancy site surveys only and does not show a people count.';
+  'Phase 6 site surveys only on this view. Live estimated people counts require occupancy.read and a completed privacy approval gate — tenants never see live occupancy.';
+
+export const LIVE_OCCUPANCY_PRIVACY_NOTICE =
+  'Estimated people counts only. No facial recognition or identity tracking. Offline rooms do not show as zero occupants. Live cameras stay off until organisational privacy approvals are complete.';
 
 export interface OccupancySurveySummary {
   id: string;

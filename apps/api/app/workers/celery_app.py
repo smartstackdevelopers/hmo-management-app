@@ -89,6 +89,11 @@ celery_app.conf.update(
             "task": "hmore.integrations.dispatch_auto_sync",
             "schedule": 3600.0,
         },
+        # F6.5 — mark stale occupancy offline + apply count retention
+        "dispatch-room-occupancy-sweep-every-5-minutes": {
+            "task": "hmore.room_occupancy.sweep",
+            "schedule": 300.0,
+        },
     },
 )
 

@@ -154,6 +154,13 @@ export const DASHBOARD_NAV: NavItem[] = [
     section: "records",
   },
   {
+    id: "room-occupancy",
+    label: "Room occupancy",
+    href: "/dashboard/room-occupancy",
+    anyOf: ["occupancy.read", "occupancy.alerts.manage", "occupancy.settings.manage"],
+    section: "records",
+  },
+  {
     id: "ai-costs",
     label: "AI costs",
     href: "/dashboard/ai-costs",
