@@ -212,6 +212,7 @@ from app.db.models.room_occupancy import (
     RoomOccupancySettings,
     RoomOccupancyState,
 )
+from app.db.models.finance import FinanceBudget, FinanceBudgetLine, FinanceRecord
 from app.db.models.push_devices import PushDeviceToken
 from app.db.models.idempotency import ClientIdempotencyKey
 from app.db.models.device_sessions import MobileDeviceSession
@@ -391,4 +392,7 @@ __all__ = [
     "RoomOccupancyCountHistory",
     "RoomOccupancyManualCorrection",
     "RoomOccupancyAlert",
+    "FinanceRecord",
+    "FinanceBudget",
+    "FinanceBudgetLine",
 ]

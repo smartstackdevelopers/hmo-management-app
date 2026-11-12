@@ -270,6 +270,15 @@ ROOM_OCCUPANCY_COUNT_CORRECT = "room_occupancy.count.correct"
 ROOM_OCCUPANCY_VIEW = "room_occupancy.view"
 ROOM_OCCUPANCY_ALERT_RAISE = "room_occupancy.alert.raise"
 
+# F6.6 finance module (optional add-on — client approved; no payment gateways)
+FINANCE_RECORD_CREATE = "finance.record.create"
+FINANCE_RECORD_UPDATE = "finance.record.update"
+FINANCE_RECORD_VOID = "finance.record.void"
+FINANCE_BUDGET_CREATE = "finance.budget.create"
+FINANCE_BUDGET_ACTIVATE = "finance.budget.activate"
+FINANCE_BUDGET_CLOSE = "finance.budget.close"
+FINANCE_EXPORT = "finance.export"
+
 # F3.3 AI usage caps and cost tracking
 AI_BUDGET_UPSERT = "ai.budget.upsert"
 AI_BUDGET_ACTIVATE = "ai.budget.activate"
