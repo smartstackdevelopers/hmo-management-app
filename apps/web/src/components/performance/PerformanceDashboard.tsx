@@ -23,7 +23,13 @@ export function PerformanceDashboard({ accessToken, organisationId, role, canRun
   }, [load]);
 
   if (error) return <ErrorState description={error} />;
-  if (!dash) return <p className="text-sm text-slate-600">Loading performance metrics…</p>;
+  if (!dash) {
+    return (
+      <p className="text-sm text-slate-700" role="status" aria-live="polite">
+        Loading performance metrics…
+      </p>
+    );
+  }
 
   const slow = (dash.slowest_journeys_p95 ?? []) as Record<string, unknown>[];
   const latest = (dash.latest_run ?? {}) as Record<string, unknown>;
@@ -38,7 +44,7 @@ export function PerformanceDashboard({ accessToken, organisationId, role, canRun
       {canRun ? (
         <button
           type="button"
-          className="rounded-md bg-slate-900 px-4 py-2 text-sm text-white"
+          className="min-h-11 rounded-md bg-slate-900 px-4 py-2 text-sm text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-teal-700"
           onClick={async () => {
             await runPerformanceBenchmark(auth, 5);
             await load();

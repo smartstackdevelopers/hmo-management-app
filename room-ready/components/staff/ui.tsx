@@ -32,7 +32,9 @@ export function StaffPage({
         ) : undefined
       }
     >
-      <Text style={styles.title}>{title}</Text>
+      <Text accessibilityRole="header" style={styles.title}>
+        {title}
+      </Text>
       {subtitle ? <Text style={styles.subtitle}>{subtitle}</Text> : null}
       {children}
     </Screen>
@@ -87,8 +89,10 @@ export function ChoiceRow({
           <Pressable
             key={option.id}
             accessibilityRole="button"
+            accessibilityLabel={option.label}
+            accessibilityState={{ selected }}
             onPress={() => onChange(option.id)}
-            style={[styles.choice, selected && styles.choiceOn]}
+            style={[styles.choice, selected && styles.choiceOn, styles.choiceTarget]}
           >
             <Text style={[styles.choiceText, selected && styles.choiceTextOn]}>{option.label}</Text>
           </Pressable>
@@ -140,6 +144,7 @@ const styles = StyleSheet.create({
     borderRadius: theme.radius.full,
     backgroundColor: theme.colors.surfaceMuted,
   },
+  choiceTarget: { minHeight: 44, justifyContent: 'center' },
   choiceOn: { backgroundColor: theme.colors.secondary },
   choiceText: { fontFamily: FONT_MEDIUM, color: theme.colors.text, fontSize: 13 },
   choiceTextOn: { color: theme.colors.textInverse },
