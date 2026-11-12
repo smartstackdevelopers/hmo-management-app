@@ -183,6 +183,7 @@ from app.db.models.wellbeing import (
     WellbeingRoutineCompletion,
     WellbeingSavedResource,
 )
+from app.db.models.landlord_enterprise import PropertyInspection, RentRecord
 from app.db.models.push_devices import PushDeviceToken
 from app.db.models.idempotency import ClientIdempotencyKey
 from app.db.models.device_sessions import MobileDeviceSession
@@ -215,6 +216,8 @@ __all__ = [
     "WellbeingRoutine",
     "WellbeingRoutineCompletion",
     "WellbeingSavedResource",
+    "PropertyInspection",
+    "RentRecord",
     "ComplaintCategory",
     "ComplaintDeadlineChange",
     "ComplaintDeadlineRule",

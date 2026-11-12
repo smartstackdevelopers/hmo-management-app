@@ -38,6 +38,20 @@ export const DASHBOARD_NAV: NavItem[] = [
     section: "records",
   },
   {
+    id: "landlord-enterprise",
+    label: "Landlord enterprise",
+    href: "/dashboard/landlord",
+    anyOf: [
+      "properties.manage",
+      "rent_records.manage",
+      "inspections.manage",
+      "repairs.status.read",
+      "maintenance.read.property",
+    ],
+    roles: ["landlord", "organisation_admin", "super_admin"],
+    section: "records",
+  },
+  {
     id: "rooms",
     label: "Rooms",
     href: "/rooms",

@@ -58,13 +58,16 @@ def test_alembic_head_is_f54() -> None:
     config = Config(str(api_root / "alembic.ini"))
     config.set_main_option("script_location", str(api_root / "migrations"))
     script = ScriptDirectory.from_config(config)
-    assert script.get_heads() == ["20261110_3800_f55"]
+    assert script.get_heads() == ["20261111_3900_f61"]
     rev = script.get_revision("20261110_3700_f54")
     assert rev is not None
     assert rev.down_revision == "20261110_3600_f53"
     f55 = script.get_revision("20261110_3800_f55")
     assert f55 is not None
     assert f55.down_revision == "20261110_3700_f54"
+    f61 = script.get_revision("20261111_3900_f61")
+    assert f61 is not None
+    assert f61.down_revision == "20261110_3800_f55"
 
 
 def test_tenant_still_has_employment_prep_for_matching() -> None:

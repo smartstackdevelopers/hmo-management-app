@@ -1,8 +1,11 @@
-import Link from "next/link";
 import { EmptyState } from "@/components/dashboard/EmptyState";
 import { ErrorState } from "@/components/dashboard/ErrorState";
 import { PageHeader } from "@/components/dashboard/PageHeader";
+import { auth0, isAuth0Configured } from "@/lib/auth0";
+import { canAny } from "@/lib/rbac";
 import { requireDashboardRole } from "@/lib/session";
+import { redirect } from "next/navigation";
+import { LandlordEnterpriseClient } from "./LandlordEnterpriseClient";
 
 export default async function LandlordDashboardPage() {
   const session = await requireDashboardRole("landlord", "/dashboard/landlord");
@@ -11,7 +14,7 @@ export default async function LandlordDashboardPage() {
     return (
       <EmptyState
         title="Auth0 not configured"
-        description="Landlord shell requires Auth0 environment variables."
+        description="Landlord enterprise tools require Auth0 environment variables."
       />
     );
   }
@@ -22,46 +25,42 @@ export default async function LandlordDashboardPage() {
     );
   }
 
+  if (
+    !canAny(session.authorization.permissions, [
+      "properties.manage",
+      "properties.read",
+      "rent_records.manage",
+      "inspections.manage",
+      "repairs.status.read",
+      "maintenance.read.property",
+    ])
+  ) {
+    redirect("/unauthorized");
+  }
+
+  const orgId = session.authorization.active_organisation_id;
+  if (!orgId) {
+    return <EmptyState title="Organisation required" description="Active organisation needed." />;
+  }
+  if (!isAuth0Configured() || !auth0) {
+    return <EmptyState title="Auth0 not configured" description="Cannot load landlord enterprise tools." />;
+  }
+  const token = (await auth0.getAccessToken())?.token;
+  if (!token) {
+    return <EmptyState title="Access token unavailable" description="Sign in again." />;
+  }
+
   return (
-    <div className="mx-auto max-w-4xl space-y-8">
+    <div className="mx-auto max-w-6xl space-y-8">
       <PageHeader
-        eyebrow="Landlord"
-        title="Landlord home"
-        description="Property-focused shell. Property records are not invented here — use the properties API when available."
+        eyebrow="F6.1"
+        title="Landlord enterprise"
+        description="Portfolio analytics, rent records ledger, inspections and repair oversight for properties you own. All figures come from live HMore records."
       />
-
-      <section aria-labelledby="ll-nav-heading" className="grid gap-4 sm:grid-cols-2">
-        <h2 id="ll-nav-heading" className="sr-only">
-          Landlord navigation
-        </h2>
-        <Link
-          href="/properties"
-          className="rounded-lg border border-slate-200 bg-white p-5 shadow-sm hover:border-teal-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-teal-700"
-        >
-          <h3 className="font-semibold text-forest-900">Properties</h3>
-          <p className="mt-2 text-sm text-slate-600">
-            API enforces ownership rules for properties.manage.
-          </p>
-        </Link>
-        <Link
-          href="/rooms"
-          className="rounded-lg border border-slate-200 bg-white p-5 shadow-sm hover:border-teal-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-teal-700"
-        >
-          <h3 className="font-semibold text-forest-900">Rooms</h3>
-          <p className="mt-2 text-sm text-slate-600">Room baseline records from F1.6.</p>
-        </Link>
-        <Link
-          href="/account"
-          className="rounded-lg border border-slate-200 bg-white p-5 shadow-sm hover:border-teal-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-teal-700"
-        >
-          <h3 className="font-semibold text-forest-900">Account</h3>
-          <p className="mt-2 text-sm text-slate-600">Profile and logout via Auth0.</p>
-        </Link>
-      </section>
-
-      <EmptyState
-        title="No property data loaded"
-        description="This shell does not fabricate occupancy or rent figures. Connect a live token and call GET /api/v1/properties to populate later UI."
+      <LandlordEnterpriseClient
+        accessToken={token}
+        organisationId={orgId}
+        role={session.authorization.active_role}
       />
     </div>
   );
