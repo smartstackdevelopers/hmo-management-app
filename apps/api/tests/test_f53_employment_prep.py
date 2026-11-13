@@ -60,7 +60,7 @@ def test_alembic_head_is_f53() -> None:
     config = Config(str(api_root / "alembic.ini"))
     config.set_main_option("script_location", str(api_root / "migrations"))
     script = ScriptDirectory.from_config(config)
-    assert script.get_heads() == ["20261118_5400_f86"]
+    assert script.get_heads() == ["20261119_5500_f87"]
     rev = script.get_revision("20261110_3600_f53")
     assert rev is not None
     assert rev.down_revision == "20261110_3500_f52"

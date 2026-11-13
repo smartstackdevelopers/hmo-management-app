@@ -46,4 +46,4 @@ def test_alembic_head_f83() -> None:
 
     cfg = Config(str(Path(__file__).resolve().parents[1] / "alembic.ini"))
     script = ScriptDirectory.from_config(cfg)
-    assert script.get_heads() == ["20261118_5400_f86"]
+    assert script.get_heads() == ["20261119_5500_f87"]
