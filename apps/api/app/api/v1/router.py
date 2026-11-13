@@ -62,6 +62,7 @@ from app.api.v1.lms import router as lms_router
 from app.api.v1.contractor_marketplace import router as contractor_marketplace_router
 from app.api.v1.digital_id_esign import router as digital_id_esign_router
 from app.api.v1.benefits_navigator import router as benefits_navigator_router
+from app.api.v1.tenant_engagement import router as tenant_engagement_router
 from app.api.v1.opportunities import router as opportunities_router
 from app.api.v1.tenant_timeline import router as tenant_timeline_router
 from app.api.v1.support_plans import dash_router as support_plans_dash_router
@@ -136,3 +137,4 @@ api_v1_router.include_router(lms_router)
 api_v1_router.include_router(contractor_marketplace_router)
 api_v1_router.include_router(digital_id_esign_router)
 api_v1_router.include_router(benefits_navigator_router)
+api_v1_router.include_router(tenant_engagement_router)

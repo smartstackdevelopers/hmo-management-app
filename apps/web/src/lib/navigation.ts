@@ -214,6 +214,13 @@ export const DASHBOARD_NAV: NavItem[] = [
     section: "records",
   },
   {
+    id: "tenant-engagement",
+    label: "Tenant Engagement",
+    href: "/dashboard/tenant-engagement",
+    anyOf: ["tenant_engagement.read", "tenant_engagement.tenant", "tenant_engagement.manage", "tenant_engagement.staff"],
+    section: "records",
+  },
+  {
     id: "room-occupancy",
     label: "Room occupancy",
     href: "/dashboard/room-occupancy",
