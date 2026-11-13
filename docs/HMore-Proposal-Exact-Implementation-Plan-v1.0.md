@@ -517,7 +517,7 @@ Implement in this exact phase order. Each phase lists proposal deliverables expa
 - **F7.5** WCAG 2.2 AA accessibility verification on critical paths
 - **F7.6** Production AWS UK/EU deploy: API, web, AI, Postgres, Redis, S3, monitoring (Sentry)
 - **F7.7** iOS App Store and Google Play production release
-- **F7.8** Staff training materials and launch support
+- **F7.8** Staff training materials and launch support — see `docs/training/`
 - **F7.9** Breach-response plan and operational runbooks published
 - **F7.10** Final coverage audit: every Section 4–9 mandatory item checked Done
 
