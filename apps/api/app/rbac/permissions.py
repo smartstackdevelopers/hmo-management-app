@@ -153,6 +153,14 @@ class Permission(StrEnum):
     INTEGRATION_HUB_WEBHOOKS = "integration_hub.webhooks"
     INTEGRATION_HUB_REPORTS = "integration_hub.reports"
 
+    # F8.11 optional advanced automation (extends F6.3 + F2.13)
+    ADVANCED_AUTOMATION_READ = "advanced_automation.read"
+    ADVANCED_AUTOMATION_MANAGE = "advanced_automation.manage"
+    ADVANCED_AUTOMATION_EXECUTE = "advanced_automation.execute"
+    ADVANCED_AUTOMATION_APPROVE = "advanced_automation.approve"
+    ADVANCED_AUTOMATION_REPORTS = "advanced_automation.reports"
+    ADVANCED_AUTOMATION_AI = "advanced_automation.ai"
+
     # Tenant person records (distinct from Tenant login role)
     TENANTS_READ = "tenants.read"
     TENANTS_MANAGE = "tenants.manage"
@@ -730,6 +738,24 @@ PERMISSION_CATALOG: dict[Permission, PermissionMeta] = {
     ),
     Permission.INTEGRATION_HUB_REPORTS: PermissionMeta(
         Permission.INTEGRATION_HUB_REPORTS, "View integration health and usage reports", True
+    ),
+    Permission.ADVANCED_AUTOMATION_READ: PermissionMeta(
+        Permission.ADVANCED_AUTOMATION_READ, "View intelligent workflows dashboard", True
+    ),
+    Permission.ADVANCED_AUTOMATION_MANAGE: PermissionMeta(
+        Permission.ADVANCED_AUTOMATION_MANAGE, "Create and publish intelligent workflows", True
+    ),
+    Permission.ADVANCED_AUTOMATION_EXECUTE: PermissionMeta(
+        Permission.ADVANCED_AUTOMATION_EXECUTE, "Test-run workflows in sandbox", True
+    ),
+    Permission.ADVANCED_AUTOMATION_APPROVE: PermissionMeta(
+        Permission.ADVANCED_AUTOMATION_APPROVE, "Decide workflow approval steps", True
+    ),
+    Permission.ADVANCED_AUTOMATION_REPORTS: PermissionMeta(
+        Permission.ADVANCED_AUTOMATION_REPORTS, "View workflow execution history", True
+    ),
+    Permission.ADVANCED_AUTOMATION_AI: PermissionMeta(
+        Permission.ADVANCED_AUTOMATION_AI, "Request AI workflow suggestions", True
     ),
     Permission.TENANTS_READ: PermissionMeta(
         Permission.TENANTS_READ, "Read organisation tenant person records", True
