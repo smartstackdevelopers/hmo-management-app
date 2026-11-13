@@ -71,6 +71,12 @@ ROLE_PERMISSIONS: dict[HMoreRole, frozenset[Permission]] = {
             Permission.BENEFITS_NAVIGATOR_STAFF_ASSIST,
             Permission.BENEFITS_NAVIGATOR_SOURCES,
             Permission.BENEFITS_NAVIGATOR_REPORTS,
+            Permission.TENANT_ENGAGEMENT_READ,
+            Permission.TENANT_ENGAGEMENT_MANAGE,
+            Permission.TENANT_ENGAGEMENT_TENANT,
+            Permission.TENANT_ENGAGEMENT_STAFF,
+            Permission.TENANT_ENGAGEMENT_BADGES,
+            Permission.TENANT_ENGAGEMENT_REPORTS,
             Permission.TIMELINE_READ,
             Permission.SUPPORT_PLAN_READ,
             Permission.SUPPORT_PLAN_MANAGE,
@@ -245,6 +251,12 @@ ROLE_PERMISSIONS: dict[HMoreRole, frozenset[Permission]] = {
             Permission.BENEFITS_NAVIGATOR_STAFF_ASSIST,
             Permission.BENEFITS_NAVIGATOR_SOURCES,
             Permission.BENEFITS_NAVIGATOR_REPORTS,
+            Permission.TENANT_ENGAGEMENT_READ,
+            Permission.TENANT_ENGAGEMENT_MANAGE,
+            Permission.TENANT_ENGAGEMENT_TENANT,
+            Permission.TENANT_ENGAGEMENT_STAFF,
+            Permission.TENANT_ENGAGEMENT_BADGES,
+            Permission.TENANT_ENGAGEMENT_REPORTS,
             Permission.TENANTS_READ,
             Permission.TENANTS_MANAGE,
             Permission.EMPLOYMENT_SUPPORT_MANAGE_ASSIGNED,
@@ -448,6 +460,7 @@ ROLE_PERMISSIONS: dict[HMoreRole, frozenset[Permission]] = {
             Permission.DIGITAL_ID_ESIGN_VERIFY_DOC,
             Permission.DIGITAL_ID_ESIGN_REPORTS,
             Permission.BENEFITS_NAVIGATOR_READ,
+            Permission.TENANT_ENGAGEMENT_READ,
         }
     ),
     HMoreRole.TENANT: frozenset(
@@ -501,6 +514,8 @@ ROLE_PERMISSIONS: dict[HMoreRole, frozenset[Permission]] = {
             Permission.BENEFITS_NAVIGATOR_READ,
             Permission.BENEFITS_NAVIGATOR_TENANT,
             Permission.BENEFITS_NAVIGATOR_ASSESS,
+            Permission.TENANT_ENGAGEMENT_READ,
+            Permission.TENANT_ENGAGEMENT_TENANT,
         }
     ),
     HMoreRole.SUPPORT_WORKER: frozenset(
@@ -558,6 +573,9 @@ ROLE_PERMISSIONS: dict[HMoreRole, frozenset[Permission]] = {
             Permission.BENEFITS_NAVIGATOR_READ,
             Permission.BENEFITS_NAVIGATOR_STAFF_ASSIST,
             Permission.BENEFITS_NAVIGATOR_ASSESS,
+            Permission.TENANT_ENGAGEMENT_READ,
+            Permission.TENANT_ENGAGEMENT_STAFF,
+            Permission.TENANT_ENGAGEMENT_BADGES,
             Permission.PROFILE_READ_OWN,
             Permission.TENANTS_READ,  # assigned-scope refinement remains F1.5+/later
             Permission.TENANCIES_MANAGE,  # assigned caseload only — resource check required

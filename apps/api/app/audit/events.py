@@ -532,3 +532,8 @@ BENEFITS_NAVIGATOR_SETTINGS_UPDATE = "benefits_navigator.settings.update"
 BENEFITS_NAVIGATOR_RECORD_CREATED = "benefits_navigator.record.created"
 BENEFITS_NAVIGATOR_ASSESSMENT_RUN = "benefits_navigator.assessment.run"
 BENEFITS_NAVIGATOR_AI_ASK = "benefits_navigator.ai.ask"
+
+# F8.8 optional tenant engagement add-on
+TENANT_ENGAGEMENT_SETTINGS_UPDATE = "tenant_engagement.settings.update"
+TENANT_ENGAGEMENT_BADGE_AWARDED = "tenant_engagement.badge.awarded"
+TENANT_ENGAGEMENT_AI_SUGGEST = "tenant_engagement.ai.suggest"

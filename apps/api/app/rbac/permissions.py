@@ -139,6 +139,14 @@ class Permission(StrEnum):
     BENEFITS_NAVIGATOR_SOURCES = "benefits_navigator.sources"
     BENEFITS_NAVIGATOR_REPORTS = "benefits_navigator.reports"
 
+    # F8.8 optional tenant engagement / gamification (Section 11 add-on)
+    TENANT_ENGAGEMENT_READ = "tenant_engagement.read"
+    TENANT_ENGAGEMENT_MANAGE = "tenant_engagement.manage"
+    TENANT_ENGAGEMENT_TENANT = "tenant_engagement.tenant"
+    TENANT_ENGAGEMENT_STAFF = "tenant_engagement.staff"
+    TENANT_ENGAGEMENT_BADGES = "tenant_engagement.badges"
+    TENANT_ENGAGEMENT_REPORTS = "tenant_engagement.reports"
+
     # Tenant person records (distinct from Tenant login role)
     TENANTS_READ = "tenants.read"
     TENANTS_MANAGE = "tenants.manage"
@@ -686,6 +694,24 @@ PERMISSION_CATALOG: dict[Permission, PermissionMeta] = {
     ),
     Permission.BENEFITS_NAVIGATOR_REPORTS: PermissionMeta(
         Permission.BENEFITS_NAVIGATOR_REPORTS, "View benefits navigator reports", True
+    ),
+    Permission.TENANT_ENGAGEMENT_READ: PermissionMeta(
+        Permission.TENANT_ENGAGEMENT_READ, "View tenant engagement settings", True
+    ),
+    Permission.TENANT_ENGAGEMENT_MANAGE: PermissionMeta(
+        Permission.TENANT_ENGAGEMENT_MANAGE, "Manage engagement configuration", True
+    ),
+    Permission.TENANT_ENGAGEMENT_TENANT: PermissionMeta(
+        Permission.TENANT_ENGAGEMENT_TENANT, "Manage own goals and progress", True
+    ),
+    Permission.TENANT_ENGAGEMENT_STAFF: PermissionMeta(
+        Permission.TENANT_ENGAGEMENT_STAFF, "Support assigned tenant engagement", True
+    ),
+    Permission.TENANT_ENGAGEMENT_BADGES: PermissionMeta(
+        Permission.TENANT_ENGAGEMENT_BADGES, "Award verified badges", True
+    ),
+    Permission.TENANT_ENGAGEMENT_REPORTS: PermissionMeta(
+        Permission.TENANT_ENGAGEMENT_REPORTS, "View engagement analytics", True
     ),
     Permission.TENANTS_READ: PermissionMeta(
         Permission.TENANTS_READ, "Read organisation tenant person records", True
