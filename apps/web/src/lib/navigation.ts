@@ -175,6 +175,13 @@ export const DASHBOARD_NAV: NavItem[] = [
     section: "records",
   },
   {
+    id: "rent-payments",
+    label: "Rent payments",
+    href: "/dashboard/rent-payments",
+    anyOf: ["rent_payments.read", "rent_payments.manage", "rent_payments.read.own"],
+    section: "records",
+  },
+  {
     id: "room-occupancy",
     label: "Room occupancy",
     href: "/dashboard/room-occupancy",

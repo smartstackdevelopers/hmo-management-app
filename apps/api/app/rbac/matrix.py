@@ -39,6 +39,10 @@ ROLE_PERMISSIONS: dict[HMoreRole, frozenset[Permission]] = {
             Permission.SAFEGUARDING_ALERTS_REVIEW_ASSIGNED,
             Permission.SAFEGUARDING_ALERTS_ESCALATE,
             Permission.SAFEGUARDING_ALERTS_RULES_MANAGE,
+            Permission.RENT_PAYMENTS_READ,
+            Permission.RENT_PAYMENTS_MANAGE,
+            Permission.RENT_PAYMENTS_RECORD,
+            Permission.RENT_PAYMENTS_REPORTS,
             Permission.TIMELINE_READ,
             Permission.SUPPORT_PLAN_READ,
             Permission.SUPPORT_PLAN_MANAGE,
@@ -181,6 +185,10 @@ ROLE_PERMISSIONS: dict[HMoreRole, frozenset[Permission]] = {
             Permission.SAFEGUARDING_ALERTS_REVIEW_ASSIGNED,
             Permission.SAFEGUARDING_ALERTS_ESCALATE,
             Permission.SAFEGUARDING_ALERTS_RULES_MANAGE,
+            Permission.RENT_PAYMENTS_READ,
+            Permission.RENT_PAYMENTS_MANAGE,
+            Permission.RENT_PAYMENTS_RECORD,
+            Permission.RENT_PAYMENTS_REPORTS,
             Permission.TENANTS_READ,
             Permission.TENANTS_MANAGE,
             Permission.EMPLOYMENT_SUPPORT_MANAGE_ASSIGNED,
@@ -370,6 +378,9 @@ ROLE_PERMISSIONS: dict[HMoreRole, frozenset[Permission]] = {
             Permission.COMMUNICATION_ANNOUNCEMENTS_READ,
             Permission.SECURE_SHARING_READ,
             Permission.OPERATIONAL_SEARCH_RUN,
+            Permission.RENT_PAYMENTS_READ,
+            Permission.RENT_PAYMENTS_RECORD,
+            Permission.RENT_PAYMENTS_REPORTS,
         }
     ),
     HMoreRole.TENANT: frozenset(
@@ -414,6 +425,8 @@ ROLE_PERMISSIONS: dict[HMoreRole, frozenset[Permission]] = {
             Permission.AI_ACTIVITY_FEEDBACK_SUBMIT,
             Permission.VOICE_CALLING_TENANT_USE,
             Permission.SAFEGUARDING_ALERTS_TENANT_REPORT,
+            Permission.RENT_PAYMENTS_READ_OWN,
+            Permission.RENT_PAYMENTS_PAY_OWN,
         }
     ),
     HMoreRole.SUPPORT_WORKER: frozenset(
@@ -461,6 +474,7 @@ ROLE_PERMISSIONS: dict[HMoreRole, frozenset[Permission]] = {
             Permission.SAFEGUARDING_ALERTS_READ,
             Permission.SAFEGUARDING_ALERTS_REVIEW_ASSIGNED,
             Permission.SAFEGUARDING_ALERTS_ESCALATE,
+            Permission.RENT_PAYMENTS_READ_LIMITED,
             Permission.PROFILE_READ_OWN,
             Permission.TENANTS_READ,  # assigned-scope refinement remains F1.5+/later
             Permission.TENANCIES_MANAGE,  # assigned caseload only — resource check required
