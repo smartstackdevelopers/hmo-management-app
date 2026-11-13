@@ -228,6 +228,17 @@ from app.db.models.integration_hub import (
     IntegrationWebhookSubscription,
     OrganisationIntegrationHubSettings,
 )
+from app.db.models.intelligent_workflows import (
+    IntelligentWorkflow,
+    IntelligentWorkflowApproval,
+    IntelligentWorkflowAuditLog,
+    IntelligentWorkflowExecution,
+    IntelligentWorkflowNotificationLog,
+    IntelligentWorkflowNotificationTemplate,
+    IntelligentWorkflowScheduledTask,
+    IntelligentWorkflowVersion,
+    OrganisationAdvancedAutomationSettings,
+)
 from app.db.models.room_occupancy import (
     OccupancyCountingDevice,
     RoomOccupancyAlert,
@@ -517,6 +528,15 @@ __all__ = [
     "IntegrationWebhookDelivery",
     "IntegrationWebhookSubscription",
     "OrganisationIntegrationHubSettings",
+    "IntelligentWorkflow",
+    "IntelligentWorkflowApproval",
+    "IntelligentWorkflowAuditLog",
+    "IntelligentWorkflowExecution",
+    "IntelligentWorkflowNotificationLog",
+    "IntelligentWorkflowNotificationTemplate",
+    "IntelligentWorkflowScheduledTask",
+    "IntelligentWorkflowVersion",
+    "OrganisationAdvancedAutomationSettings",
     "IntegrationFieldMapping",
     "IntegrationSyncJob",
     "IntegrationActivityLog",

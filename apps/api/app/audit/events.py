@@ -542,3 +542,10 @@ TENANT_ENGAGEMENT_AI_SUGGEST = "tenant_engagement.ai.suggest"
 INTEGRATION_HUB_SETTINGS_UPDATE = "integration_hub.settings.update"
 INTEGRATION_HUB_WEBHOOK_CREATED = "integration_hub.webhook.created"
 INTEGRATION_HUB_WEBHOOK_RECEIVED = "integration_hub.webhook.received"
+
+# F8.11 optional advanced automation add-on
+ADVANCED_AUTOMATION_SETTINGS_UPDATE = "advanced_automation.settings.update"
+ADVANCED_AUTOMATION_WORKFLOW_CREATED = "advanced_automation.workflow.created"
+ADVANCED_AUTOMATION_WORKFLOW_PUBLISHED = "advanced_automation.workflow.published"
+ADVANCED_AUTOMATION_APPROVAL_DECIDED = "advanced_automation.approval.decided"
+ADVANCED_AUTOMATION_AI_SUGGEST = "advanced_automation.ai.suggest"

@@ -64,6 +64,7 @@ from app.api.v1.digital_id_esign import router as digital_id_esign_router
 from app.api.v1.benefits_navigator import router as benefits_navigator_router
 from app.api.v1.tenant_engagement import router as tenant_engagement_router
 from app.api.v1.integration_hub import router as integration_hub_router
+from app.api.v1.advanced_automation import router as advanced_automation_router
 from app.api.v1.opportunities import router as opportunities_router
 from app.api.v1.tenant_timeline import router as tenant_timeline_router
 from app.api.v1.support_plans import dash_router as support_plans_dash_router
@@ -140,3 +141,4 @@ api_v1_router.include_router(digital_id_esign_router)
 api_v1_router.include_router(benefits_navigator_router)
 api_v1_router.include_router(tenant_engagement_router)
 api_v1_router.include_router(integration_hub_router)
+api_v1_router.include_router(advanced_automation_router)

@@ -154,6 +154,19 @@ export const DASHBOARD_NAV: NavItem[] = [
     section: "records",
   },
   {
+    id: "advanced-automation",
+    label: "Advanced workflows",
+    href: "/dashboard/advanced-automation",
+    anyOf: [
+      "advanced_automation.read",
+      "advanced_automation.manage",
+      "advanced_automation.reports",
+      "automation.rules.read",
+      "automation.rules.manage",
+    ],
+    section: "records",
+  },
+  {
     id: "integrations",
     label: "Integrations",
     href: "/dashboard/integrations",
