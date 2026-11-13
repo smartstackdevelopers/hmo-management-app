@@ -111,6 +111,15 @@ class Permission(StrEnum):
     LMS_REPORTS = "lms.reports"
     LMS_TENANT_LEARN = "lms.tenant.learn"
 
+    # F8.5 optional contractor marketplace (Section 11 add-on)
+    CONTRACTOR_MARKETPLACE_READ = "contractor_marketplace.read"
+    CONTRACTOR_MARKETPLACE_MANAGE = "contractor_marketplace.manage"
+    CONTRACTOR_MARKETPLACE_REGISTER = "contractor_marketplace.register"
+    CONTRACTOR_MARKETPLACE_WORKSPACE = "contractor_marketplace.workspace"
+    CONTRACTOR_MARKETPLACE_QUOTE = "contractor_marketplace.quote"
+    CONTRACTOR_MARKETPLACE_APPROVE = "contractor_marketplace.approve"
+    CONTRACTOR_MARKETPLACE_REPORTS = "contractor_marketplace.reports"
+
     # Tenant person records (distinct from Tenant login role)
     TENANTS_READ = "tenants.read"
     TENANTS_MANAGE = "tenants.manage"
@@ -593,6 +602,27 @@ PERMISSION_CATALOG: dict[Permission, PermissionMeta] = {
     Permission.LMS_ASSESS: PermissionMeta(Permission.LMS_ASSESS, "Mark manual assessments", True),
     Permission.LMS_REPORTS: PermissionMeta(Permission.LMS_REPORTS, "View LMS admin reports", True),
     Permission.LMS_TENANT_LEARN: PermissionMeta(Permission.LMS_TENANT_LEARN, "Access tenant-approved LMS courses", True),
+    Permission.CONTRACTOR_MARKETPLACE_READ: PermissionMeta(
+        Permission.CONTRACTOR_MARKETPLACE_READ, "Browse verified contractor marketplace (add-on)", True
+    ),
+    Permission.CONTRACTOR_MARKETPLACE_MANAGE: PermissionMeta(
+        Permission.CONTRACTOR_MARKETPLACE_MANAGE, "Manage contractor verification and marketplace settings", True
+    ),
+    Permission.CONTRACTOR_MARKETPLACE_REGISTER: PermissionMeta(
+        Permission.CONTRACTOR_MARKETPLACE_REGISTER, "Submit contractor marketplace registration", True
+    ),
+    Permission.CONTRACTOR_MARKETPLACE_WORKSPACE: PermissionMeta(
+        Permission.CONTRACTOR_MARKETPLACE_WORKSPACE, "Contractor workspace for assigned marketplace jobs", True
+    ),
+    Permission.CONTRACTOR_MARKETPLACE_QUOTE: PermissionMeta(
+        Permission.CONTRACTOR_MARKETPLACE_QUOTE, "Submit marketplace job quotations", True
+    ),
+    Permission.CONTRACTOR_MARKETPLACE_APPROVE: PermissionMeta(
+        Permission.CONTRACTOR_MARKETPLACE_APPROVE, "Approve quotations, assignments and job completion", True
+    ),
+    Permission.CONTRACTOR_MARKETPLACE_REPORTS: PermissionMeta(
+        Permission.CONTRACTOR_MARKETPLACE_REPORTS, "View contractor marketplace reports", True
+    ),
     Permission.TENANTS_READ: PermissionMeta(
         Permission.TENANTS_READ, "Read organisation tenant person records", True
     ),

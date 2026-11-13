@@ -265,6 +265,17 @@ from app.db.models.rent_payments import (
     RentPaymentReceipt,
     RentPaymentWebhookEvent,
 )
+from app.db.models.contractor_marketplace import (
+    ContractorDirectoryProfile,
+    ContractorDocument,
+    ContractorServiceCategory,
+    ContractorVerificationReview,
+    MarketplaceContractorFeedback,
+    MarketplaceJob,
+    MarketplaceJobCompletion,
+    MarketplaceQuotation,
+    OrganisationContractorMarketplaceSettings,
+)
 from app.db.models.safeguarding_alerts import (
     OrganisationSafeguardingAlertSettings,
     SafeguardingAlert,
@@ -494,6 +505,15 @@ __all__ = [
     "LmsAssessmentAttempt",
     "LmsAssessmentAnswer",
     "LmsCertificate",
+    "OrganisationContractorMarketplaceSettings",
+    "ContractorServiceCategory",
+    "ContractorDirectoryProfile",
+    "ContractorVerificationReview",
+    "ContractorDocument",
+    "MarketplaceJob",
+    "MarketplaceQuotation",
+    "MarketplaceJobCompletion",
+    "MarketplaceContractorFeedback",
     "CouncilPortalAccessLog",
     "PrivacyInventoryItem",
     "PrivacyDpiaRegisterEntry",

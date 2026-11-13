@@ -189,6 +189,17 @@ export const DASHBOARD_NAV: NavItem[] = [
     section: "records",
   },
   {
+    id: "contractor-marketplace",
+    label: "Contractor marketplace",
+    href: "/dashboard/contractor-marketplace",
+    anyOf: [
+      "contractor_marketplace.read",
+      "contractor_marketplace.manage",
+      "contractor_marketplace.workspace",
+    ],
+    section: "records",
+  },
+  {
     id: "room-occupancy",
     label: "Room occupancy",
     href: "/dashboard/room-occupancy",
