@@ -1,6 +1,6 @@
 # QR: Report security incident
 
-1. **Data breach / lost device:** follow `docs/phase7/privacy/BREACH_RESPONSE_PROCEDURE.md`.
+1. **Data breach / lost device:** follow `docs/operations/runbooks/PERSONAL_DATA_BREACH_RESPONSE_PLAN.md` (summary also in `docs/phase7/privacy/BREACH_RESPONSE_PROCEDURE.md`).
 2. **Safeguarding / operational incident:** use Incidents module + local escalation.
 3. **Suspicious login:** revoke session (mobile security / OA admin).
 4. Contact organisation IT lead — **PENDING APPROVAL** contact list.

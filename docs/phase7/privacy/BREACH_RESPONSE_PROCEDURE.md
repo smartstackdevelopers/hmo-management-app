@@ -1,6 +1,8 @@
 # Personal data breach response procedure (template)
 
-**Status:** Template — operational and legal steps must be owned by the data controller. HMore provides audit logs and access controls; it does not detect breaches automatically.
+**Status:** Short pointer — full operator procedure: [`docs/operations/runbooks/PERSONAL_DATA_BREACH_RESPONSE_PLAN.md`](../operations/runbooks/PERSONAL_DATA_BREACH_RESPONSE_PLAN.md) (F7.9).
+
+Operational and legal steps must be owned by the data controller. HMore provides audit logs and access controls; it does not detect breaches automatically.
 
 ## 1. Identify and contain
 
