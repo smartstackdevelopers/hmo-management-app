@@ -147,6 +147,12 @@ class Permission(StrEnum):
     TENANT_ENGAGEMENT_BADGES = "tenant_engagement.badges"
     TENANT_ENGAGEMENT_REPORTS = "tenant_engagement.reports"
 
+    # F8.9 optional deep integration hub (extends F6.4)
+    INTEGRATION_HUB_READ = "integration_hub.read"
+    INTEGRATION_HUB_MANAGE = "integration_hub.manage"
+    INTEGRATION_HUB_WEBHOOKS = "integration_hub.webhooks"
+    INTEGRATION_HUB_REPORTS = "integration_hub.reports"
+
     # Tenant person records (distinct from Tenant login role)
     TENANTS_READ = "tenants.read"
     TENANTS_MANAGE = "tenants.manage"
@@ -712,6 +718,18 @@ PERMISSION_CATALOG: dict[Permission, PermissionMeta] = {
     ),
     Permission.TENANT_ENGAGEMENT_REPORTS: PermissionMeta(
         Permission.TENANT_ENGAGEMENT_REPORTS, "View engagement analytics", True
+    ),
+    Permission.INTEGRATION_HUB_READ: PermissionMeta(
+        Permission.INTEGRATION_HUB_READ, "View deep integration hub dashboard", True
+    ),
+    Permission.INTEGRATION_HUB_MANAGE: PermissionMeta(
+        Permission.INTEGRATION_HUB_MANAGE, "Manage integration hub APIs and bindings", True
+    ),
+    Permission.INTEGRATION_HUB_WEBHOOKS: PermissionMeta(
+        Permission.INTEGRATION_HUB_WEBHOOKS, "Manage hub webhooks and verify inbound events", True
+    ),
+    Permission.INTEGRATION_HUB_REPORTS: PermissionMeta(
+        Permission.INTEGRATION_HUB_REPORTS, "View integration health and usage reports", True
     ),
     Permission.TENANTS_READ: PermissionMeta(
         Permission.TENANTS_READ, "Read organisation tenant person records", True

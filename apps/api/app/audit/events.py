@@ -537,3 +537,8 @@ BENEFITS_NAVIGATOR_AI_ASK = "benefits_navigator.ai.ask"
 TENANT_ENGAGEMENT_SETTINGS_UPDATE = "tenant_engagement.settings.update"
 TENANT_ENGAGEMENT_BADGE_AWARDED = "tenant_engagement.badge.awarded"
 TENANT_ENGAGEMENT_AI_SUGGEST = "tenant_engagement.ai.suggest"
+
+# F8.9 optional deep integration hub add-on
+INTEGRATION_HUB_SETTINGS_UPDATE = "integration_hub.settings.update"
+INTEGRATION_HUB_WEBHOOK_CREATED = "integration_hub.webhook.created"
+INTEGRATION_HUB_WEBHOOK_RECEIVED = "integration_hub.webhook.received"

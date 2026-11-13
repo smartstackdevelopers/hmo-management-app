@@ -102,7 +102,7 @@ def test_alembic_head_is_f46_device_sessions() -> None:
     config = Config(str(api_root / "alembic.ini"))
     config.set_main_option("script_location", str(api_root / "migrations"))
     script = ScriptDirectory.from_config(config)
-    assert script.get_heads() == ["20261120_5600_f88"]
+    assert script.get_heads() == ["20261121_5700_f89"]
     f46 = script.get_revision("20261110_3300_f46")
     assert f46 is not None
     assert f46.down_revision == "20261110_3200_f45"
