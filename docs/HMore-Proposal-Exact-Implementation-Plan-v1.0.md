@@ -521,6 +521,7 @@ Implement in this exact phase order. Each phase lists proposal deliverables expa
 - **F7.9** Breach-response plan and operational runbooks published — see `docs/operations/runbooks/`
 - **F7.10** Final coverage audit: every Section 4–9 mandatory item checked Done — see `docs/audit/` and `docs/phase7/F7.10_FINAL_COVERAGE_REPORT.md`
 - **F7.11** Production deployment & Go-Live verification — see `docs/phase7/F7.11_PRODUCTION_DEPLOYMENT_FINAL_REPORT.md` (blocked until owner approval)
+- **F7.12** Final acceptance & launch sign-off — see `docs/phase7/F7.12_FINAL_ACCEPTANCE_REPORT.md`, handover `docs/handover/` (Go-Live **E — NOT YET LIVE**)
 
 **Phase 7 / product exit (must all pass)**
 
