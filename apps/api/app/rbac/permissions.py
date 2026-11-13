@@ -161,6 +161,14 @@ class Permission(StrEnum):
     ADVANCED_AUTOMATION_REPORTS = "advanced_automation.reports"
     ADVANCED_AUTOMATION_AI = "advanced_automation.ai"
 
+    # F8.12 platform governance & compliance (extends audit, privacy, backups)
+    PLATFORM_GOVERNANCE_READ = "platform_governance.read"
+    PLATFORM_GOVERNANCE_MANAGE = "platform_governance.manage"
+    PLATFORM_GOVERNANCE_COMPLIANCE = "platform_governance.compliance"
+    PLATFORM_GOVERNANCE_SECURITY = "platform_governance.security"
+    PLATFORM_GOVERNANCE_REPORTS = "platform_governance.reports"
+    PLATFORM_GOVERNANCE_AI = "platform_governance.ai"
+
     # Tenant person records (distinct from Tenant login role)
     TENANTS_READ = "tenants.read"
     TENANTS_MANAGE = "tenants.manage"
@@ -756,6 +764,24 @@ PERMISSION_CATALOG: dict[Permission, PermissionMeta] = {
     ),
     Permission.ADVANCED_AUTOMATION_AI: PermissionMeta(
         Permission.ADVANCED_AUTOMATION_AI, "Request AI workflow suggestions", True
+    ),
+    Permission.PLATFORM_GOVERNANCE_READ: PermissionMeta(
+        Permission.PLATFORM_GOVERNANCE_READ, "View governance dashboard", True
+    ),
+    Permission.PLATFORM_GOVERNANCE_MANAGE: PermissionMeta(
+        Permission.PLATFORM_GOVERNANCE_MANAGE, "Manage governance and organisation admin", True
+    ),
+    Permission.PLATFORM_GOVERNANCE_COMPLIANCE: PermissionMeta(
+        Permission.PLATFORM_GOVERNANCE_COMPLIANCE, "Manage compliance policies and tasks", True
+    ),
+    Permission.PLATFORM_GOVERNANCE_SECURITY: PermissionMeta(
+        Permission.PLATFORM_GOVERNANCE_SECURITY, "Manage security incidents and alerts", True
+    ),
+    Permission.PLATFORM_GOVERNANCE_REPORTS: PermissionMeta(
+        Permission.PLATFORM_GOVERNANCE_REPORTS, "View governance reports and exports", True
+    ),
+    Permission.PLATFORM_GOVERNANCE_AI: PermissionMeta(
+        Permission.PLATFORM_GOVERNANCE_AI, "Request AI admin summaries", True
     ),
     Permission.TENANTS_READ: PermissionMeta(
         Permission.TENANTS_READ, "Read organisation tenant person records", True
