@@ -77,6 +77,10 @@ ROLE_PERMISSIONS: dict[HMoreRole, frozenset[Permission]] = {
             Permission.TENANT_ENGAGEMENT_STAFF,
             Permission.TENANT_ENGAGEMENT_BADGES,
             Permission.TENANT_ENGAGEMENT_REPORTS,
+            Permission.INTEGRATION_HUB_READ,
+            Permission.INTEGRATION_HUB_MANAGE,
+            Permission.INTEGRATION_HUB_WEBHOOKS,
+            Permission.INTEGRATION_HUB_REPORTS,
             Permission.TIMELINE_READ,
             Permission.SUPPORT_PLAN_READ,
             Permission.SUPPORT_PLAN_MANAGE,
@@ -136,6 +140,10 @@ ROLE_PERMISSIONS: dict[HMoreRole, frozenset[Permission]] = {
             Permission.AUTOMATION_ESCALATIONS_MANAGE,
             Permission.INTEGRATIONS_READ,
             Permission.INTEGRATIONS_MANAGE,
+            Permission.INTEGRATION_HUB_READ,
+            Permission.INTEGRATION_HUB_MANAGE,
+            Permission.INTEGRATION_HUB_WEBHOOKS,
+            Permission.INTEGRATION_HUB_REPORTS,
             Permission.PRIVACY_READ,
             Permission.PRIVACY_MANAGE,
             Permission.BACKUP_READ,
@@ -257,6 +265,10 @@ ROLE_PERMISSIONS: dict[HMoreRole, frozenset[Permission]] = {
             Permission.TENANT_ENGAGEMENT_STAFF,
             Permission.TENANT_ENGAGEMENT_BADGES,
             Permission.TENANT_ENGAGEMENT_REPORTS,
+            Permission.INTEGRATION_HUB_READ,
+            Permission.INTEGRATION_HUB_MANAGE,
+            Permission.INTEGRATION_HUB_WEBHOOKS,
+            Permission.INTEGRATION_HUB_REPORTS,
             Permission.TENANTS_READ,
             Permission.TENANTS_MANAGE,
             Permission.EMPLOYMENT_SUPPORT_MANAGE_ASSIGNED,
@@ -370,6 +382,10 @@ ROLE_PERMISSIONS: dict[HMoreRole, frozenset[Permission]] = {
             Permission.AUTOMATION_ESCALATIONS_MANAGE,
             Permission.INTEGRATIONS_READ,
             Permission.INTEGRATIONS_MANAGE,
+            Permission.INTEGRATION_HUB_READ,
+            Permission.INTEGRATION_HUB_MANAGE,
+            Permission.INTEGRATION_HUB_WEBHOOKS,
+            Permission.INTEGRATION_HUB_REPORTS,
             Permission.PRIVACY_READ,
             Permission.PRIVACY_MANAGE,
             Permission.REPORTS_EXPORT_CSV,
@@ -461,6 +477,7 @@ ROLE_PERMISSIONS: dict[HMoreRole, frozenset[Permission]] = {
             Permission.DIGITAL_ID_ESIGN_REPORTS,
             Permission.BENEFITS_NAVIGATOR_READ,
             Permission.TENANT_ENGAGEMENT_READ,
+            Permission.INTEGRATION_HUB_READ,
         }
     ),
     HMoreRole.TENANT: frozenset(
@@ -576,6 +593,7 @@ ROLE_PERMISSIONS: dict[HMoreRole, frozenset[Permission]] = {
             Permission.TENANT_ENGAGEMENT_READ,
             Permission.TENANT_ENGAGEMENT_STAFF,
             Permission.TENANT_ENGAGEMENT_BADGES,
+            Permission.INTEGRATION_HUB_READ,
             Permission.PROFILE_READ_OWN,
             Permission.TENANTS_READ,  # assigned-scope refinement remains F1.5+/later
             Permission.TENANCIES_MANAGE,  # assigned caseload only — resource check required
@@ -661,6 +679,7 @@ ROLE_PERMISSIONS: dict[HMoreRole, frozenset[Permission]] = {
             Permission.CONTRACTOR_MARKETPLACE_QUOTE,
             Permission.DIGITAL_ID_ESIGN_READ,
             Permission.DIGITAL_ID_ESIGN_SIGN,
+            Permission.INTEGRATION_HUB_READ,
         }
     ),
 }

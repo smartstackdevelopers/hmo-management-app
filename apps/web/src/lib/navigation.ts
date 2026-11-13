@@ -161,6 +161,19 @@ export const DASHBOARD_NAV: NavItem[] = [
     section: "records",
   },
   {
+    id: "integration-hub",
+    label: "Integration Hub",
+    href: "/dashboard/integration-hub",
+    anyOf: [
+      "integration_hub.read",
+      "integration_hub.manage",
+      "integration_hub.reports",
+      "integrations.read",
+      "integrations.manage",
+    ],
+    section: "records",
+  },
+  {
     id: "voice-calling",
     label: "AI voice calling",
     href: "/dashboard/voice-calling",

@@ -57,4 +57,4 @@ def test_alembic_head_f86() -> None:
     from alembic.script import ScriptDirectory
 
     cfg = Config(str(Path(__file__).resolve().parents[1] / "alembic.ini"))
-    assert ScriptDirectory.from_config(cfg).get_heads() == ["20261120_5600_f88"]
+    assert ScriptDirectory.from_config(cfg).get_heads() == ["20261121_5700_f89"]

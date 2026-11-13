@@ -213,11 +213,20 @@ from app.db.models.automation import (
     AutomationRule,
     AutomationRuleRun,
 )
+from app.db.models.hub_module_binding import HubModuleBinding
 from app.db.models.integrations import (
     Integration,
     IntegrationActivityLog,
     IntegrationFieldMapping,
     IntegrationSyncJob,
+)
+from app.db.models.integration_hub import (
+    IntegrationApiUsageLog,
+    IntegrationHubProviderDirectory,
+    IntegrationRegisteredApi,
+    IntegrationWebhookDelivery,
+    IntegrationWebhookSubscription,
+    OrganisationIntegrationHubSettings,
 )
 from app.db.models.room_occupancy import (
     OccupancyCountingDevice,
@@ -493,7 +502,21 @@ __all__ = [
     "AutomationRuleRun",
     "AutomationEscalation",
     "AutomationComplianceIssue",
+    "HubModuleBinding",
     "Integration",
+    "IntegrationApiUsageLog",
+    "IntegrationHubProviderDirectory",
+    "IntegrationRegisteredApi",
+    "IntegrationWebhookDelivery",
+    "IntegrationWebhookSubscription",
+    "OrganisationIntegrationHubSettings",
+    "IntegrationApiUsageLog",
+    "IntegrationHubProviderDirectory",
+    "HubModuleBinding",
+    "IntegrationRegisteredApi",
+    "IntegrationWebhookDelivery",
+    "IntegrationWebhookSubscription",
+    "OrganisationIntegrationHubSettings",
     "IntegrationFieldMapping",
     "IntegrationSyncJob",
     "IntegrationActivityLog",
