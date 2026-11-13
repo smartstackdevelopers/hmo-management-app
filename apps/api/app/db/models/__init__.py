@@ -228,6 +228,16 @@ from app.db.models.integration_hub import (
     IntegrationWebhookSubscription,
     OrganisationIntegrationHubSettings,
 )
+from app.db.models.governance import (
+    GovernanceCompliancePolicy,
+    GovernanceComplianceTask,
+    GovernanceIncidentTimeline,
+    GovernanceOrganisationRegistration,
+    GovernanceSecurityAlert,
+    GovernanceSecurityIncident,
+    OrganisationGovernanceSettings,
+    PlatformBrandingSettings,
+)
 from app.db.models.intelligent_workflows import (
     IntelligentWorkflow,
     IntelligentWorkflowApproval,
@@ -537,6 +547,14 @@ __all__ = [
     "IntelligentWorkflowScheduledTask",
     "IntelligentWorkflowVersion",
     "OrganisationAdvancedAutomationSettings",
+    "PlatformBrandingSettings",
+    "OrganisationGovernanceSettings",
+    "GovernanceOrganisationRegistration",
+    "GovernanceCompliancePolicy",
+    "GovernanceComplianceTask",
+    "GovernanceSecurityIncident",
+    "GovernanceSecurityAlert",
+    "GovernanceIncidentTimeline",
     "IntegrationFieldMapping",
     "IntegrationSyncJob",
     "IntegrationActivityLog",

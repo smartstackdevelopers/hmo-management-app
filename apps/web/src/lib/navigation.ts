@@ -154,6 +154,26 @@ export const DASHBOARD_NAV: NavItem[] = [
     section: "records",
   },
   {
+    id: "governance",
+    label: "Governance",
+    href: "/dashboard/governance",
+    anyOf: [
+      "platform_governance.read",
+      "platform_governance.manage",
+      "platform_governance.compliance",
+      "privacy.read",
+      "privacy.manage",
+    ],
+    section: "records",
+  },
+  {
+    id: "platform-admin",
+    label: "Platform admin",
+    href: "/dashboard/platform-admin",
+    anyOf: ["platform.settings.manage", "platform_governance.manage", "platform.monitoring.read"],
+    section: "records",
+  },
+  {
     id: "advanced-automation",
     label: "Advanced workflows",
     href: "/dashboard/advanced-automation",

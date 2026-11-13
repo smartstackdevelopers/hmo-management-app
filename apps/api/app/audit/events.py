@@ -549,3 +549,8 @@ ADVANCED_AUTOMATION_WORKFLOW_CREATED = "advanced_automation.workflow.created"
 ADVANCED_AUTOMATION_WORKFLOW_PUBLISHED = "advanced_automation.workflow.published"
 ADVANCED_AUTOMATION_APPROVAL_DECIDED = "advanced_automation.approval.decided"
 ADVANCED_AUTOMATION_AI_SUGGEST = "advanced_automation.ai.suggest"
+
+# F8.12 platform governance add-on
+PLATFORM_GOVERNANCE_SETTINGS_UPDATE = "platform_governance.settings.update"
+PLATFORM_GOVERNANCE_BRANDING_UPDATE = "platform_governance.branding.update"
+PLATFORM_GOVERNANCE_ORG_STATUS = "platform_governance.organisation.status"
