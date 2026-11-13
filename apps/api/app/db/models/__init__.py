@@ -239,6 +239,17 @@ from app.db.models.voice_calling import (
     VoiceCallSession,
     VoiceCallTurn,
 )
+from app.db.models.rent_payments import (
+    OrganisationRentPaymentSettings,
+    RentArrearsInstalment,
+    RentArrearsPlan,
+    RentObligationExtension,
+    RentPayment,
+    RentPaymentCheckoutSession,
+    RentPaymentDispute,
+    RentPaymentReceipt,
+    RentPaymentWebhookEvent,
+)
 from app.db.models.safeguarding_alerts import (
     OrganisationSafeguardingAlertSettings,
     SafeguardingAlert,
@@ -446,6 +457,15 @@ __all__ = [
     "SafeguardingAlertRule",
     "SafeguardingAlertStatusHistory",
     "SafeguardingTenantReport",
+    "OrganisationRentPaymentSettings",
+    "RentArrearsInstalment",
+    "RentArrearsPlan",
+    "RentObligationExtension",
+    "RentPayment",
+    "RentPaymentCheckoutSession",
+    "RentPaymentDispute",
+    "RentPaymentReceipt",
+    "RentPaymentWebhookEvent",
     "CouncilPortalAccessLog",
     "PrivacyInventoryItem",
     "PrivacyDpiaRegisterEntry",

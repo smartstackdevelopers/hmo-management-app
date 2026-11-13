@@ -495,3 +495,12 @@ SAFEGUARDING_ALERT_CLOSED = "safeguarding_alerts.alert.closed"
 SAFEGUARDING_TENANT_REPORT_SUBMITTED = "safeguarding_alerts.tenant_report.submitted"
 SAFEGUARDING_ALERT_AI_SUGGESTION = "safeguarding_alerts.ai.suggestion"
 SAFEGUARDING_ALERT_AI_APPROVED = "safeguarding_alerts.ai.approved"
+
+# F8.3 optional rent & tenancy payments — no card data in audit metadata.
+RENT_PAYMENTS_SETTINGS_UPDATE = "rent_payments.settings.update"
+RENT_PAYMENT_RECORDED = "rent_payments.payment.recorded"
+RENT_PAYMENT_VERIFIED = "rent_payments.payment.verified"
+RENT_PAYMENT_RECEIPT_ISSUED = "rent_payments.receipt.issued"
+RENT_PAYMENT_WEBHOOK_RECEIVED = "rent_payments.webhook.received"
+RENT_PAYMENT_DISPUTE_RAISED = "rent_payments.dispute.raised"
+RENT_ARREARS_PLAN_CREATED = "rent_payments.arrears_plan.created"

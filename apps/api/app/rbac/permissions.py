@@ -93,6 +93,15 @@ class Permission(StrEnum):
     SAFEGUARDING_ALERTS_TENANT_REPORT = "safeguarding_alerts.tenant.report"
     SAFEGUARDING_ALERTS_READ_PROPERTY = "safeguarding_alerts.read.property"
 
+    # F8.3 optional rent & tenancy payments (Section 11 add-on)
+    RENT_PAYMENTS_READ = "rent_payments.read"
+    RENT_PAYMENTS_MANAGE = "rent_payments.manage"
+    RENT_PAYMENTS_RECORD = "rent_payments.record"
+    RENT_PAYMENTS_READ_OWN = "rent_payments.read.own"
+    RENT_PAYMENTS_PAY_OWN = "rent_payments.pay.own"
+    RENT_PAYMENTS_REPORTS = "rent_payments.reports"
+    RENT_PAYMENTS_READ_LIMITED = "rent_payments.read.limited"
+
     # Tenant person records (distinct from Tenant login role)
     TENANTS_READ = "tenants.read"
     TENANTS_MANAGE = "tenants.manage"
@@ -546,6 +555,27 @@ PERMISSION_CATALOG: dict[Permission, PermissionMeta] = {
     ),
     Permission.SAFEGUARDING_ALERTS_READ_PROPERTY: PermissionMeta(
         Permission.SAFEGUARDING_ALERTS_READ_PROPERTY, "View property-related safety alerts only", True
+    ),
+    Permission.RENT_PAYMENTS_READ: PermissionMeta(
+        Permission.RENT_PAYMENTS_READ, "View rent payment obligations and history (add-on)", True
+    ),
+    Permission.RENT_PAYMENTS_MANAGE: PermissionMeta(
+        Permission.RENT_PAYMENTS_MANAGE, "Configure organisation rent payment settings", True
+    ),
+    Permission.RENT_PAYMENTS_RECORD: PermissionMeta(
+        Permission.RENT_PAYMENTS_RECORD, "Record authorised rent payments", True
+    ),
+    Permission.RENT_PAYMENTS_READ_OWN: PermissionMeta(
+        Permission.RENT_PAYMENTS_READ_OWN, "View own rent obligations and payment history", True
+    ),
+    Permission.RENT_PAYMENTS_PAY_OWN: PermissionMeta(
+        Permission.RENT_PAYMENTS_PAY_OWN, "Use approved payment options for own rent", True
+    ),
+    Permission.RENT_PAYMENTS_REPORTS: PermissionMeta(
+        Permission.RENT_PAYMENTS_REPORTS, "View rent and payment financial reports", True
+    ),
+    Permission.RENT_PAYMENTS_READ_LIMITED: PermissionMeta(
+        Permission.RENT_PAYMENTS_READ_LIMITED, "Limited rent payment visibility for support work", True
     ),
     Permission.TENANTS_READ: PermissionMeta(
         Permission.TENANTS_READ, "Read organisation tenant person records", True

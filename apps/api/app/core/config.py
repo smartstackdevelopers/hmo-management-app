@@ -131,6 +131,16 @@ class Settings(BaseSettings):
         validation_alias="SAFEGUARDING_ALERTS_GLOBAL_ENABLED",
     )
 
+    # F8.3 rent & tenancy payments add-on — disabled globally until approved.
+    rent_payments_global_enabled: bool = Field(
+        default=False,
+        validation_alias="RENT_PAYMENTS_GLOBAL_ENABLED",
+    )
+    rent_stripe_secret_key: str | None = Field(default=None, validation_alias="RENT_STRIPE_SECRET_KEY")
+    rent_payment_webhook_signing_secret: str | None = Field(
+        default=None, validation_alias="RENT_PAYMENT_WEBHOOK_SIGNING_SECRET",
+    )
+
     # F5.2 Help Near Me geocoding (credentials via env only — never commit secrets).
     # postcodes_io (default) needs no API key. nominatim requires a real User-Agent.
     geocoding_provider: str = Field(default="postcodes_io", validation_alias="GEOCODING_PROVIDER")
