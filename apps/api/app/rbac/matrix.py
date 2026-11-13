@@ -30,6 +30,10 @@ ROLE_PERMISSIONS: dict[HMoreRole, frozenset[Permission]] = {
             Permission.FINANCE_REPORTS_VIEW,
             Permission.FINANCE_EXPORTS,
             Permission.COUNCIL_PORTAL_MANAGE,
+            Permission.VOICE_CALLING_READ,
+            Permission.VOICE_CALLING_MANAGE,
+            Permission.VOICE_CALLING_HANDOVER_MANAGE,
+            Permission.VOICE_CALLING_OUTBOUND_INITIATE,
             Permission.TIMELINE_READ,
             Permission.SUPPORT_PLAN_READ,
             Permission.SUPPORT_PLAN_MANAGE,
@@ -163,6 +167,10 @@ ROLE_PERMISSIONS: dict[HMoreRole, frozenset[Permission]] = {
             Permission.FINANCE_REPORTS_VIEW,
             Permission.FINANCE_EXPORTS,
             Permission.COUNCIL_PORTAL_MANAGE,
+            Permission.VOICE_CALLING_READ,
+            Permission.VOICE_CALLING_MANAGE,
+            Permission.VOICE_CALLING_HANDOVER_MANAGE,
+            Permission.VOICE_CALLING_OUTBOUND_INITIATE,
             Permission.TENANTS_READ,
             Permission.TENANTS_MANAGE,
             Permission.EMPLOYMENT_SUPPORT_MANAGE_ASSIGNED,
@@ -393,6 +401,7 @@ ROLE_PERMISSIONS: dict[HMoreRole, frozenset[Permission]] = {
             Permission.AI_TENANT_ASSISTANT_READ,
             Permission.AI_ACTIVITY_READ,
             Permission.AI_ACTIVITY_FEEDBACK_SUBMIT,
+            Permission.VOICE_CALLING_TENANT_USE,
         }
     ),
     HMoreRole.SUPPORT_WORKER: frozenset(
@@ -435,6 +444,8 @@ ROLE_PERMISSIONS: dict[HMoreRole, frozenset[Permission]] = {
             Permission.MAINTENANCE_PHOTO_READ,
             Permission.FILES_READ,
             Permission.OCCUPANCY_READ,
+            Permission.VOICE_CALLING_READ,
+            Permission.VOICE_CALLING_HANDOVER_MANAGE,
             Permission.PROFILE_READ_OWN,
             Permission.TENANTS_READ,  # assigned-scope refinement remains F1.5+/later
             Permission.TENANCIES_MANAGE,  # assigned caseload only — resource check required

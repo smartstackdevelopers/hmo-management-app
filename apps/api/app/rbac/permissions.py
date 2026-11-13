@@ -77,6 +77,13 @@ class Permission(StrEnum):
     FINANCE_EXPORTS = "finance.exports"
     COUNCIL_PORTAL_MANAGE = "council_portal.manage"
 
+    # F8.1 optional AI voice calling (Section 11 add-on)
+    VOICE_CALLING_READ = "voice_calling.read"
+    VOICE_CALLING_MANAGE = "voice_calling.manage"
+    VOICE_CALLING_HANDOVER_MANAGE = "voice_calling.handover.manage"
+    VOICE_CALLING_TENANT_USE = "voice_calling.tenant.use"
+    VOICE_CALLING_OUTBOUND_INITIATE = "voice_calling.outbound.initiate"
+
     # Tenant person records (distinct from Tenant login role)
     TENANTS_READ = "tenants.read"
     TENANTS_MANAGE = "tenants.manage"
@@ -494,6 +501,21 @@ PERMISSION_CATALOG: dict[Permission, PermissionMeta] = {
         Permission.COUNCIL_PORTAL_MANAGE,
         "Manage Council Portal add-on officers and application shares (not a core role)",
         True,
+    ),
+    Permission.VOICE_CALLING_READ: PermissionMeta(
+        Permission.VOICE_CALLING_READ, "View voice calling history and usage (add-on)", True
+    ),
+    Permission.VOICE_CALLING_MANAGE: PermissionMeta(
+        Permission.VOICE_CALLING_MANAGE, "Configure organisation voice calling add-on", True
+    ),
+    Permission.VOICE_CALLING_HANDOVER_MANAGE: PermissionMeta(
+        Permission.VOICE_CALLING_HANDOVER_MANAGE, "Manage human handover queue for voice calls", True
+    ),
+    Permission.VOICE_CALLING_TENANT_USE: PermissionMeta(
+        Permission.VOICE_CALLING_TENANT_USE, "Use tenant voice assistant features", True
+    ),
+    Permission.VOICE_CALLING_OUTBOUND_INITIATE: PermissionMeta(
+        Permission.VOICE_CALLING_OUTBOUND_INITIATE, "Initiate authorised outgoing voice calls", True
     ),
     Permission.TENANTS_READ: PermissionMeta(
         Permission.TENANTS_READ, "Read organisation tenant person records", True

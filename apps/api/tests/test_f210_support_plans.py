@@ -412,3 +412,4 @@ def test_plan_status_transition_validation(db_session: Session, unique_suffix: s
     with pytest.raises(HTTPException) as exc:
         sp_service.activate_plan(db_session, sw_ctx, t.id, pid)
     assert exc.value.status_code == 409
+

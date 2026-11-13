@@ -60,7 +60,7 @@ def test_alembic_head_is_f53() -> None:
     config = Config(str(api_root / "alembic.ini"))
     config.set_main_option("script_location", str(api_root / "migrations"))
     script = ScriptDirectory.from_config(config)
-    assert script.get_heads() == ["20261112_4800_f74"]
+    assert script.get_heads() == ["20261113_4900_f81"]
     rev = script.get_revision("20261110_3600_f53")
     assert rev is not None
     assert rev.down_revision == "20261110_3500_f52"
@@ -250,3 +250,4 @@ def test_employment_prep_flow_and_isolation(db_session, unique_suffix: str) -> N
     with pytest.raises(HTTPException) as denied:
         employment.get_cv(db_session, other_ctx, cv.id)
     assert denied.value.status_code in {403, 404}
+

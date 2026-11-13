@@ -198,3 +198,4 @@ def test_cross_org_tenant_property_room_isolation(db_session, unique_suffix: str
             RoomCreate(property_id=prop_a_id, label="Blocked"),
         )
     assert room_exc.value.status_code == 400
+

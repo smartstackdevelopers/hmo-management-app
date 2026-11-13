@@ -38,3 +38,4 @@ def test_f78_quick_reference_count() -> None:
     qr = TRAINING / "quick-reference"
     files = list(qr.glob("*.md"))
     assert len(files) >= 10
+

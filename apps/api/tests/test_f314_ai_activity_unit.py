@@ -57,3 +57,4 @@ def test_dict_shaped_notes_refs() -> None:
     )
     assert refs[0]["id"] == "log-1"
     assert refs[0]["type"] == "daily_log"
+

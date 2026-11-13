@@ -58,7 +58,7 @@ def test_alembic_head_is_f54() -> None:
     config = Config(str(api_root / "alembic.ini"))
     config.set_main_option("script_location", str(api_root / "migrations"))
     script = ScriptDirectory.from_config(config)
-    assert script.get_heads() == ["20261112_4800_f74"]
+    assert script.get_heads() == ["20261113_4900_f81"]
     rev = script.get_revision("20261110_3700_f54")
     assert rev is not None
     assert rev.down_revision == "20261110_3600_f53"
@@ -356,3 +356,4 @@ def test_job_matching_flow_and_isolation(db_session, unique_suffix: str) -> None
 
     with pytest.raises(HTTPException):
         job_matching.get_job(db_session, other_ctx, top.id)
+

@@ -17,7 +17,7 @@ def test_alembic_head_remains_f55_for_mobile_integration() -> None:
     config = Config(str(api_root / "alembic.ini"))
     config.set_main_option("script_location", str(api_root / "migrations"))
     script = ScriptDirectory.from_config(config)
-    assert script.get_heads() == ["20261112_4800_f74"]
+    assert script.get_heads() == ["20261113_4900_f81"]
 
 
 def test_phase5_tenant_permissions_still_present() -> None:
@@ -36,3 +36,4 @@ def test_phase5_api_routers_registered() -> None:
     assert any("employment" in p for p in paths)
     assert any("job-matching" in p or "job_matching" in p for p in paths)
     assert any("wellbeing" in p for p in paths)
+

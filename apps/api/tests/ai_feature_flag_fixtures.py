@@ -60,3 +60,4 @@ def enable_ai_features_for_all_orgs_in_session(
             org_id,
             include_tenant_assistant_pilot=include_tenant_assistant_pilot,
         )
+

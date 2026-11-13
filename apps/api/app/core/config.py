@@ -113,6 +113,18 @@ class Settings(BaseSettings):
         validation_alias="TENANT_ASSISTANT_HOURLY_LIMIT",
     )
 
+    # F8.1 AI voice calling add-on (Section 11) — disabled globally until approved.
+    voice_calling_global_enabled: bool = Field(
+        default=False,
+        validation_alias="VOICE_CALLING_GLOBAL_ENABLED",
+    )
+    voice_webhook_signing_secret: str | None = Field(
+        default=None,
+        validation_alias="VOICE_WEBHOOK_SIGNING_SECRET",
+    )
+    voice_twilio_account_sid: str | None = Field(default=None, validation_alias="VOICE_TWILIO_ACCOUNT_SID")
+    voice_twilio_auth_token: str | None = Field(default=None, validation_alias="VOICE_TWILIO_AUTH_TOKEN")
+
     # F5.2 Help Near Me geocoding (credentials via env only — never commit secrets).
     # postcodes_io (default) needs no API key. nominatim requires a real User-Agent.
     geocoding_provider: str = Field(default="postcodes_io", validation_alias="GEOCODING_PROVIDER")

@@ -183,3 +183,4 @@ def test_mfa_policy_enforced_when_configured(
         _settings(),
     )
     enforce_mfa_policy(mfa_claims, _settings())
+

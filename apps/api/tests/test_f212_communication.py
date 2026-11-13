@@ -152,3 +152,4 @@ def test_f212_operational_send_idempotent(db_session: Session, unique_suffix: st
 
 def test_celery_f212_task_registered() -> None:
     assert "hmore.communication.dispatch_scheduled_reminders" in celery_app.tasks
+

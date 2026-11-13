@@ -47,3 +47,4 @@ def test_tenant_assistant_is_pilot_eligible() -> None:
     ta = next(f for f in REGISTRY if f.feature_id == "ai.agent.tenant_assistant")
     assert ta.pilot_eligible is True
     assert ta.preserve_enabled_for_existing_orgs is False
+

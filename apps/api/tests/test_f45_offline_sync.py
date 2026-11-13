@@ -262,3 +262,4 @@ def test_maintenance_note_conflict_does_not_insert(monkeypatch: pytest.MonkeyPat
 
     assert exc.value.status_code == 409
     session.add.assert_not_called()
+

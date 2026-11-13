@@ -457,3 +457,4 @@ def test_f33_rbac_matrix_roles() -> None:
     assert not role_has_permission(HMoreRole.LANDLORD, Permission.AI_COST_DASHBOARD_VIEW)
     assert not role_has_permission(HMoreRole.SUPPORT_WORKER, Permission.AI_BUDGET_MANAGE)
     assert not role_has_permission(HMoreRole.MAINTENANCE_CONTRACTOR, Permission.AI_USAGE_READ)
+

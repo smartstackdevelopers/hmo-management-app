@@ -49,7 +49,7 @@ def test_alembic_head_is_f67() -> None:
     config = Config(str(api_root / "alembic.ini"))
     config.set_main_option("script_location", str(api_root / "migrations"))
     script = ScriptDirectory.from_config(config)
-    assert script.get_heads() == ["20261112_4800_f74"]
+    assert script.get_heads() == ["20261113_4900_f81"]
     rev = script.get_revision("20261111_4500_f67")
     assert rev is not None
     assert rev.down_revision == "20261111_4400_f66"
@@ -207,3 +207,4 @@ def test_council_share_officer_view_and_isolation(db_session, unique_suffix: str
 
     # Prove core enum still six after module import
     assert len(HMoreRole) == 6
+

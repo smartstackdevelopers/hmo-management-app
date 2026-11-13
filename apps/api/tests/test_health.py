@@ -25,3 +25,4 @@ def test_openapi_available() -> None:
     response = client.get("/openapi.json")
     assert response.status_code == 200
     assert response.json()["info"]["title"] == "HMore API"
+

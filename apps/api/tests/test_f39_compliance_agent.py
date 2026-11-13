@@ -177,3 +177,4 @@ def test_f39_unverifiable_module_is_not_a_confirmed_failure(db_session: Session,
     )
     assert any(item["result"] == "unable_to_verify" for item in result["findings"])
     assert all(item["result"] != "passed" for item in result["findings"])
+

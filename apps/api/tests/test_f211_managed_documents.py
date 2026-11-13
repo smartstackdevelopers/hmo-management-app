@@ -332,3 +332,4 @@ def test_f211_signature_blocks_new_version_until_complete(db_session: Session, u
     d = db_session.get(ManagedDocument, doc_id)
     assert d is not None
     assert d.current_version_id == uuid.UUID(v2["version_id"])
+

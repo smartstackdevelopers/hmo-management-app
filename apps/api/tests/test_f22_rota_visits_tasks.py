@@ -265,3 +265,4 @@ def test_notification_provider_in_app_delivery(db_session: Session) -> None:
     )
     assert result.success is True
     assert result.provider == "in_app_store"
+

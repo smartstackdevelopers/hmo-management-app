@@ -195,3 +195,4 @@ def test_finance_lifecycle_budget_export_isolation(db_session, unique_suffix: st
     assert "finance.budget.create" in actions
     assert "finance.export" in actions
     assert "finance.record.void" in actions
+

@@ -207,3 +207,4 @@ def test_incident_follow_up_workload_flow(db_session, unique_suffix: str) -> Non
 
     result = dispatch_due_reminders(db_session, limit=50)
     assert "processed" in result
+

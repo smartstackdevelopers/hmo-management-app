@@ -32,3 +32,4 @@ def test_f711_approval_gate_not_passed() -> None:
     gate = (PROD / "DEPLOYMENT_APPROVAL_GATE.md").read_text(encoding="utf-8")
     assert "PENDING APPROVAL" in gate
     assert "BLOCKED" in gate
+

@@ -257,3 +257,4 @@ def test_f35_rbac_and_isolation(db_session: Session, unique_suffix: str) -> None
     assert list(db_session.scalars(select(CaseSummary)).all()) == []
     apply_organisation_rls(db_session, org.id)
     assert db_session.get(CaseSummary, uuid.UUID(created["id"])) is not None
+

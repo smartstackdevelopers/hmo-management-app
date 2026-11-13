@@ -320,3 +320,4 @@ def test_maintenance_denied_complaints(db_session, unique_suffix: str) -> None:
     with pytest.raises(HTTPException) as denied:
         complaint_service.get_complaint(db_session, maint_ctx, row.id)
     assert denied.value.status_code == 403
+

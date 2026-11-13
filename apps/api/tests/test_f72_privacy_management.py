@@ -188,3 +188,4 @@ def test_test_retention_purge_only_test_rows(db_session, unique_suffix: str) -> 
     privacy_service.create_test_retention_record(db_session, ctx, "purge-me", expire_days=-1)
     result = privacy_service.run_test_retention_purge(db_session, ctx)
     assert result["records_deleted"] >= 1
+

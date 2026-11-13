@@ -315,3 +315,4 @@ def test_f311_record_scoped_detection_limits_candidates(
     assert compared >= 1
     assert any(hit.match_strength == "exact" for hit in hits)
     assert all(unrelated.id not in (hit.source_id, hit.candidate_id) for hit in hits)
+

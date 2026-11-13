@@ -247,3 +247,4 @@ def test_f310_disabled_when_pilot_env_empty(db_session: Session, unique_suffix: 
         )
     assert exc.value.status_code == 403
     _ = avail
+

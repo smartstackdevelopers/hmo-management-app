@@ -24,3 +24,4 @@ def test_phase6_celery_beat_tasks_registered() -> None:
         assert key in schedule, f"Missing beat entry: {key}"
         assert schedule[key]["task"] == task_name
         assert float(schedule[key]["schedule"]) > 0
+

@@ -268,3 +268,4 @@ def test_timeline_and_meetings_isolation(db_session, unique_suffix: str) -> None
         )
     ).all()
     assert len(audits) >= 1
+

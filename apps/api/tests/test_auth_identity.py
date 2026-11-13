@@ -55,3 +55,4 @@ def test_reject_email_linked_to_other_subject(db_session: Session) -> None:
             },
         )
     assert exc.value.status_code == 409
+

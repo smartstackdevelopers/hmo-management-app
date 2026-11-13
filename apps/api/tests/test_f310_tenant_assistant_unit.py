@@ -77,3 +77,4 @@ def test_require_pilot_rejects_when_not_configured() -> None:
         require_pilot_enabled(ctx, Settings(tenant_assistant_pilot_organisation_ids=""))
     assert exc.value.status_code == 403
     invalidate_org_content_cache(org_id)
+

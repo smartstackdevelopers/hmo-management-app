@@ -350,3 +350,4 @@ def test_integration_lifecycle_isolation_sync_and_audit(db_session, unique_suffi
 
     dash = integration_service.dashboard(db_session, ctx)
     assert dash["total_integrations"] >= 1
+

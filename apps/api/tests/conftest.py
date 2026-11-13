@@ -153,3 +153,4 @@ def auto_enable_ai_feature_flags(
         yield
     finally:
         event.remove(Organisation, "after_insert", _after_org_insert)
+

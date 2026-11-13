@@ -52,3 +52,4 @@ def test_match_hit_dedupe_key_is_order_independent() -> None:
     right = MatchHit("tenant", b, a, "exact", 1.0, ["email"], ["Exact"])
     assert left.dedupe_key() == right.dedupe_key()
     assert left.ordered_ids() == right.ordered_ids()
+

@@ -36,3 +36,4 @@ def test_f79_breach_plan_mentions_dpo_review() -> None:
     text = (RUNBOOKS / "PERSONAL_DATA_BREACH_RESPONSE_PLAN.md").read_text(encoding="utf-8")
     assert "DPO" in text
     assert "does not make legal reporting decisions" in text.lower()
+

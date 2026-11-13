@@ -234,3 +234,4 @@ def test_rule_lifecycle_escalation_dedupe_and_isolation(db_session, unique_suffi
     assert deactivated["is_enabled"] is False
     deleted = automation_service.delete_rule(db_session, ctx_a, rule_id)
     assert deleted["deleted"] is True
+

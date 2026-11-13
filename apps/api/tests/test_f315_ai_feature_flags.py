@@ -264,3 +264,4 @@ def test_f315_flags_isolation_and_enforcement(db_session: Session, unique_suffix
     if meta_events:
         assert meta_events[0].metadata_json.get("bypasses_usage_caps") is False
         assert meta_events[0].metadata_json.get("bypasses_human_approval") is False
+

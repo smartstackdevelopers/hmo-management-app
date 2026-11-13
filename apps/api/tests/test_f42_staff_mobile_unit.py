@@ -62,3 +62,4 @@ def test_public_survey_does_not_include_a_live_people_count() -> None:
     assert "live_count" not in public
     assert public["feasibility_summary"] == "Survey only"
     assert "camera" in public["disclaimer"].lower()
+
