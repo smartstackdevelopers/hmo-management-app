@@ -520,6 +520,7 @@ Implement in this exact phase order. Each phase lists proposal deliverables expa
 - **F7.8** Staff training materials and launch support — see `docs/training/`
 - **F7.9** Breach-response plan and operational runbooks published — see `docs/operations/runbooks/`
 - **F7.10** Final coverage audit: every Section 4–9 mandatory item checked Done — see `docs/audit/` and `docs/phase7/F7.10_FINAL_COVERAGE_REPORT.md`
+- **F7.11** Production deployment & Go-Live verification — see `docs/phase7/F7.11_PRODUCTION_DEPLOYMENT_FINAL_REPORT.md` (blocked until owner approval)
 
 **Phase 7 / product exit (must all pass)**
 
