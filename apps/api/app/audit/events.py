@@ -518,3 +518,11 @@ CONTRACTOR_MARKETPLACE_JOB_CREATED = "contractor_marketplace.job.created"
 CONTRACTOR_MARKETPLACE_QUOTE_SUBMITTED = "contractor_marketplace.quotation.submitted"
 CONTRACTOR_MARKETPLACE_JOB_ASSIGNED = "contractor_marketplace.job.assigned"
 CONTRACTOR_MARKETPLACE_COMPLETION_SUBMITTED = "contractor_marketplace.completion.submitted"
+
+# F8.6 optional digital ID and advanced e-signatures add-on
+DIGITAL_ID_ESIGN_SETTINGS_UPDATE = "digital_id_esign.settings.update"
+DIGITAL_ID_RECORD_CREATED = "digital_id_esign.identity.created"
+DIGITAL_ID_DOCUMENT_SUBMITTED = "digital_id_esign.identity.document.submitted"
+DIGITAL_ID_ESIGN_REQUEST_CREATED = "digital_id_esign.sign.request.created"
+DIGITAL_ID_ESIGN_SIGNATURE_RECORDED = "digital_id_esign.signature.recorded"
+DIGITAL_ID_ESIGN_WEBHOOK_RECEIVED = "digital_id_esign.webhook.received"

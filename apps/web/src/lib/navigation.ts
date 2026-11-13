@@ -200,6 +200,13 @@ export const DASHBOARD_NAV: NavItem[] = [
     section: "records",
   },
   {
+    id: "digital-id-esign",
+    label: "Digital ID & e-sign",
+    href: "/dashboard/digital-id-esign",
+    anyOf: ["digital_id_esign.read", "digital_id_esign.sign", "digital_id_esign.manage", "digital_id_esign.sign.request"],
+    section: "records",
+  },
+  {
     id: "room-occupancy",
     label: "Room occupancy",
     href: "/dashboard/room-occupancy",

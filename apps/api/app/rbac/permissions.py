@@ -120,6 +120,16 @@ class Permission(StrEnum):
     CONTRACTOR_MARKETPLACE_APPROVE = "contractor_marketplace.approve"
     CONTRACTOR_MARKETPLACE_REPORTS = "contractor_marketplace.reports"
 
+    # F8.6 optional digital ID and advanced e-signatures (Section 11 add-on)
+    DIGITAL_ID_ESIGN_READ = "digital_id_esign.read"
+    DIGITAL_ID_ESIGN_MANAGE = "digital_id_esign.manage"
+    DIGITAL_ID_ESIGN_IDENTITY_SUBMIT = "digital_id_esign.identity.submit"
+    DIGITAL_ID_ESIGN_IDENTITY_VERIFY = "digital_id_esign.identity.verify"
+    DIGITAL_ID_ESIGN_SIGN_REQUEST = "digital_id_esign.sign.request"
+    DIGITAL_ID_ESIGN_SIGN = "digital_id_esign.sign"
+    DIGITAL_ID_ESIGN_VERIFY_DOC = "digital_id_esign.verify"
+    DIGITAL_ID_ESIGN_REPORTS = "digital_id_esign.reports"
+
     # Tenant person records (distinct from Tenant login role)
     TENANTS_READ = "tenants.read"
     TENANTS_MANAGE = "tenants.manage"
@@ -622,6 +632,30 @@ PERMISSION_CATALOG: dict[Permission, PermissionMeta] = {
     ),
     Permission.CONTRACTOR_MARKETPLACE_REPORTS: PermissionMeta(
         Permission.CONTRACTOR_MARKETPLACE_REPORTS, "View contractor marketplace reports", True
+    ),
+    Permission.DIGITAL_ID_ESIGN_READ: PermissionMeta(
+        Permission.DIGITAL_ID_ESIGN_READ, "View digital ID and e-sign requests", True
+    ),
+    Permission.DIGITAL_ID_ESIGN_MANAGE: PermissionMeta(
+        Permission.DIGITAL_ID_ESIGN_MANAGE, "Manage digital ID and e-sign settings", True
+    ),
+    Permission.DIGITAL_ID_ESIGN_IDENTITY_SUBMIT: PermissionMeta(
+        Permission.DIGITAL_ID_ESIGN_IDENTITY_SUBMIT, "Submit identity documents for verification", True
+    ),
+    Permission.DIGITAL_ID_ESIGN_IDENTITY_VERIFY: PermissionMeta(
+        Permission.DIGITAL_ID_ESIGN_IDENTITY_VERIFY, "Review identity verification", True
+    ),
+    Permission.DIGITAL_ID_ESIGN_SIGN_REQUEST: PermissionMeta(
+        Permission.DIGITAL_ID_ESIGN_SIGN_REQUEST, "Create e-sign signing requests", True
+    ),
+    Permission.DIGITAL_ID_ESIGN_SIGN: PermissionMeta(
+        Permission.DIGITAL_ID_ESIGN_SIGN, "Sign or reject assigned documents (with consent)", True
+    ),
+    Permission.DIGITAL_ID_ESIGN_VERIFY_DOC: PermissionMeta(
+        Permission.DIGITAL_ID_ESIGN_VERIFY_DOC, "Verify document hash integrity", True
+    ),
+    Permission.DIGITAL_ID_ESIGN_REPORTS: PermissionMeta(
+        Permission.DIGITAL_ID_ESIGN_REPORTS, "View digital ID and e-sign reports", True
     ),
     Permission.TENANTS_READ: PermissionMeta(
         Permission.TENANTS_READ, "Read organisation tenant person records", True
