@@ -102,6 +102,15 @@ class Permission(StrEnum):
     RENT_PAYMENTS_REPORTS = "rent_payments.reports"
     RENT_PAYMENTS_READ_LIMITED = "rent_payments.read.limited"
 
+    # F8.4 optional training LMS (Section 11 add-on)
+    LMS_READ = "lms.read"
+    LMS_MANAGE = "lms.manage"
+    LMS_LEARN = "lms.learn"
+    LMS_ASSIGN = "lms.assign"
+    LMS_ASSESS = "lms.assess"
+    LMS_REPORTS = "lms.reports"
+    LMS_TENANT_LEARN = "lms.tenant.learn"
+
     # Tenant person records (distinct from Tenant login role)
     TENANTS_READ = "tenants.read"
     TENANTS_MANAGE = "tenants.manage"
@@ -577,6 +586,13 @@ PERMISSION_CATALOG: dict[Permission, PermissionMeta] = {
     Permission.RENT_PAYMENTS_READ_LIMITED: PermissionMeta(
         Permission.RENT_PAYMENTS_READ_LIMITED, "Limited rent payment visibility for support work", True
     ),
+    Permission.LMS_READ: PermissionMeta(Permission.LMS_READ, "View LMS courses and content (add-on)", True),
+    Permission.LMS_MANAGE: PermissionMeta(Permission.LMS_MANAGE, "Manage LMS courses and settings", True),
+    Permission.LMS_LEARN: PermissionMeta(Permission.LMS_LEARN, "Access assigned learning and assessments", True),
+    Permission.LMS_ASSIGN: PermissionMeta(Permission.LMS_ASSIGN, "Assign LMS training", True),
+    Permission.LMS_ASSESS: PermissionMeta(Permission.LMS_ASSESS, "Mark manual assessments", True),
+    Permission.LMS_REPORTS: PermissionMeta(Permission.LMS_REPORTS, "View LMS admin reports", True),
+    Permission.LMS_TENANT_LEARN: PermissionMeta(Permission.LMS_TENANT_LEARN, "Access tenant-approved LMS courses", True),
     Permission.TENANTS_READ: PermissionMeta(
         Permission.TENANTS_READ, "Read organisation tenant person records", True
     ),

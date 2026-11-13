@@ -504,3 +504,8 @@ RENT_PAYMENT_RECEIPT_ISSUED = "rent_payments.receipt.issued"
 RENT_PAYMENT_WEBHOOK_RECEIVED = "rent_payments.webhook.received"
 RENT_PAYMENT_DISPUTE_RAISED = "rent_payments.dispute.raised"
 RENT_ARREARS_PLAN_CREATED = "rent_payments.arrears_plan.created"
+
+# F8.4 optional LMS add-on
+LMS_SETTINGS_UPDATE = "lms.settings.update"
+LMS_COURSE_CREATED = "lms.course.created"
+LMS_ASSESSMENT_SUBMITTED = "lms.assessment.submitted"

@@ -17,7 +17,7 @@ def test_alembic_head_remains_f55_for_mobile_integration() -> None:
     config = Config(str(api_root / "alembic.ini"))
     config.set_main_option("script_location", str(api_root / "migrations"))
     script = ScriptDirectory.from_config(config)
-    assert script.get_heads() == ["20261115_5100_f83"]
+    assert script.get_heads() == ["20261116_5200_f84"]
 
 
 def test_phase5_tenant_permissions_still_present() -> None:
