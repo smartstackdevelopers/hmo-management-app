@@ -64,6 +64,13 @@ ROLE_PERMISSIONS: dict[HMoreRole, frozenset[Permission]] = {
             Permission.DIGITAL_ID_ESIGN_SIGN,
             Permission.DIGITAL_ID_ESIGN_VERIFY_DOC,
             Permission.DIGITAL_ID_ESIGN_REPORTS,
+            Permission.BENEFITS_NAVIGATOR_READ,
+            Permission.BENEFITS_NAVIGATOR_MANAGE,
+            Permission.BENEFITS_NAVIGATOR_TENANT,
+            Permission.BENEFITS_NAVIGATOR_ASSESS,
+            Permission.BENEFITS_NAVIGATOR_STAFF_ASSIST,
+            Permission.BENEFITS_NAVIGATOR_SOURCES,
+            Permission.BENEFITS_NAVIGATOR_REPORTS,
             Permission.TIMELINE_READ,
             Permission.SUPPORT_PLAN_READ,
             Permission.SUPPORT_PLAN_MANAGE,
@@ -231,6 +238,13 @@ ROLE_PERMISSIONS: dict[HMoreRole, frozenset[Permission]] = {
             Permission.DIGITAL_ID_ESIGN_SIGN,
             Permission.DIGITAL_ID_ESIGN_VERIFY_DOC,
             Permission.DIGITAL_ID_ESIGN_REPORTS,
+            Permission.BENEFITS_NAVIGATOR_READ,
+            Permission.BENEFITS_NAVIGATOR_MANAGE,
+            Permission.BENEFITS_NAVIGATOR_TENANT,
+            Permission.BENEFITS_NAVIGATOR_ASSESS,
+            Permission.BENEFITS_NAVIGATOR_STAFF_ASSIST,
+            Permission.BENEFITS_NAVIGATOR_SOURCES,
+            Permission.BENEFITS_NAVIGATOR_REPORTS,
             Permission.TENANTS_READ,
             Permission.TENANTS_MANAGE,
             Permission.EMPLOYMENT_SUPPORT_MANAGE_ASSIGNED,
@@ -433,6 +447,7 @@ ROLE_PERMISSIONS: dict[HMoreRole, frozenset[Permission]] = {
             Permission.DIGITAL_ID_ESIGN_SIGN,
             Permission.DIGITAL_ID_ESIGN_VERIFY_DOC,
             Permission.DIGITAL_ID_ESIGN_REPORTS,
+            Permission.BENEFITS_NAVIGATOR_READ,
         }
     ),
     HMoreRole.TENANT: frozenset(
@@ -483,6 +498,9 @@ ROLE_PERMISSIONS: dict[HMoreRole, frozenset[Permission]] = {
             Permission.DIGITAL_ID_ESIGN_READ,
             Permission.DIGITAL_ID_ESIGN_IDENTITY_SUBMIT,
             Permission.DIGITAL_ID_ESIGN_SIGN,
+            Permission.BENEFITS_NAVIGATOR_READ,
+            Permission.BENEFITS_NAVIGATOR_TENANT,
+            Permission.BENEFITS_NAVIGATOR_ASSESS,
         }
     ),
     HMoreRole.SUPPORT_WORKER: frozenset(
@@ -537,6 +555,9 @@ ROLE_PERMISSIONS: dict[HMoreRole, frozenset[Permission]] = {
             Permission.DIGITAL_ID_ESIGN_READ,
             Permission.DIGITAL_ID_ESIGN_SIGN_REQUEST,
             Permission.DIGITAL_ID_ESIGN_SIGN,
+            Permission.BENEFITS_NAVIGATOR_READ,
+            Permission.BENEFITS_NAVIGATOR_STAFF_ASSIST,
+            Permission.BENEFITS_NAVIGATOR_ASSESS,
             Permission.PROFILE_READ_OWN,
             Permission.TENANTS_READ,  # assigned-scope refinement remains F1.5+/later
             Permission.TENANCIES_MANAGE,  # assigned caseload only — resource check required

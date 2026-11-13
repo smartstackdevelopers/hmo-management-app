@@ -207,6 +207,13 @@ export const DASHBOARD_NAV: NavItem[] = [
     section: "records",
   },
   {
+    id: "benefits-navigator",
+    label: "Benefits Navigator",
+    href: "/dashboard/benefits-navigator",
+    anyOf: ["benefits_navigator.read", "benefits_navigator.tenant", "benefits_navigator.manage", "benefits_navigator.staff.assist"],
+    section: "records",
+  },
+  {
     id: "room-occupancy",
     label: "Room occupancy",
     href: "/dashboard/room-occupancy",

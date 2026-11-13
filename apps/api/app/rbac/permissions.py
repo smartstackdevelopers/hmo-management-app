@@ -130,6 +130,15 @@ class Permission(StrEnum):
     DIGITAL_ID_ESIGN_VERIFY_DOC = "digital_id_esign.verify"
     DIGITAL_ID_ESIGN_REPORTS = "digital_id_esign.reports"
 
+    # F8.7 optional benefits navigator (Section 11 add-on)
+    BENEFITS_NAVIGATOR_READ = "benefits_navigator.read"
+    BENEFITS_NAVIGATOR_MANAGE = "benefits_navigator.manage"
+    BENEFITS_NAVIGATOR_TENANT = "benefits_navigator.tenant"
+    BENEFITS_NAVIGATOR_ASSESS = "benefits_navigator.assess"
+    BENEFITS_NAVIGATOR_STAFF_ASSIST = "benefits_navigator.staff.assist"
+    BENEFITS_NAVIGATOR_SOURCES = "benefits_navigator.sources"
+    BENEFITS_NAVIGATOR_REPORTS = "benefits_navigator.reports"
+
     # Tenant person records (distinct from Tenant login role)
     TENANTS_READ = "tenants.read"
     TENANTS_MANAGE = "tenants.manage"
@@ -656,6 +665,27 @@ PERMISSION_CATALOG: dict[Permission, PermissionMeta] = {
     ),
     Permission.DIGITAL_ID_ESIGN_REPORTS: PermissionMeta(
         Permission.DIGITAL_ID_ESIGN_REPORTS, "View digital ID and e-sign reports", True
+    ),
+    Permission.BENEFITS_NAVIGATOR_READ: PermissionMeta(
+        Permission.BENEFITS_NAVIGATOR_READ, "View benefits navigator directory", True
+    ),
+    Permission.BENEFITS_NAVIGATOR_MANAGE: PermissionMeta(
+        Permission.BENEFITS_NAVIGATOR_MANAGE, "Manage benefits directory and settings", True
+    ),
+    Permission.BENEFITS_NAVIGATOR_TENANT: PermissionMeta(
+        Permission.BENEFITS_NAVIGATOR_TENANT, "Tenant benefits dashboard and saves", True
+    ),
+    Permission.BENEFITS_NAVIGATOR_ASSESS: PermissionMeta(
+        Permission.BENEFITS_NAVIGATOR_ASSESS, "Run eligibility guidance assessments", True
+    ),
+    Permission.BENEFITS_NAVIGATOR_STAFF_ASSIST: PermissionMeta(
+        Permission.BENEFITS_NAVIGATOR_STAFF_ASSIST, "Assist tenants with consent", True
+    ),
+    Permission.BENEFITS_NAVIGATOR_SOURCES: PermissionMeta(
+        Permission.BENEFITS_NAVIGATOR_SOURCES, "Manage official information sources", True
+    ),
+    Permission.BENEFITS_NAVIGATOR_REPORTS: PermissionMeta(
+        Permission.BENEFITS_NAVIGATOR_REPORTS, "View benefits navigator reports", True
     ),
     Permission.TENANTS_READ: PermissionMeta(
         Permission.TENANTS_READ, "Read organisation tenant person records", True

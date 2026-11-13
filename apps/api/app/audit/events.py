@@ -526,3 +526,9 @@ DIGITAL_ID_DOCUMENT_SUBMITTED = "digital_id_esign.identity.document.submitted"
 DIGITAL_ID_ESIGN_REQUEST_CREATED = "digital_id_esign.sign.request.created"
 DIGITAL_ID_ESIGN_SIGNATURE_RECORDED = "digital_id_esign.signature.recorded"
 DIGITAL_ID_ESIGN_WEBHOOK_RECEIVED = "digital_id_esign.webhook.received"
+
+# F8.7 optional benefits navigator add-on
+BENEFITS_NAVIGATOR_SETTINGS_UPDATE = "benefits_navigator.settings.update"
+BENEFITS_NAVIGATOR_RECORD_CREATED = "benefits_navigator.record.created"
+BENEFITS_NAVIGATOR_ASSESSMENT_RUN = "benefits_navigator.assessment.run"
+BENEFITS_NAVIGATOR_AI_ASK = "benefits_navigator.ai.ask"
