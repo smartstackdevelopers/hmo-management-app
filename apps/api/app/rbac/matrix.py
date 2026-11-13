@@ -56,6 +56,14 @@ ROLE_PERMISSIONS: dict[HMoreRole, frozenset[Permission]] = {
             Permission.CONTRACTOR_MARKETPLACE_QUOTE,
             Permission.CONTRACTOR_MARKETPLACE_APPROVE,
             Permission.CONTRACTOR_MARKETPLACE_REPORTS,
+            Permission.DIGITAL_ID_ESIGN_READ,
+            Permission.DIGITAL_ID_ESIGN_MANAGE,
+            Permission.DIGITAL_ID_ESIGN_IDENTITY_SUBMIT,
+            Permission.DIGITAL_ID_ESIGN_IDENTITY_VERIFY,
+            Permission.DIGITAL_ID_ESIGN_SIGN_REQUEST,
+            Permission.DIGITAL_ID_ESIGN_SIGN,
+            Permission.DIGITAL_ID_ESIGN_VERIFY_DOC,
+            Permission.DIGITAL_ID_ESIGN_REPORTS,
             Permission.TIMELINE_READ,
             Permission.SUPPORT_PLAN_READ,
             Permission.SUPPORT_PLAN_MANAGE,
@@ -215,6 +223,14 @@ ROLE_PERMISSIONS: dict[HMoreRole, frozenset[Permission]] = {
             Permission.CONTRACTOR_MARKETPLACE_QUOTE,
             Permission.CONTRACTOR_MARKETPLACE_APPROVE,
             Permission.CONTRACTOR_MARKETPLACE_REPORTS,
+            Permission.DIGITAL_ID_ESIGN_READ,
+            Permission.DIGITAL_ID_ESIGN_MANAGE,
+            Permission.DIGITAL_ID_ESIGN_IDENTITY_SUBMIT,
+            Permission.DIGITAL_ID_ESIGN_IDENTITY_VERIFY,
+            Permission.DIGITAL_ID_ESIGN_SIGN_REQUEST,
+            Permission.DIGITAL_ID_ESIGN_SIGN,
+            Permission.DIGITAL_ID_ESIGN_VERIFY_DOC,
+            Permission.DIGITAL_ID_ESIGN_REPORTS,
             Permission.TENANTS_READ,
             Permission.TENANTS_MANAGE,
             Permission.EMPLOYMENT_SUPPORT_MANAGE_ASSIGNED,
@@ -412,6 +428,11 @@ ROLE_PERMISSIONS: dict[HMoreRole, frozenset[Permission]] = {
             Permission.CONTRACTOR_MARKETPLACE_READ,
             Permission.CONTRACTOR_MARKETPLACE_APPROVE,
             Permission.CONTRACTOR_MARKETPLACE_REPORTS,
+            Permission.DIGITAL_ID_ESIGN_READ,
+            Permission.DIGITAL_ID_ESIGN_SIGN_REQUEST,
+            Permission.DIGITAL_ID_ESIGN_SIGN,
+            Permission.DIGITAL_ID_ESIGN_VERIFY_DOC,
+            Permission.DIGITAL_ID_ESIGN_REPORTS,
         }
     ),
     HMoreRole.TENANT: frozenset(
@@ -459,6 +480,9 @@ ROLE_PERMISSIONS: dict[HMoreRole, frozenset[Permission]] = {
             Permission.RENT_PAYMENTS_READ_OWN,
             Permission.RENT_PAYMENTS_PAY_OWN,
             Permission.LMS_TENANT_LEARN,
+            Permission.DIGITAL_ID_ESIGN_READ,
+            Permission.DIGITAL_ID_ESIGN_IDENTITY_SUBMIT,
+            Permission.DIGITAL_ID_ESIGN_SIGN,
         }
     ),
     HMoreRole.SUPPORT_WORKER: frozenset(
@@ -510,6 +534,9 @@ ROLE_PERMISSIONS: dict[HMoreRole, frozenset[Permission]] = {
             Permission.LMS_LEARN,
             Permission.LMS_READ,
             Permission.CONTRACTOR_MARKETPLACE_READ,
+            Permission.DIGITAL_ID_ESIGN_READ,
+            Permission.DIGITAL_ID_ESIGN_SIGN_REQUEST,
+            Permission.DIGITAL_ID_ESIGN_SIGN,
             Permission.PROFILE_READ_OWN,
             Permission.TENANTS_READ,  # assigned-scope refinement remains F1.5+/later
             Permission.TENANCIES_MANAGE,  # assigned caseload only — resource check required
@@ -593,6 +620,8 @@ ROLE_PERMISSIONS: dict[HMoreRole, frozenset[Permission]] = {
             Permission.CONTRACTOR_MARKETPLACE_REGISTER,
             Permission.CONTRACTOR_MARKETPLACE_WORKSPACE,
             Permission.CONTRACTOR_MARKETPLACE_QUOTE,
+            Permission.DIGITAL_ID_ESIGN_READ,
+            Permission.DIGITAL_ID_ESIGN_SIGN,
         }
     ),
 }
