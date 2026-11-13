@@ -59,6 +59,7 @@ from app.api.v1.voice_calling import router as voice_calling_router
 from app.api.v1.safeguarding_alerts import router as safeguarding_alerts_router
 from app.api.v1.rent_payments import router as rent_payments_router
 from app.api.v1.lms import router as lms_router
+from app.api.v1.contractor_marketplace import router as contractor_marketplace_router
 from app.api.v1.opportunities import router as opportunities_router
 from app.api.v1.tenant_timeline import router as tenant_timeline_router
 from app.api.v1.support_plans import dash_router as support_plans_dash_router
@@ -130,3 +131,4 @@ api_v1_router.include_router(voice_calling_router)
 api_v1_router.include_router(safeguarding_alerts_router)
 api_v1_router.include_router(rent_payments_router)
 api_v1_router.include_router(lms_router)
+api_v1_router.include_router(contractor_marketplace_router)

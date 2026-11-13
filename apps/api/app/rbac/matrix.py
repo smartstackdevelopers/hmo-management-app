@@ -49,6 +49,13 @@ ROLE_PERMISSIONS: dict[HMoreRole, frozenset[Permission]] = {
             Permission.LMS_ASSIGN,
             Permission.LMS_ASSESS,
             Permission.LMS_REPORTS,
+            Permission.CONTRACTOR_MARKETPLACE_READ,
+            Permission.CONTRACTOR_MARKETPLACE_MANAGE,
+            Permission.CONTRACTOR_MARKETPLACE_REGISTER,
+            Permission.CONTRACTOR_MARKETPLACE_WORKSPACE,
+            Permission.CONTRACTOR_MARKETPLACE_QUOTE,
+            Permission.CONTRACTOR_MARKETPLACE_APPROVE,
+            Permission.CONTRACTOR_MARKETPLACE_REPORTS,
             Permission.TIMELINE_READ,
             Permission.SUPPORT_PLAN_READ,
             Permission.SUPPORT_PLAN_MANAGE,
@@ -201,6 +208,13 @@ ROLE_PERMISSIONS: dict[HMoreRole, frozenset[Permission]] = {
             Permission.LMS_ASSIGN,
             Permission.LMS_ASSESS,
             Permission.LMS_REPORTS,
+            Permission.CONTRACTOR_MARKETPLACE_READ,
+            Permission.CONTRACTOR_MARKETPLACE_MANAGE,
+            Permission.CONTRACTOR_MARKETPLACE_REGISTER,
+            Permission.CONTRACTOR_MARKETPLACE_WORKSPACE,
+            Permission.CONTRACTOR_MARKETPLACE_QUOTE,
+            Permission.CONTRACTOR_MARKETPLACE_APPROVE,
+            Permission.CONTRACTOR_MARKETPLACE_REPORTS,
             Permission.TENANTS_READ,
             Permission.TENANTS_MANAGE,
             Permission.EMPLOYMENT_SUPPORT_MANAGE_ASSIGNED,
@@ -395,6 +409,9 @@ ROLE_PERMISSIONS: dict[HMoreRole, frozenset[Permission]] = {
             Permission.RENT_PAYMENTS_REPORTS,
             Permission.LMS_LEARN,
             Permission.LMS_READ,
+            Permission.CONTRACTOR_MARKETPLACE_READ,
+            Permission.CONTRACTOR_MARKETPLACE_APPROVE,
+            Permission.CONTRACTOR_MARKETPLACE_REPORTS,
         }
     ),
     HMoreRole.TENANT: frozenset(
@@ -492,6 +509,7 @@ ROLE_PERMISSIONS: dict[HMoreRole, frozenset[Permission]] = {
             Permission.RENT_PAYMENTS_READ_LIMITED,
             Permission.LMS_LEARN,
             Permission.LMS_READ,
+            Permission.CONTRACTOR_MARKETPLACE_READ,
             Permission.PROFILE_READ_OWN,
             Permission.TENANTS_READ,  # assigned-scope refinement remains F1.5+/later
             Permission.TENANCIES_MANAGE,  # assigned caseload only — resource check required
@@ -572,6 +590,9 @@ ROLE_PERMISSIONS: dict[HMoreRole, frozenset[Permission]] = {
             Permission.SECURE_SHARING_READ,
             Permission.OPERATIONAL_SEARCH_RUN,
             Permission.LMS_LEARN,
+            Permission.CONTRACTOR_MARKETPLACE_REGISTER,
+            Permission.CONTRACTOR_MARKETPLACE_WORKSPACE,
+            Permission.CONTRACTOR_MARKETPLACE_QUOTE,
         }
     ),
 }

@@ -509,3 +509,12 @@ RENT_ARREARS_PLAN_CREATED = "rent_payments.arrears_plan.created"
 LMS_SETTINGS_UPDATE = "lms.settings.update"
 LMS_COURSE_CREATED = "lms.course.created"
 LMS_ASSESSMENT_SUBMITTED = "lms.assessment.submitted"
+
+# F8.5 optional contractor marketplace add-on
+CONTRACTOR_MARKETPLACE_SETTINGS_UPDATE = "contractor_marketplace.settings.update"
+CONTRACTOR_MARKETPLACE_REGISTERED = "contractor_marketplace.registration.submitted"
+CONTRACTOR_MARKETPLACE_VERIFIED = "contractor_marketplace.verification.recorded"
+CONTRACTOR_MARKETPLACE_JOB_CREATED = "contractor_marketplace.job.created"
+CONTRACTOR_MARKETPLACE_QUOTE_SUBMITTED = "contractor_marketplace.quotation.submitted"
+CONTRACTOR_MARKETPLACE_JOB_ASSIGNED = "contractor_marketplace.job.assigned"
+CONTRACTOR_MARKETPLACE_COMPLETION_SUBMITTED = "contractor_marketplace.completion.submitted"
