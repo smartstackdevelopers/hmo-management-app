@@ -519,7 +519,7 @@ Implement in this exact phase order. Each phase lists proposal deliverables expa
 - **F7.7** iOS App Store and Google Play production release
 - **F7.8** Staff training materials and launch support — see `docs/training/`
 - **F7.9** Breach-response plan and operational runbooks published — see `docs/operations/runbooks/`
-- **F7.10** Final coverage audit: every Section 4–9 mandatory item checked Done
+- **F7.10** Final coverage audit: every Section 4–9 mandatory item checked Done — see `docs/audit/` and `docs/phase7/F7.10_FINAL_COVERAGE_REPORT.md`
 
 **Phase 7 / product exit (must all pass)**
 
