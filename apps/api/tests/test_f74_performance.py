@@ -90,3 +90,4 @@ def test_benchmark_persisted(db_session, unique_suffix: str) -> None:
     health = result["summary"]["load_test"]
     assert health["concurrent_users"] == 5
     assert health["p95_ms"] < 3000.0
+

@@ -393,3 +393,4 @@ def test_recursive_audit_guard(db_session, unique_suffix: str, monkeypatch) -> N
         assert result is None
     finally:
         audit_service._RECORDING = False
+

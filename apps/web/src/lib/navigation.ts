@@ -161,6 +161,13 @@ export const DASHBOARD_NAV: NavItem[] = [
     section: "records",
   },
   {
+    id: "voice-calling",
+    label: "AI voice calling",
+    href: "/dashboard/voice-calling",
+    anyOf: ["voice_calling.read", "voice_calling.manage"],
+    section: "records",
+  },
+  {
     id: "room-occupancy",
     label: "Room occupancy",
     href: "/dashboard/room-occupancy",

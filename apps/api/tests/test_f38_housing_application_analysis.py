@@ -197,3 +197,4 @@ def test_f38_budget_cross_org_and_no_auto_reject(db_session: Session, unique_suf
             db_session, _ctx(HMoreRole.ORGANISATION_ADMIN, other.id, outsider.id), uuid.UUID(capped["id"])
         )
     assert hidden.value.status_code in {403, 404}
+

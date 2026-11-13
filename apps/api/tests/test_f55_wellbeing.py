@@ -55,7 +55,7 @@ def test_alembic_head_is_f55() -> None:
     config = Config(str(api_root / "alembic.ini"))
     config.set_main_option("script_location", str(api_root / "migrations"))
     script = ScriptDirectory.from_config(config)
-    assert script.get_heads() == ["20261112_4800_f74"]
+    assert script.get_heads() == ["20261113_4900_f81"]
     rev = script.get_revision("20261110_3800_f55")
     assert rev is not None
     assert rev.down_revision == "20261110_3700_f54"
@@ -212,3 +212,4 @@ def test_wellbeing_flow_and_cross_tenant_denied(db_session, unique_suffix: str) 
     landlord_ctx = _ctx(HMoreRole.LANDLORD, org.id, admin)
     with pytest.raises(HTTPException):
         wellbeing.get_today_checkin(db_session, landlord_ctx)
+

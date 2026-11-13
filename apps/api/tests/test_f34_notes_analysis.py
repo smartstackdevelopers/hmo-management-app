@@ -208,3 +208,4 @@ def test_f34_unassigned_worker_denied(db_session: Session, unique_suffix: str) -
     with pytest.raises(HTTPException) as exc:
         na_service.run_analysis(db_session, ctx, daily_log_id=log.id)
     assert exc.value.status_code in {403, 404}
+

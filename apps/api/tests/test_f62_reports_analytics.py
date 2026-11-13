@@ -285,3 +285,4 @@ def test_occupancy_plans_schedules_alerts_isolation(db_session, unique_suffix: s
 
     listed_b = schedule_service.list_schedules(db_session, ctx_b)
     assert all(s["id"] != schedule["id"] for s in listed_b)
+

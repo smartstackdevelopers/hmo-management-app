@@ -110,3 +110,4 @@ def test_type_mismatch_and_rbac() -> None:
     assert role_has_permission(HMoreRole.ORGANISATION_ADMIN, Permission.AI_DOCUMENT_CHECK_REVIEW)
     assert not role_has_permission(HMoreRole.TENANT, Permission.AI_DOCUMENT_CHECK_READ)
     assert not role_has_permission(HMoreRole.LANDLORD, Permission.AI_DOCUMENT_CHECK_RUN)
+

@@ -407,3 +407,4 @@ def test_evidence_rbac_denies_maintenance(db_session, unique_suffix: str) -> Non
     with pytest.raises(HTTPException) as denied:
         evidence_service.list_checklist(db_session, maint_ctx, application.id)
     assert denied.value.status_code == 403
+

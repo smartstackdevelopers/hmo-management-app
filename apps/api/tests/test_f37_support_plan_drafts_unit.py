@@ -62,3 +62,4 @@ def test_feature_and_roles() -> None:
     assert not role_has_permission(HMoreRole.SUPPORT_WORKER, Permission.AI_SUPPORT_PLAN_DRAFT_REVIEW)
     assert role_has_permission(HMoreRole.ORGANISATION_ADMIN, Permission.AI_SUPPORT_PLAN_DRAFT_REVIEW)
     assert not role_has_permission(HMoreRole.TENANT, Permission.AI_SUPPORT_PLAN_DRAFT_READ)
+

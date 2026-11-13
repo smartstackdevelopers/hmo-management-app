@@ -333,3 +333,4 @@ def test_push_celery_tasks_are_scheduled() -> None:
     entry = celery_app.conf.beat_schedule["dispatch-pending-push-every-45-seconds"]
     assert entry["task"] == "hmore.push.dispatch_pending"
     assert 30 <= float(entry["schedule"]) <= 60
+

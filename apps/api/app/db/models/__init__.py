@@ -234,6 +234,11 @@ from app.db.models.council_portal import (
     CouncilPortalOfficer,
     CouncilPortalShare,
 )
+from app.db.models.voice_calling import (
+    OrganisationVoiceCallingSettings,
+    VoiceCallSession,
+    VoiceCallTurn,
+)
 from app.db.models.push_devices import PushDeviceToken
 from app.db.models.idempotency import ClientIdempotencyKey
 from app.db.models.device_sessions import MobileDeviceSession
@@ -418,6 +423,9 @@ __all__ = [
     "FinanceBudgetLine",
     "CouncilPortalOfficer",
     "CouncilPortalShare",
+    "OrganisationVoiceCallingSettings",
+    "VoiceCallSession",
+    "VoiceCallTurn",
     "CouncilPortalAccessLog",
     "PrivacyInventoryItem",
     "PrivacyDpiaRegisterEntry",

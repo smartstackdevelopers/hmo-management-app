@@ -86,3 +86,4 @@ def test_prompt_injection_does_not_add_sql() -> None:
     validated = validate_spec(result)
     assert validated["entity"] == "complaint"
     assert "sql" not in validated
+

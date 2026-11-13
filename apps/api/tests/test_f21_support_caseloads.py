@@ -296,3 +296,4 @@ def test_caseload_logs_handovers_isolation(db_session, unique_suffix: str) -> No
         support_service.transition_handover(
             db_session, worker2_ctx, handover.id, target_status="submitted"
         )
+

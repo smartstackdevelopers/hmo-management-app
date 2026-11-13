@@ -254,3 +254,4 @@ def test_upload_persists_audit_event(db_session, unique_suffix: str) -> None:
     assert len(events) >= 1
     assert events[-1].organisation_id == org.id
     assert events[-1].actor_user_id == user.id
+

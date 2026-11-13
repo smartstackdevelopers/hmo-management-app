@@ -374,3 +374,4 @@ def test_rls_hides_foreign_rows_without_app_filter(db_session: Session, unique_s
 
     visible = list(db_session.scalars(select(Property)))
     assert {row.id for row in visible} == {prop_a_id}
+

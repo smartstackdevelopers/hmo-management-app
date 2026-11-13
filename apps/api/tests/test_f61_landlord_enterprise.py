@@ -261,3 +261,4 @@ def test_landlord_enterprise_flow_and_isolation(db_session, unique_suffix: str) 
     repairs = landlord.list_repair_oversight(db_session, ctx)
     assert repairs["open"] >= 1
     assert all(item["property_id"] == str(prop.id) for item in repairs["items"])
+

@@ -86,3 +86,4 @@ def test_no_wildcard_permission_identifier() -> None:
 def test_unknown_permission_rejected() -> None:
     with pytest.raises(ValueError, match="Unknown permission"):
         parse_permission("everything.*")
+

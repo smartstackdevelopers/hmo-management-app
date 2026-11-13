@@ -98,3 +98,4 @@ def test_config_manifest_backup_and_drill(db_session, unique_suffix: str, monkey
 
     drill = backup_service.run_restore_drill(db_session, ctx, uuid.UUID(backup["id"]))
     assert drill["status"] == "passed"
+

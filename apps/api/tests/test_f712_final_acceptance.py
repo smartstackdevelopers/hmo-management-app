@@ -34,3 +34,4 @@ def test_f712_go_live_decision_option_e() -> None:
     decision = (HANDOVER / "GO_LIVE_DECISION.md").read_text(encoding="utf-8")
     assert "E. NOT YET LIVE" in decision
     assert "LIVE AND VERIFIED" not in decision.split("## Selected status")[1][:200]
+

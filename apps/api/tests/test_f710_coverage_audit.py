@@ -42,3 +42,4 @@ def test_f710_traceability_matrix_minimum_rows() -> None:
     # Honest audit must not claim 100% PASS on all mandatory rows
     pass_count = sum(1 for r in rows if r["status"] == "PASS")
     assert pass_count < len(rows)
+

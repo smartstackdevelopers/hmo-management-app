@@ -358,3 +358,4 @@ def test_approval_gate_blocks_live_ingest_and_isolation(db_session, unique_suffi
     rows = occupancy_service.list_room_states(db_session, ctx, room_id=communal.id)
     assert rows[0]["estimated_count"] is None
     assert rows[0]["occupancy_status"] == "offline"
+

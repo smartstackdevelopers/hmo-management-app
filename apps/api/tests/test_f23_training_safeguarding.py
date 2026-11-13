@@ -242,3 +242,4 @@ def test_safeguarding_transition_rejects_invalid() -> None:
 
     assert "completed" not in SAFEGUARDING_TRANSITIONS["cancelled"]
     assert "acknowledged" in SAFEGUARDING_TRANSITIONS["pending"]
+

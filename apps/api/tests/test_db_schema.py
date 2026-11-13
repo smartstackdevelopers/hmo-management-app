@@ -117,7 +117,7 @@ def test_users_authorization_version_column(migrated_engine: Engine) -> None:
 def test_migration_history_has_single_head(alembic_config) -> None:
     script = ScriptDirectory.from_config(alembic_config)
     heads = script.get_heads()
-    assert heads == ["20261112_4800_f74"]
+    assert heads == ["20261113_4900_f81"]
 
 
 def test_upgrade_downgrade_roundtrip(alembic_config, migrated_engine: Engine) -> None:
@@ -326,3 +326,4 @@ def test_required_fields_reject_null_name(db_session: Session, unique_suffix: st
             {"id": str(uuid4()), "slug": f"bad-{unique_suffix}"},
         )
         db_session.flush()
+

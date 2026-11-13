@@ -28,6 +28,7 @@ FEATURE_DUPLICATE_DETECTION = "ai.agent.duplicate_detection"
 FEATURE_AI_ACTIVITY = "ai.activity.transparency"
 FEATURE_DAILY_LOG_REWRITE = "ai.workflow.daily_log_rewrite"
 FEATURE_CV_WORDING = "ai.workflow.cv_wording"
+FEATURE_VOICE_CALLING = "ai.addon.voice_calling"
 FEATURE_UNKNOWN = "ai.infra.unattributed"
 
 PLANNED_AGENT_FEATURES: frozenset[str] = frozenset(
@@ -62,6 +63,7 @@ WORKFLOW_FEATURES: frozenset[str] = frozenset(
         FEATURE_DAILY_LOG_REWRITE,
         FEATURE_CV_WORDING,
         FEATURE_JOB_MATCHING,
+        FEATURE_VOICE_CALLING,
     }
 )
 
@@ -86,6 +88,7 @@ WORKFLOW_FEATURE_MAP: dict[str, str] = {
     "daily_log_rewrite": FEATURE_DAILY_LOG_REWRITE,
     "cv_wording_assist": FEATURE_CV_WORDING,
     "job_match_explain": FEATURE_JOB_MATCHING,
+    "voice_assistant_turn": FEATURE_VOICE_CALLING,
 }
 
 

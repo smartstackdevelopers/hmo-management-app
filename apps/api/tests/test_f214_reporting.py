@@ -31,3 +31,4 @@ def test_pdf_report_header() -> None:
 
 def test_pdf_builder_still_valid() -> None:
     assert build_simple_pdf("T", ["x"]).startswith(b"%PDF")
+

@@ -187,3 +187,4 @@ def test_maintenance_isolation_and_workflow(db_session, unique_suffix: str) -> N
     apply_organisation_rls(db_session, org.id)
     stats = msvc.dashboard_stats(db_session, ctx_a)
     assert stats["total"] >= 1
+

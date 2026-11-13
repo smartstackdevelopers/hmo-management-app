@@ -233,3 +233,4 @@ def test_tenant_cannot_export_reports() -> None:
 
     assert not role_has_permission(HMoreRole.TENANT, Permission.REPORTS_EXPORT_CSV)
     assert not role_has_permission(HMoreRole.TENANT, Permission.REPORTS_DASHBOARD_VIEW)
+

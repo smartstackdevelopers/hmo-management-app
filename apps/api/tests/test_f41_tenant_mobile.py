@@ -40,7 +40,7 @@ def test_alembic_head_revises_f41_tenant_mobile() -> None:
     config.set_main_option("script_location", str(api_root / "migrations"))
     script = ScriptDirectory.from_config(config)
     heads = script.get_heads()
-    assert heads == ["20261112_4800_f74"]
+    assert heads == ["20261113_4900_f81"]
     f43 = script.get_revision("20261110_3000_f43")
     assert f43 is not None
     assert f43.down_revision == "20261110_2900_f41"
@@ -420,3 +420,4 @@ def test_tenant_document_upload_links_own_row(db_session, unique_suffix: str) ->
     assert category.code == "tenant_submission"
     assert category.title == "Tenant submissions"
     assert category.access_classification == "standard"
+

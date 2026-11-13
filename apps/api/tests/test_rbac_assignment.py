@@ -147,3 +147,4 @@ def test_super_admin_assign_bumps_authorization_version(
     )
     assert membership.role == HMoreRole.LANDLORD
     assert target.authorization_version == before + 1
+

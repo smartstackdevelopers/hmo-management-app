@@ -102,7 +102,7 @@ def test_alembic_head_is_f46_device_sessions() -> None:
     config = Config(str(api_root / "alembic.ini"))
     config.set_main_option("script_location", str(api_root / "migrations"))
     script = ScriptDirectory.from_config(config)
-    assert script.get_heads() == ["20261112_4800_f74"]
+    assert script.get_heads() == ["20261113_4900_f81"]
     f46 = script.get_revision("20261110_3300_f46")
     assert f46 is not None
     assert f46.down_revision == "20261110_3200_f45"
@@ -317,3 +317,4 @@ def test_auth0_management_api_is_not_called() -> None:
     )
     assert management_api_revocation(configured) == {"configured": True, "called": False}
     assert management_api_revocation(Settings()) == {"configured": False, "called": False}
+

@@ -157,3 +157,4 @@ def test_auth_failure_response_is_generic() -> None:
     detail = response.json().get("detail")
     assert detail == "Invalid or missing access token"
     assert "JWKS" not in str(detail)
+

@@ -39,3 +39,4 @@ def test_heuristic_explanation_is_safe() -> None:
     text = heuristic_explanation([])
     assert "does not provide legal certification" in text.lower() or NOTICE.split("—")[0] in text
     assert "legally compliant" not in text.lower()
+

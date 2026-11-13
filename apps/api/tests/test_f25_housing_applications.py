@@ -208,3 +208,4 @@ def test_housing_application_waiting_list_flow(db_session, unique_suffix: str) -
     with pytest.raises(HTTPException) as iso:
         housing_service.get_application(db_session, other_ctx, app_row.id)
     assert iso.value.status_code == 404
+

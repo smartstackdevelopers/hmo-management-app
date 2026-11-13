@@ -86,3 +86,4 @@ def test_planned_agent_features_reserved() -> None:
     assert len(PLANNED_AGENT_FEATURES) == 6
     assert feature_for_workflow("foundation_routed_echo") == "ai.infra.routing"
     assert feature_for_workflow("unknown_future") == "ai.infra.unattributed"
+

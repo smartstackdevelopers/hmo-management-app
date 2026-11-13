@@ -19,3 +19,4 @@ def test_weekly_and_monthly_periods_are_ordered() -> None:
 
 def test_draft_notice_requires_human_review() -> None:
     assert "AI-GENERATED DRAFT — REQUIRES HUMAN REVIEW" == NOTICE
+

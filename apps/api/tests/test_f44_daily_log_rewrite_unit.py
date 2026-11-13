@@ -164,3 +164,4 @@ def test_budget_cap_maps_to_402(monkeypatch: pytest.MonkeyPatch) -> None:
     assert recorded["status"] == "rejected_budget"
     assert recorded["error"] == "budget_cap"
     session.commit.assert_called()
+

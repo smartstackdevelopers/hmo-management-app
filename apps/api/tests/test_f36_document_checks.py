@@ -225,3 +225,4 @@ def test_f36_image_and_cross_org(db_session: Session, unique_suffix: str) -> Non
             uuid.UUID(result["id"]),
         )
     assert denied.value.status_code in {403, 404}
+

@@ -4,7 +4,7 @@ Per plan §10 — not required for strict **core** coverage denominator. Use sta
 
 | Add-on (plan §10) | Client selection | Implementation | Notes |
 | --- | --- | --- | --- |
-| AI Voice Calling | **NOT SELECTED** | — | Not built |
+| AI Voice Calling | **PENDING APPROVAL** (client add-on) | **PARTIAL** F8.1 | Mock telephony module; `VOICE_CALLING_GLOBAL_ENABLED=false` |
 | Safeguarding Alerts (enhanced) | **NOT SELECTED** | Partial via core incidents | Core escalation exists |
 | Rent & Tenancy **Payments** | **NOT SELECTED** | No payment gateway | F6.6 ledger without payments |
 | Training & Certification LMS | **NOT SELECTED** | — | |

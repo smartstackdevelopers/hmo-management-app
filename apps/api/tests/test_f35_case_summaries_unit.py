@@ -137,3 +137,4 @@ def test_feature_and_rbac() -> None:
     assert not role_has_permission(HMoreRole.TENANT, Permission.AI_CASE_SUMMARY_READ)
     assert not role_has_permission(HMoreRole.LANDLORD, Permission.AI_CASE_SUMMARY_RUN)
     assert not role_has_permission(HMoreRole.MAINTENANCE_CONTRACTOR, Permission.AI_CASE_SUMMARY_RUN)
+

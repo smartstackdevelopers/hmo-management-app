@@ -43,3 +43,4 @@ def test_f76_production_validation_blocks_memory_storage(monkeypatch: pytest.Mon
 
     errors = Settings().production_validation_errors()
     assert any("memory" in e.lower() for e in errors)
+

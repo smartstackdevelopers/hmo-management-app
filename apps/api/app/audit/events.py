@@ -476,3 +476,10 @@ WELLBEING_DIRECTORY_UPSERT = "wellbeing.directory.upsert"
 LANDLORD_RENT_CREATE = "landlord.rent.create"
 LANDLORD_RENT_STATUS = "landlord.rent.status"
 LANDLORD_INSPECTION_UPSERT = "landlord.inspection.upsert"
+
+# F8.1 optional AI voice calling — metadata must not store full call audio or biometrics.
+VOICE_CALLING_SETTINGS_UPDATE = "voice_calling.settings.update"
+VOICE_CALLING_SESSION_START = "voice_calling.session.start"
+VOICE_CALLING_SESSION_END = "voice_calling.session.end"
+VOICE_CALLING_HANDOVER_REQUEST = "voice_calling.handover.request"
+VOICE_CALLING_WEBHOOK_RECEIVED = "voice_calling.webhook.received"

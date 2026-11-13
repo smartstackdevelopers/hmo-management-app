@@ -180,3 +180,4 @@ def test_session_policy_exposes_authorization_version() -> None:
     assert payload["authorization_version"] == 4
     assert payload["provider"] == "Auth0"
     assert "revocation" in payload
+

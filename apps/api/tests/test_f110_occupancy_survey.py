@@ -211,3 +211,4 @@ def test_survey_crud_findings_and_cross_org_denial(db_session, unique_suffix: st
     with pytest.raises(HTTPException) as denied:
         survey_service.get_survey(db_session, ctx_b, survey_id)
     assert denied.value.status_code in {403, 404}
+
