@@ -84,6 +84,15 @@ class Permission(StrEnum):
     VOICE_CALLING_TENANT_USE = "voice_calling.tenant.use"
     VOICE_CALLING_OUTBOUND_INITIATE = "voice_calling.outbound.initiate"
 
+    # F8.2 optional advanced safeguarding alerts (Section 11 add-on)
+    SAFEGUARDING_ALERTS_READ = "safeguarding_alerts.read"
+    SAFEGUARDING_ALERTS_MANAGE = "safeguarding_alerts.manage"
+    SAFEGUARDING_ALERTS_REVIEW_ASSIGNED = "safeguarding_alerts.review.assigned"
+    SAFEGUARDING_ALERTS_ESCALATE = "safeguarding_alerts.escalate"
+    SAFEGUARDING_ALERTS_RULES_MANAGE = "safeguarding_alerts.rules.manage"
+    SAFEGUARDING_ALERTS_TENANT_REPORT = "safeguarding_alerts.tenant.report"
+    SAFEGUARDING_ALERTS_READ_PROPERTY = "safeguarding_alerts.read.property"
+
     # Tenant person records (distinct from Tenant login role)
     TENANTS_READ = "tenants.read"
     TENANTS_MANAGE = "tenants.manage"
@@ -516,6 +525,27 @@ PERMISSION_CATALOG: dict[Permission, PermissionMeta] = {
     ),
     Permission.VOICE_CALLING_OUTBOUND_INITIATE: PermissionMeta(
         Permission.VOICE_CALLING_OUTBOUND_INITIATE, "Initiate authorised outgoing voice calls", True
+    ),
+    Permission.SAFEGUARDING_ALERTS_READ: PermissionMeta(
+        Permission.SAFEGUARDING_ALERTS_READ, "View safeguarding alerts dashboard and records", True
+    ),
+    Permission.SAFEGUARDING_ALERTS_MANAGE: PermissionMeta(
+        Permission.SAFEGUARDING_ALERTS_MANAGE, "Manage safeguarding alerts and organisation settings", True
+    ),
+    Permission.SAFEGUARDING_ALERTS_REVIEW_ASSIGNED: PermissionMeta(
+        Permission.SAFEGUARDING_ALERTS_REVIEW_ASSIGNED, "Review assigned safeguarding alerts", True
+    ),
+    Permission.SAFEGUARDING_ALERTS_ESCALATE: PermissionMeta(
+        Permission.SAFEGUARDING_ALERTS_ESCALATE, "Escalate safeguarding alerts per organisation procedure", True
+    ),
+    Permission.SAFEGUARDING_ALERTS_RULES_MANAGE: PermissionMeta(
+        Permission.SAFEGUARDING_ALERTS_RULES_MANAGE, "Configure safeguarding early-warning rules", True
+    ),
+    Permission.SAFEGUARDING_ALERTS_TENANT_REPORT: PermissionMeta(
+        Permission.SAFEGUARDING_ALERTS_TENANT_REPORT, "Submit own safeguarding or welfare concerns", True
+    ),
+    Permission.SAFEGUARDING_ALERTS_READ_PROPERTY: PermissionMeta(
+        Permission.SAFEGUARDING_ALERTS_READ_PROPERTY, "View property-related safety alerts only", True
     ),
     Permission.TENANTS_READ: PermissionMeta(
         Permission.TENANTS_READ, "Read organisation tenant person records", True

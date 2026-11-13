@@ -239,6 +239,17 @@ from app.db.models.voice_calling import (
     VoiceCallSession,
     VoiceCallTurn,
 )
+from app.db.models.safeguarding_alerts import (
+    OrganisationSafeguardingAlertSettings,
+    SafeguardingAlert,
+    SafeguardingAlertAiSuggestion,
+    SafeguardingAlertCategory,
+    SafeguardingAlertEscalation,
+    SafeguardingAlertReview,
+    SafeguardingAlertRule,
+    SafeguardingAlertStatusHistory,
+    SafeguardingTenantReport,
+)
 from app.db.models.push_devices import PushDeviceToken
 from app.db.models.idempotency import ClientIdempotencyKey
 from app.db.models.device_sessions import MobileDeviceSession
@@ -426,6 +437,15 @@ __all__ = [
     "OrganisationVoiceCallingSettings",
     "VoiceCallSession",
     "VoiceCallTurn",
+    "OrganisationSafeguardingAlertSettings",
+    "SafeguardingAlert",
+    "SafeguardingAlertAiSuggestion",
+    "SafeguardingAlertCategory",
+    "SafeguardingAlertEscalation",
+    "SafeguardingAlertReview",
+    "SafeguardingAlertRule",
+    "SafeguardingAlertStatusHistory",
+    "SafeguardingTenantReport",
     "CouncilPortalAccessLog",
     "PrivacyInventoryItem",
     "PrivacyDpiaRegisterEntry",
