@@ -141,6 +141,9 @@ class Settings(BaseSettings):
         default=None, validation_alias="RENT_PAYMENT_WEBHOOK_SIGNING_SECRET",
     )
 
+    # F8.4 training LMS add-on — disabled globally until approved.
+    lms_global_enabled: bool = Field(default=False, validation_alias="LMS_GLOBAL_ENABLED")
+
     # F5.2 Help Near Me geocoding (credentials via env only — never commit secrets).
     # postcodes_io (default) needs no API key. nominatim requires a real User-Agent.
     geocoding_provider: str = Field(default="postcodes_io", validation_alias="GEOCODING_PROVIDER")

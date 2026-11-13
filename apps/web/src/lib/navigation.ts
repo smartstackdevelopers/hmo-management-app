@@ -182,6 +182,13 @@ export const DASHBOARD_NAV: NavItem[] = [
     section: "records",
   },
   {
+    id: "lms",
+    label: "Learning (LMS)",
+    href: "/dashboard/lms",
+    anyOf: ["lms.read", "lms.learn", "lms.manage", "lms.tenant.learn"],
+    section: "records",
+  },
+  {
     id: "room-occupancy",
     label: "Room occupancy",
     href: "/dashboard/room-occupancy",
