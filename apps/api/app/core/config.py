@@ -125,6 +125,12 @@ class Settings(BaseSettings):
     voice_twilio_account_sid: str | None = Field(default=None, validation_alias="VOICE_TWILIO_ACCOUNT_SID")
     voice_twilio_auth_token: str | None = Field(default=None, validation_alias="VOICE_TWILIO_AUTH_TOKEN")
 
+    # F8.2 advanced safeguarding alerts add-on — disabled globally until approved.
+    safeguarding_alerts_global_enabled: bool = Field(
+        default=False,
+        validation_alias="SAFEGUARDING_ALERTS_GLOBAL_ENABLED",
+    )
+
     # F5.2 Help Near Me geocoding (credentials via env only — never commit secrets).
     # postcodes_io (default) needs no API key. nominatim requires a real User-Agent.
     geocoding_provider: str = Field(default="postcodes_io", validation_alias="GEOCODING_PROVIDER")

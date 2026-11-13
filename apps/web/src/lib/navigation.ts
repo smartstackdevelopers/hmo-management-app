@@ -168,6 +168,13 @@ export const DASHBOARD_NAV: NavItem[] = [
     section: "records",
   },
   {
+    id: "safeguarding-alerts",
+    label: "Safeguarding alerts",
+    href: "/dashboard/safeguarding-alerts",
+    anyOf: ["safeguarding_alerts.read", "safeguarding_alerts.manage"],
+    section: "records",
+  },
+  {
     id: "room-occupancy",
     label: "Room occupancy",
     href: "/dashboard/room-occupancy",

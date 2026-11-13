@@ -56,6 +56,7 @@ from app.api.v1.job_matching import router as job_matching_router
 from app.api.v1.wellbeing import router as wellbeing_router
 from app.api.v1.landlord_enterprise import router as landlord_enterprise_router
 from app.api.v1.voice_calling import router as voice_calling_router
+from app.api.v1.safeguarding_alerts import router as safeguarding_alerts_router
 from app.api.v1.opportunities import router as opportunities_router
 from app.api.v1.tenant_timeline import router as tenant_timeline_router
 from app.api.v1.support_plans import dash_router as support_plans_dash_router
@@ -124,3 +125,4 @@ api_v1_router.include_router(report_drafts_router)
 api_v1_router.include_router(ai_activity_router)
 api_v1_router.include_router(ai_feature_flags_router)
 api_v1_router.include_router(voice_calling_router)
+api_v1_router.include_router(safeguarding_alerts_router)

@@ -29,6 +29,7 @@ FEATURE_AI_ACTIVITY = "ai.activity.transparency"
 FEATURE_DAILY_LOG_REWRITE = "ai.workflow.daily_log_rewrite"
 FEATURE_CV_WORDING = "ai.workflow.cv_wording"
 FEATURE_VOICE_CALLING = "ai.addon.voice_calling"
+FEATURE_SAFEGUARDING_ALERTS = "ai.addon.safeguarding_alerts"
 FEATURE_UNKNOWN = "ai.infra.unattributed"
 
 PLANNED_AGENT_FEATURES: frozenset[str] = frozenset(
@@ -64,6 +65,7 @@ WORKFLOW_FEATURES: frozenset[str] = frozenset(
         FEATURE_CV_WORDING,
         FEATURE_JOB_MATCHING,
         FEATURE_VOICE_CALLING,
+        FEATURE_SAFEGUARDING_ALERTS,
     }
 )
 
