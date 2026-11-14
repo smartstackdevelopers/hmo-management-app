@@ -202,19 +202,24 @@ def upgrade() -> None:
 
 
 def downgrade() -> None:
+    # Break circular FK: intelligent_workflows.active_version_id -> versions.
     op.drop_constraint("fk_intelligent_workflows_active_version", "intelligent_workflows", type_="foreignkey")
-    for table in reversed(
-        (
-            "intelligent_workflow_audit_logs",
-            "intelligent_workflow_notification_logs",
-            "intelligent_workflow_notification_templates",
-            "intelligent_workflow_scheduled_tasks",
-            "intelligent_workflow_approvals",
-            "intelligent_workflow_executions",
-            "intelligent_workflow_versions",
-            "intelligent_workflows",
-            "organisation_advanced_automation_settings",
-        )
-    ):
+    workflow_tables = (
+        "intelligent_workflow_audit_logs",
+        "intelligent_workflow_notification_logs",
+        "intelligent_workflow_notification_templates",
+        "intelligent_workflow_scheduled_tasks",
+        "intelligent_workflow_approvals",
+        "intelligent_workflow_executions",
+        "intelligent_workflow_versions",
+        "intelligent_workflows",
+    )
+    for table in workflow_tables:
         op.execute(sa.text(f"DROP POLICY IF EXISTS hmore_org_isolation ON {table}"))
-        op.drop_table(table)
+    for table in workflow_tables:
+        # CASCADE keeps alembic downgrade-to-base reliable in CI (F8.11 dependency graph).
+        op.execute(sa.text(f"DROP TABLE IF EXISTS {table} CASCADE"))
+    op.execute(
+        sa.text("DROP POLICY IF EXISTS hmore_org_isolation ON organisation_advanced_automation_settings")
+    )
+    op.drop_table("organisation_advanced_automation_settings")
