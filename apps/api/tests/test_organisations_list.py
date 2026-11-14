@@ -10,10 +10,17 @@ from app.db.models import Organisation, User
 from app.db.models.enums import HMoreRole, MembershipStatus
 from app.db.models.membership import OrganisationMembership
 from app.rbac.context import AuthorizationContext, MembershipView
-from app.tenancy.membership_service import list_organisations_directory
+from app.core.config import get_settings
+from app.platform_governance.service import list_organisations
 from app.tenancy.session_rls import apply_platform_rls_bypass
 
 pytestmark = pytest.mark.postgres
+
+
+@pytest.fixture
+def governance_enabled(monkeypatch: pytest.MonkeyPatch) -> None:
+    monkeypatch.setenv("PLATFORM_GOVERNANCE_GLOBAL_ENABLED", "true")
+    get_settings.cache_clear()
 
 
 def _super_authz(user: User) -> AuthorizationContext:
@@ -32,7 +39,9 @@ def _super_authz(user: User) -> AuthorizationContext:
     )
 
 
-def test_list_organisations_directory_super_admin(db_session, unique_suffix: str) -> None:
+def test_list_organisations_directory_super_admin(
+    db_session, unique_suffix: str, governance_enabled: None
+) -> None:
     org = Organisation(name=f"Listed Org {unique_suffix}", slug=f"listed-{unique_suffix}")
     db_session.add(org)
     user = User(
@@ -52,6 +61,6 @@ def test_list_organisations_directory_super_admin(db_session, unique_suffix: str
     )
     db_session.flush()
     apply_platform_rls_bypass(db_session)
-    rows = list_organisations_directory(db_session, actor=_super_authz(user))
+    rows = list_organisations(db_session, _super_authz(user))
     ids = {row["id"] for row in rows}
     assert str(org.id) in ids
