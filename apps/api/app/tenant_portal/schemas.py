@@ -31,10 +31,11 @@ class TenantSelfUpdate(BaseModel):
 
     preferred_name: str | None = Field(default=None, min_length=1, max_length=255)
     phone: str | None = Field(default=None, max_length=50)
+    needs_goals: str | None = Field(default=None, max_length=10000)
 
 
 class TenantSelfOut(BaseModel):
-    """Own profile. Notes, consent notes, and needs/goals are never included."""
+    """Own profile. Staff notes and consent notes are never included."""
 
     model_config = ConfigDict(from_attributes=True)
 
@@ -46,6 +47,7 @@ class TenantSelfOut(BaseModel):
     email: str | None
     phone: str | None
     tenancy_reference: str | None
+    needs_goals: str | None = None
     status: RecordStatus
     created_at: datetime
     updated_at: datetime

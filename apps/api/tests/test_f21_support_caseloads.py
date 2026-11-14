@@ -252,6 +252,18 @@ def test_caseload_logs_handovers_isolation(db_session, unique_suffix: str) -> No
         support_service.get_case_detail(db_session, admin_ctx, tenant_b.id)
     assert cross.value.status_code in {403, 404}
 
+    with pytest.raises(HTTPException) as ho_denied:
+        support_service.create_handover(
+            db_session,
+            worker2_ctx,
+            HandoverCreate(
+                tenant_id=tenant_a.id,
+                recipient_user_id=worker.id,
+                summary="Unassigned handover attempt",
+            ),
+        )
+    assert ho_denied.value.status_code == 403
+
     # Handover workflow
     handover = support_service.create_handover(
         db_session,

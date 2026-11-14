@@ -67,6 +67,15 @@ export function TenantSupport() {
         <EmptyState title="No linked profile" message="Support plans appear when a tenant record is linked to this login." icon="people-outline" />
       ) : null}
 
+      {tenantQuery.data?.needs_goals?.trim() ? (
+        <>
+          <SectionHeader title="Your needs & goals" />
+          <Card style={styles.card}>
+            <Text style={styles.body}>{tenantQuery.data.needs_goals.trim()}</Text>
+          </Card>
+        </>
+      ) : null}
+
       <SectionHeader title="Support plan" />
       {plans.length === 0 ? (
         <Text style={styles.empty}>No support plan is shared with you yet.</Text>

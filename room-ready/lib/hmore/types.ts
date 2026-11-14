@@ -51,7 +51,7 @@ export interface Tenant {
   updated_at: string;
 }
 
-/** GET/PATCH /tenant/me. Notes, consent notes, and needs/goals are not returned. */
+/** GET/PATCH /tenant/me. Staff notes and consent notes are not returned. */
 export interface TenantSelf {
   id: string;
   organisation_id: string;
@@ -61,6 +61,7 @@ export interface TenantSelf {
   email: string | null;
   phone: string | null;
   tenancy_reference: string | null;
+  needs_goals: string | null;
   status: string;
   created_at: string;
   updated_at: string;

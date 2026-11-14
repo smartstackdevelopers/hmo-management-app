@@ -153,7 +153,7 @@ describe('tenant catalogue clients', () => {
 });
 
 describe('tenant profile writes', () => {
-  it('whitelists preferred_name and phone on the self-update payload', () => {
+  it('whitelists preferred_name, phone, and needs_goals on the self-update payload', () => {
     expect(
       tenantSelfPatchBody({
         preferred_name: 'Amina',
@@ -161,9 +161,9 @@ describe('tenant profile writes', () => {
         notes: 'secret',
         assigned_property_id: 'property-1',
         email: 'a@example.com',
-        needs_goals: 'private',
+        needs_goals: 'Budget weekly',
       }),
-    ).toEqual({ preferred_name: 'Amina', phone: '07000' });
+    ).toEqual({ preferred_name: 'Amina', phone: '07000', needs_goals: 'Budget weekly' });
     const src = readFileSync(path.join(__dirname, '../lib/hmore/services/tenants.ts'), 'utf8');
     expect(src).toContain("'/tenant/me'");
     expect(src).toContain('tenantSelfPatchBody');

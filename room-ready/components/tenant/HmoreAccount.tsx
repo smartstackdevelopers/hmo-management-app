@@ -32,6 +32,7 @@ export function HmoreAccount() {
   const profile = profileQuery.data;
   const [name, setName] = useState('');
   const [phone, setPhone] = useState('');
+  const [needsGoals, setNeedsGoals] = useState('');
   const [readyFor, setReadyFor] = useState<string | null>(null);
   const [saved, setSaved] = useState(false);
 
@@ -39,6 +40,7 @@ export function HmoreAccount() {
     if (!profile || readyFor === profile.id) return;
     setName(profile.preferred_name);
     setPhone(profile.phone ?? '');
+    setNeedsGoals(profile.needs_goals ?? '');
     setReadyFor(profile.id);
   }, [profile, readyFor]);
 
@@ -47,11 +49,13 @@ export function HmoreAccount() {
       patchOwnTenant({
         preferred_name: name.trim(),
         phone: phone.trim() ? phone.trim() : null,
+        needs_goals: needsGoals.trim() ? needsGoals.trim() : null,
       }),
     onSuccess: async (updated) => {
       setSaved(true);
       setName(updated.preferred_name);
       setPhone(updated.phone ?? '');
+      setNeedsGoals(updated.needs_goals ?? '');
       await client.invalidateQueries({ queryKey: ['hmore', 'tenant-me'] });
     },
     onError: () => setSaved(false),
@@ -105,6 +109,17 @@ export function HmoreAccount() {
               }}
               keyboardType="phone-pad"
               accessibilityLabel={t('profile.phone')}
+            />
+            <Input
+              label="Needs & goals"
+              value={needsGoals}
+              onChangeText={(value) => {
+                setSaved(false);
+                setNeedsGoals(value);
+              }}
+              multiline
+              numberOfLines={4}
+              accessibilityLabel="Needs and goals"
             />
             {save.error ? <Text style={styles.error}>{hmoreErrorMessage(save.error)}</Text> : null}
             {saved ? <Text style={styles.saved}>{t('profile.saved')}</Text> : null}

@@ -46,6 +46,7 @@ export function StaffMore() {
       {support ? (
         <>
           <RecordCard title="Visits" onPress={() => router.push('/(app)/staff/visits')} />
+          <RecordCard title="Handovers" onPress={() => router.push('/(app)/staff/handovers')} />
           <RecordCard title="Tasks" onPress={() => router.push('/(app)/staff/tasks')} />
           <RecordCard title="Incidents" onPress={() => router.push('/(app)/staff/incidents')} />
           <RecordCard title="Occupancy surveys" detail="Surveys only. No live camera counts." onPress={() => router.push('/(app)/staff/occupancy')} />

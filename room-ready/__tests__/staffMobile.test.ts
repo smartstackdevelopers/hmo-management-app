@@ -264,6 +264,15 @@ describe('device speech', () => {
   });
 });
 
+describe('staff handover client', () => {
+  it('calls /handovers with caseload guard', () => {
+    const src = readFileSync(path.join(__dirname, '../lib/hmore/services/staff/handovers.ts'), 'utf8');
+    expect(src).toContain("'/handovers'");
+    expect(src).toContain('assertCanUseCaseload');
+    expect(() => listCaseload('contractor')).toThrow(/Caseload/);
+  });
+});
+
 describe('staff alerts and uploads', () => {
   it('opens a record only for a known resource link', () => {
     expect(staffAlertHref({ related_resource_type: 'incident', related_resource_id: '11111111-1111-4111-8111-111111111111' })).toBe(

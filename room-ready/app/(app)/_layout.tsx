@@ -59,6 +59,7 @@ export default function AppLayout() {
         <Stack.Screen name="documents" options={{ ...headerOptions, headerShown: true, title: tenant ? t('nav.files') : 'My files' }} />
         <Stack.Screen name="notifications" options={{ ...headerOptions, headerShown: true, title: tenant ? t('nav.alerts') : 'Notifications' }} />
         <Stack.Screen name="staff/visits" options={{ ...headerOptions, headerShown: true, title: 'Visits' }} />
+        <Stack.Screen name="staff/handovers" options={{ ...headerOptions, headerShown: true, title: 'Handovers' }} />
         <Stack.Screen name="staff/tasks" options={{ ...headerOptions, headerShown: true, title: 'Tasks' }} />
         <Stack.Screen name="staff/incidents" options={{ ...headerOptions, headerShown: true, title: 'Incidents' }} />
         <Stack.Screen name="staff/occupancy" options={{ ...headerOptions, headerShown: true, title: 'Occupancy surveys' }} />

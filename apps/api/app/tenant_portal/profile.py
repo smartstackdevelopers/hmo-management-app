@@ -14,7 +14,7 @@ from app.records.tenant_service import find_own_tenant
 from app.tenant_portal.schemas import TenantHousingOut, TenantSelfOut, TenantSelfUpdate
 from app.tenancy.context import OrganisationContext
 
-_SELF_FIELDS = frozenset({"preferred_name", "phone"})
+_SELF_FIELDS = frozenset({"preferred_name", "phone", "needs_goals"})
 
 
 def require_own_tenant(session: Session, ctx: OrganisationContext) -> Tenant:
@@ -40,13 +40,16 @@ def update_own_profile(
     if rejected:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Only preferred_name and phone can be updated",
+            detail="Only preferred_name, phone, and needs_goals can be updated",
         )
     if "preferred_name" in payload:
         tenant.preferred_name = payload["preferred_name"].strip()
     if "phone" in payload:
         phone = payload["phone"]
         tenant.phone = phone.strip() if isinstance(phone, str) and phone.strip() else None
+    if "needs_goals" in payload:
+        raw = payload["needs_goals"]
+        tenant.needs_goals = raw.strip() if isinstance(raw, str) and raw.strip() else None
     session.add(tenant)
     session.flush()
     session.refresh(tenant)

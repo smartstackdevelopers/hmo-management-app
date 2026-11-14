@@ -1,7 +1,8 @@
 import { useQuery } from '@tanstack/react-query';
-import { useLocalSearchParams } from 'expo-router';
+import { router, useLocalSearchParams } from 'expo-router';
 
 import { RecordCard, StaffPage } from '@/components/staff/ui';
+import { Button } from '@/components/ui/Button';
 import { ErrorState, LoadingScreen } from '@/components/ui/States';
 import { useAuth } from '@/contexts/AuthContext';
 import { hmoreErrorMessage } from '@/lib/hmore/client';
@@ -23,7 +24,15 @@ export function CaseDetail() {
   const tenant = detail?.tenant;
   return (
     <StaffPage title={tenant?.preferred_name || tenant?.full_name || 'Tenant'} subtitle={tenant?.tenancy_reference || tenant?.status || ''} onRefresh={query.refetch} refreshing={query.isRefetching}>
-      <RecordCard title="Status" status={tenant?.status} detail="Contact notes and needs are not shown on this screen." />
+      <RecordCard title="Status" status={tenant?.status} detail="Staff-only notes stay on the server." />
+      {tenantId ? (
+        <Button
+          title="Handovers"
+          variant="outline"
+          onPress={() => router.push(`/(app)/staff/handovers?tenantId=${tenantId}`)}
+          fullWidth
+        />
+      ) : null}
       {(detail?.recent_logs ?? []).map((log) => (
         <RecordCard key={log.id} title={log.summary} status={log.status} detail={log.log_date} />
       ))}

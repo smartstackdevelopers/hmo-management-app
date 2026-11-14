@@ -61,6 +61,7 @@ export default async function CaseDetailPage({
       tenancy_reference?: string;
       email?: string;
       phone?: string;
+      needs_goals?: string | null;
       status?: string;
     };
 
@@ -88,6 +89,12 @@ export default async function CaseDetailPage({
           <div>
             <dt className="text-slate-500">Phone</dt>
             <dd className="font-medium text-forest-900">{tenant.phone || "—"}</dd>
+          </div>
+          <div className="sm:col-span-2">
+            <dt className="text-slate-500">Needs & goals</dt>
+            <dd className="font-medium text-forest-900 whitespace-pre-wrap">
+              {tenant.needs_goals?.trim() || "—"}
+            </dd>
           </div>
         </dl>
 

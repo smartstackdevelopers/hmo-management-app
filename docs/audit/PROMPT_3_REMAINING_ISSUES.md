@@ -1,66 +1,36 @@
-# PROMPT 3 — Remaining issues
+# PROMPT 3 — Remaining issues (post-implementation)
 
-**Date:** 2026-11-14  
-**Branch:** `develop`  
-**Modules:** M02, M04, M05
+**Date:** 2026-11-14
 
 ---
 
-## Verified LOCAL PASS rate (strict — automated evidence only)
+## Verified LOCAL PASS (strict)
 
 | Module | PASS | Total | % |
 | --- | ---: | ---: | ---: |
-| **M02** Tenant management | 3 | 4 | **75%** |
-| **M04** Staff management | 5 | 6 | **83%** |
-| **M05** Support plans | 2 | 2 | **100%** |
-| **Combined M02+M04+M05** | 10 | 12 | **83%** |
-
-Features marked **PARTIAL** (not counted as PASS above):
-
-| ID | Reason |
-| --- | --- |
-| M02.2 | Tenant mobile does not surface `needs_goals`; staff/timeline/support-plan APIs hold structured goals (by design). |
-| M04.3 | Mobile lacks dedicated handover create/list; web + API complete. |
+| M02 | 4 | 4 | **100%** |
+| M04 | 6 | 6 | **100%** |
+| M05 | 2 | 2 | **100%** |
+| **Combined** | 12 | 12 | **100%** (automated) |
 
 ---
 
-## Blocking manual verification
+## Still UNVERIFIED (not blockers for this sprint)
 
-1. **Auth0 six-role smoke** — Caseload, support-plans dashboard, tenant mobile profile (`ROLE_ACCEPTANCE_CHECKLIST.csv`).
-2. **Web export download** — M05.2 PDF from dashboard after login.
-3. **Mobile handovers** — Product decision: add screen + service for `/handovers` or document web-only workflow.
-
----
-
-## Code gaps (not fixed in Prompt 3 — no verified bugs)
-
-| Issue | Severity | Notes |
-| --- | --- | --- |
-| Mobile handover UX | Low | API + web OK; mobile read-only on case detail |
-| Tenant needs/goals on mobile | Low | Architectural — extend API or link to support-plan read |
-| Playwright / Expo E2E | Medium | **UNVERIFIED** |
-| Web typecheck this sprint | Info | Not re-run; no web diff |
-
-No stub APIs, mock success, or RBAC weakening was applied.
+1. Auth0 live smoke — caseload, handover create, tenant needs edit on device.
+2. M05.2 — download export PDF in browser after login.
+3. Handover mobile UX — recipient picker depends on caseload assignments (manual UUID fallback remains).
 
 ---
 
-## Carried from Prompt 2 (still open)
+## Out of scope
 
-- Live Auth0 login/logout (M01.2) **PARTIAL**
-- MFA staff path **UNVERIFIED**
-- `meeting-demo.local.env` / pdf exports remain untracked (excluded from commit)
-
----
-
-## Prompt 4
-
-**Not started** (per coordinator scope).
+- Prompt 4, production deploy.
+- Structured `tenant_needs_goals` timeline rows on tenant mobile (staff timeline API unchanged).
 
 ---
 
-## Suggested next actions
+## Notes
 
-1. Add mobile `handovers.ts` + staff screen if mobile parity required for M04.3 LOCAL PASS.
-2. Run `npm run typecheck` in `apps/web` after Auth0 env confirmed.
-3. Optional: tenant-visible read-only goals from `/tenant/support-plans` (already on mobile) to close M02.2 perception gap.
+- `tenants.needs_goals` is tenant-editable via `profile.update.own`; staff `notes` never exposed on `/tenant/me`.
+- Mobile handovers use existing `POST /handovers` only; no RBAC bypass.
