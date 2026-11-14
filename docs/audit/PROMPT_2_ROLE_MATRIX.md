@@ -1,6 +1,7 @@
 # PROMPT 2 — Six-role matrix and enforcement
 
-**Date:** 2026-11-14  
+**Date:** 2026-11-14 (follow-up)  
+**Branch:** `develop` @ `95bed7a`  
 **Verdict (six roles only):** **PASS**  
 **Verdict (web route homes):** **PARTIAL**  
 **Verdict (live Auth0 role claims):** **UNVERIFIED**
@@ -12,12 +13,11 @@
 | Check | Evidence | Verdict |
 | --- | --- | --- |
 | DB enum | `apps/api/app/db/models/enums.py` — `HMoreRole` (6 values) | **PASS** |
-| Registry | `apps/api/app/rbac/roles.py` — `ROLE_DEFINITIONS`, `APPROVED_ROLE_COUNT = 6`, `assert_exactly_six_roles()` | **PASS** |
-| Forbidden legacy roles | `tests/test_rbac_registry.py::test_no_removed_core_roles` | **PASS** |
-| Web approved list | `apps/web/src/lib/rbac.ts` — `APPROVED_ROLES` (6 strings) | **PASS** |
-| Council / add-ons | Not seventh core role (`docs/audit/SIX_ROLE_ACCESS_VERIFICATION.md`) | **PASS** |
-
-### Role codes and display names
+| Registry | `apps/api/app/rbac/roles.py` — `ROLE_DEFINITIONS`, `APPROVED_ROLE_COUNT = 6` | **PASS** |
+| Startup guard | `roles.py` — `assert_exactly_six_roles()` at import | **PASS** |
+| Tests | `tests/test_rbac_registry.py::test_exactly_six_approved_roles` | **PASS** |
+| Web | `apps/web/src/lib/rbac.ts` — `APPROVED_ROLES` length 6 | **PASS** |
+| Bootstrap CLI | `apps/api/scripts/bootstrap_identity.py` — `list-roles` | **PASS** |
 
 | Code | Display name | Platform-scoped |
 | --- | --- | --- |
@@ -28,67 +28,83 @@
 | `support_worker` | Support Worker | No |
 | `maintenance_contractor` | Maintenance & Contractors | No |
 
+Forbidden legacy values explicitly tested: `council_officer`, `housing_manager`, etc. — `test_no_removed_core_roles`.
+
 ---
 
-## Task 3 — RBAC (backend enforcement, not UI-only)
+## Task 3 — RBAC enforcement map
 
-| Layer | Mechanism | Key paths |
+### Layers
+
+| Layer | File | Role |
 | --- | --- | --- |
-| Permission catalog | `app/rbac/permissions.py` | Stable permission IDs |
-| Matrix | `app/rbac/matrix.py` — `ROLE_PERMISSIONS` | Deny-by-default |
-| Service | `app/rbac/service.py` — `require_permission`, scoped asserts (landlord property, caseload, own user) | Used across routers |
-| HTTP deps | `app/rbac/deps.py` — `require_perm(...)`, `get_authorization_context` | Membership + optional device session |
-| Audit on deny | `require_perm` records `AUTH_ACCESS_DENIED` | `app/rbac/deps.py` |
+| Permissions | `app/rbac/permissions.py` | `Permission` enum + `PERMISSION_CATALOG` |
+| Matrix | `app/rbac/matrix.py` | `ROLE_PERMISSIONS` — deny unlisted |
+| Context | `app/rbac/context.py` | `AuthorizationContext.has_permission()` |
+| Service | `app/rbac/service.py` | `require_permission`, `assert_landlord_property_access`, `assert_same_user`, … |
+| HTTP deps | `app/rbac/deps.py` | `require_perm(...)`, `get_authorization_context` |
+| Assignment | `app/rbac/assignment.py` | `assign_membership` rules |
+| Tenancy | `app/tenancy/membership_service.py` | Org membership mutations |
+| Isolation | `app/tenancy/isolation.py` | Org-scoped CRUD helpers + RLS |
 
-**API usage:** Widespread `require_permission` / `require_perm` on v1 routers (properties, tenants, files, rbac, audit, isolation probes, AI usage, etc.). UI `can()` in `apps/web` is explicitly non-authoritative.
+### RBAC HTTP API (`/api/v1/rbac`)
 
-### Permission summary by role (high level)
+| Method | Path | Permission / gate |
+| --- | --- | --- |
+| GET | `/rbac/roles` | Authenticated + membership |
+| GET | `/rbac/permissions` | Authenticated + membership |
+| GET | `/rbac/matrix` | `audit_logs.read` |
+| GET | `/rbac/me` | Authenticated + active membership |
+| GET | `/rbac/session` | Session policy |
+| POST | `/rbac/memberships` | Assignment rules in service |
+| GET | `/rbac/gates/organisations.manage` | Permission probe |
+| GET | `/rbac/gates/audit_logs.read` | Permission probe |
+| GET | `/rbac/gates/properties.manage` | Permission probe |
+| POST | `/rbac/gates/property-access` | Landlord scope assert |
+| POST | `/rbac/gates/work-order-access` | Contractor scope assert |
+| POST | `/rbac/gates/support-access` | Support worker caseload assert |
+| POST | `/rbac/gates/own-profile` | Tenant self assert |
 
-| Role | Representative backend capabilities |
+### Role → enforcement examples
+
+| Role | Matrix source | Scoped asserts | Example tests |
+| --- | --- | --- | --- |
+| **Super Admin** | Full platform set in `matrix.py` | `get_platform_context` on org create | `test_super_admin_organisations_api.py` |
+| **Org Admin** | Org admin frozenset | Org context on CRUD | `test_organisation_isolation.py` |
+| **Landlord** | `PROPERTIES_*`, repairs | `assert_landlord_property_access` | `test_rbac_authorization.py` |
+| **Tenant** | Own repairs, limited reads | `assert_same_user` | `test_tenant_own_profile_only` |
+| **Support Worker** | Caseload, plans, visits | `assert_assigned_support_caseload` | `test_rbac_authorization.py` |
+| **Contractor** | Work orders assigned | `assert_assigned_work_order` | matrix + maintenance tests |
+
+Representative routers using `require_permission` / `require_perm`: `properties.py`, `tenants.py`, `files.py`, `audit.py`, `emergency_access.py`, `platform_governance.py`, `organisations.py`, `isolation_probes.py`.
+
+### UI (non-authoritative)
+
+| File | Behaviour |
 | --- | --- |
-| **Super Admin** | Organisations create/manage, platform settings, role assignments, audit read, cross-org governance (`ORGANISATIONS_*`, `PLATFORM_*`, full finance/add-ons set in matrix) |
-| **Org Admin** | Org users/workflows, compliance, audit/reports, occupancy, communications, housing ops — not platform org creation |
-| **Landlord** | Own properties/rooms/vacancies, tenancies, inspections, repairs on own stock (`PROPERTIES_*`, landlord-scoped asserts) |
-| **Tenant** | Own profile/documents, own repairs/complaints, limited reads — denied admin/audit/finance (`REPAIRS_CREATE_OWN`, self-user asserts) |
-| **Support Worker** | Assigned caseload, support plans/notes, visits/tasks, incidents — denied unrelated tenants (`SUPPORT_*`, assignment asserts) |
-| **Maintenance contractor** | Assigned work orders, status/photo updates — denied role assignment and broad admin (`WORK_ORDERS_*`) |
-
-Detailed per-permission mapping: `apps/api/app/rbac/matrix.py` + `tests/test_rbac_registry.py`.
-
-### Scoped enforcement examples (beyond matrix)
-
-| Scenario | Test / code |
-| --- | --- |
-| Tenant ≠ other user | `test_rbac_authorization.py::test_tenant_own_profile_only` |
-| Landlord ≠ foreign property | `test_rbac_authorization.py::test_landlord_cannot_access_unrelated_property` |
-| Super Admin org API | `test_super_admin_organisations_api.py` (403 for tenant on platform org list) |
+| `apps/web/src/lib/rbac.ts` | `can()`, `APPROVED_ROLES` |
+| `apps/web/src/lib/navigation.ts` | Nav filtered by permissions from API |
+| `apps/web/src/lib/session.ts` | Server-side role home guard |
 
 ---
 
 ## Web dashboard route protection
 
-| Mechanism | Path |
+| File | `requireDashboardRole` |
 | --- | --- |
-| Role home map | `apps/web/src/lib/dashboardAccess.ts` — four F19 web homes + tenant/contractor → `/account` |
-| Server guard | `requireDashboardRole` in `src/lib/session.ts` |
-| Pages using guard | `dashboard/super-admin/*`, `organisation-admin`, `landlord`, `support-worker` (grep `requireDashboardRole`) |
+| `src/app/dashboard/super-admin/page.tsx` | `super_admin` |
+| `src/app/dashboard/super-admin/organisations/page.tsx` | `super_admin` |
+| `src/app/dashboard/organisation-admin/page.tsx` | `organisation_admin` |
+| `src/app/dashboard/support-worker/page.tsx` | `support_worker` |
+| `src/app/dashboard/landlord/*` | **No** `requireDashboardRole` in repo grep — **PARTIAL** |
 
-| Role | Web home | Guarded page |
-| --- | --- | --- |
-| super_admin | `/dashboard/super-admin` | **PASS** |
-| organisation_admin | `/dashboard/organisation-admin` | **PASS** |
-| landlord | `/dashboard/landlord` | **PARTIAL** (home guarded; deep routes rely on API + nav) |
-| support_worker | `/dashboard/support-worker` | **PASS** |
-| tenant | Mobile primary (`ROLE_ACCEPTANCE_CHECKLIST.csv` R5) | **PARTIAL** on web |
-| maintenance_contractor | Mobile primary (R6) | **PARTIAL** on web |
-
-**Verdict:** Six roles in data model **PASS**; exhaustive per-nav-item web deny **PARTIAL** (`docs/audit/SIX_ROLE_ACCESS_VERIFICATION.md` agrees).
+Role homes: `apps/web/src/lib/dashboardAccess.ts` — `ROLE_DASHBOARD_HOMES` (4 web roles); tenant/contractor → `/account`.
 
 ---
 
-## Task 6 cross-reference (role E2E)
+## Task 6 — Acceptance checklist (E2E)
 
-| ID | Role | Client | Checklist status |
+| ID | Role | Client | Status |
 | --- | --- | --- | --- |
 | R1 | super_admin | Web | **UNVERIFIED** |
 | R2 | organisation_admin | Web | **UNVERIFIED** |
@@ -96,3 +112,5 @@ Detailed per-permission mapping: `apps/api/app/rbac/matrix.py` + `tests/test_rba
 | R4 | support_worker | Mobile | **UNVERIFIED** |
 | R5 | tenant | Mobile | **UNVERIFIED** |
 | R6 | maintenance_contractor | Mobile | **UNVERIFIED** |
+
+Checklist file: `docs/development/ROLE_ACCEPTANCE_CHECKLIST.csv`. Manual procedure: `PROMPT_2_REMAINING_ISSUES.md`.
