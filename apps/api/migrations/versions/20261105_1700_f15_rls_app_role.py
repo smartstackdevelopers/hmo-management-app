@@ -95,4 +95,5 @@ def downgrade() -> None:
         """
     )
     op.execute("REVOKE USAGE ON SCHEMA public FROM hmore_app")
-    op.execute("DROP ROLE IF EXISTS hmore_app")
+    # Do not DROP ROLE here: downstream downgrade steps may still hold grants/policies
+    # referencing hmore_app. Upgrade recreates grants with IF NOT EXISTS on the role.

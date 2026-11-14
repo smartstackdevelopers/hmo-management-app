@@ -38,7 +38,7 @@ Allowed callback and logout URLs must include the Expo redirect (`roomready://au
 
 The API still expects a user mapped from the Auth0 subject, an active tenant membership, and `X-Organisation-Id` / `X-HMore-Role` when the user has more than one membership. The app stores the active organisation and role from `GET /rbac/me`.
 
-Leave the Auth0 variables unset only if you still need the legacy Room Ready password API (`EXPO_PUBLIC_API_URL`, default port 3001).
+Leave the Auth0 variables unset only if you still need the legacy Room Ready password API; set `EXPO_PUBLIC_API_URL` explicitly (there is no default port 3001).
 
 ## What you should see
 

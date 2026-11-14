@@ -1,4 +1,4 @@
-import { resolveDevHost } from '@/lib/config';
+import { resolveDevHost } from '@/lib/network';
 
 /**
  * FastAPI base for the tenant app, including the `/api/v1` prefix.

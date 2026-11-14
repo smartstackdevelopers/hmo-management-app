@@ -1,22 +1,11 @@
-import { Platform } from 'react-native';
-import Constants from 'expo-constants';
+import { HMORE_API_BASE_URL } from '@/lib/hmore/config';
 
-export function resolveDevHost(): string {
-  if (Platform.OS === 'android') return '10.0.2.2';
-  if (Platform.OS === 'web') return 'localhost';
+export { resolveDevHost } from '@/lib/network';
 
-  const hostUri = Constants.expoConfig?.hostUri;
-  if (hostUri) {
-    const host = hostUri.split(':')[0];
-    if (host && host !== 'localhost') return host;
-  }
-  return 'localhost';
-}
-
-export const API_BASE_URL =
-  process.env.EXPO_PUBLIC_API_URL ?? `http://${resolveDevHost()}:3001`;
-
+/** File URLs for HMore API–served assets (not legacy port 3001). */
 export function getFileUrl(path: string): string {
   if (path.startsWith('http')) return path;
-  return `${API_BASE_URL}${path}`;
+  const origin = HMORE_API_BASE_URL.replace(/\/api\/v1\/?$/, '');
+  const normalized = path.startsWith('/') ? path : `/${path}`;
+  return `${origin}${normalized}`;
 }

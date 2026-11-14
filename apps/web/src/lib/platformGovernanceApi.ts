@@ -29,3 +29,14 @@ async function govFetch<T>(path: string, options: GovAuth, init?: RequestInit): 
 export function fetchOrgGovernanceDashboard(options: GovAuth) {
   return govFetch<Record<string, unknown>>("/api/v1/platform-governance/org/dashboard", options);
 }
+
+export type PlatformOrganisation = {
+  id: string;
+  name: string;
+  slug: string;
+  status: string;
+};
+
+export function fetchPlatformOrganisations(options: GovAuth): Promise<PlatformOrganisation[]> {
+  return govFetch<PlatformOrganisation[]>("/api/v1/platform-governance/platform/organisations", options);
+}
