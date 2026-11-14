@@ -45,7 +45,14 @@ Staff paths should use MFA per `MFA_CONFIGURATION.md`.
 
 ## 4. Bootstrap roles in HMore (before or after first login)
 
-From `apps/api` with venv active:
+From repo root (Windows, paths with spaces):
+
+```powershell
+.\scripts\bootstrap-identity.ps1 list-roles
+.\scripts\bootstrap-identity.ps1 grant-super-admin --email platform-admin@yourorg.example
+```
+
+Or from `apps/api` with venv active:
 
 ```text
 python scripts/bootstrap_identity.py grant-super-admin --email platform-admin@yourorg.example
