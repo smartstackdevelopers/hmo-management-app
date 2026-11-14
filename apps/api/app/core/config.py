@@ -51,6 +51,8 @@ class Settings(BaseSettings):
     auth0_mgmt_domain: str | None = None
     auth0_mgmt_client_id: str | None = None
     auth0_mgmt_client_secret: str | None = None
+    # Break-glass CLI (`scripts/bootstrap_identity.py`). Required when ENVIRONMENT=production.
+    hmore_bootstrap_token: str | None = Field(default=None, validation_alias="HMORE_BOOTSTRAP_TOKEN")
 
     # Private file storage (F1.8) — never commit real credentials.
     # provider: memory | local | s3

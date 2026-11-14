@@ -69,7 +69,7 @@ Playwright starts the Next.js app itself.
 ## Auth0 (F1.3)
 
 1. Create a **UK** (preferred) or **EU** Auth0 tenant.
-2. Follow `docs/development/IDENTITY_PROVIDER_SETUP.md` and `docs/development/MFA_CONFIGURATION.md`.
+2. Follow `docs/development/IDENTITY_PROVIDER_SETUP.md`, `docs/development/MFA_CONFIGURATION.md`, and **`docs/development/FULL_AUTH_ONBOARDING.md`** (roles + bootstrap CLI).
 3. Copy env examples for `apps/api`, `apps/web`, and `room-ready`. Never commit secrets.
 4. Web login routes: `/auth/login`, `/auth/logout`, `/account`.
 5. Until a real tenant is used, treat MFA and live login as unverified.
