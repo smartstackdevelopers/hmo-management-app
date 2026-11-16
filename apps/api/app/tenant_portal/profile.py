@@ -10,7 +10,7 @@ from app.db.models.property import Property
 from app.db.models.room import Room
 from app.db.models.tenant import Tenant
 from app.records.audit_hook import record_crud_event
-from app.records.tenant_service import find_own_tenant
+from app.records.tenant_service import ensure_own_tenant
 from app.tenant_portal.schemas import TenantHousingOut, TenantSelfOut, TenantSelfUpdate
 from app.tenancy.context import OrganisationContext
 
@@ -20,7 +20,7 @@ _SELF_FIELDS = frozenset({"preferred_name", "phone", "needs_goals"})
 def require_own_tenant(session: Session, ctx: OrganisationContext) -> Tenant:
     if ctx.role != HMoreRole.TENANT:
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Tenant role required")
-    tenant = find_own_tenant(session, ctx)
+    tenant = ensure_own_tenant(session, ctx)
     if tenant is None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="No linked tenant profile")
     return tenant

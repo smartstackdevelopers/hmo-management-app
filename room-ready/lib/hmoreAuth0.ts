@@ -1,11 +1,12 @@
 /**
  * Auth0 Authorization Code + PKCE for the Expo tenant app.
- * Tokens stay in SecureStore. Access tokens are refreshed with the refresh-token grant
- * before they expire. Nothing in this module writes tokens to logs.
+ * Tokens use lib/secureStorage (SecureStore on native, AsyncStorage on web).
+ * Access tokens are refreshed with the refresh-token grant before they expire.
+ * Nothing in this module writes tokens to logs.
  */
 import * as AuthSession from "expo-auth-session";
-import * as SecureStore from "expo-secure-store";
 import * as WebBrowser from "expo-web-browser";
+import { getSecureStorage } from "@/lib/secureStorage";
 
 WebBrowser.maybeCompleteAuthSession();
 
@@ -13,6 +14,10 @@ const ACCESS_TOKEN_KEY = "hmore.auth0.accessToken";
 const REFRESH_TOKEN_KEY = "hmore.auth0.refreshToken";
 const ID_TOKEN_KEY = "hmore.auth0.idToken";
 const EXPIRES_AT_KEY = "hmore.auth0.expiresAt";
+
+function tokenStore() {
+  return getSecureStorage();
+}
 
 /** Refresh shortly before expiry so API calls do not race an expired access token. */
 export const ACCESS_TOKEN_REFRESH_SKEW_MS = 60_000;
@@ -57,8 +62,24 @@ export function isAuth0MobileConfigured(): boolean {
   return readAuth0ConfigFromEnv() !== null;
 }
 
+/**
+ * Redirect URI Auth0 must allow. Prefer env override for demos;
+ * otherwise Expo AuthSession (exp://… on Expo Go, roomready:// on builds, http on web).
+ */
 export function createAuth0RedirectUri(scheme = "roomready"): string {
-  return AuthSession.makeRedirectUri({ scheme, path: "auth/callback" });
+  const forced = process.env.EXPO_PUBLIC_AUTH0_REDIRECT_URI?.trim();
+  if (forced) {
+    return forced;
+  }
+  return AuthSession.makeRedirectUri({
+    scheme,
+    path: "auth/callback",
+  });
+}
+
+/** Call from UI so the operator can paste the URI into Auth0 Allowed Callback URLs. */
+export function getAuth0RedirectUriHint(scheme = "roomready"): string {
+  return createAuth0RedirectUri(scheme);
 }
 
 export function buildAuth0Discovery(domain: string): AuthSession.DiscoveryDocument {
@@ -89,8 +110,19 @@ export async function loginWithAuth0(
   });
 
   const result = await request.promptAsync(discovery);
+  if (result.type === "cancel" || result.type === "dismiss") {
+    throw new Error(
+      `Auth0 login was cancelled. If the browser closed by itself, add this callback in Auth0: ${redirectUri}`,
+    );
+  }
   if (result.type !== "success" || !result.params.code) {
-    throw new Error("Auth0 login was cancelled or failed");
+    const detail =
+      result.type === "error" && "errorCode" in result
+        ? String((result as { errorCode?: string }).errorCode ?? result.type)
+        : result.type;
+    throw new Error(
+      `Auth0 login failed (${detail}). Auth0 → Applications → your Native app → Allowed Callback URLs must include: ${redirectUri}`,
+    );
   }
 
   const tokenResult = await AuthSession.exchangeCodeAsync(
@@ -118,25 +150,33 @@ export async function loginWithAuth0(
 }
 
 export async function storeAuth0Tokens(tokens: HMoreAuth0Tokens): Promise<void> {
-  await SecureStore.setItemAsync(ACCESS_TOKEN_KEY, tokens.accessToken);
+  const store = tokenStore();
+  await store.setItem(ACCESS_TOKEN_KEY, tokens.accessToken);
   if (tokens.idToken) {
-    await SecureStore.setItemAsync(ID_TOKEN_KEY, tokens.idToken);
+    await store.setItem(ID_TOKEN_KEY, tokens.idToken);
+  } else {
+    await store.deleteItem(ID_TOKEN_KEY);
   }
   if (tokens.refreshToken) {
-    await SecureStore.setItemAsync(REFRESH_TOKEN_KEY, tokens.refreshToken);
+    await store.setItem(REFRESH_TOKEN_KEY, tokens.refreshToken);
+  } else {
+    // Demo / access-only login must not keep a stale Auth0 refresh token.
+    await store.deleteItem(REFRESH_TOKEN_KEY);
   }
   if (tokens.expiresAt) {
-    await SecureStore.setItemAsync(EXPIRES_AT_KEY, String(tokens.expiresAt));
+    await store.setItem(EXPIRES_AT_KEY, String(tokens.expiresAt));
+  } else {
+    await store.deleteItem(EXPIRES_AT_KEY);
   }
 }
 
 let refreshInFlight: Promise<string | null> | null = null;
 
 async function refreshAuth0AccessToken(): Promise<string | null> {
-  const refreshToken = await SecureStore.getItemAsync(REFRESH_TOKEN_KEY);
+  const store = tokenStore();
+  const refreshToken = await store.getItem(REFRESH_TOKEN_KEY);
   const config = readAuth0ConfigFromEnv();
   if (!refreshToken || !config?.domain || !config.clientId) {
-    await clearAuth0Tokens();
     return null;
   }
 
@@ -158,7 +198,7 @@ async function refreshAuth0AccessToken(): Promise<string | null> {
   }
 
   if (!response.ok) {
-    await clearAuth0Tokens();
+    // Do not wipe local tokens here — the caller may still have a usable access token.
     return null;
   }
 
@@ -170,7 +210,6 @@ async function refreshAuth0AccessToken(): Promise<string | null> {
   } | null;
 
   if (!payload?.access_token) {
-    await clearAuth0Tokens();
     return null;
   }
 
@@ -185,23 +224,56 @@ async function refreshAuth0AccessToken(): Promise<string | null> {
 }
 
 export async function getStoredAccessToken(): Promise<string | null> {
-  const accessToken = await SecureStore.getItemAsync(ACCESS_TOKEN_KEY);
+  const store = tokenStore();
+  const accessToken = await store.getItem(ACCESS_TOKEN_KEY);
   if (!accessToken) return null;
 
-  const expiresAtRaw = await SecureStore.getItemAsync(EXPIRES_AT_KEY);
+  const expiresAtRaw = await store.getItem(EXPIRES_AT_KEY);
   const expiresAt = expiresAtRaw ? Number(expiresAtRaw) : null;
   if (!accessTokenNeedsRefresh(expiresAt)) return accessToken;
+
+  // Demo / access-only sessions have no refresh token — do not clear the access token.
+  const refreshToken = await store.getItem(REFRESH_TOKEN_KEY);
+  if (!refreshToken) {
+    return accessToken;
+  }
+
+  // When native auth is the active product path, refresh against FastAPI only.
+  // Never send a native refresh token to Auth0 — that clears storage and the next
+  // API call fails with "Missing Authorization header".
+  const { isNativeAuthEnabled, refreshNativeAccessToken, markNativeSessionActive } = await import(
+    '@/lib/hmoreNativeAuth'
+  );
+  if (isNativeAuthEnabled()) {
+    if (!refreshInFlight) {
+      refreshInFlight = refreshNativeAccessToken(refreshToken)
+        .then(async (token) => {
+          if (token) {
+            await markNativeSessionActive();
+            return token;
+          }
+          // Keep the current access token if refresh is temporarily unavailable.
+          return accessToken;
+        })
+        .finally(() => {
+          refreshInFlight = null;
+        });
+    }
+    return refreshInFlight;
+  }
 
   if (!refreshInFlight) {
     refreshInFlight = refreshAuth0AccessToken().finally(() => {
       refreshInFlight = null;
     });
   }
-  return refreshInFlight;
+  const refreshed = await refreshInFlight;
+  // Keep the existing access token if Auth0 refresh failed (do not drop the header).
+  return refreshed ?? accessToken;
 }
 
 export async function revokeAuth0RefreshToken(): Promise<void> {
-  const refreshToken = await SecureStore.getItemAsync(REFRESH_TOKEN_KEY);
+  const refreshToken = await tokenStore().getItem(REFRESH_TOKEN_KEY);
   const config = readAuth0ConfigFromEnv();
   if (!refreshToken || !config?.domain || !config.clientId) return;
   const body = new URLSearchParams({
@@ -221,10 +293,17 @@ export async function revokeAuth0RefreshToken(): Promise<void> {
 }
 
 export async function clearAuth0Tokens(): Promise<void> {
-  await SecureStore.deleteItemAsync(ACCESS_TOKEN_KEY);
-  await SecureStore.deleteItemAsync(ID_TOKEN_KEY);
-  await SecureStore.deleteItemAsync(REFRESH_TOKEN_KEY);
-  await SecureStore.deleteItemAsync(EXPIRES_AT_KEY);
+  const store = tokenStore();
+  await store.deleteItem(ACCESS_TOKEN_KEY);
+  await store.deleteItem(ID_TOKEN_KEY);
+  await store.deleteItem(REFRESH_TOKEN_KEY);
+  await store.deleteItem(EXPIRES_AT_KEY);
+  try {
+    const { clearNativeSessionFlag } = await import('@/lib/hmoreNativeAuth');
+    await clearNativeSessionFlag();
+  } catch {
+    // Flag cleanup is best-effort during sign-out.
+  }
 }
 
 export async function logoutAuth0(

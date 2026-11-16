@@ -17,20 +17,42 @@ import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
 import { Input } from '@/components/ui/Input';
 import { theme } from '@/constants/theme';
-import { useAuth } from '@/contexts/AuthContext';
-import { ROLE_DESCRIPTIONS, ROLE_LABELS, UserRole } from '@/types';
+import { type PublicRegisterRole, useAuth } from '@/contexts/AuthContext';
+import { LegacyApiConfigurationError } from '@/lib/legacyApiConfig';
 
-const ROLES: UserRole[] = ['landlord', 'tenant', 'property_manager', 'contractor'];
-
-const ROLE_ICONS: Record<UserRole, keyof typeof Ionicons.glyphMap> = {
-  landlord: 'business-outline',
-  tenant: 'person-outline',
-  property_manager: 'clipboard-outline',
-  contractor: 'construct-outline',
-  admin: 'shield-outline',
-  support_worker: 'people-outline',
-  organisation_admin: 'briefcase-outline',
+type RoleOption = {
+  value: PublicRegisterRole;
+  label: string;
+  description: string;
+  icon: keyof typeof Ionicons.glyphMap;
 };
+
+const ROLES: RoleOption[] = [
+  {
+    value: 'landlord',
+    label: 'Landlord',
+    description: 'Manage properties, tenants and repairs',
+    icon: 'business-outline',
+  },
+  {
+    value: 'tenant',
+    label: 'Tenant',
+    description: 'Your tenancy, repairs and documents',
+    icon: 'person-outline',
+  },
+  {
+    value: 'support_worker',
+    label: 'Support Worker',
+    description: 'Caseload, notes, visits and incidents',
+    icon: 'people-outline',
+  },
+  {
+    value: 'maintenance_contractor',
+    label: 'Maintenance Contractor',
+    description: 'Jobs, progress updates and invoices',
+    icon: 'construct-outline',
+  },
+];
 
 export default function RegisterScreen() {
   const insets = useSafeAreaInsets();
@@ -39,26 +61,52 @@ export default function RegisterScreen() {
   const [lastName, setLastName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [role, setRole] = useState<UserRole>('landlord');
+  const [confirmPassword, setConfirmPassword] = useState('');
+  const [phone, setPhone] = useState('');
+  const [role, setRole] = useState<PublicRegisterRole>('landlord');
+  const [termsAccepted, setTermsAccepted] = useState(false);
+  const [privacyAccepted, setPrivacyAccepted] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
   async function handleRegister() {
     if (!firstName.trim() || !lastName.trim() || !email.trim() || !password.trim()) {
-      setError('Please complete all fields');
+      setError('Please complete all required fields');
       return;
     }
     if (password.length < 8) {
       setError('Password must be at least 8 characters');
       return;
     }
+    if (password !== confirmPassword) {
+      setError('Passwords do not match');
+      return;
+    }
+    if (!termsAccepted || !privacyAccepted) {
+      setError('Please accept Terms and Privacy to continue');
+      return;
+    }
     setError('');
     setLoading(true);
     try {
-      await signUp({ firstName, lastName, email, password, role });
-      router.replace('/(app)/(tabs)');
-    } catch {
-      setError('Unable to create account. Please try again.');
+      await signUp({
+        firstName,
+        lastName,
+        email,
+        password,
+        confirmPassword,
+        role,
+        phone: phone.trim() || undefined,
+        termsAccepted,
+        privacyAccepted,
+      });
+      router.replace('/(auth)/pending');
+    } catch (err) {
+      if (err instanceof LegacyApiConfigurationError) {
+        setError('Self-registration is not available in this build.');
+      } else {
+        setError(err instanceof Error ? err.message : 'Unable to create account. Please try again.');
+      }
     } finally {
       setLoading(false);
     }
@@ -74,6 +122,24 @@ export default function RegisterScreen() {
         </Text>
         <Link href="/(auth)/login" asChild>
           <Pressable>
+            <Text style={styles.link}>Go to sign in</Text>
+          </Pressable>
+        </Link>
+      </View>
+    );
+  }
+
+  if (authMode !== 'native' && authMode !== 'demo') {
+    return (
+      <View style={[styles.flex, { padding: 24, paddingTop: insets.top + 32 }]}>
+        <RoomReadyLogo size="sm" />
+        <Text style={styles.title}>No self-registration</Text>
+        <Text style={styles.subtitle}>
+          Turn on native auth in room-ready/.env (`EXPO_PUBLIC_NATIVE_AUTH=1`, `EXPO_PUBLIC_DEMO_AUTH=0`), restart Expo,
+          then create your account here.
+        </Text>
+        <Link href="/(auth)/login" asChild>
+          <Pressable style={{ marginTop: 16 }}>
             <Text style={styles.link}>Go to sign in</Text>
           </Pressable>
         </Link>
@@ -103,44 +169,125 @@ export default function RegisterScreen() {
 
         <RoomReadyLogo size="sm" />
         <Text style={styles.title}>Create account</Text>
-        <Text style={styles.subtitle}>Join Room Ready in under a minute</Text>
+        <Text style={styles.subtitle}>
+          Choose your role. A Super Admin must approve you before you can sign in.
+        </Text>
 
         <Card style={styles.formCard}>
           <View style={styles.nameRow}>
             <View style={styles.nameField}>
-              <Input label="First name" value={firstName} onChangeText={setFirstName} autoComplete="given-name" placeholder="Jane" editable={!loading} />
+              <Input
+                label="First name"
+                value={firstName}
+                onChangeText={setFirstName}
+                autoComplete="given-name"
+                placeholder="Jane"
+                editable={!loading}
+              />
             </View>
             <View style={styles.nameField}>
-              <Input label="Last name" value={lastName} onChangeText={setLastName} autoComplete="family-name" placeholder="Smith" editable={!loading} />
+              <Input
+                label="Last name"
+                value={lastName}
+                onChangeText={setLastName}
+                autoComplete="family-name"
+                placeholder="Smith"
+                editable={!loading}
+              />
             </View>
           </View>
 
-          <Input label="Email" value={email} onChangeText={setEmail} keyboardType="email-address" autoCapitalize="none" autoComplete="email" placeholder="you@example.com" editable={!loading} />
-          <Input label="Password" value={password} onChangeText={setPassword} secureTextEntry autoComplete="new-password" placeholder="Min. 8 characters" editable={!loading} />
+          <Input
+            label="Email"
+            value={email}
+            onChangeText={setEmail}
+            keyboardType="email-address"
+            autoCapitalize="none"
+            autoComplete="email"
+            placeholder="you@example.com"
+            editable={!loading}
+          />
+          <Input
+            label="Phone (optional)"
+            value={phone}
+            onChangeText={setPhone}
+            keyboardType="phone-pad"
+            placeholder="+44..."
+            editable={!loading}
+          />
+          <Input
+            label="Password"
+            value={password}
+            onChangeText={setPassword}
+            secureTextEntry
+            autoComplete="new-password"
+            placeholder="Min. 8 characters"
+            editable={!loading}
+          />
+          <Input
+            label="Confirm password"
+            value={confirmPassword}
+            onChangeText={setConfirmPassword}
+            secureTextEntry
+            autoComplete="new-password"
+            placeholder="Re-enter password"
+            editable={!loading}
+          />
 
           <Text style={styles.roleLabel}>I am a...</Text>
           <View style={styles.roleGrid}>
             {ROLES.map((r) => {
-              const selected = role === r;
+              const selected = role === r.value;
               return (
                 <Pressable
-                  key={r}
-                  onPress={() => setRole(r)}
+                  key={r.value}
+                  onPress={() => setRole(r.value)}
                   style={[styles.roleCard, selected && styles.roleCardSelected]}
                   accessibilityRole="radio"
                   accessibilityState={{ selected }}
                 >
                   <View style={[styles.roleIcon, selected && styles.roleIconSelected]}>
-                    <Ionicons name={ROLE_ICONS[r]} size={20} color={selected ? theme.colors.textInverse : theme.colors.secondary} />
+                    <Ionicons
+                      name={r.icon}
+                      size={20}
+                      color={selected ? theme.colors.textInverse : theme.colors.secondary}
+                    />
                   </View>
-                  <Text style={[styles.roleTitle, selected && styles.roleTitleSelected]}>{ROLE_LABELS[r]}</Text>
+                  <Text style={[styles.roleTitle, selected && styles.roleTitleSelected]}>{r.label}</Text>
                   <Text style={[styles.roleDesc, selected && styles.roleDescSelected]} numberOfLines={2}>
-                    {ROLE_DESCRIPTIONS[r]}
+                    {r.description}
                   </Text>
                 </Pressable>
               );
             })}
           </View>
+
+          <Pressable
+            style={styles.checkRow}
+            onPress={() => setTermsAccepted((v) => !v)}
+            accessibilityRole="checkbox"
+            accessibilityState={{ checked: termsAccepted }}
+          >
+            <Ionicons
+              name={termsAccepted ? 'checkbox' : 'square-outline'}
+              size={22}
+              color={theme.colors.secondary}
+            />
+            <Text style={styles.checkText}>I accept the Terms of Use</Text>
+          </Pressable>
+          <Pressable
+            style={styles.checkRow}
+            onPress={() => setPrivacyAccepted((v) => !v)}
+            accessibilityRole="checkbox"
+            accessibilityState={{ checked: privacyAccepted }}
+          >
+            <Ionicons
+              name={privacyAccepted ? 'checkbox' : 'square-outline'}
+              size={22}
+              color={theme.colors.secondary}
+            />
+            <Text style={styles.checkText}>I accept the Privacy Policy</Text>
+          </Pressable>
 
           {error ? <Text style={styles.error}>{error}</Text> : null}
           <Button title="Create Account" onPress={handleRegister} loading={loading} fullWidth size="lg" />
@@ -148,7 +295,9 @@ export default function RegisterScreen() {
 
         <Text style={styles.footer}>
           Already have an account?{' '}
-          <Link href="/(auth)/login" style={styles.link}>Sign in</Link>
+          <Link href="/(auth)/login" style={styles.link}>
+            Sign in
+          </Link>
         </Text>
       </ScrollView>
     </KeyboardAvoidingView>
@@ -193,6 +342,8 @@ const styles = StyleSheet.create({
   roleTitleSelected: { color: theme.colors.secondary },
   roleDesc: { fontSize: 11, color: theme.colors.textMuted, textAlign: 'center', lineHeight: 15 },
   roleDescSelected: { color: theme.colors.textSecondary },
+  checkRow: { flexDirection: 'row', alignItems: 'center', gap: 10, marginBottom: theme.spacing.sm },
+  checkText: { flex: 1, fontSize: 14, color: theme.colors.text, lineHeight: 20 },
   error: { color: theme.colors.error, marginBottom: theme.spacing.md, fontSize: 14 },
   footer: { textAlign: 'center', color: theme.colors.textSecondary, marginTop: theme.spacing.lg },
   link: { color: theme.colors.secondary, fontWeight: '600' },

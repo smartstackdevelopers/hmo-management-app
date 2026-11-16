@@ -1,4 +1,4 @@
-import * as SecureStore from 'expo-secure-store';
+import { secureDeleteItem, secureGetItem, secureSetItem } from '@/lib/secureStorage';
 
 const ORG_KEY = 'hmore.session.organisationId';
 const ROLE_KEY = 'hmore.session.role';
@@ -16,8 +16,8 @@ export function getRequestContext(): HmoreRequestContext {
 
 export async function loadRequestContext(): Promise<HmoreRequestContext> {
   const [organisationId, role] = await Promise.all([
-    SecureStore.getItemAsync(ORG_KEY),
-    SecureStore.getItemAsync(ROLE_KEY),
+    secureGetItem(ORG_KEY),
+    secureGetItem(ROLE_KEY),
   ]);
   current = { organisationId, role };
   return current;
@@ -29,14 +29,14 @@ export async function setRequestContext(next: HmoreRequestContext): Promise<void
     role: next.role?.trim() || null,
   };
   if (current.organisationId) {
-    await SecureStore.setItemAsync(ORG_KEY, current.organisationId);
+    await secureSetItem(ORG_KEY, current.organisationId);
   } else {
-    await SecureStore.deleteItemAsync(ORG_KEY);
+    await secureDeleteItem(ORG_KEY);
   }
   if (current.role) {
-    await SecureStore.setItemAsync(ROLE_KEY, current.role);
+    await secureSetItem(ROLE_KEY, current.role);
   } else {
-    await SecureStore.deleteItemAsync(ROLE_KEY);
+    await secureDeleteItem(ROLE_KEY);
   }
 }
 

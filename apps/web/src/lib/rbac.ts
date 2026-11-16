@@ -83,4 +83,4 @@ export function authzContextHeaders(options: {
 }
 
 export const UNAUTHORIZED_PATH = "/unauthorized";
-export const LOGIN_PATH = "/auth/login";
+export const LOGIN_PATH = "/login";

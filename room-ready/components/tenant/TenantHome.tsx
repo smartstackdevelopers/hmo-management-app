@@ -38,7 +38,8 @@ export function TenantHome() {
   });
 
   const loading = profileQuery.isLoading || repairsQuery.isLoading;
-  const error = profileQuery.error ?? repairsQuery.error;
+  // Profile/housing 404s are soft-null; only hard-fail on unexpected errors.
+  const error = profileQuery.error ?? (repairsQuery.isError ? repairsQuery.error : null);
   if (loading) return <LoadingScreen message={t('housing.loading')} />;
   if (error) {
     return (

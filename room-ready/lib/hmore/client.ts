@@ -1,6 +1,6 @@
 import { getStoredAccessToken } from '@/lib/hmoreAuth0';
 
-import { HMORE_API_BASE_URL } from './config';
+import { resolveHmoreApiBase } from './config';
 import { getRequestContext, type HmoreRequestContext } from './requestContext';
 import { readDeviceSessionId } from './security/deviceSessionStore';
 import { handleRemoteDeviceSessionRevoked } from './security/deviceSessionRevoke';
@@ -41,21 +41,28 @@ export type HmoreClientDeps = {
 const defaultDeps: HmoreClientDeps = {
   getAccessToken: getStoredAccessToken,
   getContext: getRequestContext,
-  fetchImpl: fetch,
-  baseUrl: HMORE_API_BASE_URL,
+  // Bind fetch — unbound `fetch` throws "Illegal invocation" in browsers (Expo web).
+  fetchImpl: ((input: RequestInfo | URL, init?: RequestInit) =>
+    globalThis.fetch(input, init)) as typeof fetch,
+  // Resolve per request so web always uses Metro proxy origin.
+  get baseUrl() {
+    return resolveHmoreApiBase();
+  },
 };
 
 function buildUrl(baseUrl: string, path: string, query?: HmoreRequestInit['query']): string {
   const base = baseUrl.replace(/\/+$/, '');
   const suffix = path.startsWith('/') ? path : `/${path}`;
-  const url = new URL(`${base}${suffix}`);
+  let url = `${base}${suffix}`;
   if (query) {
+    const parts: string[] = [];
     for (const [key, value] of Object.entries(query)) {
       if (value === undefined || value === null || value === '') continue;
-      url.searchParams.set(key, String(value));
+      parts.push(`${encodeURIComponent(key)}=${encodeURIComponent(String(value))}`);
     }
+    if (parts.length > 0) url += `?${parts.join('&')}`;
   }
-  return url.toString();
+  return url;
 }
 
 function messageFromDetail(detail: unknown): string | null {
@@ -112,13 +119,9 @@ export async function hmoreRequestResponse(
   init: HmoreRequestInit = {},
   deps: HmoreClientDeps = defaultDeps,
 ): Promise<Response> {
-  const token = await deps.getAccessToken();
   const context = deps.getContext();
   const headers: Record<string, string> = {};
 
-  if (token) {
-    headers.Authorization = `Bearer ${token}`;
-  }
   if (context.organisationId) {
     headers['X-Organisation-Id'] = context.organisationId;
   }
@@ -136,6 +139,18 @@ export async function hmoreRequestResponse(
     Object.assign(headers, init.headers);
   }
 
+  // Prefer an explicit Authorization header from the caller (e.g. session bootstrap).
+  // Otherwise load the stored access token — never call protected APIs anonymously.
+  if (!headers.Authorization) {
+    const token = await deps.getAccessToken();
+    if (token) {
+      headers.Authorization = `Bearer ${token}`;
+    }
+  }
+  if (!headers.Authorization) {
+    throw new HmoreApiError(401, 'Please sign in again');
+  }
+
   let body: BodyInit | undefined;
   if (init.formData) {
     body = init.formData;
@@ -144,16 +159,18 @@ export async function hmoreRequestResponse(
     body = JSON.stringify(init.body);
   }
 
+  const requestUrl = buildUrl(deps.baseUrl, path, init.query);
   let response: Response;
   try {
-    response = await deps.fetchImpl(buildUrl(deps.baseUrl, path, init.query), {
+    response = await deps.fetchImpl(requestUrl, {
       method: init.method ?? (body ? 'POST' : 'GET'),
       headers,
       body,
       signal: init.signal,
     });
-  } catch {
-    throw new HmoreApiError(0, 'Could not reach HMore. Check your connection and API address.');
+  } catch (err) {
+    const why = err instanceof Error ? err.message : 'network error';
+    throw new HmoreApiError(0, `Could not reach HMore at ${requestUrl} (${why}).`);
   }
 
   if (!response.ok && init.formData) {

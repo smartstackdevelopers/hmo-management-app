@@ -12,27 +12,42 @@ import {
   loginWithAuth0,
   logoutAuth0,
 } from '@/lib/hmoreAuth0';
+import { isDemoAuthEnabled, loginWithDemoRole, type DemoRole } from '@/lib/hmoreDemoAuth';
+import { isNativeAuthEnabled, loginWithPassword, registerWithPassword } from '@/lib/hmoreNativeAuth';
 import { deactivateRegisteredPush, registerPushAfterSession } from '@/lib/hmore/push/register';
 import { registerCurrentDeviceSession, revokeCurrentDeviceSession } from '@/lib/hmore/security/deviceSession';
 import { endLocalSession, subscribeLocalSessionEnded } from '@/lib/hmore/security/deviceSessionRevoke';
 import { mapHmoreRole } from '@/lib/hmore/roles';
 import { AuthState, User } from '@/types';
 
+export type PublicRegisterRole =
+  | 'landlord'
+  | 'tenant'
+  | 'support_worker'
+  | 'maintenance_contractor';
+
 interface RegisterData {
   email: string;
   password: string;
+  confirmPassword: string;
   firstName: string;
   lastName: string;
-  role: User['role'];
+  /** API role for public self-registration */
+  role: PublicRegisterRole;
   phone?: string;
+  organisationSlug?: string;
+  invitationCode?: string;
+  termsAccepted: boolean;
+  privacyAccepted: boolean;
 }
 
 interface AuthContextValue extends AuthState {
-  /** Auth0 + FastAPI when configured; local password API only when Auth0 env is unset. */
-  authMode: 'auth0' | 'legacy';
+  /** demo | native | auth0 (legacy/disabled) | legacy Room Ready API */
+  authMode: 'demo' | 'native' | 'auth0' | 'legacy';
   hmore: HmoreSession | null;
   signIn: (email: string, password: string) => Promise<void>;
   signInWithAuth0: () => Promise<void>;
+  signInWithDemoRole: (role: DemoRole) => Promise<void>;
   signUp: (data: RegisterData) => Promise<void>;
   signOut: () => Promise<void>;
 }
@@ -57,7 +72,13 @@ export function userFromHmoreSession(session: HmoreSession): User {
 }
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
-  const authMode = isAuth0MobileConfigured() ? 'auth0' : 'legacy';
+  const authMode: 'demo' | 'native' | 'auth0' | 'legacy' = isDemoAuthEnabled()
+    ? 'demo'
+    : isNativeAuthEnabled()
+      ? 'native'
+      : isAuth0MobileConfigured()
+        ? 'auth0'
+        : 'legacy';
   const [state, setState] = useState<AuthState>({
     user: null,
     isLoading: true,
@@ -71,7 +92,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   const bootstrap = useCallback(async () => {
-    if (isAuth0MobileConfigured()) {
+    if (isDemoAuthEnabled() || isNativeAuthEnabled() || isAuth0MobileConfigured()) {
       try {
         await loadRequestContext();
         const token = await getStoredAccessToken();
@@ -147,7 +168,28 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     applyHmore(await loadHmoreSession());
   }, [applyHmore]);
 
+  const signInWithDemoRole = useCallback(
+    async (role: DemoRole) => {
+      if (!isDemoAuthEnabled()) {
+        throw new Error('Demo auth is not enabled. Set EXPO_PUBLIC_DEMO_AUTH=1');
+      }
+      const { session } = await loginWithDemoRole(role);
+      await clearToken();
+      applyHmore(session);
+    },
+    [applyHmore],
+  );
+
   const signIn = useCallback(async (email: string, password: string) => {
+    if (isDemoAuthEnabled()) {
+      throw new Error('Use a demo role button while demo auth is enabled.');
+    }
+    if (isNativeAuthEnabled()) {
+      const { accessToken } = await loginWithPassword(email, password);
+      await clearToken();
+      applyHmore(await loadHmoreSession(accessToken));
+      return;
+    }
     if (isAuth0MobileConfigured()) {
       throw new Error(AUTH0_ONLY);
     }
@@ -155,13 +197,37 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     await saveToken(token);
     setHmore(null);
     setState({ user, isLoading: false, isAuthenticated: true });
-  }, []);
+  }, [applyHmore]);
 
   const signUp = useCallback(async (data: RegisterData) => {
+    if (isNativeAuthEnabled()) {
+      await registerWithPassword({
+        fullName: `${data.firstName} ${data.lastName}`.trim(),
+        email: data.email,
+        password: data.password,
+        confirmPassword: data.confirmPassword,
+        requestedRole: data.role,
+        phone: data.phone,
+        organisationSlug: data.organisationSlug,
+        invitationCode: data.invitationCode,
+        termsAccepted: data.termsAccepted,
+        privacyAccepted: data.privacyAccepted,
+      });
+      setHmore(null);
+      setState({ user: null, isLoading: false, isAuthenticated: false });
+      return;
+    }
     if (isAuth0MobileConfigured()) {
       throw new Error(AUTH0_ONLY);
     }
-    const { user, token } = await api.post<AuthResponse>('/auth/register', data);
+    const { user, token } = await api.post<AuthResponse>('/auth/register', {
+      email: data.email,
+      password: data.password,
+      firstName: data.firstName,
+      lastName: data.lastName,
+      role: data.role === 'maintenance_contractor' ? 'contractor' : data.role,
+      phone: data.phone,
+    });
     await saveToken(token);
     setHmore(null);
     setState({ user, isLoading: false, isAuthenticated: true });
@@ -180,8 +246,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
     await endLocalSession();
     queryClient.clear();
-    if (isAuth0MobileConfigured()) {
-      await logoutAuth0();
+    if (isDemoAuthEnabled() || isNativeAuthEnabled() || isAuth0MobileConfigured()) {
+      if (isAuth0MobileConfigured() && !isDemoAuthEnabled() && !isNativeAuthEnabled()) {
+        await logoutAuth0();
+      } else {
+        await clearAuth0Tokens();
+      }
     }
     await AsyncStorage.removeItem('@roomready_auth');
     setHmore(null);
@@ -189,7 +259,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   return (
-    <AuthContext.Provider value={{ ...state, authMode, hmore, signIn, signInWithAuth0, signUp, signOut }}>
+    <AuthContext.Provider
+      value={{ ...state, authMode, hmore, signIn, signInWithAuth0, signInWithDemoRole, signUp, signOut }}
+    >
       {children}
     </AuthContext.Provider>
   );

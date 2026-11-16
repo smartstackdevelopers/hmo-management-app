@@ -18,19 +18,42 @@ import { Card } from '@/components/ui/Card';
 import { Input } from '@/components/ui/Input';
 import { theme } from '@/constants/theme';
 import { useAuth } from '@/contexts/AuthContext';
+import {
+  getAuth0RedirectUriHint,
+  isAuth0MobileConfigured,
+  readAuth0ConfigFromEnv,
+} from '@/lib/hmoreAuth0';
+import { DEMO_ROLES } from '@/lib/hmoreDemoAuth';
 
 const DEMO_ACCOUNTS = [
   { label: 'Landlord', email: 'landlord@roomready.co.uk' },
   { label: 'Tenant', email: 'tenant@roomready.co.uk' },
 ];
 
+function legacyPasswordApiConfigured(): boolean {
+  return Boolean(process.env.EXPO_PUBLIC_API_URL?.trim());
+}
+
 export default function LoginScreen() {
   const insets = useSafeAreaInsets();
-  const { signIn, signInWithAuth0, authMode } = useAuth();
+  const { signIn, signInWithAuth0, signInWithDemoRole, authMode } = useAuth();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+
+  async function handleDemo(role: (typeof DEMO_ROLES)[number]['role']) {
+    setError('');
+    setLoading(true);
+    try {
+      await signInWithDemoRole(role);
+      router.replace('/(app)/(tabs)');
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Demo login failed.');
+    } finally {
+      setLoading(false);
+    }
+  }
 
   async function handleAuth0() {
     setError('');
@@ -39,7 +62,8 @@ export default function LoginScreen() {
       await signInWithAuth0();
       router.replace('/(app)/(tabs)');
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Unable to sign in.');
+      const msg = err instanceof Error ? err.message : 'Unable to sign in.';
+      setError(msg);
     } finally {
       setLoading(false);
     }
@@ -81,16 +105,95 @@ export default function LoginScreen() {
         <RoomReadyLogo size="sm" />
         <Text style={styles.title}>Sign in</Text>
         <Text style={styles.subtitle}>
-          {authMode === 'auth0' ? 'Use your organisation account' : 'Welcome back to Room Ready'}
+          {authMode === 'demo'
+            ? 'Local demo login — pick a role for the boss meeting'
+            : authMode === 'native'
+              ? 'Sign in with your approved HMore email and password'
+              : authMode === 'auth0'
+                ? 'Use your organisation account'
+                : 'Welcome back to Room Ready'}
         </Text>
 
-        {authMode === 'auth0' ? (
+        {authMode === 'native' ? (
+          <Card style={styles.formCard}>
+            <Text style={styles.auth0Copy}>
+              Sign in with your approved HMore email and password. Create an account first if you are new — Super Admin
+              must approve your role before login works.
+            </Text>
+            {error ? <Text style={styles.auth0Error}>{error}</Text> : null}
+            <Input
+              label="Email"
+              value={email}
+              onChangeText={setEmail}
+              keyboardType="email-address"
+              autoCapitalize="none"
+              autoComplete="email"
+              placeholder="you@example.com"
+              editable={!loading}
+            />
+            <Input
+              label="Password"
+              value={password}
+              onChangeText={setPassword}
+              secureTextEntry
+              autoComplete="password"
+              placeholder="Your password"
+              editable={!loading}
+            />
+            <Button title="Sign in" onPress={() => handleSignIn()} loading={loading} fullWidth size="lg" />
+            <Text style={styles.footer}>
+              No account?{' '}
+              <Link href="/(auth)/register" style={styles.link}>
+                Create account
+              </Link>
+            </Text>
+          </Card>
+        ) : authMode === 'demo' ? (
+          <Card style={styles.formCard}>
+            <Text style={styles.auth0Copy}>
+              Dummy authentication for local demos only. Each button signs in as that HMore role against FastAPI +
+              PostgreSQL (not Auth0).
+            </Text>
+            {error ? <Text style={styles.auth0Error}>{error}</Text> : null}
+            <View style={{ gap: 8 }}>
+              {DEMO_ROLES.map((item) => (
+                <Button
+                  key={item.role}
+                  title={item.label}
+                  onPress={() => handleDemo(item.role)}
+                  loading={loading}
+                  fullWidth
+                  size="lg"
+                  variant="secondary"
+                />
+              ))}
+            </View>
+          </Card>
+        ) : authMode === 'auth0' ? (
           <Card style={styles.formCard}>
             <Text style={styles.auth0Copy}>
               Sign in with Auth0. The app stores the session on this device and talks to the HMore API. Password sign-in is turned off while organisation login is configured.
             </Text>
+            {isAuth0MobileConfigured() ? (
+              <Text style={styles.callbackHint} selectable>
+                Auth0 → Allowed Callback URLs must include:{'\n'}
+                {getAuth0RedirectUriHint(readAuth0ConfigFromEnv()?.scheme)}
+                {'\n'}Also add: roomready://auth/callback
+              </Text>
+            ) : null}
             {error ? <Text style={styles.auth0Error}>{error}</Text> : null}
             <Button title="Continue with organisation login" onPress={handleAuth0} loading={loading} fullWidth size="lg" />
+          </Card>
+        ) : !legacyPasswordApiConfigured() ? (
+          <Card style={styles.formCard}>
+            <Text style={styles.auth0Copy}>
+              HMore uses Auth0 (port 8000), not email/password on this build. Run scripts\sync-mobile-env-from-web.py, set
+              EXPO_PUBLIC_AUTH0_CLIENT_ID (Native app in Auth0), restart Expo, then tap organisation login above after Auth0
+              is configured.
+            </Text>
+            <Text style={styles.auth0Copy}>
+              Do not use Try demo (Password123) — that needs the old EXPO_PUBLIC_API_URL on port 3001.
+            </Text>
           </Card>
         ) : (
           <>
@@ -197,4 +300,11 @@ const styles = StyleSheet.create({
     marginBottom: theme.spacing.md,
   },
   auth0Error: { color: theme.colors.error, marginBottom: theme.spacing.sm, fontSize: 14 },
+  callbackHint: {
+    fontSize: 12,
+    lineHeight: 18,
+    color: theme.colors.textMuted,
+    marginBottom: theme.spacing.md,
+    fontFamily: Platform.OS === 'ios' ? 'Menlo' : 'monospace',
+  },
 });

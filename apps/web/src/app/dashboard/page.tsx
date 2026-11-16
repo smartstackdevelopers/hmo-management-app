@@ -33,7 +33,12 @@ export default async function DashboardIndexPage() {
           title="Dashboard"
           description="You are signed in, but the HMore API authorization snapshot could not be loaded."
         />
-        <ErrorState description="Start the FastAPI service and ensure NEXT_PUBLIC_API_BASE_URL points at it. Role homes are not selected from client-side guesses." />
+        <ErrorState
+          description={
+            session.authorizationDetail ??
+            "Start the FastAPI service (scripts\\start-api-dev.ps1) and ensure NEXT_PUBLIC_API_BASE_URL is http://localhost:8000. Role homes are not selected from client-side guesses."
+          }
+        />
         <Link className="text-sm text-teal-800 underline" href="/account">
           Open account
         </Link>

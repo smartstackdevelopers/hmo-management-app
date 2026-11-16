@@ -22,6 +22,11 @@ from app.tenancy.context import OrganisationContext
 
 
 def resolve_own_tenant_id(session: Session, ctx: OrganisationContext) -> uuid.UUID | None:
+    from app.records.tenant_service import ensure_own_tenant
+
+    if ctx.role == HMoreRole.TENANT:
+        tenant = ensure_own_tenant(session, ctx)
+        return tenant.id if tenant else None
     row = session.scalar(
         select(Tenant.id).where(
             Tenant.organisation_id == ctx.organisation_id,

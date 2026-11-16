@@ -3,14 +3,37 @@ import { router } from 'expo-router';
 import { useState } from 'react';
 
 import { Feedback, RecordCard, StaffPage } from '@/components/staff/ui';
-import { hmoreErrorMessage } from '@/lib/hmore/client';
+import { HmoreApiError, hmoreErrorMessage } from '@/lib/hmore/client';
 import { staffAlertHref } from '@/lib/hmore/staff/alerts';
 import { getMessage, listAnnouncements, listInbox, markMessageRead } from '@/lib/hmore/services/communications';
+import type { AnnouncementSummary, InboxMessage, Page } from '@/lib/hmore/types';
+
+async function safeListInbox(): Promise<Page<InboxMessage>> {
+  try {
+    return await listInbox();
+  } catch (error) {
+    if (error instanceof HmoreApiError && (error.status === 403 || error.status === 404 || error.status === 400)) {
+      return { items: [], page: 1, page_size: 50, total: 0 };
+    }
+    throw error;
+  }
+}
+
+async function safeListAnnouncements(): Promise<AnnouncementSummary[]> {
+  try {
+    return await listAnnouncements();
+  } catch (error) {
+    if (error instanceof HmoreApiError && (error.status === 403 || error.status === 404 || error.status === 400)) {
+      return [];
+    }
+    throw error;
+  }
+}
 
 export function StaffAlertList() {
   const client = useQueryClient();
-  const inbox = useQuery({ queryKey: ['hmore', 'inbox'], queryFn: listInbox });
-  const announcements = useQuery({ queryKey: ['hmore', 'announcements'], queryFn: listAnnouncements });
+  const inbox = useQuery({ queryKey: ['hmore', 'inbox'], queryFn: safeListInbox });
+  const announcements = useQuery({ queryKey: ['hmore', 'announcements'], queryFn: safeListAnnouncements });
   const [feedback, setFeedback] = useState('');
   const markRead = useMutation({
     mutationFn: (messageId: string) => markMessageRead(messageId),

@@ -177,15 +177,13 @@ function normaliseDraft(value: OfflineDraft): OfflineDraft {
 let defaultStorage: DraftStorage | null = null;
 
 export function createDefaultDraftStorage(): DraftStorage {
+  const { secureGetItem, secureSetItem } = require('@/lib/secureStorage') as {
+    secureGetItem: (key: string) => Promise<string | null>;
+    secureSetItem: (key: string, value: string) => Promise<void>;
+  };
   return {
-    getSecure: async (key) => {
-      const SecureStore = require('expo-secure-store') as { getItemAsync: (key: string) => Promise<string | null> };
-      return SecureStore.getItemAsync(key);
-    },
-    setSecure: async (key, value) => {
-      const SecureStore = require('expo-secure-store') as { setItemAsync: (key: string, value: string) => Promise<void> };
-      await SecureStore.setItemAsync(key, value);
-    },
+    getSecure: (key) => secureGetItem(key),
+    setSecure: (key, value) => secureSetItem(key, value),
     getItem: async (key) => {
       const AsyncStorage = require('@react-native-async-storage/async-storage') as {
         getItem: (key: string) => Promise<string | null>;

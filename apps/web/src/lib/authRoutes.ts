@@ -1,2 +1,5 @@
-/** Full-page navigation to Auth0 logout (middleware). Avoids Next.js Link prefetch HEAD 404s. */
+/** Native HMore logout clears cookies via server route (Prompt 12). */
 export const LOGOUT_HREF = "/auth/logout";
+
+/** Native login page (replaces Auth0 /auth/login). */
+export const LOGIN_PATH_NATIVE = "/login";
