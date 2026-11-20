@@ -18,7 +18,7 @@ export async function readNativeAccessToken(): Promise<string | null> {
   return jar.get(NATIVE_ACCESS_COOKIE)?.value?.trim() || null;
 }
 
-export async function readNativeRefreshToken(): Promise<string | None> {
+export async function readNativeRefreshToken(): Promise<string | null> {
   const jar = await cookies();
   return jar.get(NATIVE_REFRESH_COOKIE)?.value?.trim() || null;
 }

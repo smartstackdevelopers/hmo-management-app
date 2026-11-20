@@ -7,6 +7,7 @@ type Props = {
   accessToken: string;
   organisationId: string;
   role?: string | null;
+  initialQuestion?: string;
 };
 
 const API_BASE = process.env.NEXT_PUBLIC_API_BASE_URL ?? "http://localhost:8000";
@@ -18,7 +19,7 @@ const EXAMPLES = [
 ];
 
 export function OperationalSearchPanel(props: Props) {
-  const [question, setQuestion] = useState("");
+  const [question, setQuestion] = useState(props.initialQuestion ?? "");
   const [state, setState] = useState<"idle" | "loading" | "error" | "ready">("idle");
   const [error, setError] = useState<string | null>(null);
   const [result, setResult] = useState<Record<string, unknown> | null>(null);

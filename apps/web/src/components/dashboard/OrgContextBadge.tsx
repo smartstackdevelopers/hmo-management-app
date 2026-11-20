@@ -6,18 +6,20 @@ type OrgContextBadgeProps = {
 export function OrgContextBadge({ organisationId, roleLabel }: OrgContextBadgeProps) {
   return (
     <div
-      className="rounded-md border border-emerald-800/30 bg-emerald-950/40 px-3 py-2 text-xs text-emerald-50"
+      className="rounded-xl border border-slate-200 bg-slate-50 px-3 py-2.5 text-xs text-slate-600"
       aria-label="Organisation context"
     >
-      <p className="font-semibold uppercase tracking-wide text-emerald-200/90">Context</p>
-      <p className="mt-1">Role: {roleLabel}</p>
-      <p className="mt-0.5 break-all">
-        Organisation:{" "}
+      <p className="truncate text-sm font-semibold text-slate-900">
+        {organisationId ? "Your organisation" : "Platform"}
+      </p>
+      <p className="mt-0.5 truncate">
+        {roleLabel}
         {organisationId ? (
-          <span className="font-mono">{organisationId}</span>
-        ) : (
-          <span>Platform / not selected</span>
-        )}
+          <span className="font-mono text-slate-400" title={organisationId}>
+            {" "}
+            · {organisationId.slice(0, 8)}
+          </span>
+        ) : null}
       </p>
     </div>
   );

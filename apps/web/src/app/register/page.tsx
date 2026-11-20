@@ -1,13 +1,21 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
+import {
+  AuthAlert,
+  AuthShell,
+  authInputClass,
+  authLabelClass,
+  authPrimaryButtonClass,
+} from "@/components/auth/AuthShell";
+import { friendlyAuthError } from "@/lib/authErrors";
 
 const API_BASE = process.env.NEXT_PUBLIC_API_BASE_URL ?? "http://localhost:8000";
 
 const PUBLIC_ROLES = [
-  { value: "tenant", label: "Tenant" },
-  { value: "landlord", label: "Landlord" },
-  { value: "support_worker", label: "Support Worker" },
-  { value: "maintenance_contractor", label: "Maintenance Contractor" },
+  { value: "tenant", label: "Tenant", hint: "I live in a home managed on HMore" },
+  { value: "landlord", label: "Landlord", hint: "I own or manage properties" },
+  { value: "support_worker", label: "Support Worker", hint: "I support tenants" },
+  { value: "maintenance_contractor", label: "Maintenance Contractor", hint: "I carry out repairs" },
 ] as const;
 
 async function registerAction(formData: FormData) {
@@ -32,7 +40,8 @@ async function registerAction(formData: FormData) {
   });
   if (!response.ok) {
     const text = await response.text();
-    redirect(`/register?error=${encodeURIComponent(text.slice(0, 200) || "Registration failed")}`);
+    const message = friendlyAuthError(text || String(response.status), "register") ?? "";
+    redirect(`/register?error=${encodeURIComponent(message)}`);
   }
   redirect("/register/pending");
 }
@@ -44,76 +53,121 @@ export default async function RegisterPage({
 }) {
   const params = await searchParams;
   return (
-    <main className="mx-auto max-w-lg space-y-6 p-8">
+    <AuthShell
+      headline="Request access to HMore."
+      subline="Tell us who you are. Your housing provider reviews every request before access is granted."
+    >
       <header>
-        <p className="text-sm font-medium uppercase tracking-wide text-teal-700">HMore registration</p>
-        <h1 className="mt-1 text-3xl font-semibold text-slate-900">Request access</h1>
-        <p className="mt-2 text-slate-600">
-          Accounts stay pending until an Organisation Admin or Super Admin approves your request. You cannot
-          self-register as Super Admin or Organisation Admin.
+        <h1 className="text-3xl font-bold tracking-tight text-slate-900">Request access</h1>
+        <p className="mt-2 text-sm leading-6 text-slate-600">
+          Your account stays pending until an administrator approves it. Admin roles are assigned by your organisation.
         </p>
       </header>
       {params.error ? (
-        <p className="rounded border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-800">{params.error}</p>
+        <div className="mt-6">
+          <AuthAlert message={params.error.slice(0, 200)} />
+        </div>
       ) : null}
-      <form action={registerAction} className="space-y-3">
-        <label className="block text-sm font-medium">
-          Full name
-          <input name="full_name" required className="mt-1 w-full rounded border px-3 py-2" />
-        </label>
-        <label className="block text-sm font-medium">
-          Email
-          <input name="email" type="email" required className="mt-1 w-full rounded border px-3 py-2" />
-        </label>
-        <label className="block text-sm font-medium">
-          Phone
-          <input name="phone" className="mt-1 w-full rounded border px-3 py-2" />
-        </label>
-        <label className="block text-sm font-medium">
-          Password
-          <input name="password" type="password" required minLength={8} className="mt-1 w-full rounded border px-3 py-2" />
-        </label>
-        <label className="block text-sm font-medium">
-          Confirm password
-          <input
-            name="confirm_password"
-            type="password"
-            required
-            minLength={8}
-            className="mt-1 w-full rounded border px-3 py-2"
-          />
-        </label>
-        <label className="block text-sm font-medium">
-          Requested role
-          <select name="requested_role" required className="mt-1 w-full rounded border px-3 py-2">
-            {PUBLIC_ROLES.map((role) => (
-              <option key={role.value} value={role.value}>
-                {role.label}
-              </option>
+      <form action={registerAction} className="mt-6 space-y-5">
+        <fieldset>
+          <legend className={authLabelClass}>I am a…</legend>
+          <div className="mt-2 grid grid-cols-1 gap-2 sm:grid-cols-2">
+            {PUBLIC_ROLES.map((role, index) => (
+              <label
+                key={role.value}
+                className="flex cursor-pointer gap-3 rounded-xl border border-slate-200 bg-white p-3 text-sm hover:border-brand-300 has-[:checked]:border-brand-600 has-[:checked]:bg-brand-50 has-[:focus-visible]:ring-2 has-[:focus-visible]:ring-brand-600"
+              >
+                <input
+                  type="radio"
+                  name="requested_role"
+                  value={role.value}
+                  required
+                  defaultChecked={index === 0}
+                  className="mt-0.5 h-4 w-4 accent-brand-700"
+                />
+                <span>
+                  <span className="block font-semibold text-slate-900">{role.label}</span>
+                  <span className="block text-xs text-slate-500">{role.hint}</span>
+                </span>
+              </label>
             ))}
-          </select>
+          </div>
+        </fieldset>
+        <label className={authLabelClass}>
+          Full name
+          <input name="full_name" required autoComplete="name" className={authInputClass} />
         </label>
-        <label className="block text-sm font-medium">
-          Organisation slug (optional)
-          <input name="organisation_slug" placeholder="demo-housing" className="mt-1 w-full rounded border px-3 py-2" />
-        </label>
-        <label className="block text-sm font-medium">
-          Invitation code (optional)
-          <input name="invitation_code" className="mt-1 w-full rounded border px-3 py-2" />
-        </label>
-        <label className="flex items-center gap-2 text-sm">
-          <input name="terms_accepted" type="checkbox" required /> I accept the terms of use
-        </label>
-        <label className="flex items-center gap-2 text-sm">
-          <input name="privacy_accepted" type="checkbox" required /> I accept the privacy notice
-        </label>
-        <button type="submit" className="w-full rounded bg-teal-700 px-4 py-3 font-semibold text-white">
-          Submit registration
+        <div className="grid gap-5 sm:grid-cols-2">
+          <label className={authLabelClass}>
+            Email
+            <input name="email" type="email" required autoComplete="email" className={authInputClass} />
+          </label>
+          <label className={authLabelClass}>
+            Phone <span className="font-normal text-slate-400">(optional)</span>
+            <input name="phone" type="tel" autoComplete="tel" className={authInputClass} />
+          </label>
+        </div>
+        <div className="grid gap-5 sm:grid-cols-2">
+          <label className={authLabelClass}>
+            Password
+            <input
+              name="password"
+              type="password"
+              required
+              minLength={8}
+              autoComplete="new-password"
+              aria-describedby="password-hint"
+              className={authInputClass}
+            />
+          </label>
+          <label className={authLabelClass}>
+            Confirm password
+            <input
+              name="confirm_password"
+              type="password"
+              required
+              minLength={8}
+              autoComplete="new-password"
+              className={authInputClass}
+            />
+          </label>
+        </div>
+        <p id="password-hint" className="-mt-3 text-xs text-slate-500">
+          At least 8 characters.
+        </p>
+        <details className="rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm">
+          <summary className="cursor-pointer font-medium text-slate-700">I have an organisation or invitation code</summary>
+          <div className="mt-4 space-y-4">
+            <label className={authLabelClass}>
+              Organisation code
+              <input name="organisation_slug" placeholder="e.g. demo-housing" className={authInputClass} />
+            </label>
+            <label className={authLabelClass}>
+              Invitation code
+              <input name="invitation_code" className={authInputClass} />
+            </label>
+          </div>
+        </details>
+        <div className="space-y-2 text-sm text-slate-700">
+          <label className="flex items-start gap-2.5">
+            <input name="terms_accepted" type="checkbox" required className="mt-0.5 h-4 w-4 accent-brand-700" />
+            I accept the terms of use
+          </label>
+          <label className="flex items-start gap-2.5">
+            <input name="privacy_accepted" type="checkbox" required className="mt-0.5 h-4 w-4 accent-brand-700" />
+            I accept the privacy notice
+          </label>
+        </div>
+        <button type="submit" className={authPrimaryButtonClass}>
+          Send request
         </button>
       </form>
-      <p className="text-sm text-slate-600">
-        Already registered? <Link className="underline" href="/login">Sign in</Link>
+      <p className="mt-6 text-center text-sm text-slate-600">
+        Already approved?{" "}
+        <Link className="font-semibold text-brand-700 hover:underline" href="/login">
+          Sign in
+        </Link>
       </p>
-    </main>
+    </AuthShell>
   );
 }

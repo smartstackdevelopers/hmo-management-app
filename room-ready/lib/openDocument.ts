@@ -1,6 +1,7 @@
 import * as WebBrowser from 'expo-web-browser';
 import { Linking, Platform } from 'react-native';
 
+import { theme } from '@/constants/theme';
 import { getFileUrl } from '@/lib/config';
 
 /** Open a stored document so the user can read it (HTML demos or PDFs). */
@@ -15,7 +16,7 @@ export async function openDocumentFile(fileUrl: string): Promise<void> {
     }
     await WebBrowser.openBrowserAsync(url, {
       presentationStyle: WebBrowser.WebBrowserPresentationStyle.PAGE_SHEET,
-      controlsColor: '#0D9488',
+      controlsColor: theme.colors.secondaryDark,
     });
   } catch {
     await Linking.openURL(url);

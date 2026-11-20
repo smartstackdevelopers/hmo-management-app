@@ -19,7 +19,7 @@ export type NavItem = {
 export const DASHBOARD_NAV: NavItem[] = [
   {
     id: "home",
-    label: "Dashboard home",
+    label: "Dashboard",
     href: "/dashboard",
     section: "primary",
   },
@@ -39,7 +39,7 @@ export const DASHBOARD_NAV: NavItem[] = [
   },
   {
     id: "landlord-enterprise",
-    label: "Landlord enterprise",
+    label: "Landlord portfolio",
     href: "/dashboard/landlord",
     anyOf: [
       "properties.manage",
@@ -122,7 +122,7 @@ export const DASHBOARD_NAV: NavItem[] = [
   },
   {
     id: "ali-journey",
-    label: "Ali journey (F2.15)",
+    label: "Sample tenant journey",
     href: "/dashboard/journeys/ali",
     section: "platform",
   },
@@ -195,7 +195,7 @@ export const DASHBOARD_NAV: NavItem[] = [
   },
   {
     id: "integration-hub",
-    label: "Integration Hub",
+    label: "Integration hub",
     href: "/dashboard/integration-hub",
     anyOf: [
       "integration_hub.read",
@@ -229,7 +229,7 @@ export const DASHBOARD_NAV: NavItem[] = [
   },
   {
     id: "lms",
-    label: "Learning (LMS)",
+    label: "Learning",
     href: "/dashboard/lms",
     anyOf: ["lms.read", "lms.learn", "lms.manage", "lms.tenant.learn"],
     section: "records",
@@ -254,14 +254,14 @@ export const DASHBOARD_NAV: NavItem[] = [
   },
   {
     id: "benefits-navigator",
-    label: "Benefits Navigator",
+    label: "Benefits navigator",
     href: "/dashboard/benefits-navigator",
     anyOf: ["benefits_navigator.read", "benefits_navigator.tenant", "benefits_navigator.manage", "benefits_navigator.staff.assist"],
     section: "records",
   },
   {
     id: "tenant-engagement",
-    label: "Tenant Engagement",
+    label: "Tenant engagement",
     href: "/dashboard/tenant-engagement",
     anyOf: ["tenant_engagement.read", "tenant_engagement.tenant", "tenant_engagement.manage", "tenant_engagement.staff"],
     section: "records",
@@ -315,7 +315,7 @@ export const DASHBOARD_NAV: NavItem[] = [
   },
   {
     id: "council-portal",
-    label: "Council Portal",
+    label: "Council portal",
     href: "/dashboard/council-portal",
     // Visible to non-tenant staff (admins + invited officers with a core membership).
     // API still enforces council_portal.manage vs officer grant.
@@ -622,6 +622,150 @@ export function filterNavItems(
     }
     return canAny(options.permissions, item.anyOf);
   });
+}
+
+export type NavArea = {
+  id: string;
+  label: string;
+  items: NavItem[];
+};
+
+const NAV_AREAS: { id: string; label: string; itemIds: string[] }[] = [
+  { id: "overview", label: "Overview", itemIds: ["home", "landlord-enterprise", "caseload"] },
+  {
+    id: "housing",
+    label: "Housing",
+    itemIds: [
+      "properties",
+      "rooms",
+      "tenants",
+      "housing-applications",
+      "waiting-list",
+      "rent-payments",
+      "room-occupancy",
+      "occupancy-survey",
+    ],
+  },
+  {
+    id: "people",
+    label: "People & support",
+    itemIds: [
+      "tenant-timeline",
+      "support-plans-dashboard",
+      "case-assignments",
+      "visits",
+      "tasks",
+      "handovers",
+      "rota",
+      "workload",
+      "training",
+      "lms",
+    ],
+  },
+  {
+    id: "safety",
+    label: "Safety",
+    itemIds: ["safeguarding", "safeguarding-alerts", "incidents"],
+  },
+  {
+    id: "operations",
+    label: "Operations",
+    itemIds: [
+      "maintenance",
+      "complaints",
+      "contractor-marketplace",
+      "org-workflows",
+      "automation",
+      "advanced-automation",
+      "finance",
+    ],
+  },
+  {
+    id: "comms",
+    label: "Communication & files",
+    itemIds: ["communications", "documents", "files", "digital-id-esign"],
+  },
+  {
+    id: "community",
+    label: "Community",
+    itemIds: [
+      "community-directory",
+      "help-near-me",
+      "employment-support",
+      "wellbeing-resources",
+      "benefits-navigator",
+      "tenant-engagement",
+    ],
+  },
+  {
+    id: "insights",
+    label: "Insights",
+    itemIds: ["reports", "report-drafts", "operational-search", "council-portal"],
+  },
+  {
+    id: "ai",
+    label: "AI tools",
+    itemIds: [
+      "case-summaries",
+      "notes-analysis",
+      "compliance-agent",
+      "duplicate-detection",
+      "tenant-assistant",
+      "voice-calling",
+      "ai-activity",
+      "ai-feature-flags",
+      "ai-costs",
+    ],
+  },
+  {
+    id: "platform",
+    label: "Platform",
+    itemIds: [
+      "organisations",
+      "platform-admin",
+      "governance",
+      "audit",
+      "privacy",
+      "backups",
+      "performance",
+      "integrations",
+      "integration-hub",
+      "ali-journey",
+    ],
+  },
+  { id: "account", label: "Account", itemIds: ["account", "health"] },
+];
+
+/** Groups visible items into the role-agnostic sidebar areas from the design spec (§4). */
+export function groupNavItemsByArea(items: NavItem[]): NavArea[] {
+  const byId = new Map(items.map((item) => [item.id, item]));
+  const placed = new Set<string>();
+  const areas: NavArea[] = [];
+  for (const area of NAV_AREAS) {
+    const areaItems: NavItem[] = [];
+    for (const id of area.itemIds) {
+      const item = byId.get(id);
+      if (item && !placed.has(item.href)) {
+        areaItems.push(item);
+        placed.add(item.href);
+      }
+    }
+    if (areaItems.length > 0) {
+      areas.push({ id: area.id, label: area.label, items: areaItems });
+    }
+  }
+  const leftovers = items.filter((item) => !placed.has(item.href));
+  if (leftovers.length > 0) {
+    areas.push({ id: "more", label: "More", items: leftovers });
+  }
+  return areas;
+}
+
+export function isNavItemActive(item: NavItem, currentPath: string): boolean {
+  if (item.href === "/dashboard") {
+    return currentPath === "/dashboard";
+  }
+  return currentPath === item.href || currentPath.startsWith(`${item.href}/`);
 }
 
 export function groupNavItems(items: NavItem[]): Record<string, NavItem[]> {

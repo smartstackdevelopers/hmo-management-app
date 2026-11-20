@@ -7,7 +7,12 @@ import { auth0, isAuth0Configured } from "@/lib/auth0";
 import { canRunOperationalSearch } from "@/lib/operationalSearchView";
 import { requireAuthenticatedSession } from "@/lib/session";
 
-export default async function OperationalSearchPage() {
+export default async function OperationalSearchPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ q?: string }>;
+}) {
+  const { q } = await searchParams;
   const session = await requireAuthenticatedSession("/dashboard/operational-search");
   const permissions = session.authorization?.permissions ?? [];
   if (!canRunOperationalSearch(permissions)) {
@@ -33,6 +38,7 @@ export default async function OperationalSearchPage() {
           accessToken={token}
           organisationId={orgId}
           role={session.authorization?.active_role}
+          initialQuestion={q?.slice(0, 300)}
         />
       </div>
     );

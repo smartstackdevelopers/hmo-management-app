@@ -6,7 +6,7 @@ interface LogoMarkProps {
   size?: number;
 }
 
-/** Vector app mark — teal house with white stroke and check. */
+/** Vector app mark — blue house with white stroke and check. */
 export function LogoMark({ size = 44 }: LogoMarkProps) {
   return (
     <Svg width={size} height={size} viewBox="0 0 48 48">
@@ -30,7 +30,7 @@ export function LogoMark({ size = 44 }: LogoMarkProps) {
       <Path
         d="M19 25.5 L22.8 29.5 L31.5 19.5"
         fill="none"
-        stroke="#CCFBF1"
+        stroke={theme.colors.accentSoft}
         strokeWidth={2.6}
         strokeLinejoin="round"
         strokeLinecap="round"

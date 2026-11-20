@@ -24,8 +24,9 @@ export default async function DocumentsSignaturesPage() {
   if (!isAuth0Configured() || !auth0) {
     return <EmptyState title="Auth0 not configured" description="Configure Auth0 to load signatures." />;
   }
-  const token = (await auth0.getAccessToken())?.token;
-  if (!token) return <ErrorState description="Access token unavailable." />;
+  const maybeToken = (await auth0.getAccessToken())?.token;
+  if (!maybeToken) return <ErrorState description="Access token unavailable." />;
+  const token: string = maybeToken;
   const role = session.authorization?.active_role;
   const organisationId = orgId;
 

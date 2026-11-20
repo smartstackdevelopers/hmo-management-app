@@ -100,7 +100,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     marginBottom: theme.spacing.md,
     borderWidth: 1,
-    borderColor: '#CCFBF1',
+    borderColor: theme.colors.accentSoft,
   },
   errorCircle: {
     backgroundColor: theme.colors.errorLight,

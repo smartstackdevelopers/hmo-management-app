@@ -2,7 +2,9 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import type { NavItem } from "@/lib/navigation";
+import { usePathname } from "next/navigation";
+import { BrandMark } from "@/components/brand/BrandMark";
+import { groupNavItemsByArea, isNavItemActive, type NavItem } from "@/lib/navigation";
 
 type MobileNavProps = {
   items: NavItem[];
@@ -11,14 +13,19 @@ type MobileNavProps = {
 
 export function MobileNav({ items, brand }: MobileNavProps) {
   const [open, setOpen] = useState(false);
+  const pathname = usePathname() ?? "";
+  const areas = groupNavItemsByArea(items);
 
   return (
-    <div className="md:hidden">
-      <div className="flex items-center justify-between gap-3 bg-forest-900 px-4 py-3 text-white">
-        <p className="text-sm font-semibold">{brand}</p>
+    <div className="sticky top-0 z-30 md:hidden">
+      <div className="flex items-center justify-between gap-3 border-b border-slate-200 bg-white px-4 py-3">
+        <Link href="/dashboard" className="flex items-center gap-2.5">
+          <BrandMark size="sm" />
+          <span className="text-base font-bold text-navy-900">{brand}</span>
+        </Link>
         <button
           type="button"
-          className="min-h-11 min-w-11 rounded-md bg-white/10 px-3 py-2 text-sm focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-200"
+          className="min-h-11 min-w-11 rounded-lg border border-slate-200 px-3 py-2 text-sm font-medium text-slate-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-600"
           aria-expanded={open}
           aria-controls="mobile-dashboard-nav"
           onClick={() => setOpen((value) => !value)}
@@ -30,17 +37,30 @@ export function MobileNav({ items, brand }: MobileNavProps) {
         <nav
           id="mobile-dashboard-nav"
           aria-label="Mobile dashboard"
-          className="space-y-1 border-b border-forest-800 bg-forest-900 px-4 py-3 text-emerald-50"
+          className="max-h-[75vh] space-y-4 overflow-y-auto border-b border-slate-200 bg-white px-4 py-4 shadow-lift"
         >
-          {items.map((item) => (
-            <Link
-              key={item.id}
-              href={item.href}
-              className="block min-h-11 rounded-md px-3 py-2 text-sm hover:bg-white/10 focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-200"
-              onClick={() => setOpen(false)}
-            >
-              {item.label}
-            </Link>
+          {areas.map((area) => (
+            <div key={area.id}>
+              <p className="px-3 pb-1 text-[0.7rem] font-semibold uppercase tracking-[0.14em] text-slate-400">
+                {area.label}
+              </p>
+              {area.items.map((item) => {
+                const active = isNavItemActive(item, pathname);
+                return (
+                  <Link
+                    key={item.id}
+                    href={item.href}
+                    aria-current={active ? "page" : undefined}
+                    className={`flex min-h-11 items-center rounded-lg px-3 text-sm focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-600 ${
+                      active ? "bg-brand-50 font-semibold text-brand-700" : "text-slate-700 hover:bg-slate-50"
+                    }`}
+                    onClick={() => setOpen(false)}
+                  >
+                    {item.label}
+                  </Link>
+                );
+              })}
+            </div>
           ))}
         </nav>
       ) : null}

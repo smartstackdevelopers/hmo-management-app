@@ -81,7 +81,7 @@ const styles = StyleSheet.create({
   },
   brandLight: { color: theme.colors.textInverse },
   accent: { color: theme.colors.secondary },
-  accentLight: { color: '#CCFBF1' },
+  accentLight: { color: theme.colors.accentSoft },
   tagline: {
     fontSize: 11,
     fontFamily: FONT_SEMIBOLD,
