@@ -24,6 +24,20 @@ def _issuer(settings: Settings) -> str:
 
 
 def validate_access_token(token: str, settings: Settings) -> dict[str, Any]:
+    from app.auth.demo import decode_demo_access_token
+    from app.auth.native_tokens import decode_native_access_token
+
+    native_claims = decode_native_access_token(token, settings)
+    if native_claims is not None:
+        return native_claims
+
+    demo_claims = decode_demo_access_token(token, settings)
+    if demo_claims is not None:
+        return demo_claims
+
+    if not getattr(settings, "hmore_allow_auth0", False):
+        raise TokenValidationError("Invalid or expired access token")
+
     if not settings.auth0_domain or not settings.auth0_audience:
         raise TokenValidationError("Auth0 is not configured on the API")
 

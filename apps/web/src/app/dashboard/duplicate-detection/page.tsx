@@ -21,14 +21,15 @@ export default async function DuplicateDetectionPage() {
     return <EmptyState title="Organisation required" description="Active organisation needed." />;
   }
   if (!isAuth0Configured() || !auth0) {
-    return <EmptyState title="Auth0 not configured" description="Cannot load duplicate detection." />;
+    return <EmptyState title="Sign-in not configured" description="Sign-in isn't set up in this environment yet, so this page can't load." />;
   }
   try {
     const token = (await auth0.getAccessToken())?.token;
-    if (!token) return <ErrorState description="Access token unavailable." />;
+    if (!token) return <ErrorState description="We couldn't confirm your sign-in. Please sign in again." />;
     return (
       <div className="mx-auto max-w-4xl space-y-6">
         <PageHeader
+          eyebrow="AI"
           title="Duplicate detection"
           description="Search-based potential duplicate finding for human review. No AI call per record. Never auto-merges or deletes."
         />

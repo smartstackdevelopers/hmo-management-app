@@ -1,0 +1,7 @@
+ID,Role,Client,Login,Home screen,Core action,Sign out,Tester,Date,Pass
+R1,super_admin,Web,/auth/login,/dashboard/super-admin,List/create organisation,Logout,,,
+R2,organisation_admin,Web,/auth/login,/dashboard/organisation-admin,Approvals or org settings,Logout,,,
+R3,landlord,Web,/auth/login,/dashboard/landlord,Property list/create,Logout,,,
+R4,support_worker,Mobile,Auth0,Staff account,Visit or task,Sign out,,,
+R5,tenant,Mobile,Auth0,Tenant home,Maintenance request,Sign out,,,
+R6,maintenance_contractor,Mobile,Auth0,Contractor view,Work order access,Sign out,,,

@@ -1,7 +1,9 @@
 "use client";
 
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { btnPrimary, btnSecondary, inputClass, labelClass } from "@/components/ui/primitives";
 import {
   createCommunityService,
   updateCommunityService,
@@ -33,7 +35,7 @@ export function CommunityServiceForm({
 
   return (
     <form
-      className="space-y-3 rounded-lg border border-slate-200 bg-white p-5"
+      className="space-y-5 rounded-2xl border border-slate-200 bg-white p-6 shadow-card"
       onSubmit={async (event) => {
         event.preventDefault();
         setPending(true);
@@ -77,143 +79,134 @@ export function CommunityServiceForm({
             router.push(`/dashboard/community-directory/${created.id}`);
           }
           router.refresh();
-        } catch (err) {
-          setError(err instanceof Error ? err.message : "Failed to save listing");
+        } catch {
+          setError("We couldn't save this service. Check the name and category, then try again.");
         } finally {
           setPending(false);
         }
       }}
     >
-      <label className="block text-sm">
-        Category
-        <select
-          name="category"
-          value={category}
-          onChange={(event) => setCategory(event.target.value)}
-          className="mt-1 w-full rounded border px-3 py-2"
-          required
-        >
-          {CATEGORIES.map((item) => (
-            <option key={item.value} value={item.value}>
-              {item.label}
-            </option>
-          ))}
-        </select>
-      </label>
-      <label className="block text-sm">
-        Service name
-        <input
-          name="name"
-          required
-          defaultValue={existing?.name ?? ""}
-          className="mt-1 w-full rounded border px-3 py-2"
-        />
-      </label>
-      <label className="block text-sm">
-        Description
-        <textarea
-          name="description"
-          defaultValue={existing?.description ?? ""}
-          className="mt-1 w-full rounded border px-3 py-2"
-          rows={3}
-        />
-      </label>
-      <label className="block text-sm">
-        Address
-        <input
-          name="address_line"
-          defaultValue={existing?.address_line ?? ""}
-          className="mt-1 w-full rounded border px-3 py-2"
-        />
-      </label>
-      <label className="block text-sm">
-        Opening days
-        <input
-          name="opening_days"
-          defaultValue={existing?.opening_days ?? ""}
-          className="mt-1 w-full rounded border px-3 py-2"
-          placeholder="e.g. Monday to Friday"
-        />
-      </label>
-      <label className="block text-sm">
-        Opening hours / meal times
-        <input
-          name="opening_hours"
-          defaultValue={existing?.opening_hours ?? ""}
-          className="mt-1 w-full rounded border px-3 py-2"
-          placeholder="e.g. 10:00–14:00"
-        />
-      </label>
-      <label className="block text-sm">
-        Eligibility requirements
-        <textarea
-          name="eligibility"
-          defaultValue={existing?.eligibility ?? ""}
-          className="mt-1 w-full rounded border px-3 py-2"
-          rows={2}
-        />
-      </label>
-      <label className="block text-sm">
-        Referral requirements
-        <textarea
-          name="referral_requirements"
-          defaultValue={existing?.referral_requirements ?? ""}
-          className="mt-1 w-full rounded border px-3 py-2"
-          rows={2}
-        />
-      </label>
-      <label className="block text-sm">
-        Contact
-        <input
-          name="contact"
-          defaultValue={existing?.contact ?? ""}
-          className="mt-1 w-full rounded border px-3 py-2"
-        />
-      </label>
-      <label className="block text-sm">
-        Service instructions
-        <textarea
-          name="service_instructions"
-          defaultValue={existing?.service_instructions ?? ""}
-          className="mt-1 w-full rounded border px-3 py-2"
-          rows={2}
-        />
-      </label>
-      {category === "clothing_bank" ? (
-        <label className="block text-sm">
-          Clothing service type
+      <div>
+        <h2 className="text-base font-semibold text-slate-900">Service</h2>
+      </div>
+      <div className="grid gap-4 sm:grid-cols-2">
+        <div className="space-y-1.5">
+          <label htmlFor="service-name" className={labelClass}>
+            Name
+          </label>
+          <input id="service-name" name="name" required defaultValue={existing?.name ?? ""} className={inputClass} />
+        </div>
+        <div className="space-y-1.5">
+          <label htmlFor="service-category" className={labelClass}>
+            Category
+          </label>
           <select
-            name="clothing_service_type"
-            defaultValue={existing?.clothing_service_type ?? ""}
-            className="mt-1 w-full rounded border px-3 py-2"
+            id="service-category"
+            name="category"
+            value={category}
+            onChange={(event) => setCategory(event.target.value)}
+            className={inputClass}
+            required
           >
+            {CATEGORIES.map((item) => (
+              <option key={item.value} value={item.value}>
+                {item.label}
+              </option>
+            ))}
+          </select>
+        </div>
+        <div className="space-y-1.5">
+          <label htmlFor="service-contact" className={labelClass}>
+            Contact
+          </label>
+          <input id="service-contact" name="contact" defaultValue={existing?.contact ?? ""} className={inputClass} />
+        </div>
+        <div className="space-y-1.5">
+          <label htmlFor="service-source" className={labelClass}>
+            Information source
+          </label>
+          <input id="service-source" name="information_source" defaultValue={existing?.information_source ?? ""} className={inputClass} />
+        </div>
+      </div>
+      <div className="space-y-4 border-t border-slate-100 pt-5">
+        <h2 className="text-base font-semibold text-slate-900">Location & access</h2>
+        <div className="grid gap-4 sm:grid-cols-2">
+          <div className="space-y-1.5">
+            <label htmlFor="service-address" className={labelClass}>
+              Address
+            </label>
+            <input id="service-address" name="address_line" defaultValue={existing?.address_line ?? ""} className={inputClass} />
+          </div>
+          <div className="space-y-1.5">
+            <label htmlFor="service-hours" className={labelClass}>
+              Opening hours
+            </label>
+            <input id="service-hours" name="opening_hours" defaultValue={existing?.opening_hours ?? ""} className={inputClass} placeholder="Only if you have confirmed them" />
+          </div>
+        </div>
+        <div className="space-y-1.5">
+          <label htmlFor="service-days" className={labelClass}>
+            Opening days
+          </label>
+          <input id="service-days" name="opening_days" defaultValue={existing?.opening_days ?? ""} className={inputClass} />
+        </div>
+        <div className="space-y-1.5">
+          <label htmlFor="service-description" className={labelClass}>
+            Description
+          </label>
+          <textarea id="service-description" name="description" defaultValue={existing?.description ?? ""} rows={3} className={`${inputClass} h-auto py-2`} />
+        </div>
+      </div>
+      <div className="grid gap-4 sm:grid-cols-2">
+        <div className="space-y-1.5">
+          <label htmlFor="service-eligibility" className={labelClass}>
+            Eligibility
+          </label>
+          <textarea id="service-eligibility" name="eligibility" defaultValue={existing?.eligibility ?? ""} rows={2} className={`${inputClass} h-auto py-2`} />
+        </div>
+        <div className="space-y-1.5">
+          <label htmlFor="service-referral" className={labelClass}>
+            Referral requirements
+          </label>
+          <textarea id="service-referral" name="referral_requirements" defaultValue={existing?.referral_requirements ?? ""} rows={2} className={`${inputClass} h-auto py-2`} />
+        </div>
+      </div>
+      <div className="space-y-1.5">
+        <label htmlFor="service-instructions" className={labelClass}>
+          Service instructions
+        </label>
+        <textarea id="service-instructions" name="service_instructions" defaultValue={existing?.service_instructions ?? ""} rows={2} className={`${inputClass} h-auto py-2`} />
+      </div>
+      {category === "clothing_bank" ? (
+        <div className="space-y-1.5">
+          <label htmlFor="service-clothing" className={labelClass}>
+            Clothing service type
+          </label>
+          <select id="service-clothing" name="clothing_service_type" defaultValue={existing?.clothing_service_type ?? ""} className={inputClass}>
             <option value="">Not specified</option>
             <option value="provides_clothing">Provides clothing to people in need</option>
             <option value="accepts_donations">Accepts clothing donations</option>
             <option value="both">Provides clothing and accepts donations</option>
           </select>
-        </label>
+        </div>
       ) : null}
-      <label className="block text-sm">
-        Information source
-        <input
-          name="information_source"
-          defaultValue={existing?.information_source ?? ""}
-          className="mt-1 w-full rounded border px-3 py-2"
-        />
+      <label className="flex items-center gap-2 text-sm font-medium text-slate-800">
+        <input name="is_published" type="checkbox" defaultChecked={existing?.is_published ?? false} className="h-4 w-4 rounded border-slate-300 text-brand-700 focus:ring-brand-600" />
+        Publish to the tenant directory. Verification is still required.
       </label>
-      <label className="flex items-center gap-2 text-sm">
-        <input name="is_published" type="checkbox" defaultChecked={existing?.is_published ?? false} />
-        Publish to tenant directory (still requires verification for trust badge)
-      </label>
-      {error ? <p className="text-sm text-red-700">{error}</p> : null}
-      <button
-        type="submit"
-        disabled={pending}
-        className="rounded-md bg-teal-700 px-3 py-2 text-sm text-white disabled:opacity-60"
-      >
-        {pending ? "Saving…" : existing ? "Save changes" : "Create listing"}
-      </button>
+      {error ? (
+        <p role="alert" className="rounded-lg border border-red-100 bg-red-50 px-3 py-2 text-sm text-red-700">
+          {error}
+        </p>
+      ) : null}
+      <div className="flex justify-end gap-2 border-t border-slate-100 pt-4">
+        <Link href={existing ? `/dashboard/community-directory/${existing.id}` : "/dashboard/community-directory"} className={btnSecondary}>
+          Cancel
+        </Link>
+        <button type="submit" disabled={pending} className={btnPrimary}>
+          {pending ? "Saving…" : existing ? "Save changes" : "Publish service"}
+        </button>
+      </div>
     </form>
   );
 }

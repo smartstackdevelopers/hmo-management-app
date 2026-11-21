@@ -2,8 +2,9 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useState } from 'react';
 import { Alert, Platform, Pressable, StyleSheet, Text, View } from 'react-native';
 
-import { Badge } from '@/components/ui/Badge';
+import { InitialsTile } from '@/components/dashboard/mobileChrome';
 import { Button } from '@/components/ui/Button';
+import { Chip } from '@/components/ui/Chip';
 import { Card } from '@/components/ui/Card';
 import { Input } from '@/components/ui/Input';
 import { ListScreen } from '@/components/ui/ListScreen';
@@ -139,14 +140,27 @@ export function HmoreDocuments() {
           }}
         >
           <View style={styles.row}>
-            <Text style={styles.title}>{item.title}</Text>
-            <Badge label={opening === item.id ? 'Opening' : item.status} format={false} />
+            <InitialsTile name={item.title} size={40} />
+            <View style={styles.copy}>
+              <Text style={styles.title} numberOfLines={1}>{item.title}</Text>
+              <Text style={styles.metaInline} numberOfLines={1}>
+                {item.category_code || 'Document'}
+                {item.created_at ? ` · ${formatUKDate(item.created_at)}` : ''}
+              </Text>
+            </View>
+            <Chip
+              label={opening === item.id ? 'Opening' : item.status.replace(/_/g, ' ')}
+              tone={
+                opening === item.id
+                  ? 'blue'
+                  : /expir|reject|fail/i.test(item.status)
+                    ? 'red'
+                    : /valid|sign|active|shared|ok/i.test(item.status)
+                      ? 'green'
+                      : 'gray'
+              }
+            />
           </View>
-          <Text style={styles.meta}>
-            {item.category_code || 'Document'}
-            {item.expiry_date ? ` · Expires ${formatUKDate(item.expiry_date)}` : ''}
-            {item.created_at ? ` · Added ${formatUKDate(item.created_at)}` : ''}
-          </Text>
           {item.description ? <Text style={styles.body}>{item.description}</Text> : null}
         </Card>
       )}
@@ -164,7 +178,9 @@ const styles = StyleSheet.create({
   empty: { fontFamily: FONT_MEDIUM, color: theme.colors.textSecondary, textAlign: 'center', marginTop: 24 },
   card: { marginBottom: theme.spacing.sm },
   row: { flexDirection: 'row', justifyContent: 'space-between', gap: 8, alignItems: 'center' },
-  title: { fontFamily: FONT_BOLD, fontSize: 16, color: theme.colors.text, flex: 1 },
+  copy: { flex: 1, minWidth: 0 },
+  title: { fontFamily: FONT_BOLD, fontSize: 15, color: theme.colors.text },
+  metaInline: { fontFamily: FONT_MEDIUM, fontSize: 12, color: theme.colors.textSecondary, marginTop: 2 },
   meta: { fontFamily: FONT_MEDIUM, fontSize: 12, color: theme.colors.textMuted, marginTop: 6 },
   body: { fontFamily: FONT_MEDIUM, fontSize: 14, color: theme.colors.textSecondary, marginTop: 8 },
 });

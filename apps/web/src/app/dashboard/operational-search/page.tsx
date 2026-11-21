@@ -7,7 +7,12 @@ import { auth0, isAuth0Configured } from "@/lib/auth0";
 import { canRunOperationalSearch } from "@/lib/operationalSearchView";
 import { requireAuthenticatedSession } from "@/lib/session";
 
-export default async function OperationalSearchPage() {
+export default async function OperationalSearchPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ q?: string }>;
+}) {
+  const { q } = await searchParams;
   const session = await requireAuthenticatedSession("/dashboard/operational-search");
   const permissions = session.authorization?.permissions ?? [];
   if (!canRunOperationalSearch(permissions)) {
@@ -15,17 +20,25 @@ export default async function OperationalSearchPage() {
   }
   const orgId = session.authorization?.active_organisation_id;
   if (!orgId) {
-    return <EmptyState title="Organisation required" description="Active organisation needed." />;
+    return <EmptyState title="Choose an organisation" description="Select the organisation you're working in to search." />;
   }
   if (!isAuth0Configured() || !auth0) {
-    return <EmptyState title="Auth0 not configured" description="Cannot load operational search." />;
+    return (
+      <EmptyState
+        title="Sign-in not configured"
+        description="Sign-in isn't set up in this environment yet, so search can't load."
+      />
+    );
   }
   try {
     const token = (await auth0.getAccessToken())?.token;
-    if (!token) return <ErrorState description="Access token unavailable." />;
+    if (!token) {
+      return <ErrorState description="We couldn't confirm your sign-in. Please sign in again." retryHref="/dashboard/operational-search" />;
+    }
     return (
       <div className="mx-auto max-w-4xl space-y-6">
         <PageHeader
+          eyebrow="Overview"
           title="Operational search"
           description="Ask a question about operational records you are already allowed to see. Results stay inside your organisation and role."
         />
@@ -33,6 +46,7 @@ export default async function OperationalSearchPage() {
           accessToken={token}
           organisationId={orgId}
           role={session.authorization?.active_role}
+          initialQuestion={q?.slice(0, 300)}
         />
       </div>
     );

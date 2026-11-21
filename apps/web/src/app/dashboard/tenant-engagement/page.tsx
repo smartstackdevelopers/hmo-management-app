@@ -1,12 +1,18 @@
 import { redirect } from "next/navigation";
 import { EmptyState } from "@/components/dashboard/EmptyState";
 import { ErrorState } from "@/components/dashboard/ErrorState";
+import { PageHeader } from "@/components/dashboard/PageHeader";
+import { Card, CardHeader, DataTable, StatCard, StatGrid, StatusChip, Td, Th } from "@/components/ui/primitives";
 import { auth0, isAuth0Configured } from "@/lib/auth0";
 import { canAny } from "@/lib/rbac";
 import { requireAuthenticatedSession } from "@/lib/session";
 import { getEngagementReports, getTenantEngagementDashboard } from "@/lib/tenantEngagementApi";
 
 const READ = ["tenant_engagement.read", "tenant_engagement.tenant", "tenant_engagement.manage", "tenant_engagement.staff"];
+
+function text(value: unknown): string {
+  return value == null || value === "" ? "—" : String(value);
+}
 
 export default async function TenantEngagementPage() {
   const session = await requireAuthenticatedSession("/dashboard/tenant-engagement");
@@ -15,10 +21,10 @@ export default async function TenantEngagementPage() {
   }
   const orgId = session.authorization?.active_organisation_id;
   if (!orgId || !isAuth0Configured() || !auth0) {
-    return <EmptyState title="Unavailable" description="Organisation context required." />;
+    return <EmptyState title="Choose an organisation" description="Select the organisation you're working in." />;
   }
   const token = (await auth0.getAccessToken())?.token;
-  if (!token) return <ErrorState description="Access token unavailable." />;
+  if (!token) return <ErrorState description="We couldn't confirm your sign-in. Please sign in again." retryHref="/dashboard/tenant-engagement" />;
 
   const perms = session.authorization?.permissions ?? [];
   const admin = perms.includes("tenant_engagement.manage") || perms.includes("tenant_engagement.reports");
@@ -32,7 +38,7 @@ export default async function TenantEngagementPage() {
     if (tenant) dash = await getTenantEngagementDashboard(token, orgId);
   } catch {
     return (
-      <ErrorState description="Tenant Engagement is disabled until TENANT_ENGAGEMENT_GLOBAL_ENABLED and organisation settings are approved." />
+      <ErrorState description="Tenant engagement stays off until the organisation turns the add-on on." retryHref="/dashboard/tenant-engagement" />
     );
   }
 
@@ -40,70 +46,70 @@ export default async function TenantEngagementPage() {
   const timeline = (dash.timeline ?? []) as Record<string, unknown>[];
 
   return (
-    <div className="mx-auto max-w-5xl space-y-6 p-6">
-      <header>
-        <h1 className="text-2xl font-semibold text-slate-900">Tenant Engagement (add-on)</h1>
-        <p className="mt-1 text-sm text-slate-600">
-          Voluntary personal development — points and badges do not affect housing or essential services.
-        </p>
-      </header>
+    <div className="mx-auto max-w-6xl space-y-6">
+      <PageHeader
+        eyebrow="Community"
+        title="Tenant engagement"
+        description="Voluntary personal development. Points and badges do not affect housing or essential services."
+      />
       {admin ? (
-        <section className="grid gap-4 sm:grid-cols-4">
-          <Stat label="Active goals" value={String(stats.active_goals ?? "0")} />
-          <Stat label="Completed goals" value={String(stats.completed_goals ?? "0")} />
-          <Stat label="Badges" value={String(stats.badges_awarded ?? "0")} />
-          <Stat label="Activities" value={String(stats.activities_completed ?? "0")} />
-        </section>
+        <StatGrid>
+          <StatCard label="Active goals" value={text(stats.active_goals ?? 0)} tone="blue" />
+          <StatCard label="Completed goals" value={text(stats.completed_goals ?? 0)} tone="green" />
+          <StatCard label="Badges" value={text(stats.badges_awarded ?? 0)} />
+          <StatCard label="Activities" value={text(stats.activities_completed ?? 0)} />
+        </StatGrid>
       ) : null}
       {tenant ? (
         <>
-          <section className="grid gap-4 sm:grid-cols-3">
-            <Stat label="Points" value={String(dash.points_total ?? "0")} />
-            <Stat label="Badges" value={String(dash.badges_count ?? "0")} />
-            <Stat label="LMS enrollments" value={String(dash.lms_enrollments ?? "0")} />
-          </section>
-          <section className="rounded-lg border border-slate-200 bg-white p-4">
-            <h2 className="font-medium text-slate-800">My goals</h2>
-            <ul className="mt-3 divide-y divide-slate-100 text-sm">
-              {goals.length === 0 ? (
-                <li className="py-2 text-slate-500">No goals yet.</li>
-              ) : (
-                goals.map((g) => (
-                  <li key={String(g.id)} className="flex justify-between py-2">
-                    <span>{String(g.title)}</span>
-                    <span className="text-slate-500">
-                      {String(g.completion_percent)}% — {String(g.progress_status)}
-                    </span>
+          <StatGrid>
+            <StatCard label="Points" value={text(dash.points_total ?? 0)} />
+            <StatCard label="Badges" value={text(dash.badges_count ?? 0)} />
+            <StatCard label="Learning enrolments" value={text(dash.lms_enrollments ?? 0)} />
+          </StatGrid>
+          {goals.length === 0 ? (
+            <EmptyState title="No goals yet" description="Goals you start will appear here." />
+          ) : (
+            <DataTable caption="My goals">
+              <thead>
+                <tr>
+                  <Th>Goal</Th>
+                  <Th>Progress</Th>
+                  <Th>Status</Th>
+                </tr>
+              </thead>
+              <tbody>
+                {goals.map((goal) => (
+                  <tr key={text(goal.id)} className="hover:bg-slate-50/60">
+                    <Td className="font-semibold text-slate-900">{text(goal.title)}</Td>
+                    <Td className="tabular-nums">{text(goal.completion_percent)}%</Td>
+                    <Td>
+                      <StatusChip status={text(goal.progress_status)} />
+                    </Td>
+                  </tr>
+                ))}
+              </tbody>
+            </DataTable>
+          )}
+          <Card>
+            <CardHeader title="Progress timeline" />
+            {timeline.length === 0 ? (
+              <p className="text-sm text-slate-500">No events yet.</p>
+            ) : (
+              <ul className="divide-y divide-slate-100 text-sm">
+                {timeline.map((event, index) => (
+                  <li key={`${text(event.summary)}-${index}`} className="py-2.5 text-slate-700">
+                    {text(event.summary)}
                   </li>
-                ))
-              )}
-            </ul>
-          </section>
-          <section className="rounded-lg border border-slate-200 bg-white p-4">
-            <h2 className="font-medium text-slate-800">Progress timeline</h2>
-            <ul className="mt-3 divide-y divide-slate-100 text-sm">
-              {timeline.length === 0 ? (
-                <li className="py-2 text-slate-500">No events yet.</li>
-              ) : (
-                timeline.map((t, i) => (
-                  <li key={i} className="py-2">
-                    {String(t.summary)}
-                  </li>
-                ))
-              )}
-            </ul>
-          </section>
+                ))}
+              </ul>
+            )}
+          </Card>
         </>
       ) : null}
-    </div>
-  );
-}
-
-function Stat({ label, value }: { label: string; value: string }) {
-  return (
-    <div className="rounded-lg border border-slate-200 bg-white p-4">
-      <div className="text-xs uppercase tracking-wide text-slate-500">{label}</div>
-      <div className="mt-1 text-2xl font-semibold text-slate-900">{value}</div>
+      {!admin && !tenant ? (
+        <EmptyState title="Nothing to show yet" description="Engagement figures appear when your role can see them." />
+      ) : null}
     </div>
   );
 }

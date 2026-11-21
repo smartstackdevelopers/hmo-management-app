@@ -2,19 +2,43 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useState } from 'react';
 import { RefreshControl, ScrollView, StyleSheet, Text, View } from 'react-native';
 
-import { Badge } from '@/components/ui/Badge';
+import { InitialsTile } from '@/components/dashboard/mobileChrome';
 import { Card } from '@/components/ui/Card';
+import { Chip } from '@/components/ui/Chip';
 import { EmptyState } from '@/components/ui/States';
 import { FONT_BOLD, FONT_MEDIUM } from '@/constants/fonts';
 import { formatUKDate } from '@/constants/uk';
 import { theme } from '@/constants/theme';
-import { hmoreErrorMessage } from '@/lib/hmore/client';
+import { HmoreApiError, hmoreErrorMessage } from '@/lib/hmore/client';
 import { getAnnouncement, listAnnouncements, listInbox, markMessageRead } from '@/lib/hmore/services/communications';
+import type { AnnouncementSummary, InboxMessage, Page } from '@/lib/hmore/types';
+
+async function safeListInbox(): Promise<Page<InboxMessage>> {
+  try {
+    return await listInbox();
+  } catch (error) {
+    if (error instanceof HmoreApiError && (error.status === 403 || error.status === 404 || error.status === 400)) {
+      return { items: [], page: 1, page_size: 50, total: 0 };
+    }
+    throw error;
+  }
+}
+
+async function safeListAnnouncements(): Promise<AnnouncementSummary[]> {
+  try {
+    return await listAnnouncements();
+  } catch (error) {
+    if (error instanceof HmoreApiError && (error.status === 403 || error.status === 404 || error.status === 400)) {
+      return [];
+    }
+    throw error;
+  }
+}
 
 export function HmoreNotifications() {
   const client = useQueryClient();
-  const inbox = useQuery({ queryKey: ['hmore', 'inbox'], queryFn: listInbox });
-  const announcements = useQuery({ queryKey: ['hmore', 'announcements'], queryFn: listAnnouncements });
+  const inbox = useQuery({ queryKey: ['hmore', 'inbox'], queryFn: safeListInbox });
+  const announcements = useQuery({ queryKey: ['hmore', 'announcements'], queryFn: safeListAnnouncements });
   const [openBody, setOpenBody] = useState<string | null>(null);
   const [detailError, setDetailError] = useState('');
 
@@ -65,10 +89,13 @@ export function HmoreNotifications() {
           }}
         >
           <View style={styles.row}>
-            <Text style={styles.title}>{item.title}</Text>
-            <Badge label={item.priority} format={false} />
+            <InitialsTile name={item.title} size={40} />
+            <View style={styles.copy}>
+              <Text style={styles.title} numberOfLines={1}>{item.title}</Text>
+              <Text style={styles.meta}>Announcement{item.published_at ? ` · ${formatUKDate(item.published_at)}` : ''}</Text>
+            </View>
+            <Chip label="Notice" tone="indigo" />
           </View>
-          <Text style={styles.meta}>Announcement{item.published_at ? ` · ${formatUKDate(item.published_at)}` : ''}</Text>
         </Card>
       ))}
 
@@ -81,9 +108,14 @@ export function HmoreNotifications() {
             setOpenBody(`${item.subject}\n\n${item.body_preview}`);
           }}
         >
-          <Text style={styles.title}>{item.subject}</Text>
-          <Text style={styles.body}>{item.body_preview}</Text>
-          <Text style={styles.meta}>{formatUKDate(item.created_at)}{item.read_at ? '' : ' · Unread'}</Text>
+          <View style={styles.row}>
+            <InitialsTile name={item.subject} size={40} />
+            <View style={styles.copy}>
+              <Text style={styles.title} numberOfLines={1}>{item.subject}</Text>
+              <Text style={styles.body} numberOfLines={2}>{item.body_preview}</Text>
+            </View>
+            {!item.read_at ? <Chip label="New" tone="blue" /> : null}
+          </View>
         </Card>
       ))}
 
@@ -108,7 +140,8 @@ const styles = StyleSheet.create({
   card: { marginBottom: theme.spacing.sm },
   unread: { borderColor: theme.colors.secondary, borderWidth: 1 },
   row: { flexDirection: 'row', justifyContent: 'space-between', gap: 8, alignItems: 'center' },
-  title: { fontFamily: FONT_BOLD, fontSize: 16, color: theme.colors.text, flex: 1 },
+  copy: { flex: 1, minWidth: 0 },
+  title: { fontFamily: FONT_BOLD, fontSize: 15, color: theme.colors.text },
   body: { fontFamily: FONT_MEDIUM, fontSize: 14, lineHeight: 20, color: theme.colors.textSecondary, marginTop: 6 },
   meta: { fontFamily: FONT_MEDIUM, fontSize: 12, color: theme.colors.textMuted, marginTop: 6 },
 });

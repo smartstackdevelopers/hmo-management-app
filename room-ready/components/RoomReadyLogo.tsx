@@ -1,7 +1,7 @@
 import { Platform, StyleSheet, Text, View } from 'react-native';
 
 import { LogoMark } from '@/components/LogoMark';
-import { FONT_BOLD, FONT_SEMIBOLD, webShadow } from '@/constants/fonts';
+import { FONT_BOLD, FONT_MEDIUM, webShadow } from '@/constants/fonts';
 import { theme } from '@/constants/theme';
 
 interface RoomReadyLogoProps {
@@ -10,13 +10,18 @@ interface RoomReadyLogoProps {
   centered?: boolean;
   markOnly?: boolean;
   shadow?: boolean;
+  /** `stack` places the wordmark under the mark. `row` keeps them side by side. */
+  layout?: 'row' | 'stack';
+  /** Defaults to HMore. */
+  wordmark?: string;
+  showTagline?: boolean;
 }
 
 const SIZES = {
-  xs: { font: 14, icon: 28, gap: 8, radius: 8 },
-  sm: { font: 18, icon: 34, gap: 10, radius: 10 },
-  md: { font: 26, icon: 48, gap: 12, radius: 14 },
-  lg: { font: 34, icon: 68, gap: 14, radius: 18 },
+  xs: { font: 15, icon: 32, gap: 8 },
+  sm: { font: 18, icon: 52, gap: 10 },
+  md: { font: 22, icon: 64, gap: 12 },
+  lg: { font: 26, icon: 72, gap: 14 },
 } as const;
 
 export function RoomReadyLogo({
@@ -25,22 +30,16 @@ export function RoomReadyLogo({
   centered,
   markOnly,
   shadow = true,
+  layout = 'stack',
+  wordmark = 'HMore',
+  showTagline = false,
 }: RoomReadyLogoProps) {
   const dims = SIZES[size];
-  const shadowStyle = shadow ? (Platform.OS === 'web' ? webShadow('md') : theme.shadows.md) : undefined;
+  const shadowStyle = shadow ? (Platform.OS === 'web' ? webShadow('sm') : theme.shadows.sm) : undefined;
+  const alignCenter = centered || layout === 'stack';
 
   const mark = (
-    <View
-      style={[
-        styles.markWrap,
-        {
-          width: dims.icon,
-          height: dims.icon,
-          borderRadius: dims.radius,
-        },
-        shadowStyle,
-      ]}
-    >
+    <View style={[{ width: dims.icon, height: dims.icon }, shadowStyle]}>
       <LogoMark size={dims.icon} />
     </View>
   );
@@ -50,15 +49,31 @@ export function RoomReadyLogo({
   }
 
   return (
-    <View style={[styles.container, centered && styles.centered, { gap: dims.gap }]}>
+    <View
+      style={[
+        styles.container,
+        layout === 'stack' && styles.stack,
+        alignCenter && styles.centered,
+        { gap: layout === 'stack' ? Math.max(8, dims.gap - 2) : dims.gap },
+      ]}
+    >
       {mark}
-      <View>
-        <Text style={[styles.brand, { fontSize: dims.font }, light && styles.brandLight]}>
-          Room <Text style={[styles.accent, light && styles.accentLight]}>Ready</Text>
+      <View style={alignCenter && styles.copyCenter}>
+        <Text
+          style={[
+            styles.brand,
+            { fontSize: dims.font },
+            alignCenter && styles.textCenter,
+            light && styles.brandLight,
+          ]}
+        >
+          {wordmark}
         </Text>
-        {size !== 'sm' && size !== 'xs' && (
-          <Text style={[styles.tagline, light && styles.taglineLight]}>HMO property management</Text>
-        )}
+        {showTagline ? (
+          <Text style={[styles.tagline, alignCenter && styles.textCenter, light && styles.taglineLight]}>
+            Housing and support
+          </Text>
+        ) : null}
       </View>
     </View>
   );
@@ -69,27 +84,22 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
   },
-  centered: { justifyContent: 'center' },
-  markWrap: {
-    overflow: 'hidden',
-  },
+  stack: { flexDirection: 'column' },
+  centered: { justifyContent: 'center', alignItems: 'center' },
+  copyCenter: { alignItems: 'center' },
+  textCenter: { textAlign: 'center' },
   brand: {
     fontFamily: FONT_BOLD,
     fontWeight: '700',
-    color: theme.colors.primary,
-    letterSpacing: -0.9,
+    color: theme.colors.text,
+    letterSpacing: -0.6,
   },
   brandLight: { color: theme.colors.textInverse },
-  accent: { color: theme.colors.secondary },
-  accentLight: { color: '#CCFBF1' },
   tagline: {
-    fontSize: 11,
-    fontFamily: FONT_SEMIBOLD,
+    fontSize: 13,
+    fontFamily: FONT_MEDIUM,
     color: theme.colors.textSecondary,
-    marginTop: 3,
-    letterSpacing: 0.7,
-    textTransform: 'uppercase',
-    fontWeight: '600',
+    marginTop: 2,
   },
-  taglineLight: { color: 'rgba(255,255,255,0.72)' },
+  taglineLight: { color: 'rgba(255,255,255,0.78)' },
 });

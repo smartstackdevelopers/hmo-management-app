@@ -9,26 +9,20 @@ export function EmergencyInstructionsPanel({
 }) {
   const unapproved = !content.approved_for_use || content.requires_formal_approval;
   return (
-    <aside
-      className={`rounded-lg border p-4 ${
-        kind === "gas"
-          ? "border-amber-400 bg-amber-50"
-          : "border-orange-400 bg-orange-50"
-      }`}
-    >
-      <p className="text-xs font-semibold uppercase tracking-wide text-slate-700">
-        Emergency {kind === "gas" ? "gas" : "fire"} guidance
+    <aside className="rounded-2xl border border-red-200 bg-red-50 p-5 shadow-card">
+      <p className="text-xs font-semibold uppercase tracking-wide text-red-700">
+        {kind === "gas" ? "Gas" : "Fire"} safety guidance
       </p>
       {unapproved ? (
-        <p className="mt-2 text-sm font-medium text-amber-950">
-          Placeholder / draft — formal organisational approval is required before production use.
+        <p className="mt-2 rounded-lg bg-amber-100 px-3 py-2 text-sm font-medium text-amber-800">
+          Draft guidance — your organisation still needs to approve this wording.
         </p>
       ) : null}
       <h3 className="mt-2 text-lg font-semibold text-slate-900">{content.title || "—"}</h3>
-      <p className="mt-2 whitespace-pre-wrap text-sm text-slate-800">{content.body || "No content configured."}</p>
+      <p className="mt-2 whitespace-pre-wrap text-sm leading-6 text-slate-800">{content.body || "No guidance has been added yet."}</p>
       <p className="mt-3 text-xs text-slate-600">
-        This screen is not an emergency reporting channel. In immediate danger to life, follow your organisation&apos;s
-        procedures and contact the emergency services when appropriate.
+        This page isn&apos;t an emergency reporting channel. If anyone is in immediate danger, follow your organisation&apos;s
+        procedures and call the emergency services.
       </p>
     </aside>
   );

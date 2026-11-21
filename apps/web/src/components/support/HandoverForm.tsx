@@ -1,7 +1,9 @@
 "use client";
 
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { btnPrimary, btnSecondary, inputClass, labelClass } from "@/components/ui/primitives";
 import { createHandover } from "@/lib/supportApi";
 
 export function HandoverForm({
@@ -21,7 +23,7 @@ export function HandoverForm({
 
   return (
     <form
-      className="space-y-4 rounded-lg border border-slate-200 bg-white p-5"
+      className="space-y-5 rounded-2xl border border-slate-200 bg-white p-6 shadow-card"
       onSubmit={async (event) => {
         event.preventDefault();
         setPending(true);
@@ -46,61 +48,79 @@ export function HandoverForm({
           router.push(`/dashboard/handovers/${handover.id}`);
           router.refresh();
         } catch (err) {
-          setError(err instanceof Error ? err.message : "Failed to create handover");
+          setError(err instanceof Error ? err.message : "We couldn't save this handover. Please try again.");
           setPending(false);
         }
       }}
     >
-      <label className="block text-sm">
-        <span className="font-medium">Tenant ID</span>
-        <input
-          name="tenant_id"
-          required
-          defaultValue={defaultTenantId}
-          className="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 font-mono text-sm"
-        />
-      </label>
-      <label className="block text-sm">
-        <span className="font-medium">Recipient support worker user ID</span>
-        <input
-          name="recipient_user_id"
-          required
-          className="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 font-mono text-sm"
-        />
-      </label>
-      <label className="block text-sm">
-        <span className="font-medium">Summary</span>
-        <input name="summary" required maxLength={255} className="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 text-sm" />
-      </label>
-      <label className="block text-sm">
-        <span className="font-medium">Case updates</span>
-        <textarea name="case_updates" rows={4} className="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 text-sm" />
-      </label>
-      <label className="block text-sm">
-        <span className="font-medium">Outstanding tasks</span>
-        <textarea name="outstanding_tasks" rows={3} className="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 text-sm" />
-      </label>
-      <label className="block text-sm">
-        <span className="font-medium">Follow-up actions</span>
-        <textarea name="follow_up_actions" rows={3} className="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 text-sm" />
-      </label>
-      <label className="block text-sm">
-        <span className="font-medium">Priority</span>
-        <select name="priority" defaultValue="normal" className="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 text-sm">
-          <option value="low">low</option>
-          <option value="normal">normal</option>
-          <option value="high">high</option>
-          <option value="urgent">urgent</option>
+      <div className="grid gap-4 sm:grid-cols-2">
+        <div className="space-y-1.5">
+          <label htmlFor="handover-tenant" className={labelClass}>
+            Tenant reference
+          </label>
+          <input id="handover-tenant" name="tenant_id" required defaultValue={defaultTenantId} className={`${inputClass} font-mono`} />
+        </div>
+        <div className="space-y-1.5">
+          <label htmlFor="handover-recipient" className={labelClass}>
+            Recipient reference
+          </label>
+          <input id="handover-recipient" name="recipient_user_id" required className={`${inputClass} font-mono`} />
+        </div>
+      </div>
+      <div className="space-y-1.5">
+        <label htmlFor="handover-summary" className={labelClass}>
+          Summary
+        </label>
+        <input id="handover-summary" name="summary" required maxLength={255} className={inputClass} />
+      </div>
+      <div className="space-y-1.5">
+        <label htmlFor="handover-updates" className={labelClass}>
+          Case updates
+        </label>
+        <textarea id="handover-updates" name="case_updates" rows={4} className={`${inputClass} h-auto py-2`} />
+      </div>
+      <div className="grid gap-4 sm:grid-cols-2">
+        <div className="space-y-1.5">
+          <label htmlFor="handover-tasks" className={labelClass}>
+            Outstanding tasks
+          </label>
+          <textarea id="handover-tasks" name="outstanding_tasks" rows={3} className={`${inputClass} h-auto py-2`} />
+        </div>
+        <div className="space-y-1.5">
+          <label htmlFor="handover-follow" className={labelClass}>
+            Follow-up actions
+          </label>
+          <textarea id="handover-follow" name="follow_up_actions" rows={3} className={`${inputClass} h-auto py-2`} />
+        </div>
+      </div>
+      <div className="space-y-1.5">
+        <label htmlFor="handover-priority" className={labelClass}>
+          Priority
+        </label>
+        <select id="handover-priority" name="priority" defaultValue="normal" className={inputClass}>
+          <option value="low">Low</option>
+          <option value="normal">Normal</option>
+          <option value="high">High</option>
+          <option value="urgent">Urgent</option>
         </select>
+      </div>
+      <label className="flex items-center gap-2 text-sm font-medium text-slate-800">
+        <input type="checkbox" name="submit" className="h-4 w-4 rounded border-slate-300 text-brand-700 focus:ring-brand-600" />
+        Submit now (otherwise this stays a draft)
       </label>
-      <label className="flex items-center gap-2 text-sm">
-        <input type="checkbox" name="submit" />
-        Submit immediately (otherwise save as draft)
-      </label>
-      {error ? <p className="text-sm text-red-700">{error}</p> : null}
-      <button type="submit" disabled={pending} className="rounded-md bg-teal-700 px-4 py-2 text-sm text-white disabled:opacity-60">
-        {pending ? "Saving…" : "Save handover"}
-      </button>
+      {error ? (
+        <p role="alert" className="rounded-lg border border-red-100 bg-red-50 px-3 py-2 text-sm text-red-700">
+          {error}
+        </p>
+      ) : null}
+      <div className="flex justify-end gap-2 border-t border-slate-100 pt-4">
+        <Link href="/dashboard/handovers" className={btnSecondary}>
+          Cancel
+        </Link>
+        <button type="submit" disabled={pending} className={btnPrimary}>
+          {pending ? "Saving…" : "Save handover"}
+        </button>
+      </div>
     </form>
   );
 }

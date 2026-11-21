@@ -2,6 +2,7 @@ import { redirect } from "next/navigation";
 import { EmptyState } from "@/components/dashboard/EmptyState";
 import { ErrorState } from "@/components/dashboard/ErrorState";
 import { PageHeader } from "@/components/dashboard/PageHeader";
+import { DataTable, StatusChip, Td, Th } from "@/components/ui/primitives";
 import { auth0, isAuth0Configured } from "@/lib/auth0";
 import { listDeliveries } from "@/lib/communicationsApi";
 import { canAny } from "@/lib/rbac";
@@ -17,11 +18,11 @@ export default async function DeliveriesPage() {
     return <EmptyState title="Organisation required" description="Active organisation membership needed." />;
   }
   if (!isAuth0Configured() || !auth0) {
-    return <EmptyState title="Auth0 not configured" description="Configure Auth0 for the web app." />;
+    return <EmptyState title="Sign-in not configured" description="Sign-in isn't set up in this environment yet." />;
   }
   const token = (await auth0.getAccessToken())?.token;
   if (!token) {
-    return <ErrorState description="Access token unavailable." />;
+    return <ErrorState description="We couldn't confirm your sign-in. Please sign in again." />;
   }
   let items: Array<Record<string, unknown>> = [];
   let err: string | null = null;
@@ -32,29 +33,43 @@ export default async function DeliveriesPage() {
       role: session.authorization.active_role,
     });
     items = data.items;
-  } catch (e) {
-    err = e instanceof Error ? e.message : "Failed";
+  } catch {
+    err = "We could not load this page. Please try again.";
   }
   if (err) {
     return <ErrorState description={err} />;
   }
 
   return (
-    <div className="space-y-4">
-      <PageHeader eyebrow="F2.12" title="Delivery status" description="Queued vs provider_accepted vs delivered vs failed" />
+    <div className="space-y-6">
+      <PageHeader
+        eyebrow="Communications"
+        title="Delivery status"
+        description="Queued, provider accepted, delivered, and failed. Provider acceptance does not prove the message reached a device."
+      />
       {items.length === 0 ? (
-        <p className="text-slate-600">No delivery rows visible.</p>
+        <EmptyState title="No deliveries" description="No delivery rows are visible." />
       ) : (
-        <ul className="divide-y rounded border border-slate-200 bg-white text-sm">
-          {items.map((d) => (
-            <li key={String(d.id)} className="flex flex-wrap gap-2 px-4 py-2">
-              <span className="font-mono text-xs text-slate-500">{String(d.id).slice(0, 8)}…</span>
-              <span>{String(d.channel)}</span>
-              <span className="rounded bg-slate-100 px-2 py-0.5">{String(d.status)}</span>
-              {d.last_error ? <span className="text-red-700">{String(d.last_error)}</span> : null}
-            </li>
-          ))}
-        </ul>
+        <DataTable caption="Delivery status">
+          <thead>
+            <tr>
+              <Th>Channel</Th>
+              <Th>Status</Th>
+              <Th>Detail</Th>
+            </tr>
+          </thead>
+          <tbody>
+            {items.map((d) => (
+              <tr key={String(d.id)} className="hover:bg-slate-50">
+                <Td className="font-semibold text-slate-900">{String(d.channel || "—")}</Td>
+                <Td>
+                  <StatusChip status={String(d.status)} />
+                </Td>
+                <Td>{d.last_error ? "The last attempt did not go through." : "—"}</Td>
+              </tr>
+            ))}
+          </tbody>
+        </DataTable>
       )}
     </div>
   );

@@ -55,7 +55,8 @@ export function CouncilPortalDashboard({ accessToken, organisationId, role, canM
   return (
     <div className="space-y-8">
       <div>
-        <h1 className="text-2xl font-semibold text-slate-900">Council Portal</h1>
+        <p className="text-xs font-semibold uppercase tracking-[0.16em] text-brand-700">Operations</p>
+        <h1 className="mt-1.5 text-2xl font-bold tracking-tight text-slate-900">Council portal</h1>
         <p className="mt-1 text-sm text-slate-600">
           {String(
             dash?.disclaimer ??
@@ -70,27 +71,27 @@ export function CouncilPortalDashboard({ accessToken, organisationId, role, canM
       {canManage ? (
         <>
           <div className="grid gap-3 sm:grid-cols-2">
-            <div className="rounded-lg border bg-white p-4 shadow-sm">
+            <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-card">
               <div className="text-xs uppercase text-slate-500">Active officers</div>
               <div className="mt-1 text-2xl font-semibold">{String(dash?.active_officers ?? "—")}</div>
             </div>
-            <div className="rounded-lg border bg-white p-4 shadow-sm">
+            <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-card">
               <div className="text-xs uppercase text-slate-500">Active shares</div>
               <div className="mt-1 text-2xl font-semibold">{String(dash?.active_shares ?? "—")}</div>
             </div>
           </div>
 
-          <section className="space-y-3 rounded-lg border bg-white p-4 shadow-sm">
+          <section className="space-y-3 rounded-2xl border border-slate-200 bg-white p-5 shadow-card">
             <h2 className="text-sm font-medium">Invite council officer (add-on identity)</h2>
             <input
-              className="w-full rounded border px-2 py-1.5 text-sm"
+              className="block h-10 w-full rounded-lg border border-slate-300 bg-white px-3 text-sm text-slate-900 placeholder:text-slate-400 focus:border-brand-600 focus:outline-none focus:ring-2 focus:ring-brand-100"
               placeholder="Existing user UUID"
               value={officerUserId}
               onChange={(e) => setOfficerUserId(e.target.value)}
             />
             <button
               type="button"
-              className="rounded bg-teal-800 px-3 py-2 text-sm text-white"
+              className="inline-flex h-10 items-center justify-center rounded-lg bg-brand-700 px-4 text-sm font-semibold text-white shadow-sm hover:bg-brand-800 disabled:cursor-not-allowed disabled:opacity-60 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-600 focus-visible:ring-offset-2"
               onClick={() =>
                 startTransition(async () => {
                   try {
@@ -107,22 +108,22 @@ export function CouncilPortalDashboard({ accessToken, organisationId, role, canM
             </button>
           </section>
 
-          <section className="space-y-3 rounded-lg border bg-white p-4 shadow-sm">
+          <section className="space-y-3 rounded-2xl border border-slate-200 bg-white p-5 shadow-card">
             <h2 className="text-sm font-medium">Share housing application</h2>
             <input
-              className="w-full rounded border px-2 py-1.5 text-sm"
+              className="block h-10 w-full rounded-lg border border-slate-300 bg-white px-3 text-sm text-slate-900 placeholder:text-slate-400 focus:border-brand-600 focus:outline-none focus:ring-2 focus:ring-brand-100"
               placeholder="Application UUID"
               value={applicationId}
               onChange={(e) => setApplicationId(e.target.value)}
             />
             <input
-              className="w-full rounded border px-2 py-1.5 text-sm"
+              className="block h-10 w-full rounded-lg border border-slate-300 bg-white px-3 text-sm text-slate-900 placeholder:text-slate-400 focus:border-brand-600 focus:outline-none focus:ring-2 focus:ring-brand-100"
               value={purpose}
               onChange={(e) => setPurpose(e.target.value)}
             />
             <button
               type="button"
-              className="rounded border px-3 py-2 text-sm"
+              className="inline-flex h-10 items-center justify-center rounded-lg border border-slate-200 bg-white px-4 text-sm font-semibold text-slate-700 hover:bg-slate-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-600"
               onClick={() =>
                 startTransition(async () => {
                   try {
@@ -152,7 +153,7 @@ export function CouncilPortalDashboard({ accessToken, organisationId, role, canM
             ) : (
               <ul className="space-y-2">
                 {officers.map((o) => (
-                  <li key={String(o.id)} className="rounded border bg-white p-3 text-sm">
+                  <li key={String(o.id)} className="rounded-2xl border border-slate-200 bg-white p-4 text-sm shadow-card">
                     {String(o.display_name ?? o.user_id)} · {String(o.status)} · add-on role{" "}
                     {String(o.addon_role_label)}
                   </li>
@@ -168,14 +169,14 @@ export function CouncilPortalDashboard({ accessToken, organisationId, role, canM
             ) : (
               <ul className="space-y-2">
                 {shares.map((s) => (
-                  <li key={String(s.id)} className="flex flex-wrap items-center justify-between gap-2 rounded border bg-white p-3 text-sm">
+                  <li key={String(s.id)} className="flex flex-wrap items-center justify-between gap-2 rounded-2xl border border-slate-200 bg-white p-4 text-sm shadow-card">
                     <span>
                       App {String(s.application_id)} · {String(s.status)} · {String(s.purpose)}
                     </span>
                     {s.status === "active" ? (
                       <button
                         type="button"
-                        className="rounded border px-2 py-1"
+                        className="inline-flex h-8 items-center justify-center rounded-lg border border-slate-200 bg-white px-3 text-xs font-semibold text-slate-700 hover:bg-slate-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-600"
                         onClick={() =>
                           startTransition(async () => {
                             await revokeCouncilShare(auth, String(s.id));
@@ -202,7 +203,7 @@ export function CouncilPortalDashboard({ accessToken, organisationId, role, canM
           ) : (
             <ul className="space-y-2">
               {inbox.map((item) => (
-                <li key={String(item.share_id)} className="rounded border bg-white p-3 text-sm">
+                <li key={String(item.share_id)} className="rounded-2xl border border-slate-200 bg-white p-4 text-sm shadow-card">
                   {String(item.reference_number)} · {String(item.status)} · tenant records exposed:{" "}
                   {String(item.tenant_records_exposed)}
                 </li>
@@ -212,7 +213,7 @@ export function CouncilPortalDashboard({ accessToken, organisationId, role, canM
         </section>
       )}
 
-      <button type="button" className="rounded border px-3 py-1.5 text-sm" onClick={refresh}>
+      <button type="button" className="inline-flex h-10 items-center justify-center rounded-lg border border-slate-200 bg-white px-4 text-sm font-semibold text-slate-700 hover:bg-slate-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-600" onClick={refresh}>
         Refresh
       </button>
     </div>

@@ -2,12 +2,35 @@ import Link from "next/link";
 import { EmptyState } from "@/components/dashboard/EmptyState";
 import { ErrorState } from "@/components/dashboard/ErrorState";
 import { PageHeader } from "@/components/dashboard/PageHeader";
+import { FilterTabs, humanize, linkClass, StatCard, StatGrid } from "@/components/ui/primitives";
 import { auth0, isAuth0Configured } from "@/lib/auth0";
 import { canAny } from "@/lib/rbac";
 import { fetchSupportPlansDashboard } from "@/lib/supportPlansApi";
 import { requireAuthenticatedSession } from "@/lib/session";
 
-export default async function SupportPlansDashboardPage() {
+const PLAN_STATUSES = ["draft", "active", "under_review", "on_hold", "completed", "closed"] as const;
+
+const CARDS: { label: string; key: string; tone?: "green" | "amber" | "red" | "blue" | "gray" }[] = [
+  { label: "Total plans", key: "total_plans" },
+  { label: "Active plans", key: "active_plans", tone: "green" },
+  { label: "Under review", key: "plans_under_review", tone: "amber" },
+  { label: "On hold", key: "plans_on_hold" },
+  { label: "Goals in progress", key: "goals_in_progress", tone: "blue" },
+  { label: "Achieved goals", key: "goals_achieved", tone: "green" },
+  { label: "Goals at risk", key: "goals_at_risk", tone: "red" },
+  { label: "Pending milestones", key: "pending_milestones", tone: "amber" },
+  { label: "Overdue milestones", key: "overdue_milestones", tone: "red" },
+  { label: "Upcoming reviews", key: "upcoming_reviews", tone: "blue" },
+  { label: "Overdue reviews", key: "overdue_reviews", tone: "red" },
+];
+
+export default async function SupportPlansDashboardPage({
+  searchParams,
+}: {
+  searchParams?: Promise<{ status?: string }>;
+}) {
+  const params = searchParams ? await searchParams : {};
+  const status = PLAN_STATUSES.includes(params.status as (typeof PLAN_STATUSES)[number]) ? params.status : "";
   const session = await requireAuthenticatedSession("/dashboard/support-plans");
   const permissions = session.authorization?.permissions;
   const role = session.authorization?.active_role;
@@ -18,19 +41,19 @@ export default async function SupportPlansDashboardPage() {
   ) {
     return (
       <EmptyState
-        title="Access denied"
-        description="Support plans dashboard requires organisation admin or support worker with support_plans.read."
+        title="Support plans aren't available"
+        description="This view is for organisation admins and support workers who can read support plans."
       />
     );
   }
 
   const orgId = session.authorization?.active_organisation_id;
   if (!orgId) {
-    return <EmptyState title="Organisation required" description="Active organisation membership needed." />;
+    return <EmptyState title="Choose an organisation" description="Select the organisation you're working in." />;
   }
 
   if (!isAuth0Configured() || !auth0) {
-    return <EmptyState title="Auth0 not configured" description="Cannot load dashboard." />;
+    return <EmptyState title="Sign-in isn't set up yet" description="Support plans will be available once sign-in is configured." />;
   }
 
   let dashboard: Record<string, unknown> | null = null;
@@ -39,60 +62,53 @@ export default async function SupportPlansDashboardPage() {
     const tokenResult = await auth0.getAccessToken();
     const token = tokenResult?.token;
     if (!token) {
-      loadError = "Access token unavailable.";
+      loadError = "We couldn't confirm your sign-in. Please sign in again.";
     } else {
       dashboard = await fetchSupportPlansDashboard({
         accessToken: token,
         organisationId: orgId,
         role: session.authorization?.active_role,
+        planStatus: status || undefined,
       });
     }
   } catch (e) {
-    loadError = e instanceof Error ? e.message : "Unable to load dashboard";
+    loadError = e instanceof Error ? e.message : "We couldn't load support plans. Please try again.";
   }
 
   if (loadError) {
-    return <ErrorState description={loadError} />;
+    return <ErrorState description={loadError} retryHref="/dashboard/support-plans" />;
   }
 
-  const num = (k: string) => (typeof dashboard?.[k] === "number" ? (dashboard[k] as number) : "—");
+  const num = (key: string) => (typeof dashboard?.[key] === "number" ? (dashboard[key] as number) : "—");
 
   return (
-    <div className="mx-auto max-w-5xl space-y-8">
+    <div className="mx-auto max-w-6xl space-y-6">
       <PageHeader
-        eyebrow="F2.10"
-        title="Support plans progress"
-        description="Counts come from the API and respect organisation isolation and caseload scope for support workers."
+        eyebrow="Records"
+        title="Support plans"
+        description="Counts come from your organisation. Support workers only see plans on their caseload."
       />
-
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-        {[
-          { label: "Total plans", key: "total_plans" },
-          { label: "Active plans", key: "active_plans" },
-          { label: "Under review", key: "plans_under_review" },
-          { label: "On hold", key: "plans_on_hold" },
-          { label: "Goals in progress", key: "goals_in_progress" },
-          { label: "Achieved goals", key: "goals_achieved" },
-          { label: "Goals at risk", key: "goals_at_risk" },
-          { label: "Pending milestones", key: "pending_milestones" },
-          { label: "Overdue milestones", key: "overdue_milestones" },
-          { label: "Upcoming reviews", key: "upcoming_reviews" },
-          { label: "Overdue reviews", key: "overdue_reviews" },
-        ].map((card) => (
-          <div key={card.key} className="rounded-lg border border-slate-200 bg-white p-4 shadow-sm">
-            <p className="text-xs font-medium uppercase tracking-wide text-slate-500">{card.label}</p>
-            <p className="mt-2 text-2xl font-semibold text-forest-900">{num(card.key)}</p>
-          </div>
+      <FilterTabs
+        tabs={[
+          { label: "All", href: "/dashboard/support-plans", active: !status },
+          ...PLAN_STATUSES.map((item) => ({
+            label: humanize(item),
+            href: `/dashboard/support-plans?status=${item}`,
+            active: status === item,
+          })),
+        ]}
+      />
+      <StatGrid>
+        {CARDS.map((card) => (
+          <StatCard key={card.key} label={card.label} value={num(card.key)} tone={card.tone} />
         ))}
-      </div>
-
+      </StatGrid>
       <p className="text-sm text-slate-600">
-        Manage plans from a tenant case: open{" "}
-        <Link href="/dashboard/support-worker" className="text-teal-800 underline">
+        Open a person from the{" "}
+        <Link href="/dashboard/support-worker" className={linkClass}>
           caseload
         </Link>{" "}
-        and use Support plans (when linked), or call the API at{" "}
-        <code className="rounded bg-slate-100 px-1">/api/v1/tenants/{"{tenant_id}"}/support-plans</code>.
+        to work on their plan.
       </p>
     </div>
   );

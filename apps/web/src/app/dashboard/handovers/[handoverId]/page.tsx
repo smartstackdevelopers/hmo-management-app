@@ -2,6 +2,7 @@ import { redirect } from "next/navigation";
 import { EmptyState } from "@/components/dashboard/EmptyState";
 import { ErrorState } from "@/components/dashboard/ErrorState";
 import { PageHeader } from "@/components/dashboard/PageHeader";
+import { Card, CardHeader, StatusChip } from "@/components/ui/primitives";
 import { HandoverActions } from "@/components/support/HandoverActions";
 import { auth0, isAuth0Configured } from "@/lib/auth0";
 import { canAny } from "@/lib/rbac";
@@ -65,25 +66,35 @@ export default async function HandoverDetailPage({
 
     return (
       <div className="mx-auto max-w-3xl space-y-6">
-        <PageHeader eyebrow="Handover" title={handover.summary} description={`Status: ${handover.status}`} />
-        <dl className="grid gap-3 rounded-lg border border-slate-200 bg-white p-5 text-sm sm:grid-cols-2">
-          <div>
-            <dt className="text-slate-500">Priority</dt>
-            <dd className="font-medium">{handover.priority}</dd>
+        <PageHeader
+          eyebrow="My work"
+          title={handover.summary}
+          actions={
+            <div className="flex flex-wrap gap-2">
+              <StatusChip status={handover.status} />
+              <StatusChip status={handover.priority} />
+            </div>
+          }
+        />
+        <Card>
+          <CardHeader title="When" description={new Date(handover.handover_at).toLocaleString("en-GB", { dateStyle: "medium", timeStyle: "short" })} />
+        </Card>
+        <Card>
+          <div className="space-y-4 text-sm">
+            <div>
+              <h2 className="font-semibold text-slate-900">Case updates</h2>
+              <p className="mt-1 whitespace-pre-wrap text-slate-700">{handover.case_updates || "—"}</p>
+            </div>
+            <div>
+              <h2 className="font-semibold text-slate-900">Outstanding tasks</h2>
+              <p className="mt-1 whitespace-pre-wrap text-slate-700">{handover.outstanding_tasks || "—"}</p>
+            </div>
+            <div>
+              <h2 className="font-semibold text-slate-900">Follow-up actions</h2>
+              <p className="mt-1 whitespace-pre-wrap text-slate-700">{handover.follow_up_actions || "—"}</p>
+            </div>
           </div>
-          <div>
-            <dt className="text-slate-500">When</dt>
-            <dd className="font-medium">{new Date(handover.handover_at).toLocaleString()}</dd>
-          </div>
-        </dl>
-        <section className="space-y-2 rounded-lg border border-slate-200 bg-white p-5 text-sm">
-          <h2 className="font-semibold text-forest-900">Case updates</h2>
-          <p className="whitespace-pre-wrap text-slate-700">{handover.case_updates || "—"}</p>
-          <h2 className="font-semibold text-forest-900">Outstanding tasks</h2>
-          <p className="whitespace-pre-wrap text-slate-700">{handover.outstanding_tasks || "—"}</p>
-          <h2 className="font-semibold text-forest-900">Follow-up actions</h2>
-          <p className="whitespace-pre-wrap text-slate-700">{handover.follow_up_actions || "—"}</p>
-        </section>
+        </Card>
         <HandoverActions
           accessToken={token}
           organisationId={orgId}

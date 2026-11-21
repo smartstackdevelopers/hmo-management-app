@@ -2,6 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { btnPrimary, inputClass, labelClass } from "@/components/ui/primitives";
 import { createApplication } from "@/lib/housingApi";
 
 export function ApplicationForm({
@@ -19,7 +20,7 @@ export function ApplicationForm({
 
   return (
     <form
-      className="space-y-3 rounded-lg border border-slate-200 bg-white p-5"
+      className="space-y-4 rounded-2xl border border-slate-200 bg-white p-6 shadow-card"
       onSubmit={async (event) => {
         event.preventDefault();
         setPending(true);
@@ -50,51 +51,78 @@ export function ApplicationForm({
         }
       }}
     >
-      <label className="block text-sm">
-        Tenant ID
-        <input name="tenant_id" required className="mt-1 w-full rounded border px-3 py-2" />
-      </label>
-      <label className="block text-sm">
-        Housing requirements
-        <textarea name="housing_requirements" required rows={4} className="mt-1 w-full rounded border px-3 py-2" />
-      </label>
-      <label className="block text-sm">
-        Accommodation type
-        <input name="accommodation_type" className="mt-1 w-full rounded border px-3 py-2" />
-      </label>
-      <label className="block text-sm">
-        Preferred property ID (optional)
-        <input name="preferred_property_id" className="mt-1 w-full rounded border px-3 py-2" />
-      </label>
-      <label className="block text-sm">
-        Household summary
-        <textarea name="household_summary" rows={2} className="mt-1 w-full rounded border px-3 py-2" />
-      </label>
-      <label className="block text-sm">
-        Supporting information
-        <textarea name="supporting_information" rows={2} className="mt-1 w-full rounded border px-3 py-2" />
-      </label>
-      <label className="block text-sm">
-        Priority
-        <select name="priority" defaultValue="normal" className="mt-1 w-full rounded border px-3 py-2">
+      <div>
+        <label htmlFor="application-tenant-id" className={labelClass}>
+          Tenant ID
+        </label>
+        <input id="application-tenant-id" name="tenant_id" required className={`mt-1.5 ${inputClass}`} />
+      </div>
+      <div>
+        <label htmlFor="application-requirements" className={labelClass}>
+          Housing requirements
+        </label>
+        <textarea
+          id="application-requirements"
+          name="housing_requirements"
+          required
+          rows={4}
+          className={`mt-1.5 ${inputClass} h-auto py-2`}
+        />
+      </div>
+      <div>
+        <label htmlFor="application-accommodation" className={labelClass}>
+          Accommodation type
+        </label>
+        <input id="application-accommodation" name="accommodation_type" className={`mt-1.5 ${inputClass}`} />
+      </div>
+      <div>
+        <label htmlFor="application-property" className={labelClass}>
+          Preferred property ID <span className="font-normal text-slate-500">(optional)</span>
+        </label>
+        <input id="application-property" name="preferred_property_id" className={`mt-1.5 ${inputClass}`} />
+      </div>
+      <div>
+        <label htmlFor="application-household" className={labelClass}>
+          Household summary
+        </label>
+        <textarea id="application-household" name="household_summary" rows={2} className={`mt-1.5 ${inputClass} h-auto py-2`} />
+      </div>
+      <div>
+        <label htmlFor="application-supporting" className={labelClass}>
+          Supporting information
+        </label>
+        <textarea
+          id="application-supporting"
+          name="supporting_information"
+          rows={2}
+          className={`mt-1.5 ${inputClass} h-auto py-2`}
+        />
+      </div>
+      <div>
+        <label htmlFor="application-priority" className={labelClass}>
+          Priority
+        </label>
+        <select id="application-priority" name="priority" defaultValue="normal" className={`mt-1.5 ${inputClass}`}>
           <option value="low">Low</option>
           <option value="normal">Normal</option>
           <option value="high">High</option>
           <option value="urgent">Urgent</option>
         </select>
-      </label>
-      <label className="flex items-center gap-2 text-sm">
-        <input name="submit" type="checkbox" />
+      </div>
+      <label className="flex items-center gap-2 text-sm text-slate-700">
+        <input name="submit" type="checkbox" className="h-4 w-4 rounded border-slate-300 text-brand-700" />
         Submit immediately
       </label>
-      {error ? <p className="text-sm text-red-700">{error}</p> : null}
-      <button
-        type="submit"
-        disabled={pending}
-        className="rounded-md bg-teal-700 px-3 py-2 text-sm text-white disabled:opacity-60"
-      >
-        {pending ? "Saving…" : "Save application"}
-      </button>
+      {error ? (
+        <p role="alert" className="rounded-lg bg-red-50 px-3 py-2 text-sm text-red-700">
+          {error}
+        </p>
+      ) : null}
+      <div className="flex justify-end border-t border-slate-100 pt-5">
+        <button type="submit" disabled={pending} className={btnPrimary}>
+          {pending ? "Saving…" : "Save application"}
+        </button>
+      </div>
     </form>
   );
 }

@@ -1,10 +1,11 @@
 import { useMutation, useQuery } from '@tanstack/react-query';
-import { useLocalSearchParams, useRouter } from 'expo-router';
+import { useLocalSearchParams } from 'expo-router';
 import { useState } from 'react';
 import { Linking, Platform, StyleSheet, Text, View } from 'react-native';
 
+import { FactGrid } from '@/components/dashboard/mobileChrome';
 import { Button } from '@/components/ui/Button';
-import { Card } from '@/components/ui/Card';
+import { Chip } from '@/components/ui/Chip';
 import { Input } from '@/components/ui/Input';
 import { Screen } from '@/components/ui/Screen';
 import { ErrorState, LoadingScreen } from '@/components/ui/States';
@@ -26,30 +27,12 @@ const REPORT_REASONS = [
   { id: 'other', labelKey: 'helpNearMe.reasonOther' },
 ] as const;
 
-function Field({
-  label,
-  value,
-  missing,
-}: {
-  label: string;
-  value: string | null | undefined;
-  missing: string;
-}) {
-  return (
-    <View style={styles.field}>
-      <Text style={styles.label}>{label}</Text>
-      <Text style={[styles.value, !value?.trim() && styles.missing]}>{value?.trim() ? value : missing}</Text>
-    </View>
-  );
-}
-
 export default function HelpNearMeDetailScreen() {
   const { id, distance_km: distanceKm } = useLocalSearchParams<{
     id: string;
     postcode?: string;
     distance_km?: string;
   }>();
-  const router = useRouter();
   const { t, fontScale } = useI18n();
   const [reason, setReason] = useState<string>('information_outdated');
   const [details, setDetails] = useState('');
@@ -86,59 +69,47 @@ export default function HelpNearMeDetailScreen() {
     await Linking.openURL(url);
   };
 
+  const verifiedLabel =
+    item.verification_status === 'verified'
+      ? t('community.verified')
+      : item.verification_status === 'outdated'
+        ? t('community.outdated')
+        : item.verification_status === 'needs_review'
+          ? t('community.needsReview')
+          : t('community.unverified');
+  const facts = [
+    distanceKm ? { label: t('helpNearMe.distance'), value: `${distanceKm} km` } : null,
+    item.opening_hours?.trim() ? { label: t('community.hours'), value: item.opening_hours.trim() } : null,
+    item.opening_days?.trim() ? { label: t('community.openingDays'), value: item.opening_days.trim() } : null,
+    item.contact?.trim() ? { label: t('community.contact'), value: item.contact.trim() } : null,
+    item.referral_requirements?.trim() ? { label: t('community.referral'), value: item.referral_requirements.trim() } : null,
+    item.eligibility?.trim() ? { label: t('community.eligibility'), value: item.eligibility.trim() } : null,
+    item.address_line?.trim() ? { label: t('community.address'), value: item.address_line.trim() } : null,
+  ].filter((entry): entry is { label: string; value: string } => !!entry);
+
   return (
     <Screen>
-      <Text style={[styles.title, { fontSize: 24 * fontScale }]}>{item.name}</Text>
-      {distanceKm ? (
-        <Text style={styles.meta}>
-          {t('helpNearMe.distance')}: {distanceKm} km
-        </Text>
-      ) : null}
-      <Card style={styles.card}>
-        <Field label={t('community.description')} value={item.description} missing={t('community.notProvided')} />
-        <Field label={t('community.address')} value={item.address_line} missing={t('community.notProvided')} />
-        <Field label={t('community.openingDays')} value={item.opening_days} missing={t('community.notProvided')} />
-        <Field label={t('community.hours')} value={item.opening_hours} missing={t('community.notProvided')} />
-        <Field label={t('community.eligibility')} value={item.eligibility} missing={t('community.notProvided')} />
-        <Field label={t('community.referral')} value={item.referral_requirements} missing={t('community.notProvided')} />
-        <Field label={t('community.contact')} value={item.contact} missing={t('community.notProvided')} />
-        <Field label={t('community.instructions')} value={item.service_instructions} missing={t('community.notProvided')} />
-        <Field
-          label={t('community.verification')}
-          value={
-            item.verification_status === 'verified'
-              ? t('community.verified')
-              : item.verification_status === 'outdated'
-                ? t('community.outdated')
-                : item.verification_status === 'needs_review'
-                  ? t('community.needsReview')
-                  : t('community.unverified')
-          }
-          missing={t('community.unverified')}
+      <Text style={[styles.title, { fontSize: 28 * fontScale }]} accessibilityRole="header">{item.name}</Text>
+      {item.address_line ? <Text style={styles.meta}>{item.address_line}</Text> : null}
+      <View style={styles.chips}>
+        <Chip
+          label={verifiedLabel}
+          tone={item.verification_status === 'verified' ? 'green' : item.verification_status === 'outdated' ? 'amber' : 'gray'}
         />
-        <Field
-          label={t('community.lastVerified')}
-          value={item.verified_at ? new Date(item.verified_at).toLocaleDateString() : null}
-          missing={t('community.notVerifiedYet')}
-        />
-      </Card>
-
-      <Button title={t('helpNearMe.directions')} onPress={openDirections} accessibilityLabel={t('helpNearMe.directions')} />
-      <Button
-        title={t('community.backToDirectory')}
-        variant="secondary"
-        onPress={() => router.back()}
-        accessibilityLabel={t('community.backToDirectory')}
-      />
+      </View>
+      {facts.length ? <FactGrid items={facts} /> : null}
+      {item.description?.trim() ? <Text style={styles.lead}>{item.description}</Text> : null}
+      {item.service_instructions?.trim() ? <Text style={styles.lead}>{item.service_instructions}</Text> : null}
+      <Button title={t('helpNearMe.directions')} onPress={openDirections} fullWidth accessibilityLabel={t('helpNearMe.directions')} />
 
       <Text style={[styles.section, { fontSize: 18 * fontScale }]}>{t('helpNearMe.reportTitle')}</Text>
       <Text style={styles.lead}>{t('helpNearMe.reportLead')}</Text>
       <View style={styles.reasons}>
         {REPORT_REASONS.map((entry) => (
-          <Button
+          <Chip
             key={entry.id}
-            title={t(entry.labelKey)}
-            variant={reason === entry.id ? 'primary' : 'secondary'}
+            label={t(entry.labelKey)}
+            selected={reason === entry.id}
             onPress={() => setReason(entry.id)}
           />
         ))}
@@ -154,8 +125,10 @@ export default function HelpNearMeDetailScreen() {
       ) : (
         <Button
           title={reportMutation.isPending ? t('helpNearMe.reportSending') : t('helpNearMe.reportSubmit')}
+          variant="outline"
           onPress={() => reportMutation.mutate()}
           disabled={reportMutation.isPending}
+          fullWidth
         />
       )}
       {reportMutation.error ? (
@@ -166,8 +139,11 @@ export default function HelpNearMeDetailScreen() {
 }
 
 const styles = StyleSheet.create({
-  title: { fontFamily: FONT_BOLD, color: theme.colors.text, marginBottom: theme.spacing.xs },
-  meta: { fontFamily: FONT_MEDIUM, color: theme.colors.textMuted, marginBottom: theme.spacing.md },
+  title: { fontFamily: FONT_BOLD, color: theme.colors.text },
+  hero: { flexDirection: 'row', gap: 12, alignItems: 'center', marginBottom: theme.spacing.md },
+  heroCopy: { flex: 1, minWidth: 0, gap: 6 },
+  meta: { fontFamily: FONT_MEDIUM, color: theme.colors.textMuted, marginTop: 4 },
+  chips: { flexDirection: 'row', flexWrap: 'wrap', gap: 8, marginVertical: 12 },
   card: { marginBottom: theme.spacing.md },
   field: { marginBottom: theme.spacing.md },
   label: { fontFamily: FONT_BOLD, color: theme.colors.textMuted, marginBottom: 4, fontSize: 12 },
@@ -175,7 +151,7 @@ const styles = StyleSheet.create({
   missing: { color: theme.colors.textSecondary, fontStyle: 'italic' },
   section: { fontFamily: FONT_BOLD, color: theme.colors.text, marginTop: theme.spacing.lg, marginBottom: 6 },
   lead: { fontFamily: FONT_MEDIUM, color: theme.colors.textSecondary, marginBottom: theme.spacing.sm, lineHeight: 20 },
-  reasons: { gap: 8, marginBottom: theme.spacing.md },
+  reasons: { flexDirection: 'row', flexWrap: 'wrap', gap: 8, marginBottom: theme.spacing.md },
   success: { fontFamily: FONT_MEDIUM, color: theme.colors.secondary, marginTop: theme.spacing.sm },
   error: { fontFamily: FONT_MEDIUM, color: '#B42318', marginTop: theme.spacing.sm },
 });

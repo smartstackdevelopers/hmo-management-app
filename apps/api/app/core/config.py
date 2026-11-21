@@ -54,6 +54,32 @@ class Settings(BaseSettings):
     # Break-glass CLI (`scripts/bootstrap_identity.py`). Required when ENVIRONMENT=production.
     hmore_bootstrap_token: str | None = Field(default=None, validation_alias="HMORE_BOOTSTRAP_TOKEN")
 
+    # Local meeting demo only — HS256 tokens. Never enable in production.
+    hmore_demo_auth: bool = Field(default=False, validation_alias="HMORE_DEMO_AUTH")
+    hmore_demo_auth_secret: str = Field(
+        default="hmore-local-demo-secret-change-me",
+        validation_alias="HMORE_DEMO_AUTH_SECRET",
+    )
+    hmore_demo_org_slug: str = Field(default="demo-housing", validation_alias="HMORE_DEMO_ORG_SLUG")
+    hmore_demo_org_name: str = Field(default="Demo Housing", validation_alias="HMORE_DEMO_ORG_NAME")
+
+    # Native HMore authentication (Prompt 12) — replaces Auth0 for application login.
+    hmore_native_auth: bool = Field(default=True, validation_alias="HMORE_NATIVE_AUTH")
+    hmore_native_auth_secret: str = Field(
+        default="hmore-local-native-auth-secret-change-me",
+        validation_alias="HMORE_NATIVE_AUTH_SECRET",
+    )
+    hmore_native_audience: str = Field(
+        default="https://api.hmore.local",
+        validation_alias="HMORE_NATIVE_AUDIENCE",
+    )
+    # Keep Auth0 JWT validation only when explicitly re-enabled (stakeholder default: off).
+    hmore_allow_auth0: bool = Field(default=False, validation_alias="HMORE_ALLOW_AUTH0")
+    hmore_access_token_ttl_seconds: int = Field(default=900, ge=60, le=86_400)
+    hmore_refresh_token_ttl_seconds: int = Field(default=60 * 60 * 24 * 14, ge=3600, le=60 * 60 * 24 * 90)
+    hmore_login_max_attempts: int = Field(default=5, ge=3, le=20)
+    hmore_login_lockout_seconds: int = Field(default=900, ge=60, le=86_400)
+
     # Private file storage (F1.8) — never commit real credentials.
     # provider: memory | local | s3
     storage_provider: str = Field(default="memory")
@@ -297,10 +323,17 @@ class Settings(BaseSettings):
         elif self.database_url.startswith("sqlite"):
             errors.append("SQLite is not allowed in production")
 
-        if not self.auth0_domain:
-            errors.append("AUTH0_DOMAIN is required in production")
-        if not self.auth0_audience:
-            errors.append("AUTH0_AUDIENCE is required in production")
+        if self.hmore_native_auth:
+            secret = (self.hmore_native_auth_secret or "").strip()
+            if not secret or secret == "hmore-local-native-auth-secret-change-me":
+                errors.append("HMORE_NATIVE_AUTH_SECRET must be set to a non-default value in production")
+        elif self.hmore_allow_auth0:
+            if not self.auth0_domain:
+                errors.append("AUTH0_DOMAIN is required when HMORE_ALLOW_AUTH0=true in production")
+            if not self.auth0_audience:
+                errors.append("AUTH0_AUDIENCE is required when HMORE_ALLOW_AUTH0=true in production")
+        else:
+            errors.append("Enable HMORE_NATIVE_AUTH or HMORE_ALLOW_AUTH0 in production")
 
         # F6.4 / F6.5 — never derive Fernet from the default pepper in production.
         if not (self.integration_secrets_key or "").strip():

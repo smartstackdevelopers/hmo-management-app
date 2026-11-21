@@ -4,11 +4,7 @@
  * Biometric templates are never read or stored.
  */
 
-type SecureStoreLike = {
-  getItemAsync: (key: string) => Promise<string | null>;
-  setItemAsync: (key: string, value: string) => Promise<void>;
-  deleteItemAsync: (key: string) => Promise<void>;
-};
+import { secureDeleteItem, secureGetItem, secureSetItem } from '@/lib/secureStorage';
 
 export const BIOMETRIC_UNLOCK_KEY = 'hmore.biometric.unlock';
 export const DEVICE_SESSION_ID_KEY = 'hmore.deviceSession.id';
@@ -21,21 +17,9 @@ let sessionIdCache: string | null | undefined;
 let installationIdCache: string | null | undefined;
 let statusCache: string | null | undefined;
 
-function secureStore(): SecureStoreLike | null {
-  try {
-    const loaded = require('expo-secure-store') as SecureStoreLike;
-    if (!loaded || typeof loaded.getItemAsync !== 'function') return null;
-    return loaded;
-  } catch {
-    return null;
-  }
-}
-
 async function readKey(key: string): Promise<string | null> {
-  const store = secureStore();
-  if (!store) return null;
   try {
-    const value = await store.getItemAsync(key);
+    const value = await secureGetItem(key);
     return value && value.trim() ? value : null;
   } catch {
     return null;
@@ -43,19 +27,11 @@ async function readKey(key: string): Promise<string | null> {
 }
 
 async function writeKey(key: string, value: string): Promise<void> {
-  const store = secureStore();
-  if (!store) throw new Error('Secure storage is not available on this device.');
-  await store.setItemAsync(key, value);
+  await secureSetItem(key, value);
 }
 
 async function deleteKey(key: string): Promise<void> {
-  const store = secureStore();
-  if (!store) return;
-  try {
-    await store.deleteItemAsync(key);
-  } catch {
-    // Already absent.
-  }
+  await secureDeleteItem(key);
 }
 
 export function resetDeviceSessionStoreCache(): void {

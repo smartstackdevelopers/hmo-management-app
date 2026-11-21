@@ -27,7 +27,7 @@ export default async function NewTaskPage() {
 
   return (
     <div className="mx-auto max-w-xl space-y-6">
-      <PageHeader eyebrow="Tasks" title="New task" description="Support Workers may only assign tasks to themselves." />
+      <PageHeader eyebrow="My work" title="New task" description="Support workers can only assign tasks to themselves." />
       <TaskForm
         accessToken={token}
         organisationId={orgId}

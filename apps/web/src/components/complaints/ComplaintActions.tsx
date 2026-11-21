@@ -2,6 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { btnDanger, btnPrimary, btnSecondary, inputClass, labelClass } from "@/components/ui/primitives";
 import {
   addComplaintNote,
   assignComplaint,
@@ -10,6 +11,9 @@ import {
   transitionComplaint,
   updateComplaintDeadlines,
 } from "@/lib/complaintsApi";
+
+const field = `mt-1.5 ${inputClass}`;
+const area = `mt-1.5 ${inputClass} h-auto py-2`;
 
 export function ComplaintActions({
   complaintId,
@@ -56,7 +60,7 @@ export function ComplaintActions({
   }
 
   return (
-    <div className="space-y-4 rounded-lg border border-slate-200 bg-white p-4">
+    <div className="space-y-6 rounded-2xl border border-slate-200 bg-white p-6 shadow-card">
       {error ? <p className="text-sm text-red-700">{error}</p> : null}
 
       {canManage || canClose ? (
@@ -82,8 +86,8 @@ export function ComplaintActions({
             );
           }}
         >
-          <p className="text-sm font-medium">Status transition</p>
-          <select name="status" className="w-full rounded border px-3 py-2 text-sm" defaultValue={status}>
+          <p className={labelClass}>Status transition</p>
+          <select name="status" className={field} defaultValue={status}>
             <option value="acknowledged">Acknowledged</option>
             <option value="under_review">Under review</option>
             <option value="investigation">Investigation</option>
@@ -94,20 +98,20 @@ export function ComplaintActions({
             <option value="reopened">Reopened</option>
             <option value="withdrawn">Withdrawn</option>
           </select>
-          <textarea name="note" rows={2} placeholder="Explanation / note" className="w-full rounded border px-3 py-2 text-sm" />
+          <textarea name="note" rows={2} placeholder="Explanation / note" className={area} />
           <textarea
             name="resolution_summary"
             rows={2}
             placeholder="Internal resolution summary (optional)"
-            className="w-full rounded border px-3 py-2 text-sm"
+            className={area}
           />
           <textarea
             name="tenant_visible_summary"
             rows={2}
             placeholder="Tenant-visible summary (optional)"
-            className="w-full rounded border px-3 py-2 text-sm"
+            className={area}
           />
-          <button type="submit" disabled={pending} className="rounded bg-slate-800 px-3 py-1.5 text-sm text-white">
+          <button type="submit" disabled={pending} className={btnPrimary}>
             Apply status
           </button>
         </form>
@@ -131,15 +135,15 @@ export function ComplaintActions({
             );
           }}
         >
-          <p className="text-sm font-medium">Change priority</p>
-          <select name="priority" className="w-full rounded border px-3 py-2 text-sm" defaultValue="normal">
+          <p className={labelClass}>Change priority</p>
+          <select name="priority" className={field} defaultValue="normal">
             <option value="low">Low</option>
             <option value="normal">Normal</option>
             <option value="high">High</option>
             <option value="urgent">Urgent</option>
           </select>
-          <input name="reason" required placeholder="Reason" className="w-full rounded border px-3 py-2 text-sm" />
-          <button type="submit" disabled={pending} className="rounded border px-3 py-1.5 text-sm">
+          <input name="reason" required placeholder="Reason" className={field} />
+          <button type="submit" disabled={pending} className={btnSecondary}>
             Update priority
           </button>
         </form>
@@ -164,14 +168,14 @@ export function ComplaintActions({
             );
           }}
         >
-          <p className="text-sm font-medium">Assign</p>
+          <p className={labelClass}>Assign</p>
           <input
             name="assigned_user_id"
             placeholder="Assignee user UUID"
-            className="w-full rounded border px-3 py-2 text-sm font-mono"
+            className={`${field} font-mono`}
           />
-          <input name="note" placeholder="Note" className="w-full rounded border px-3 py-2 text-sm" />
-          <button type="submit" disabled={pending} className="rounded border px-3 py-1.5 text-sm">
+          <input name="note" placeholder="Note" className={field} />
+          <button type="submit" disabled={pending} className={btnSecondary}>
             Save assignment
           </button>
         </form>
@@ -199,16 +203,16 @@ export function ComplaintActions({
             event.currentTarget.reset();
           }}
         >
-          <p className="text-sm font-medium">Investigation / follow-up note</p>
-          <textarea name="body" required rows={3} className="w-full rounded border px-3 py-2 text-sm" />
-          <select name="visibility" className="w-full rounded border px-3 py-2 text-sm" defaultValue="internal">
+          <p className={labelClass}>Investigation / follow-up note</p>
+          <textarea name="body" required rows={3} className={area} />
+          <select name="visibility" className={field} defaultValue="internal">
             <option value="internal">Internal only</option>
             <option value="tenant_visible">Tenant visible</option>
           </select>
           <label className="flex items-center gap-2 text-sm">
             <input name="is_follow_up" type="checkbox" /> Follow-up action
           </label>
-          <button type="submit" disabled={pending} className="rounded border px-3 py-1.5 text-sm">
+          <button type="submit" disabled={pending} className={btnSecondary}>
             Add note
           </button>
         </form>
@@ -233,11 +237,11 @@ export function ComplaintActions({
             );
           }}
         >
-          <p className="text-sm font-medium">Update operational deadline</p>
-          <input name="response_due_at" type="datetime-local" className="w-full rounded border px-3 py-2 text-sm" />
-          <input name="reason" required placeholder="Reason" className="w-full rounded border px-3 py-2 text-sm" />
+          <p className={labelClass}>Update operational deadline</p>
+          <input name="response_due_at" type="datetime-local" className={field} />
+          <input name="reason" required placeholder="Reason" className={field} />
           <p className="text-xs text-slate-500">Operational target only — not a statutory deadline.</p>
-          <button type="submit" disabled={pending} className="rounded border px-3 py-1.5 text-sm">
+          <button type="submit" disabled={pending} className={btnSecondary}>
             Update deadline
           </button>
         </form>
@@ -245,6 +249,7 @@ export function ComplaintActions({
 
       {canEscalate ? (
         <form
+          id="escalate"
           className="space-y-2"
           onSubmit={(event) => {
             event.preventDefault();
@@ -261,14 +266,14 @@ export function ComplaintActions({
             );
           }}
         >
-          <p className="text-sm font-medium">Escalate</p>
-          <textarea name="reason" required rows={2} className="w-full rounded border px-3 py-2 text-sm" />
+          <p className={labelClass}>Escalate</p>
+          <textarea name="reason" required rows={2} className={area} />
           <input
             name="idempotency_key"
             placeholder="Optional idempotency key"
-            className="w-full rounded border px-3 py-2 text-sm"
+            className={field}
           />
-          <button type="submit" disabled={pending} className="rounded bg-amber-700 px-3 py-1.5 text-sm text-white">
+          <button type="submit" disabled={pending} className={btnDanger}>
             Escalate complaint
           </button>
         </form>

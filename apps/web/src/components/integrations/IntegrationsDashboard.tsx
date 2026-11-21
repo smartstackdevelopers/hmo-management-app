@@ -84,7 +84,8 @@ export function IntegrationsDashboard({ accessToken, organisationId, role, canMa
   return (
     <div className="space-y-8">
       <div>
-        <h1 className="text-2xl font-semibold text-slate-900">Integration hub</h1>
+        <p className="text-xs font-semibold uppercase tracking-[0.16em] text-brand-700">Insights</p>
+        <h1 className="mt-1.5 text-2xl font-bold tracking-tight text-slate-900">Integrations</h1>
         <p className="mt-1 text-sm text-slate-600">
           Secure foundation for future Council, HR, Finance and community service APIs. Connected status
           appears only after a real successful connection test — never mock production status.
@@ -96,25 +97,25 @@ export function IntegrationsDashboard({ accessToken, organisationId, role, canMa
 
       <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
         {cards.map((c) => (
-          <div key={c.label} className="rounded-lg border border-slate-200 bg-white p-4 shadow-sm">
+          <div key={c.label} className="rounded-2xl border border-slate-200 bg-white p-5 shadow-card">
             <div className="text-xs uppercase tracking-wide text-slate-500">{c.label}</div>
-            <div className="mt-1 text-2xl font-semibold text-slate-900">{String(c.value ?? "—")}</div>
+            <div className="mt-1 text-2xl font-bold tracking-tight text-slate-900">{String(c.value ?? "—")}</div>
           </div>
         ))}
       </div>
 
       {canManage ? (
-        <div className="space-y-3 rounded-lg border border-slate-200 bg-white p-4 shadow-sm">
+        <div className="space-y-3 rounded-2xl border border-slate-200 bg-white p-5 shadow-card">
           <h2 className="text-sm font-medium text-slate-800">Add integration</h2>
           <div className="grid gap-3 md:grid-cols-2">
             <label className="text-sm">
               Name
-              <input className="mt-1 w-full rounded border px-2 py-1.5" value={name} onChange={(e) => setName(e.target.value)} />
+              <input className="mt-1 block h-10 w-full rounded-lg border border-slate-300 bg-white px-3 text-sm text-slate-900 placeholder:text-slate-400 focus:border-brand-600 focus:outline-none focus:ring-2 focus:ring-brand-100" value={name} onChange={(e) => setName(e.target.value)} />
             </label>
             <label className="text-sm">
               Provider
               <select
-                className="mt-1 w-full rounded border px-2 py-1.5"
+                className="mt-1 block h-10 w-full rounded-lg border border-slate-300 bg-white px-3 text-sm text-slate-900 placeholder:text-slate-400 focus:border-brand-600 focus:outline-none focus:ring-2 focus:ring-brand-100"
                 value={providerKey}
                 onChange={(e) => setProviderKey(e.target.value)}
               >
@@ -128,7 +129,7 @@ export function IntegrationsDashboard({ accessToken, organisationId, role, canMa
             <label className="text-sm">
               API base URL (https)
               <input
-                className="mt-1 w-full rounded border px-2 py-1.5"
+                className="mt-1 block h-10 w-full rounded-lg border border-slate-300 bg-white px-3 text-sm text-slate-900 placeholder:text-slate-400 focus:border-brand-600 focus:outline-none focus:ring-2 focus:ring-brand-100"
                 value={baseUrl}
                 onChange={(e) => setBaseUrl(e.target.value)}
                 placeholder="https://partner.example/api"
@@ -137,7 +138,7 @@ export function IntegrationsDashboard({ accessToken, organisationId, role, canMa
             <label className="text-sm">
               Auth type
               <select
-                className="mt-1 w-full rounded border px-2 py-1.5"
+                className="mt-1 block h-10 w-full rounded-lg border border-slate-300 bg-white px-3 text-sm text-slate-900 placeholder:text-slate-400 focus:border-brand-600 focus:outline-none focus:ring-2 focus:ring-brand-100"
                 value={authType}
                 onChange={(e) => setAuthType(e.target.value)}
               >
@@ -151,7 +152,7 @@ export function IntegrationsDashboard({ accessToken, organisationId, role, canMa
               API key / token (stored encrypted; never returned by API)
               <input
                 type="password"
-                className="mt-1 w-full rounded border px-2 py-1.5"
+                className="mt-1 block h-10 w-full rounded-lg border border-slate-300 bg-white px-3 text-sm text-slate-900 placeholder:text-slate-400 focus:border-brand-600 focus:outline-none focus:ring-2 focus:ring-brand-100"
                 value={apiKey}
                 onChange={(e) => setApiKey(e.target.value)}
                 autoComplete="off"
@@ -161,7 +162,7 @@ export function IntegrationsDashboard({ accessToken, organisationId, role, canMa
           <button
             type="button"
             disabled={pending}
-            className="rounded bg-teal-800 px-3 py-2 text-sm font-medium text-white disabled:opacity-60"
+            className="inline-flex h-10 items-center justify-center rounded-lg bg-brand-700 px-4 text-sm font-semibold text-white shadow-sm hover:bg-brand-800 disabled:cursor-not-allowed disabled:opacity-60 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-600 focus-visible:ring-offset-2"
             onClick={() =>
               startTransition(async () => {
                 try {
@@ -192,14 +193,14 @@ export function IntegrationsDashboard({ accessToken, organisationId, role, canMa
       ) : null}
 
       <div className="flex gap-2">
-        <select className="rounded border px-2 py-1.5 text-sm" value={category} onChange={(e) => setCategory(e.target.value)}>
+        <select className="block h-10 rounded-lg border border-slate-300 bg-white px-3 text-sm text-slate-900 placeholder:text-slate-400 focus:border-brand-600 focus:outline-none focus:ring-2 focus:ring-brand-100" value={category} onChange={(e) => setCategory(e.target.value)}>
           <option value="">All categories</option>
           <option value="council">council</option>
           <option value="hr">hr</option>
           <option value="finance">finance</option>
           <option value="community_service">community_service</option>
         </select>
-        <button type="button" className="rounded border px-3 py-1.5 text-sm" onClick={refresh}>
+        <button type="button" className="inline-flex h-10 items-center justify-center rounded-lg border border-slate-200 bg-white px-4 text-sm font-semibold text-slate-700 hover:bg-slate-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-600" onClick={refresh}>
           Refresh
         </button>
       </div>
@@ -213,7 +214,7 @@ export function IntegrationsDashboard({ accessToken, organisationId, role, canMa
         ) : (
           <ul className="space-y-2">
             {items.map((item) => (
-              <li key={String(item.id)} className="rounded-lg border border-slate-200 bg-white p-3 text-sm shadow-sm">
+              <li key={String(item.id)} className="rounded-2xl border border-slate-200 bg-white p-4 text-sm shadow-card">
                 <div className="flex flex-wrap items-start justify-between gap-2">
                   <div>
                     <div className="font-medium text-slate-900">{String(item.name)}</div>
@@ -231,7 +232,7 @@ export function IntegrationsDashboard({ accessToken, organisationId, role, canMa
                     <div className="flex flex-wrap gap-2">
                       <button
                         type="button"
-                        className="rounded border px-2 py-1"
+                        className="inline-flex h-8 items-center justify-center rounded-lg border border-slate-200 bg-white px-3 text-xs font-semibold text-slate-700 hover:bg-slate-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-600"
                         onClick={() =>
                           startTransition(async () => {
                             await updateIntegration(auth, String(item.id), {
@@ -245,7 +246,7 @@ export function IntegrationsDashboard({ accessToken, organisationId, role, canMa
                       </button>
                       <button
                         type="button"
-                        className="rounded border px-2 py-1"
+                        className="inline-flex h-8 items-center justify-center rounded-lg border border-slate-200 bg-white px-3 text-xs font-semibold text-slate-700 hover:bg-slate-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-600"
                         onClick={() =>
                           startTransition(async () => {
                             try {
@@ -262,7 +263,7 @@ export function IntegrationsDashboard({ accessToken, organisationId, role, canMa
                       </button>
                       <button
                         type="button"
-                        className="rounded border px-2 py-1"
+                        className="inline-flex h-8 items-center justify-center rounded-lg border border-slate-200 bg-white px-3 text-xs font-semibold text-slate-700 hover:bg-slate-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-600"
                         onClick={() =>
                           startTransition(async () => {
                             try {
@@ -287,14 +288,14 @@ export function IntegrationsDashboard({ accessToken, organisationId, role, canMa
       </section>
 
       {canManage && items.length > 0 ? (
-        <section className="space-y-3 rounded-lg border border-slate-200 bg-white p-4 shadow-sm">
+        <section className="space-y-3 rounded-2xl border border-slate-200 bg-white p-5 shadow-card">
           <h2 className="text-sm font-medium text-slate-800">Field mapping</h2>
           <p className="text-xs text-slate-600">
             Map partner fields explicitly. Sync import/export still requires a successful connection test.
           </p>
           <div className="flex flex-wrap gap-2">
             <select
-              className="rounded border px-2 py-1.5 text-sm"
+              className="block h-10 rounded-lg border border-slate-300 bg-white px-3 text-sm text-slate-900 placeholder:text-slate-400 focus:border-brand-600 focus:outline-none focus:ring-2 focus:ring-brand-100"
               value={mapIntegrationId}
               onChange={(e) => setMapIntegrationId(e.target.value)}
             >
@@ -306,20 +307,20 @@ export function IntegrationsDashboard({ accessToken, organisationId, role, canMa
               ))}
             </select>
             <input
-              className="rounded border px-2 py-1.5 text-sm"
+              className="block h-10 rounded-lg border border-slate-300 bg-white px-3 text-sm text-slate-900 placeholder:text-slate-400 focus:border-brand-600 focus:outline-none focus:ring-2 focus:ring-brand-100"
               value={mapSource}
               onChange={(e) => setMapSource(e.target.value)}
               placeholder="source_field"
               aria-label="Source field"
             />
             <input
-              className="rounded border px-2 py-1.5 text-sm"
+              className="block h-10 rounded-lg border border-slate-300 bg-white px-3 text-sm text-slate-900 placeholder:text-slate-400 focus:border-brand-600 focus:outline-none focus:ring-2 focus:ring-brand-100"
               value={mapDest}
               onChange={(e) => setMapDest(e.target.value)}
               placeholder="destination_field"
               aria-label="Destination field"
             />
-            <select className="rounded border px-2 py-1.5 text-sm" value={mapType} onChange={(e) => setMapType(e.target.value)}>
+            <select className="block h-10 rounded-lg border border-slate-300 bg-white px-3 text-sm text-slate-900 placeholder:text-slate-400 focus:border-brand-600 focus:outline-none focus:ring-2 focus:ring-brand-100" value={mapType} onChange={(e) => setMapType(e.target.value)}>
               <option value="string">string</option>
               <option value="integer">integer</option>
               <option value="number">number</option>
@@ -331,7 +332,7 @@ export function IntegrationsDashboard({ accessToken, organisationId, role, canMa
             <button
               type="button"
               disabled={pending || !mapIntegrationId}
-              className="rounded bg-teal-800 px-3 py-2 text-sm text-white disabled:opacity-60"
+              className="inline-flex h-10 items-center justify-center rounded-lg bg-brand-700 px-4 text-sm font-semibold text-white shadow-sm hover:bg-brand-800 disabled:cursor-not-allowed disabled:opacity-60 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-600 focus-visible:ring-offset-2"
               onClick={() =>
                 startTransition(async () => {
                   try {
@@ -366,7 +367,7 @@ export function IntegrationsDashboard({ accessToken, organisationId, role, canMa
         ) : (
           <ul className="space-y-2">
             {jobs.map((job) => (
-              <li key={String(job.id)} className="rounded border bg-white p-3 text-sm">
+              <li key={String(job.id)} className="rounded-2xl border border-slate-200 bg-white p-4 text-sm shadow-card">
                 {String(job.status)} · {String(job.direction)} · success {String(job.success_count)} / fail{" "}
                 {String(job.failure_count)}
                 {job.error_details ? ` · ${String(job.error_details)}` : ""}
@@ -383,7 +384,7 @@ export function IntegrationsDashboard({ accessToken, organisationId, role, canMa
         ) : (
           <ul className="space-y-2">
             {activity.map((row) => (
-              <li key={String(row.id)} className="rounded border bg-white p-3 text-sm">
+              <li key={String(row.id)} className="rounded-2xl border border-slate-200 bg-white p-4 text-sm shadow-card">
                 <div className="font-medium">{String(row.action)}</div>
                 <div className="text-slate-600">
                   {String(row.summary)} · {String(row.outcome)} · {String(row.created_at)}

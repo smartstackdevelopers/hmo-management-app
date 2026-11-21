@@ -8,7 +8,7 @@ from sqlalchemy.orm import Session
 from app.db.models.enums import HMoreRole
 from app.db.models.tenant import Tenant
 from app.rbac.permissions import Permission
-from app.records.tenant_service import find_own_tenant
+from app.records.tenant_service import ensure_own_tenant
 from app.tenancy.context import OrganisationContext
 
 
@@ -20,7 +20,7 @@ def resolve_own_tenant(session: Session, ctx: OrganisationContext) -> Tenant:
             status_code=status.HTTP_403_FORBIDDEN,
             detail=f"Missing permission: {Permission.WELLBEING_MANAGE_OWN.value}",
         )
-    tenant = find_own_tenant(session, ctx)
+    tenant = ensure_own_tenant(session, ctx)
     if tenant is None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="No linked tenant profile")
     return tenant

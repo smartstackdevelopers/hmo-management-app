@@ -1,87 +1,138 @@
 import { useQuery } from '@tanstack/react-query';
 import { router } from 'expo-router';
 import { useMemo, useState } from 'react';
-import { RefreshControl, Pressable, StyleSheet, Text, View } from 'react-native';
+import { RefreshControl, StyleSheet, Text, View } from 'react-native';
 
-import { Badge } from '@/components/ui/Badge';
+import { SearchField, titleCase, useHideTabHeader } from '@/components/dashboard/mobileChrome';
+import { TenantFilterChips } from '@/components/tenant/TenantFilterChips';
+import { repairStatusText, repairStatusTone } from '@/components/maintenance/repairTone';
+import { ActivityRow } from '@/components/tenant/ActivityRow';
+import { useConnectivity } from '@/components/tenant/safeFetch';
+import { TenantLoadError, TenantOffline } from '@/components/tenant/TenantStates';
+import { shortDate, shortTime } from '@/components/tenant/tenantFormat';
 import { Button } from '@/components/ui/Button';
-import { Card } from '@/components/ui/Card';
 import { Screen } from '@/components/ui/Screen';
-import { EmptyState, ErrorState, LoadingScreen } from '@/components/ui/States';
-import { FONT_BOLD, FONT_MEDIUM, FONT_SEMIBOLD } from '@/constants/fonts';
-import { formatUKDate } from '@/constants/uk';
+import { EmptyState, LoadingScreen } from '@/components/ui/States';
+import { FONT_BOLD, FONT_MEDIUM } from '@/constants/fonts';
 import { theme } from '@/constants/theme';
 import { useI18n } from '@/hooks/useI18n';
-import { hmoreErrorMessage } from '@/lib/hmore/client';
 import { listMaintenance } from '@/lib/hmore/services/maintenance';
 import type { MaintenanceRequest } from '@/lib/hmore/types';
 
 const CLOSED = new Set(['completed', 'closed', 'cancelled']);
-type Filter = 'open' | 'urgent' | 'done' | 'all';
+type Filter = 'all' | 'open' | 'scheduled' | 'done';
 
 function matches(row: MaintenanceRequest, filter: Filter): boolean {
   const done = CLOSED.has(row.status);
   if (filter === 'done') return done;
   if (filter === 'open') return !done;
-  if (filter === 'urgent') return !done && (row.priority === 'urgent' || row.priority === 'emergency' || row.priority === 'high');
+  if (filter === 'scheduled') return !done && !!row.scheduled_visit_at;
   return true;
 }
 
+function rowMeta(row: MaintenanceRequest): string {
+  const where = titleCase(row.category_code || '');
+  if (row.scheduled_visit_at) {
+    return [where, shortDate(row.scheduled_visit_at), shortTime(row.scheduled_visit_at)].filter(Boolean).join(' · ');
+  }
+  return [where, shortDate(row.reported_at || row.created_at)].filter(Boolean).join(' · ');
+}
+
 export function TenantMaintenanceList() {
-  const { t } = useI18n();
-  const [filter, setFilter] = useState<Filter>('open');
-  const query = useQuery({
+  useHideTabHeader();
+  const { t, fontScale, prefs } = useI18n();
+  const net = useConnectivity();
+  const [filter, setFilter] = useState<Filter>('all');
+  const [query, setQuery] = useState('');
+  const repairsQuery = useQuery({
     queryKey: ['hmore', 'maintenance'],
     queryFn: () => listMaintenance({ page: 1, page_size: 50 }),
   });
 
-  const rows = query.data?.items ?? [];
-  const filtered = useMemo(() => rows.filter((row) => matches(row, filter)), [rows, filter]);
+  const rows = repairsQuery.data?.items ?? [];
+  const filtered = useMemo(() => {
+    const needle = query.trim().toLowerCase();
+    return rows.filter((row) => {
+      if (!matches(row, filter)) return false;
+      if (!needle) return true;
+      return `${row.title} ${row.reference_number} ${row.category_code} ${row.description}`.toLowerCase().includes(needle);
+    });
+  }, [rows, filter, query]);
 
-  if (query.isLoading) return <LoadingScreen message={t('repairs.loading')} />;
-  if (query.error) return <ErrorState message={hmoreErrorMessage(query.error, t('repairs.error'))} onRetry={query.refetch} />;
+  const offline = net.data === 'offline';
+  if (repairsQuery.isLoading && !repairsQuery.data) {
+    if (offline) return <TenantOffline />;
+    return <LoadingScreen message={t('repairs.loading')} />;
+  }
+  if (repairsQuery.error && !repairsQuery.data) {
+    if (offline) return <TenantOffline />;
+    return <TenantLoadError title={t('repairs.couldNot')} onRetry={() => repairsQuery.refetch()} />;
+  }
+  if (rows.length === 0) {
+    return (
+      <EmptyState
+        title={t('repairs.emptyTitle')}
+        message={t('repairs.emptyBody')}
+        icon="card-outline"
+        actionLabel={t('repairs.report')}
+        onAction={() => router.push('/(app)/maintenance/new')}
+      />
+    );
+  }
+
+  const filters: { id: Filter; label: string }[] = [
+    { id: 'all', label: t('repairs.all') },
+    { id: 'open', label: t('repairs.open') },
+    { id: 'scheduled', label: t('repairs.scheduled') },
+    { id: 'done', label: t('repairs.done') },
+  ];
+  const contrast = prefs.highContrast;
 
   return (
     <Screen
+      style={contrast ? styles.contrast : undefined}
       refreshControl={
-        <RefreshControl refreshing={query.isRefetching} onRefresh={query.refetch} tintColor={theme.colors.secondary} />
+        <RefreshControl
+          refreshing={repairsQuery.isRefetching}
+          onRefresh={() => {
+            repairsQuery.refetch();
+            net.refetch();
+          }}
+          tintColor={theme.colors.secondary}
+        />
       }
     >
-      <Button title={t('repairs.report')} accessibilityLabel={t('repairs.report')} onPress={() => router.push('/(app)/maintenance/new')} fullWidth />
-      <View style={styles.filters}>
-        {(['open', 'urgent', 'done', 'all'] as Filter[]).map((id) => {
-          const active = filter === id;
-          const label = id === 'open' ? t('repairs.open') : id === 'urgent' ? t('repairs.urgent') : id === 'done' ? t('repairs.done') : t('repairs.all');
-          return (
-            <Pressable
-              key={id}
-              accessibilityRole="button"
-              accessibilityLabel={label}
-              accessibilityState={{ selected: active }}
-              onPress={() => setFilter(id)}
-              style={[styles.chip, active && styles.chipActive]}
-            >
-              <Text style={[styles.chipText, active && styles.chipTextActive]}>{label}</Text>
-            </Pressable>
-          );
-        })}
+      <View style={styles.header}>
+        <View style={styles.headerCopy}>
+          <Text style={[styles.title, { fontSize: 28 * fontScale }]} accessibilityRole="header">
+            {t('nav.repairs')}
+          </Text>
+          <Text style={[styles.subtitle, { fontSize: 14 * fontScale }]}>{t('repairs.track')}</Text>
+        </View>
+        <Button
+          title={t('repairs.reportShort')}
+          accessibilityLabel={t('repairs.report')}
+          icon="add"
+          size="sm"
+          onPress={() => router.push('/(app)/maintenance/new')}
+        />
       </View>
+      <SearchField value={query} onChangeText={setQuery} placeholder={t('repairs.search')} />
+      <TenantFilterChips options={filters} value={filter} onChange={setFilter} />
       {filtered.length === 0 ? (
-        <EmptyState title={t('repairs.emptyTitle')} message={t('repairs.emptyBody')} icon="construct-outline" />
+        <EmptyState compact title={t('repairs.emptyTitle')} message={t('repairs.emptyBody')} icon="construct-outline" />
       ) : (
         filtered.map((row) => (
-          <Card key={row.id} style={styles.card} onPress={() => router.push(`/(app)/maintenance/${row.id}`)}>
-            <View style={styles.header}>
-              <Text style={styles.title}>{row.title}</Text>
-              <Badge label={row.status.replace(/_/g, ' ')} format={false} />
-            </View>
-            <Text style={styles.meta}>
-              {row.reference_number} · {row.priority} · {formatUKDate(row.reported_at || row.created_at)}
-            </Text>
-            {row.scheduled_visit_at ? (
-              <Text style={styles.meta}>Visit {formatUKDate(row.scheduled_visit_at)}</Text>
-            ) : null}
-          </Card>
+          <ActivityRow
+            key={row.id}
+            highContrast={contrast}
+            name={row.title}
+            title={row.title}
+            meta={rowMeta(row)}
+            chip={repairStatusText(row.status)}
+            chipTone={repairStatusTone(row.status)}
+            onPress={() => router.push(`/(app)/maintenance/${row.id}`)}
+          />
         ))
       )}
     </Screen>
@@ -89,20 +140,15 @@ export function TenantMaintenanceList() {
 }
 
 const styles = StyleSheet.create({
-  filters: { flexDirection: 'row', flexWrap: 'wrap', gap: 8, marginVertical: theme.spacing.md },
-  chip: {
-    borderWidth: 1,
-    borderColor: theme.colors.border,
-    borderRadius: theme.radius.full,
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-    backgroundColor: theme.colors.surface,
+  contrast: { backgroundColor: '#FFFFFF' },
+  header: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    gap: 12,
+    marginBottom: theme.spacing.md,
   },
-  chipActive: { backgroundColor: theme.colors.secondary, borderColor: theme.colors.secondary },
-  chipText: { fontFamily: FONT_SEMIBOLD, fontSize: 13, color: theme.colors.text },
-  chipTextActive: { color: theme.colors.textInverse },
-  card: { marginBottom: theme.spacing.sm },
-  header: { flexDirection: 'row', justifyContent: 'space-between', gap: 8, alignItems: 'center' },
-  title: { fontFamily: FONT_BOLD, fontSize: 16, color: theme.colors.text, flex: 1 },
-  meta: { fontFamily: FONT_MEDIUM, fontSize: 12, color: theme.colors.textSecondary, marginTop: 6, textTransform: 'capitalize' },
+  headerCopy: { flex: 1, minWidth: 0 },
+  title: { fontFamily: FONT_BOLD, color: theme.colors.text, letterSpacing: -0.5 },
+  subtitle: { fontFamily: FONT_MEDIUM, color: theme.colors.textSecondary, marginTop: 2 },
 });

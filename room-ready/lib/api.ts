@@ -1,4 +1,4 @@
-import { API_BASE_URL } from './config';
+import { resolveLegacyApiBaseUrl } from './legacyApiConfig';
 import { getStoredToken, removeStoredToken, setStoredToken } from './tokenStorage';
 import { User } from '@/types';
 
@@ -49,7 +49,7 @@ async function request<T>(
   }
 
   const { formData, ...fetchOptions } = options;
-  const response = await fetch(`${API_BASE_URL}${path}`, {
+  const response = await fetch(`${resolveLegacyApiBaseUrl()}${path}`, {
     ...fetchOptions,
     headers,
     body: formData ?? fetchOptions.body,

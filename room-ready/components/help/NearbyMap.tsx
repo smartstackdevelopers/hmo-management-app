@@ -1,7 +1,9 @@
 import { Linking, Platform, StyleSheet, Text, View } from 'react-native';
 
 import { Button } from '@/components/ui/Button';
-import { FONT_MEDIUM, FONT_SEMIBOLD } from '@/constants/fonts';
+import { Card } from '@/components/ui/Card';
+import { ListRow } from '@/components/ui/ListRow';
+import { FONT_MEDIUM } from '@/constants/fonts';
 import { theme } from '@/constants/theme';
 import type { NearbyService } from '@/lib/hmore/services/helpNearMe';
 
@@ -68,24 +70,25 @@ export function NearbyMap({
       <Button title="Open map for searched postcode" onPress={openOverview} accessibilityLabel="Open map" />
       <View style={styles.list}>
         {items.map((item) => (
-          <View key={item.id} style={styles.item}>
-            <Text style={styles.name}>
-              {item.name} · {item.distance_km} km
-            </Text>
-            <Text style={styles.meta}>
-              {Number(item.latitude).toFixed(5)}, {Number(item.longitude).toFixed(5)}
-            </Text>
+          <Card key={item.id} padded={false}>
+            <ListRow
+              title={item.name}
+              subtitle={`${item.distance_km} km · ${Number(item.latitude).toFixed(5)}, ${Number(item.longitude).toFixed(5)}`}
+              icon="location-outline"
+              chevron={false}
+            />
             <View style={styles.row}>
-              <Button title="Details" variant="secondary" onPress={() => onSelect(item.id)} />
+              <Button title="Details" variant="outline" onPress={() => onSelect(item.id)} style={styles.action} />
               <Button
                 title="Directions"
                 variant="secondary"
+                style={styles.action}
                 onPress={() =>
                   void Linking.openURL(directionsUrl(Number(item.latitude), Number(item.longitude), item.name))
                 }
               />
             </View>
-          </View>
+          </Card>
         ))}
       </View>
     </View>
@@ -101,15 +104,7 @@ const styles = StyleSheet.create({
     lineHeight: 20,
   },
   meta: { fontFamily: FONT_MEDIUM, fontSize: 12, color: theme.colors.textMuted },
-  list: { gap: 10 },
-  item: {
-    gap: 6,
-    borderWidth: 1,
-    borderColor: theme.colors.borderLight,
-    borderRadius: theme.radius.md,
-    padding: theme.spacing.sm,
-    backgroundColor: theme.colors.surface,
-  },
-  name: { fontFamily: FONT_SEMIBOLD, color: theme.colors.text },
-  row: { flexDirection: 'row', gap: 8 },
+  list: { gap: 10, marginTop: 8 },
+  row: { flexDirection: 'row', gap: 8, paddingHorizontal: theme.spacing.md, paddingBottom: theme.spacing.md },
+  action: { flex: 1 },
 });

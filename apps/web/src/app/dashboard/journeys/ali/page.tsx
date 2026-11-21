@@ -1,4 +1,4 @@
-import Link from "next/link";
+import { ActionTile } from "@/components/ui/primitives";
 import { PageHeader } from "@/components/dashboard/PageHeader";
 import { requireAuthenticatedSession } from "@/lib/session";
 
@@ -16,23 +16,22 @@ export default async function AliJourneyGuidePage() {
   return (
     <div className="mx-auto max-w-2xl space-y-8">
       <PageHeader
-        eyebrow="F2.15"
+        eyebrow="Operations"
         title="Ali journey (manual workflow)"
         description="Proposal-aligned path: manual note → repair → admin approval. No AI automation required."
       />
-      <ol className="list-decimal space-y-4 pl-5 text-sm text-slate-800">
-        {STEPS.map((s) => (
-          <li key={s.n}>
-            <span className="font-medium">{s.who}:</span> {s.what}{" "}
-            <Link className="text-blue-700 underline" href={s.href}>
-              Open
-            </Link>
-          </li>
+      <div className="grid gap-3">
+        {STEPS.map((step) => (
+          <ActionTile
+            key={step.n}
+            href={step.href}
+            title={`${step.n}. ${step.who}`}
+            description={step.what}
+            initials={String(step.n)}
+          />
         ))}
-      </ol>
-      <p className="text-xs text-slate-600">
-        Automated verifier: <code>pytest tests/test_f215_ali_end_to_end.py -m postgres</code>. Use synthetic tenants only.
-      </p>
+      </div>
+      <p className="text-sm text-slate-500">Use a synthetic tenant for this walkthrough.</p>
     </div>
   );
 }

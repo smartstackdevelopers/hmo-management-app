@@ -34,7 +34,8 @@ export function BackupMonitoringDashboard({ accessToken, organisationId, role, c
 
   return (
     <div className="space-y-6">
-      <h1 className="text-2xl font-semibold text-slate-900">Backup monitoring</h1>
+      <p className="text-xs font-semibold uppercase tracking-[0.16em] text-brand-700">Platform</p>
+      <h1 className="mt-1.5 text-2xl font-bold tracking-tight text-slate-900">Backups</h1>
       <p className="text-sm text-amber-900 rounded border border-amber-200 bg-amber-50 p-3">
         Platform backups only. RPO/RTO targets remain pending organisational approval. Never download database dumps
         without authorisation.
@@ -43,7 +44,7 @@ export function BackupMonitoringDashboard({ accessToken, organisationId, role, c
       {canManage ? (
         <button
           type="button"
-          className="rounded-md bg-slate-900 px-4 py-2 text-sm text-white"
+          className="inline-flex h-10 items-center justify-center rounded-lg bg-brand-700 px-4 text-sm font-semibold text-white shadow-sm hover:bg-brand-800 disabled:cursor-not-allowed disabled:opacity-60 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-600 focus-visible:ring-offset-2"
           onClick={async () => {
             await runConfigBackup(auth);
             await load();
@@ -83,7 +84,7 @@ function BackupMetrics({ dash }: { dash: Record<string, unknown> }) {
   return (
     <div className="grid gap-3 sm:grid-cols-3">
       {items.map(([label, value]) => (
-        <div key={label} className="rounded-lg border border-slate-200 bg-white p-4">
+        <div key={label} className="rounded-2xl border border-slate-200 bg-white p-5 shadow-card">
           <p className="text-xs text-slate-500">{label}</p>
           <p className="text-lg font-semibold">{String(value ?? "—")}</p>
         </div>

@@ -1,9 +1,9 @@
 import { useQuery } from '@tanstack/react-query';
-import { router } from 'expo-router';
-import { useState } from 'react';
+import { router, useNavigation } from 'expo-router';
+import { useLayoutEffect, useState } from 'react';
 import { Image, Pressable, Text } from 'react-native';
 
-import { ChoiceRow, Feedback, RecordCard, StaffPage } from '@/components/staff/ui';
+import { BackLink, ChoiceRow, Feedback, StaffPage, StatusRow, staffLabel, statusTone } from '@/components/staff/ui';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 import { ErrorState, LoadingScreen } from '@/components/ui/States';
@@ -22,7 +22,11 @@ const SEVERITIES = ['low', 'normal', 'high', 'critical'] as const;
 type Photo = { uri: string; name: string; mimeType: string; size: number | null };
 
 export function IncidentBoard() {
+  const navigation = useNavigation();
   const { user } = useAuth();
+  useLayoutEffect(() => {
+    navigation.setOptions({ headerShown: false });
+  }, [navigation]);
   const incidents = useQuery({ queryKey: ['hmore', 'staff', 'incidents'], queryFn: listIncidents });
   const tenants = useQuery({
     queryKey: ['hmore', 'staff', 'caseload', user?.role],
@@ -112,28 +116,34 @@ export function IncidentBoard() {
   }))];
 
   return (
-    <StaffPage title="Incidents" subtitle="Create a report with the server status. There is no separate incident file API, so a photo is stored as a document when a category exists." onRefresh={incidents.refetch} refreshing={incidents.isRefetching}>
+    <StaffPage title="Report incident" subtitle="Submitted with the time on this device." leading={<BackLink />} onRefresh={incidents.refetch} refreshing={incidents.isRefetching}>
       <Input label="Title" value={title} onChangeText={setTitle} />
-      <Input label="What happened" value={description} onChangeText={setDescription} multiline />
-      <ChoiceRow value={severity} onChange={(value) => setSeverity(value as typeof severity)} options={SEVERITIES.map((item) => ({ id: item, label: item }))} />
+      <Text style={{ fontFamily: FONT_MEDIUM, color: theme.colors.text, marginBottom: 8 }}>Severity</Text>
+      <ChoiceRow value={severity} onChange={(value) => setSeverity(value as typeof severity)} options={SEVERITIES.map((item) => ({ id: item, label: staffLabel(item) }))} />
+      <Text style={{ fontFamily: FONT_MEDIUM, color: theme.colors.text, marginBottom: 8 }}>Tenant</Text>
       <ChoiceRow value={tenantId} onChange={setTenantId} options={tenantOptions} />
+      <Input label="When" value="Recorded when you submit" editable={false} />
+      <Input label="What happened?" value={description} onChangeText={setDescription} multiline placeholder="Describe facts only." />
       {photo ? (
         <>
           <Image source={{ uri: photo.uri }} style={{ width: 120, height: 120, borderRadius: 12, marginBottom: 8 }} />
-          <Pressable onPress={() => setPhoto(null)}><Text style={{ color: theme.colors.error, fontFamily: FONT_MEDIUM, marginBottom: 8 }}>Remove photo</Text></Pressable>
+          <Pressable onPress={() => setPhoto(null)} accessibilityRole="button" accessibilityLabel="Remove photo">
+            <Text style={{ color: theme.colors.error, fontFamily: FONT_MEDIUM, marginBottom: 8 }}>Remove photo</Text>
+          </Pressable>
         </>
       ) : (
         <Button title="Add evidence photo" variant="outline" onPress={choosePhoto} fullWidth />
       )}
-      <Button title="Save draft report" variant="outline" onPress={() => save(false)} loading={busy} fullWidth />
-      <Button title="Submit report" onPress={() => save(true)} loading={busy} fullWidth />
+      <Button title="Submit incident" onPress={() => save(true)} loading={busy} fullWidth />
       {feedback ? <Feedback text={feedback} tone={savedOnServer ? 'ok' : 'warn'} /> : null}
       {(incidents.data?.items ?? []).map((item) => (
-        <RecordCard
+        <StatusRow
           key={item.id}
+          name={item.title}
           title={item.title}
-          status={item.status}
-          detail={item.reference_number}
+          subtitle={item.reference_number}
+          chip={staffLabel(item.status)}
+          tone={statusTone(item.status)}
           onPress={() => router.push(`/(app)/staff/incident/${item.id}`)}
         />
       ))}

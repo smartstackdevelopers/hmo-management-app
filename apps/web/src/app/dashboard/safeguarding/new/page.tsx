@@ -31,7 +31,7 @@ export default async function NewSafeguardingPage() {
   return (
     <div className="mx-auto max-w-xl space-y-6">
       <PageHeader
-        eyebrow="F2.3"
+        eyebrow="Safety"
         title="New safeguarding reminder"
         description="Schedule a privacy-conscious follow-up. Delivery uses the F2.2/F2.12 notification boundary."
       />

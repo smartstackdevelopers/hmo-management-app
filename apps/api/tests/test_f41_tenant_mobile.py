@@ -61,7 +61,7 @@ def test_alembic_head_revises_f41_tenant_mobile() -> None:
 def test_self_profile_schema_hides_staff_notes() -> None:
     assert "notes" not in TenantSelfOut.model_fields
     assert "consent_notes" not in TenantSelfOut.model_fields
-    assert "needs_goals" not in TenantSelfOut.model_fields
+    assert "needs_goals" in TenantSelfOut.model_fields
     assert "notes" not in HousingPropertyOut.model_fields
     assert "notes" not in HousingRoomOut.model_fields
 
@@ -81,7 +81,9 @@ def test_self_patch_allows_only_preferred_name_and_phone() -> None:
             }
         )
     with pytest.raises(ValidationError):
-        TenantSelfUpdate.model_validate({"consent_notes": "no", "needs_goals": "no", "email": "a@b.c"})
+        TenantSelfUpdate.model_validate({"consent_notes": "no", "email": "a@b.c"})
+    body_needs = TenantSelfUpdate.model_validate({"needs_goals": "Budgeting support each week"})
+    assert body_needs.needs_goals == "Budgeting support each week"
 
 
 def test_tenant_cannot_write_catalogues_or_gain_document_upload() -> None:
@@ -175,11 +177,21 @@ def test_tenant_can_patch_own_name_and_phone_only(db_session, unique_suffix: str
     )
     assert updated.preferred_name == "After"
     assert updated.phone == "222"
+    assert updated.needs_goals == "private"
     assert not hasattr(updated, "notes") or "notes" not in updated.model_fields_set and "notes" not in TenantSelfOut.model_fields
     db_session.refresh(tenant)
     assert tenant.notes == "keep-me"
     assert tenant.needs_goals == "private"
     assert tenant.consent_notes == "private-consent"
+
+    updated_needs = update_own_profile(
+        db_session,
+        ctx,
+        TenantSelfUpdate(needs_goals="Tenant updated goals text"),
+    )
+    assert updated_needs.needs_goals == "Tenant updated goals text"
+    db_session.refresh(tenant)
+    assert tenant.needs_goals == "Tenant updated goals text"
 
     with pytest.raises(HTTPException) as denied:
         update_tenant(
@@ -420,4 +432,49 @@ def test_tenant_document_upload_links_own_row(db_session, unique_suffix: str) ->
     assert category.code == "tenant_submission"
     assert category.title == "Tenant submissions"
     assert category.access_classification == "standard"
+
+
+@pytest.mark.postgres
+def test_tenant_own_profile_needs_goals_isolated_per_login(db_session, unique_suffix: str) -> None:
+    """Each tenant sees only their row via require_own_tenant — not another tenant's needs text."""
+    from app.db.models import Organisation, Tenant, User
+    from app.tenant_portal.profile import get_own_profile
+
+    org = Organisation(name="Org", slug=f"f41-needs-{unique_suffix}")
+    user_a = User(
+        email=f"a-{unique_suffix}@example.com",
+        display_name="A",
+        external_subject=f"auth0|{uuid.uuid4()}",
+    )
+    user_b = User(
+        email=f"b-{unique_suffix}@example.com",
+        display_name="B",
+        external_subject=f"auth0|{uuid.uuid4()}",
+    )
+    db_session.add_all([org, user_a, user_b])
+    db_session.flush()
+    db_session.add_all(
+        [
+            Tenant(
+                organisation_id=org.id,
+                user_id=user_a.id,
+                preferred_name="A",
+                needs_goals="A goals only",
+                status=RecordStatus.ACTIVE,
+            ),
+            Tenant(
+                organisation_id=org.id,
+                user_id=user_b.id,
+                preferred_name="B",
+                needs_goals="B goals only",
+                status=RecordStatus.ACTIVE,
+            ),
+        ]
+    )
+    db_session.flush()
+    profile_a = get_own_profile(db_session, _ctx(HMoreRole.TENANT, org.id, user_a))
+    profile_b = get_own_profile(db_session, _ctx(HMoreRole.TENANT, org.id, user_b))
+    assert profile_a.needs_goals == "A goals only"
+    assert profile_b.needs_goals == "B goals only"
+    assert "notes" not in profile_a.model_fields
 

@@ -2,6 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { btnPrimary, btnSecondary } from "@/components/ui/primitives";
 import {
   acknowledgeSafeguardingReminder,
   completeSafeguardingReminder,
@@ -61,7 +62,7 @@ export function SafeguardingActions({
           type="button"
           disabled={pending}
           onClick={() => void run("acknowledge")}
-          className="rounded border border-slate-300 px-2 py-1 text-xs"
+          className={btnSecondary}
         >
           Acknowledge
         </button>
@@ -70,7 +71,7 @@ export function SafeguardingActions({
         type="button"
         disabled={pending}
         onClick={() => void run("complete")}
-        className="rounded bg-teal-700 px-2 py-1 text-xs text-white"
+        className={btnPrimary}
       >
         Complete
       </button>

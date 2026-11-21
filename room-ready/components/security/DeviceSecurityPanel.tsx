@@ -4,6 +4,7 @@ import { Pressable, StyleSheet, Text, View } from 'react-native';
 
 import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
+import { Chip } from '@/components/ui/Chip';
 import { FONT_MEDIUM, FONT_SEMIBOLD } from '@/constants/fonts';
 import { theme } from '@/constants/theme';
 import { useAuth } from '@/contexts/AuthContext';
@@ -124,7 +125,7 @@ export function DeviceSecurityPanel({ onSignedOut }: { onSignedOut?: () => void 
           onPress={() => void toggleBiometric()}
           style={styles.row}
         >
-          <Text style={styles.state}>{biometric.isLoading ? 'Checking' : enabled ? 'On' : 'Off'}</Text>
+          <Chip label={biometric.isLoading ? 'Checking' : enabled ? 'On' : 'Off'} tone={enabled ? 'green' : 'gray'} />
         </Pressable>
         {availability.data?.reason === 'not_enrolled' ? (
           <Text style={styles.detail}>Set up fingerprint or face unlock in the device settings before turning this on.</Text>
@@ -192,7 +193,6 @@ const styles = StyleSheet.create({
   title: { fontFamily: FONT_SEMIBOLD, fontSize: 16, color: theme.colors.text },
   detail: { fontFamily: FONT_MEDIUM, fontSize: 13, lineHeight: 18, color: theme.colors.textSecondary, marginTop: 4 },
   row: { marginTop: theme.spacing.sm, alignSelf: 'flex-start' },
-  state: { fontFamily: FONT_SEMIBOLD, color: theme.colors.secondaryDark, fontSize: 14 },
   device: { marginTop: theme.spacing.md, paddingTop: theme.spacing.sm, borderTopWidth: 1, borderTopColor: theme.colors.border },
   deviceName: { fontFamily: FONT_SEMIBOLD, fontSize: 15, color: theme.colors.text },
   actions: { marginTop: theme.spacing.sm, gap: theme.spacing.sm },

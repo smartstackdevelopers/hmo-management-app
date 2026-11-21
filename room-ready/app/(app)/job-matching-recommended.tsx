@@ -1,8 +1,8 @@
 import { useRouter } from 'expo-router';
 import { useQuery } from '@tanstack/react-query';
-import { Pressable, StyleSheet, Text } from 'react-native';
+import { StyleSheet, Text } from 'react-native';
 
-import { Card } from '@/components/ui/Card';
+import { StatusRow } from '@/components/staff/ui';
 import { Screen } from '@/components/ui/Screen';
 import { ErrorState, LoadingScreen } from '@/components/ui/States';
 import { FONT_BOLD, FONT_MEDIUM } from '@/constants/fonts';
@@ -25,14 +25,15 @@ export default function JobMatchingRecommendedScreen() {
         <Text style={styles.empty}>{t('jobMatching.empty')}</Text>
       ) : (
         items.map((item) => (
-          <Pressable key={String(item.id)} onPress={() => router.push(`/(app)/job-matching-detail/${item.id}`)}>
-            <Card style={styles.card}>
-              <Text style={styles.name}>{String(item.title)}</Text>
-              <Text style={styles.meta}>
-                {String(item.employer_name)} · {t('jobMatching.score')} {String(item.score ?? '—')}
-              </Text>
-            </Card>
-          </Pressable>
+          <StatusRow
+            key={String(item.id)}
+            name={String(item.title)}
+            title={String(item.title)}
+            subtitle={[String(item.employer_name || ''), item.location ? String(item.location) : null].filter(Boolean).join(' · ')}
+            chip={item.score != null ? String(item.score) : undefined}
+            tone="green"
+            onPress={() => router.push(`/(app)/job-matching-detail/${item.id}`)}
+          />
         ))
       )}
       <Text style={styles.disclaimer}>{query.data?.disclaimer}</Text>
@@ -41,10 +42,8 @@ export default function JobMatchingRecommendedScreen() {
 }
 
 const styles = StyleSheet.create({
-  title: { fontFamily: FONT_BOLD, color: theme.colors.text, marginBottom: theme.spacing.sm },
+  title: { fontFamily: FONT_BOLD, color: theme.colors.text, letterSpacing: -0.4, marginBottom: theme.spacing.sm },
   card: { marginTop: theme.spacing.sm },
-  name: { fontFamily: FONT_BOLD, color: theme.colors.text },
-  meta: { fontFamily: FONT_MEDIUM, color: theme.colors.textSecondary, marginTop: 4 },
   empty: { fontFamily: FONT_MEDIUM, color: theme.colors.textSecondary, marginTop: theme.spacing.md },
   disclaimer: { fontFamily: FONT_MEDIUM, color: theme.colors.textSecondary, marginTop: theme.spacing.lg, fontSize: 12 },
 });

@@ -1,6 +1,9 @@
 "use client";
 
 import { useEffect, useMemo, useState, useTransition } from "react";
+import { EmptyState } from "@/components/dashboard/EmptyState";
+import { PageHeader } from "@/components/dashboard/PageHeader";
+import { btnPrimary, btnSecondary, DataTable, inputClass, labelClass, StatCard, StatGrid, StatusChip, Td, Th } from "@/components/ui/primitives";
 import {
   createFinanceBudget,
   createFinanceRecord,
@@ -63,48 +66,42 @@ export function FinanceDashboard({
   }, []);
 
   return (
-    <div className="space-y-8">
-      <div>
-        <h1 className="text-2xl font-semibold text-slate-900">Finance &amp; budgets</h1>
-        <p className="mt-1 text-sm text-slate-600">
-          {String(dash?.disclaimer ?? "Authorised ledger and budget records. No online payment processing.")}
-        </p>
-      </div>
+    <div className="space-y-6">
+      <PageHeader
+        eyebrow="Finance"
+        title="Finance and budgets"
+        description={String(dash?.disclaimer ?? "Authorised ledger and budget records. No online payment processing.")}
+      />
 
-      {error ? <p className="rounded border border-red-200 bg-red-50 p-3 text-sm text-red-800">{error}</p> : null}
+      {error ? <p className="rounded-xl border border-red-200 bg-red-50 p-3 text-sm text-red-800">{error}</p> : null}
       {pending && !dash ? <p className="text-sm text-slate-500">Loading…</p> : null}
 
-      <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-        {(
-          [
-            ["Income posted", dash?.income_posted],
-            ["Expense posted", dash?.expense_posted],
-            ["Net posted", dash?.net_posted],
-            ["Rent outstanding (ledger)", dash?.rent_outstanding_total],
-          ] as Array<[string, unknown]>
-        ).map(([label, value]) => (
-          <div key={label} className="rounded-lg border border-slate-200 bg-white p-4 shadow-sm">
-            <div className="text-xs uppercase tracking-wide text-slate-500">{label}</div>
-            <div className="mt-1 text-2xl font-semibold text-slate-900">{String(value ?? "—")}</div>
-          </div>
-        ))}
-      </div>
+      <StatGrid>
+        <StatCard label="Income posted" value={String(dash?.income_posted ?? "—")} tone="green" />
+        <StatCard label="Expense posted" value={String(dash?.expense_posted ?? "—")} />
+        <StatCard label="Net posted" value={String(dash?.net_posted ?? "—")} />
+        <StatCard label="Rent outstanding (ledger)" value={String(dash?.rent_outstanding_total ?? "—")} tone="amber" />
+      </StatGrid>
 
       {canManage ? (
-        <section className="space-y-3 rounded-lg border border-slate-200 bg-white p-4 shadow-sm">
-          <h2 className="text-sm font-medium text-slate-800">Add finance record</h2>
-          <div className="grid gap-3 md:grid-cols-2">
-            <label className="text-sm">
-              Type
-              <select className="mt-1 w-full rounded border px-2 py-1.5" value={recordType} onChange={(e) => setRecordType(e.target.value)}>
+        <section className="space-y-4 rounded-2xl border border-slate-200 bg-white p-6 shadow-card">
+          <h2 className="text-base font-semibold text-slate-900">Add finance record</h2>
+          <div className="grid gap-4 md:grid-cols-2">
+            <div>
+              <label className={labelClass} htmlFor="finance-type">
+                Type
+              </label>
+              <select id="finance-type" className={`mt-1.5 ${inputClass}`} value={recordType} onChange={(e) => setRecordType(e.target.value)}>
                 <option value="income">income</option>
                 <option value="expense">expense</option>
                 <option value="other">other</option>
               </select>
-            </label>
-            <label className="text-sm">
-              Category
-              <select className="mt-1 w-full rounded border px-2 py-1.5" value={category} onChange={(e) => setCategory(e.target.value)}>
+            </div>
+            <div>
+              <label className={labelClass} htmlFor="finance-category">
+                Category
+              </label>
+              <select id="finance-category" className={`mt-1.5 ${inputClass}`} value={category} onChange={(e) => setCategory(e.target.value)}>
                 <option value="rent_income">rent_income</option>
                 <option value="other_income">other_income</option>
                 <option value="maintenance">maintenance</option>
@@ -112,23 +109,29 @@ export function FinanceDashboard({
                 <option value="admin">admin</option>
                 <option value="other_expense">other_expense</option>
               </select>
-            </label>
-            <label className="text-sm">
-              Amount
-              <input className="mt-1 w-full rounded border px-2 py-1.5" value={amount} onChange={(e) => setAmount(e.target.value)} />
-            </label>
-            <label className="text-sm">
-              Effective date
-              <input type="date" className="mt-1 w-full rounded border px-2 py-1.5" value={effectiveDate} onChange={(e) => setEffectiveDate(e.target.value)} />
-            </label>
-            <label className="text-sm md:col-span-2">
-              Description
-              <input className="mt-1 w-full rounded border px-2 py-1.5" value={description} onChange={(e) => setDescription(e.target.value)} />
-            </label>
+            </div>
+            <div>
+              <label className={labelClass} htmlFor="finance-amount">
+                Amount
+              </label>
+              <input id="finance-amount" className={`mt-1.5 ${inputClass}`} value={amount} onChange={(e) => setAmount(e.target.value)} />
+            </div>
+            <div>
+              <label className={labelClass} htmlFor="finance-date">
+                Effective date
+              </label>
+              <input id="finance-date" type="date" className={`mt-1.5 ${inputClass}`} value={effectiveDate} onChange={(e) => setEffectiveDate(e.target.value)} />
+            </div>
+            <div className="md:col-span-2">
+              <label className={labelClass} htmlFor="finance-description">
+                Description
+              </label>
+              <input id="finance-description" className={`mt-1.5 ${inputClass}`} value={description} onChange={(e) => setDescription(e.target.value)} />
+            </div>
           </div>
           <button
             type="button"
-            className="rounded bg-teal-800 px-3 py-2 text-sm font-medium text-white"
+            className={btnPrimary}
             onClick={() =>
               startTransition(async () => {
                 try {
@@ -153,11 +156,11 @@ export function FinanceDashboard({
       ) : null}
 
       {canBudget ? (
-        <section className="space-y-3 rounded-lg border border-slate-200 bg-white p-4 shadow-sm">
-          <h2 className="text-sm font-medium text-slate-800">Budgets</h2>
+        <section className="space-y-4 rounded-2xl border border-slate-200 bg-white p-6 shadow-card">
+          <h2 className="text-base font-semibold text-slate-900">Budgets</h2>
           <button
             type="button"
-            className="rounded border px-3 py-1.5 text-sm"
+            className={btnSecondary}
             onClick={() =>
               startTransition(async () => {
                 const start = `${new Date().getFullYear()}-01-01`;
@@ -183,21 +186,36 @@ export function FinanceDashboard({
             Create sample annual budget
           </button>
           {!budgets.length ? (
-            <p className="text-sm text-slate-500">No budgets yet.</p>
+            <EmptyState title="No budgets yet" description="Create a budget when you are ready to plan the year." />
           ) : (
-            <ul className="space-y-2">
-              {budgets.map((b) => (
-                <li key={String(b.id)} className="rounded border p-3 text-sm">
-                  {String(b.name)} · {String(b.status)} · {String(b.period_start)} → {String(b.period_end)}
-                </li>
-              ))}
-            </ul>
+            <DataTable caption="Budgets">
+              <thead>
+                <tr>
+                  <Th>Name</Th>
+                  <Th>Status</Th>
+                  <Th>Period</Th>
+                </tr>
+              </thead>
+              <tbody>
+                {budgets.map((b) => (
+                  <tr key={String(b.id)}>
+                    <Td className="font-semibold text-slate-900">{String(b.name)}</Td>
+                    <Td>
+                      <StatusChip status={String(b.status)} />
+                    </Td>
+                    <Td>
+                      {String(b.period_start)} → {String(b.period_end)}
+                    </Td>
+                  </tr>
+                ))}
+              </tbody>
+            </DataTable>
           )}
         </section>
       ) : null}
 
       <div className="flex flex-wrap gap-2">
-        <button type="button" className="rounded border px-3 py-1.5 text-sm" onClick={refresh}>
+        <button type="button" className={btnSecondary} onClick={refresh}>
           Refresh
         </button>
         {canExport ? (
@@ -206,7 +224,7 @@ export function FinanceDashboard({
               <button
                 key={fmt}
                 type="button"
-                className="rounded border px-3 py-1.5 text-sm"
+                className={btnSecondary}
                 onClick={() =>
                   startTransition(async () => {
                     try {
@@ -224,22 +242,43 @@ export function FinanceDashboard({
         ) : null}
       </div>
 
-      <section className="space-y-2">
-        <h2 className="text-sm font-medium text-slate-800">Transaction history</h2>
+      <section className="space-y-3">
+        <h2 className="text-base font-semibold text-slate-900">Transaction history</h2>
         {!records.length ? (
-          <p className="rounded-lg border border-dashed border-slate-300 p-6 text-sm text-slate-500">
-            No finance records yet. Rent outstanding totals above come from the existing F6.1 rent ledger.
-          </p>
+          <EmptyState
+            title="No finance records yet"
+            description="Rent outstanding totals above come from the existing rent ledger."
+          />
         ) : (
-          <ul className="space-y-2">
-            {records.map((r) => (
-              <li key={String(r.id)} className="rounded-lg border border-slate-200 bg-white p-3 text-sm shadow-sm">
-                {String(r.effective_date)} · {String(r.record_type)} · {String(r.category_label)} ·{" "}
-                {String(r.amount)} {String(r.currency)} · {String(r.status)}
-                {r.rent_record_id ? ` · linked rent ${String(r.rent_record_id)}` : ""}
-              </li>
-            ))}
-          </ul>
+          <DataTable caption="Finance records">
+            <thead>
+              <tr>
+                <Th>Date</Th>
+                <Th>Type</Th>
+                <Th>Category</Th>
+                <Th>Amount</Th>
+                <Th>Status</Th>
+              </tr>
+            </thead>
+            <tbody>
+              {records.map((r) => (
+                <tr key={String(r.id)} className="hover:bg-slate-50">
+                  <Td className="whitespace-nowrap">{String(r.effective_date)}</Td>
+                  <Td>{String(r.record_type)}</Td>
+                  <Td>
+                    {String(r.category_label)}
+                    {r.rent_record_id ? <span className="block text-xs text-slate-500">Linked rent {String(r.rent_record_id)}</span> : null}
+                  </Td>
+                  <Td className="font-semibold text-slate-900">
+                    {String(r.amount)} {String(r.currency)}
+                  </Td>
+                  <Td>
+                    <StatusChip status={String(r.status)} />
+                  </Td>
+                </tr>
+              ))}
+            </tbody>
+          </DataTable>
         )}
       </section>
     </div>

@@ -246,6 +246,7 @@ def get_case_detail(
             "email": tenant.email,
             "phone": tenant.phone,
             "tenancy_reference": tenant.tenancy_reference,
+            "needs_goals": tenant.needs_goals,
             "status": tenant.status.value if hasattr(tenant.status, "value") else tenant.status,
         },
         "assignments": [_assignment_out(a) for a in assignments],

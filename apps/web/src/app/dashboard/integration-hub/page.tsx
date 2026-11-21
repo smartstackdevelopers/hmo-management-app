@@ -1,6 +1,8 @@
 import { redirect } from "next/navigation";
 import { EmptyState } from "@/components/dashboard/EmptyState";
 import { ErrorState } from "@/components/dashboard/ErrorState";
+import { PageHeader } from "@/components/dashboard/PageHeader";
+import { Card, CardHeader, DataTable, StatCard, StatGrid, StatusChip, Td, Th } from "@/components/ui/primitives";
 import { auth0, isAuth0Configured } from "@/lib/auth0";
 import { canAny } from "@/lib/rbac";
 import { fetchHubHealth, fetchHubProviders, fetchIntegrationHubDashboard } from "@/lib/integrationHubApi";
@@ -24,7 +26,7 @@ export default async function IntegrationHubPage() {
     return <EmptyState title="Unavailable" description="Organisation context required." />;
   }
   const token = (await auth0.getAccessToken())?.token;
-  if (!token) return <ErrorState description="Access token unavailable." />;
+  if (!token) return <ErrorState description="We couldn't confirm your sign-in. Please sign in again." />;
 
   const auth = { accessToken: token, organisationId: orgId, role: session.authorization?.active_role };
 
@@ -40,7 +42,11 @@ export default async function IntegrationHubPage() {
     }
   } catch {
     return (
-      <ErrorState description="Deep Integration Hub is disabled until INTEGRATION_HUB_GLOBAL_ENABLED and organisation settings are approved." />
+      <ErrorState
+        title="Integrations unavailable"
+        description="The integration hub isn't switched on for this organisation yet."
+        retryHref="/dashboard/integration-hub"
+      />
     );
   }
 
@@ -54,53 +60,74 @@ export default async function IntegrationHubPage() {
   ];
 
   return (
-    <div className="mx-auto max-w-5xl space-y-6 p-6">
-      <header>
-        <h1 className="text-2xl font-semibold text-slate-900">Integration Hub (F8.9 add-on)</h1>
-        <p className="mt-1 text-sm text-slate-600">
-          Extends the F6.4 integration foundation. Providers show as connected only after a successful connection test.
-        </p>
-        {typeof dash.disclaimer === "string" ? <p className="mt-2 text-xs text-amber-800">{dash.disclaimer}</p> : null}
-      </header>
-      <section className="grid gap-4 sm:grid-cols-3">
+    <div className="mx-auto max-w-6xl space-y-6">
+      <PageHeader
+        eyebrow="Insights"
+        title="Integrations"
+        description="Connections are prepared locally. A provider is connected only after a successful connection test."
+      />
+      {typeof dash.disclaimer === "string" ? (
+        <p className="rounded-2xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-900">{dash.disclaimer}</p>
+      ) : null}
+      <StatGrid>
         {stats.map((s) => (
-          <div key={s.label} className="rounded-lg border border-slate-200 bg-white p-4">
-            <div className="text-xs uppercase tracking-wide text-slate-500">{s.label}</div>
-            <div className="mt-1 text-2xl font-semibold text-slate-900">{s.value}</div>
-          </div>
+          <StatCard key={s.label} label={s.label} value={s.value} tone={s.label === "Webhook failures" ? "amber" : "gray"} />
         ))}
-      </section>
-      <section className="rounded-lg border border-slate-200 bg-white p-4">
-        <h2 className="font-medium text-slate-800">Provider directory (sandbox)</h2>
-        <ul className="mt-3 divide-y divide-slate-100 text-sm">
-          {providers.length === 0 ? (
-            <li className="py-2 text-slate-500">No providers registered.</li>
-          ) : (
-            providers.slice(0, 20).map((p) => (
-              <li key={String(p.provider_key)} className="flex justify-between py-2">
-                <span>
-                  {String(p.provider_name)} <span className="text-slate-400">({String(p.category_slug)})</span>
-                </span>
-                {p.sandbox_only ? <span className="text-xs text-slate-500">sandbox</span> : null}
-              </li>
-            ))
-          )}
-        </ul>
-      </section>
+      </StatGrid>
+      <Card padded={false}>
+        <div className="p-5 pb-0">
+          <CardHeader title="Provider directory" description="Sandbox providers registered for this organisation." />
+        </div>
+        {providers.length === 0 ? (
+          <p className="px-5 pb-5 text-sm text-slate-500">No providers registered.</p>
+        ) : (
+          <DataTable caption="Integration providers">
+            <thead>
+              <tr>
+                <Th>Provider</Th>
+                <Th>Category</Th>
+                <Th>Mode</Th>
+              </tr>
+            </thead>
+            <tbody>
+              {providers.slice(0, 20).map((p) => (
+                <tr key={String(p.provider_key)}>
+                  <Td className="font-semibold text-slate-900">{String(p.provider_name)}</Td>
+                  <Td>{String(p.category_slug)}</Td>
+                  <Td>
+                    <StatusChip tone={p.sandbox_only ? "gray" : "blue"}>{p.sandbox_only ? "Sandbox" : "Live"}</StatusChip>
+                  </Td>
+                </tr>
+              ))}
+            </tbody>
+          </DataTable>
+        )}
+      </Card>
       {health.length > 0 ? (
-        <section className="rounded-lg border border-slate-200 bg-white p-4">
-          <h2 className="font-medium text-slate-800">Connection health</h2>
-          <ul className="mt-3 divide-y divide-slate-100 text-sm">
+        <DataTable caption="Connection health">
+          <thead>
+            <tr>
+              <Th>Integration</Th>
+              <Th>Health</Th>
+              <Th>Connection</Th>
+            </tr>
+          </thead>
+          <tbody>
             {health.map((h) => (
-              <li key={String(h.integration_id)} className="flex justify-between py-2">
-                <span>{String(h.name)}</span>
-                <span className="text-slate-500">
-                  {String(h.health_status)} / {h.connected_claim ? "connected" : "not connected"}
-                </span>
-              </li>
+              <tr key={String(h.integration_id)}>
+                <Td className="font-semibold text-slate-900">{String(h.name)}</Td>
+                <Td>
+                  <StatusChip status={String(h.health_status)} />
+                </Td>
+                <Td>
+                  <StatusChip status={h.connected_claim ? "connected" : "disabled"}>
+                    {h.connected_claim ? "Connected" : "Not connected"}
+                  </StatusChip>
+                </Td>
+              </tr>
             ))}
-          </ul>
-        </section>
+          </tbody>
+        </DataTable>
       ) : null}
     </div>
   );

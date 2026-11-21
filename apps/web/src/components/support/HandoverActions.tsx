@@ -2,6 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { btnPrimary, btnSecondary } from "@/components/ui/primitives";
 import { transitionHandover } from "@/lib/supportApi";
 
 export function HandoverActions({
@@ -38,55 +39,38 @@ export function HandoverActions({
       });
       router.refresh();
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Action failed");
+      setError(err instanceof Error ? err.message : "We couldn't update this handover. Please try again.");
     } finally {
       setPending(false);
     }
   }
 
+  const primary =
+    status === "draft" && isCreator
+      ? { action: "submit" as const, label: "Submit" }
+      : status === "submitted" && isRecipient
+        ? { action: "acknowledge" as const, label: "Acknowledge" }
+        : status === "acknowledged" && (isRecipient || isCreator)
+          ? { action: "complete" as const, label: "Complete" }
+          : null;
+
   return (
-    <div className="flex flex-wrap gap-2">
-      {status === "draft" && isCreator ? (
-        <button
-          type="button"
-          disabled={pending}
-          onClick={() => run("submit")}
-          className="rounded-md bg-teal-700 px-3 py-2 text-sm text-white disabled:opacity-60"
-        >
-          Submit
-        </button>
-      ) : null}
-      {status === "submitted" && isRecipient ? (
-        <button
-          type="button"
-          disabled={pending}
-          onClick={() => run("acknowledge")}
-          className="rounded-md bg-teal-700 px-3 py-2 text-sm text-white disabled:opacity-60"
-        >
-          Acknowledge
-        </button>
-      ) : null}
-      {status === "acknowledged" && (isRecipient || isCreator) ? (
-        <button
-          type="button"
-          disabled={pending}
-          onClick={() => run("complete")}
-          className="rounded-md bg-forest-900 px-3 py-2 text-sm text-white disabled:opacity-60"
-        >
-          Complete
+    <div className="flex flex-wrap items-center gap-2">
+      {primary ? (
+        <button type="button" disabled={pending} onClick={() => void run(primary.action)} className={btnPrimary}>
+          {pending ? "Saving…" : primary.label}
         </button>
       ) : null}
       {["draft", "submitted", "acknowledged"].includes(status) && isCreator ? (
-        <button
-          type="button"
-          disabled={pending}
-          onClick={() => run("cancel")}
-          className="rounded-md border border-slate-300 px-3 py-2 text-sm disabled:opacity-60"
-        >
-          Cancel
+        <button type="button" disabled={pending} onClick={() => void run("cancel")} className={btnSecondary}>
+          Cancel handover
         </button>
       ) : null}
-      {error ? <p className="w-full text-sm text-red-700">{error}</p> : null}
+      {error ? (
+        <p role="alert" className="w-full rounded-lg border border-red-100 bg-red-50 px-3 py-2 text-sm text-red-700">
+          {error}
+        </p>
+      ) : null}
     </div>
   );
 }

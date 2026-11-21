@@ -23,15 +23,15 @@ export default async function NotesAnalysisDetailPage({ params }: { params: Prom
     return <EmptyState title="Unavailable" description="Organisation context required." />;
   }
   const token = (await auth0.getAccessToken())?.token;
-  if (!token) return <ErrorState description="Access token unavailable." />;
+  if (!token) return <ErrorState description="We couldn't confirm your sign-in. Please sign in again." />;
   const role = session.authorization?.active_role;
   const canReview = can(session.authorization?.permissions, "ai.notes.analysis.review");
 
   let data: Record<string, unknown>;
   try {
     data = await fetchNotesAnalysis(id, { accessToken: token, organisationId: orgId, role });
-  } catch (e) {
-    return <ErrorState description={e instanceof Error ? e.message : "Failed to load analysis"} />;
+  } catch {
+    return <ErrorState description={"Failed to load analysis"} />;
   }
 
   const source = (data.source_note as Record<string, unknown> | undefined) ?? {};
@@ -41,7 +41,7 @@ export default async function NotesAnalysisDetailPage({ params }: { params: Prom
   return (
     <div className="space-y-8">
       <PageHeader
-        eyebrow="F3.4"
+        eyebrow="AI"
         title="Notes analysis review"
         description="Compare the original daily note with AI-generated assistance. Approvals do not automatically change case records."
       />
@@ -60,7 +60,7 @@ export default async function NotesAnalysisDetailPage({ params }: { params: Prom
         <p className="text-sm text-slate-600">Date: {String(source.log_date ?? "—")}</p>
         <p className="whitespace-pre-wrap border-l-2 border-slate-300 pl-3 text-sm">{String(source.summary ?? "")}</p>
         <p className="whitespace-pre-wrap text-sm text-slate-800">{String(source.notes ?? "")}</p>
-        <Link className="text-sm text-blue-700 underline" href="/dashboard/daily-logs/new">
+        <Link className="text-sm font-semibold text-brand-700 hover:underline" href="/dashboard/daily-logs/new">
           Daily logs
         </Link>
       </section>

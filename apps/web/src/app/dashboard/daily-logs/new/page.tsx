@@ -2,6 +2,7 @@ import { redirect } from "next/navigation";
 import { EmptyState } from "@/components/dashboard/EmptyState";
 import { ErrorState } from "@/components/dashboard/ErrorState";
 import { PageHeader } from "@/components/dashboard/PageHeader";
+import { Card, CardHeader } from "@/components/ui/primitives";
 import { DailyLogForm } from "@/components/support/DailyLogForm";
 import { auth0, isAuth0Configured } from "@/lib/auth0";
 import { can } from "@/lib/rbac";
@@ -31,18 +32,37 @@ export default async function NewDailyLogPage({
   }
 
   return (
-    <div className="mx-auto max-w-2xl space-y-6">
+    <div className="mx-auto max-w-6xl space-y-6">
       <PageHeader
-        eyebrow="Support"
+        eyebrow="Records"
         title="New daily log"
-        description="Record support activity for an assigned tenant. Note bodies are not written to application audit metadata."
+        description="Record facts clearly. Tenants may request to see their records."
       />
-      <DailyLogForm
-        accessToken={token}
-        organisationId={orgId}
-        role={session.authorization?.active_role}
-        defaultTenantId={params.tenantId}
-      />
+      <div className="grid items-start gap-6 lg:grid-cols-[minmax(0,1fr)_18rem]">
+        <DailyLogForm
+          accessToken={token}
+          organisationId={orgId}
+          role={session.authorization?.active_role}
+          defaultTenantId={params.tenantId}
+        />
+        <Card>
+          <CardHeader title="Guidance" />
+          <ul className="space-y-3 text-sm text-slate-600">
+            <li className="flex gap-2">
+              <span aria-hidden="true" className="mt-1.5 h-2 w-2 shrink-0 rounded-full bg-brand-600" />
+              Write facts, not opinions.
+            </li>
+            <li className="flex gap-2">
+              <span aria-hidden="true" className="mt-1.5 h-2 w-2 shrink-0 rounded-full bg-brand-600" />
+              Mark safeguarding concerns as an incident, not a log.
+            </li>
+            <li className="flex gap-2">
+              <span aria-hidden="true" className="mt-1.5 h-2 w-2 shrink-0 rounded-full bg-brand-600" />
+              Note bodies are stored on the case, not in audit metadata.
+            </li>
+          </ul>
+        </Card>
+      </div>
     </div>
   );
 }

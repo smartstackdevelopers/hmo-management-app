@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { btnPrimary, inputClass, labelClass } from "@/components/ui/primitives";
 import { organisationRequestHeaders } from "@/lib/organisation";
 
 const API_BASE = process.env.NEXT_PUBLIC_API_BASE_URL ?? "http://localhost:8000";
@@ -49,8 +50,7 @@ export function DocumentUploadForm({ accessToken, organisationId, role, categori
         body: form,
       });
       if (!res.ok) {
-        const text = await res.text();
-        throw new Error(text || `Upload failed (${res.status})`);
+        throw new Error("We couldn't upload that file. Check the title and file, then try again.");
       }
       await res.json();
       setStatus("done");
@@ -64,37 +64,37 @@ export function DocumentUploadForm({ accessToken, organisationId, role, categori
   }
 
   return (
-    <form onSubmit={(e) => void submit(e)} className="space-y-4 rounded-lg border border-slate-200 bg-white p-6 shadow-sm">
+    <form onSubmit={(e) => void submit(e)} className="space-y-4 rounded-2xl border border-slate-200 bg-white p-6 shadow-card">
       <div>
-        <label className="block text-sm font-medium text-slate-700" htmlFor="doc-title">
+        <label className={labelClass} htmlFor="doc-title">
           Title
         </label>
         <input
           id="doc-title"
-          className="mt-1 w-full rounded border border-slate-300 px-3 py-2 text-sm"
+          className={`mt-1.5 ${inputClass}`}
           value={title}
           onChange={(e) => setTitle(e.target.value)}
         />
       </div>
       <div>
-        <label className="block text-sm font-medium text-slate-700" htmlFor="doc-cat">
+        <label className={labelClass} htmlFor="doc-cat">
           Category
         </label>
         <select
           id="doc-cat"
-          className="mt-1 w-full rounded border border-slate-300 px-3 py-2 text-sm"
+          className={`mt-1.5 ${inputClass}`}
           value={categoryId}
           onChange={(e) => setCategoryId(e.target.value)}
         >
           {categories.map((c) => (
             <option key={c.id} value={c.id}>
-              {c.title} ({c.code})
+              {c.title}
             </option>
           ))}
         </select>
       </div>
       <div>
-        <label className="block text-sm font-medium text-slate-700" htmlFor="doc-file">
+        <label className={labelClass} htmlFor="doc-file">
           File
         </label>
         <input
@@ -107,12 +107,14 @@ export function DocumentUploadForm({ accessToken, organisationId, role, categori
       <button
         type="submit"
         disabled={status === "uploading"}
-        className="rounded-md bg-forest-900 px-4 py-2 text-sm font-medium text-white disabled:opacity-60"
+        className={btnPrimary}
       >
         {status === "uploading" ? "Uploading…" : "Upload"}
       </button>
       {message ? (
-        <p className={`text-sm ${status === "error" ? "text-red-700" : "text-slate-600"}`}>{message}</p>
+        <p role={status === "error" ? "alert" : "status"} className={`text-sm ${status === "error" ? "text-red-700" : "text-slate-600"}`}>
+          {message}
+        </p>
       ) : null}
     </form>
   );

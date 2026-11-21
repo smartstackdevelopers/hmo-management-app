@@ -3,6 +3,7 @@ import path from 'path';
 
 import { hmoreRequest, HmoreApiError } from '@/lib/hmore/client';
 import { resolveHmoreApiBase } from '@/lib/hmore/config';
+import { LegacyApiConfigurationError, resolveLegacyApiBaseUrl } from '@/lib/legacyApiConfig';
 import { LANGUAGE_OPTIONS } from '@/lib/hmore/accessibility';
 import { activityIdFromAsk } from '@/lib/hmore/services/assistant';
 import { communityItemsFromResponse } from '@/lib/hmore/services/community';
@@ -44,6 +45,28 @@ describe('resolveHmoreApiBase', () => {
 
   it('falls back to the dev host on port 8000', () => {
     expect(resolveHmoreApiBase({ envUrl: '  ', devHost: '10.0.2.2' })).toBe('http://10.0.2.2:8000/api/v1');
+  });
+});
+
+describe('resolveLegacyApiBaseUrl', () => {
+  const prior = process.env.EXPO_PUBLIC_API_URL;
+
+  afterEach(() => {
+    if (prior === undefined) {
+      delete process.env.EXPO_PUBLIC_API_URL;
+    } else {
+      process.env.EXPO_PUBLIC_API_URL = prior;
+    }
+  });
+
+  it('throws when EXPO_PUBLIC_API_URL is unset (no port 3001 default)', () => {
+    delete process.env.EXPO_PUBLIC_API_URL;
+    expect(() => resolveLegacyApiBaseUrl()).toThrow(LegacyApiConfigurationError);
+  });
+
+  it('returns a trimmed legacy base URL when set', () => {
+    process.env.EXPO_PUBLIC_API_URL = 'http://legacy.test:3001/';
+    expect(resolveLegacyApiBaseUrl()).toBe('http://legacy.test:3001');
   });
 });
 
@@ -130,7 +153,7 @@ describe('tenant catalogue clients', () => {
 });
 
 describe('tenant profile writes', () => {
-  it('whitelists preferred_name and phone on the self-update payload', () => {
+  it('whitelists preferred_name, phone, and needs_goals on the self-update payload', () => {
     expect(
       tenantSelfPatchBody({
         preferred_name: 'Amina',
@@ -138,9 +161,9 @@ describe('tenant profile writes', () => {
         notes: 'secret',
         assigned_property_id: 'property-1',
         email: 'a@example.com',
-        needs_goals: 'private',
+        needs_goals: 'Budget weekly',
       }),
-    ).toEqual({ preferred_name: 'Amina', phone: '07000' });
+    ).toEqual({ preferred_name: 'Amina', phone: '07000', needs_goals: 'Budget weekly' });
     const src = readFileSync(path.join(__dirname, '../lib/hmore/services/tenants.ts'), 'utf8');
     expect(src).toContain("'/tenant/me'");
     expect(src).toContain('tenantSelfPatchBody');

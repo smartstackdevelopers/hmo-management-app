@@ -1,9 +1,9 @@
 "use client";
 
 import { useState } from "react";
+import { btnPrimary, inputClass, labelClass, StatusChip } from "@/components/ui/primitives";
 import {
   AI_LIMITATION_NOTICE,
-  analysisLayoutClass,
   canReviewComplianceFindings,
   resultLabel,
   reviewLabel,
@@ -103,12 +103,12 @@ export function ComplianceAgentPanel(props: Props) {
   const findings = (sweep?.findings as Array<Record<string, unknown>> | undefined) ?? [];
 
   return (
-    <section className={analysisLayoutClass()}>
+    <section className="space-y-4 rounded-2xl border border-slate-200 bg-white p-5 shadow-card">
       <div className="flex flex-wrap items-center justify-between gap-2">
-        <h2 className="text-lg font-semibold text-forest-900">Compliance rules sweep</h2>
+        <h2 className="text-base font-semibold text-slate-900">Compliance rules sweep</h2>
         <button
           type="button"
-          className="rounded-md bg-teal-700 px-3 py-2 text-sm text-white disabled:opacity-60"
+          className={btnPrimary}
           disabled={state === "loading"}
           onClick={() => void startSweep()}
         >
@@ -138,12 +138,12 @@ export function ComplianceAgentPanel(props: Props) {
           </div>
           {canReview ? (
             <div className="space-y-2">
-              <label className="block text-xs" htmlFor="compliance-review-comment">
+              <label className={labelClass} htmlFor="compliance-review-comment">
                 Review comment
               </label>
               <textarea
                 id="compliance-review-comment"
-                className="w-full rounded-md border border-slate-300 bg-white p-2"
+                className={`${inputClass} h-auto py-2`}
                 maxLength={2000}
                 value={comment}
                 onChange={(event) => setComment(event.target.value)}
@@ -152,10 +152,12 @@ export function ComplianceAgentPanel(props: Props) {
           ) : null}
           <ul className="space-y-2">
             {findings.map((item) => (
-              <li key={String(item.id)} className="border-l-2 border-amber-400 pl-3">
-                <div className="text-xs uppercase text-slate-600">
-                  Rule-confirmed · {resultLabel(String(item.result))} · {reviewLabel(String(item.review_status))} ·{" "}
-                  {String(item.resolution_status)}
+              <li key={String(item.id)} className="border-l-4 border-brand-200 pl-3">
+                <div className="flex flex-wrap gap-1.5 text-xs">
+                  <StatusChip tone="blue">Rule-confirmed</StatusChip>
+                  <StatusChip status={String(item.result)}>{resultLabel(String(item.result))}</StatusChip>
+                  <StatusChip status={String(item.review_status)}>{reviewLabel(String(item.review_status))}</StatusChip>
+                  <StatusChip status={String(item.resolution_status)} />
                 </div>
                 <div className="font-medium">{String(item.title)}</div>
                 <p>{String(item.detail)}</p>

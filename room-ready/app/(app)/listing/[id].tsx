@@ -1,50 +1,102 @@
+import { Ionicons } from '@expo/vector-icons';
 import { router, useLocalSearchParams } from 'expo-router';
 import { useState } from 'react';
 import { Alert, Pressable, RefreshControl, ScrollView, StyleSheet, Text, View } from 'react-native';
 
+import { FactGrid, HouseBanner, titleCase, useHideTabHeader } from '@/components/dashboard/mobileChrome';
 import { FavoriteButton } from '@/components/listings/FavoriteButton';
 import { ListingPhotoGallery } from '@/components/listings/ListingPhotos';
-import { Badge } from '@/components/ui/Badge';
 import { Button } from '@/components/ui/Button';
-import { Card } from '@/components/ui/Card';
+import { Chip, type Tone } from '@/components/ui/Chip';
 import { Input } from '@/components/ui/Input';
 import { ErrorState, LoadingScreen } from '@/components/ui/States';
+import { FONT_BOLD, FONT_MEDIUM, FONT_SEMIBOLD } from '@/constants/fonts';
 import { formatGBP, formatUKDate } from '@/constants/uk';
 import { theme } from '@/constants/theme';
 import { useAuth } from '@/contexts/AuthContext';
-import { useApplyListing, useApplications, useListing, useUpdateListing } from '@/hooks/useApi';
+import { useApplications, useApplyListing, useListing, useReviewApplication, useUpdateListing } from '@/hooks/useApi';
 import { useTenantPreferences } from '@/hooks/useTenantPreferences';
 
+function statusTone(status: string): Tone {
+  if (status === 'active' || status === 'approved') return 'green';
+  if (status === 'paused' || status === 'pending') return 'amber';
+  if (status === 'rejected') return 'red';
+  return 'gray';
+}
+
 export default function ListingDetailScreen() {
+  useHideTabHeader();
   const { id } = useLocalSearchParams<{ id: string }>();
-  const { user } = useAuth();
+  const { user, hmore } = useAuth();
   const { data, isLoading, error, refetch, isRefetching } = useListing(id);
-  const { data: appsData } = useApplications();
+  const { data: appsData, refetch: refetchApps } = useApplications();
   const apply = useApplyListing();
   const updateListing = useUpdateListing();
+  const review = useReviewApplication();
   const { isFavorited, toggle } = useTenantPreferences();
   const [message, setMessage] = useState('');
 
   if (isLoading) return <LoadingScreen />;
-  if (error || !data) return <ErrorState message="Listing not found" onRetry={refetch} />;
+  if (error || !data?.listing) return <ErrorState message="Listing not found" onRetry={refetch} />;
 
   const listing = data.listing;
   const property = listing.room?.property;
   const canManage = ['landlord', 'property_manager', 'admin'].includes(user?.role ?? '');
   const isTenant = user?.role === 'tenant';
-  const myApplication = isTenant
-    ? (appsData?.applications ?? []).find((a) => a.listing?.id === listing.id || a.listing?.id === id)
-    : undefined;
+  const related = (appsData?.applications ?? []).filter((app) => app.listing?.id === listing.id || app.listing?.id === id);
+  const myApplication = isTenant ? related[0] : undefined;
   const hasActiveApplication = myApplication && ['pending', 'approved'].includes(myApplication.status);
+  const pending = related.filter((app) => app.status === 'pending');
+  const title = listing.room?.name && property?.addressLine1 ? `${listing.room.name} · ${property.addressLine1}` : listing.title;
+  const photos = listing.photos;
+  const availableAt = listing.availableFrom ? new Date(listing.availableFrom) : null;
+  const availableKnown = !!availableAt && !Number.isNaN(availableAt.getTime());
+  const availableLabel = !availableKnown
+    ? null
+    : availableAt!.getTime() <= Date.now()
+      ? 'Available now'
+      : formatUKDate(listing.availableFrom!);
+  const subtitle = [
+    listing.room?.ensuite ? 'Ensuite' : null,
+    listing.room?.furnished ? 'Furnished' : null,
+    listing.billsIncluded ? 'Bills included' : null,
+  ]
+    .filter(Boolean)
+    .join(' · ');
+  const rent = listing.room?.rentPcm;
 
   async function handleApply() {
     try {
       await apply.mutateAsync({ listingId: listing.id, message });
-      Alert.alert('Application sent', 'The landlord will review it shortly.');
+      Alert.alert('Application sent', 'The landlord will review it.');
       refetch();
+      refetchApps();
     } catch (err) {
       Alert.alert('Error', err instanceof Error ? err.message : 'Application failed');
     }
+  }
+
+  function reviewApplication(appId: string, tenantName: string, note?: string) {
+    Alert.alert(tenantName, note || 'Review this application', [
+      { text: 'Not now', style: 'cancel' },
+      {
+        text: 'Reject',
+        style: 'destructive',
+        onPress: () =>
+          review.mutate(
+            { id: appId, status: 'rejected' },
+            { onSuccess: () => refetchApps(), onError: (err) => Alert.alert('Error', err instanceof Error ? err.message : 'Reject failed') },
+          ),
+      },
+      {
+        text: 'Approve',
+        onPress: () =>
+          review.mutate(
+            { id: appId, status: 'approved' },
+            { onSuccess: () => refetchApps(), onError: (err) => Alert.alert('Error', err instanceof Error ? err.message : 'Approve failed') },
+          ),
+      },
+    ]);
   }
 
   return (
@@ -53,163 +105,108 @@ export default function ListingDetailScreen() {
       contentContainerStyle={styles.content}
       refreshControl={<RefreshControl refreshing={isRefetching} onRefresh={refetch} tintColor={theme.colors.secondary} />}
     >
-      <ListingPhotoGallery photos={listing.photos} listingId={listing.id} height={240} />
+      <Pressable onPress={() => router.back()} style={styles.back} accessibilityRole="button" accessibilityLabel="Back">
+        <Ionicons name="chevron-back" size={18} color={theme.colors.secondaryDark} />
+        <Text style={styles.backText}>Back</Text>
+      </Pressable>
 
-      <Card style={styles.hero}>
-        <View style={styles.heroTop}>
-          <Text style={styles.title}>{listing.title}</Text>
-          {isTenant && (
-            <FavoriteButton
-              listing={listing}
-              active={isFavorited(listing.id)}
-              onToggle={toggle}
-              size={26}
-            />
-          )}
-        </View>
-        <Text style={styles.address}>
-          {property?.addressLine1}, {property?.city} {property?.postcode}
-        </Text>
-        <Text style={styles.rent}>
-          {formatGBP(listing.room?.rentPcm ?? 0)}
-          <Text style={styles.perMonth}> / month rent</Text>
-        </Text>
-        <View style={styles.tags}>
-          {listing.billsIncluded && <Badge label="Bills included" variant="success" />}
-          {!listing.billsIncluded && <Badge label="Bills separate" variant="default" />}
-          <Badge label="No council tax" variant="info" />
-          {listing.room?.ensuite && <Badge label="Ensuite" variant="info" />}
-          {listing.room?.furnished && <Badge label="Furnished" variant="default" />}
-          {listing.availableFrom && (
-            <Badge label={`From ${formatUKDate(listing.availableFrom)}`} variant="default" />
-          )}
-        </View>
-      </Card>
+      {photos ? <ListingPhotoGallery photos={photos} listingId={listing.id} height={180} /> : <HouseBanner />}
 
-      <Card style={styles.section}>
-        <Text style={styles.sectionTitle}>What you pay</Text>
-        <View style={styles.costRow}>
-          <Text style={styles.costLabel}>Room rent</Text>
-          <Text style={styles.costValue}>{formatGBP(listing.room?.rentPcm ?? 0)} / month</Text>
-        </View>
-        <View style={styles.costRow}>
-          <Text style={styles.costLabel}>Deposit</Text>
-          <Text style={styles.costValue}>{formatGBP(listing.room?.deposit ?? 0)}</Text>
-        </View>
-        <View style={styles.costRow}>
-          <Text style={styles.costLabel}>Bills (gas, electric, water, internet)</Text>
-          <Text style={styles.costValue}>{listing.billsIncluded ? 'Included' : 'Not included'}</Text>
-        </View>
-        <View style={[styles.costRow, styles.costRowLast]}>
-          <Text style={styles.costLabel}>Council tax</Text>
-          <Text style={styles.costValue}>Landlord pays</Text>
-        </View>
-        <Text style={styles.costHint}>
-          In licensed HMOs, council tax is usually paid by the landlord — not by individual tenants. You rent a room, not the whole property.
-        </Text>
-      </Card>
+      <View style={styles.titleRow}>
+        <Text style={styles.title}>{title}</Text>
+        {isTenant ? <FavoriteButton listing={listing} active={isFavorited(listing.id)} onToggle={toggle} /> : null}
+      </View>
+      {subtitle ? <Text style={styles.subtitle}>{subtitle}</Text> : listing.title !== title ? <Text style={styles.subtitle}>{listing.title}</Text> : null}
+      <View style={styles.chips}>
+        <Chip label={titleCase(listing.status)} tone={statusTone(listing.status)} />
+        {availableLabel ? <Chip label={availableLabel} tone="green" /> : null}
+        {typeof rent === 'number' ? <Chip label={`${formatGBP(rent)} / month`} tone="blue" /> : null}
+        {myApplication ? <Chip label={titleCase(myApplication.status)} tone={statusTone(myApplication.status)} /> : null}
+      </View>
 
-      {isTenant && listing.status === 'active' && hasActiveApplication && myApplication && (
-        <Card style={styles.statusCard}>
-          <Text style={styles.sectionTitle}>Your application</Text>
-          <Badge
-            label={myApplication.status}
-            variant={myApplication.status === 'approved' ? 'success' : myApplication.status === 'rejected' ? 'error' : 'warning'}
-          />
-          <Text style={styles.statusHint}>
-            {myApplication.status === 'pending' && 'Waiting for the landlord to review.'}
-            {myApplication.status === 'approved' && 'Approved — the landlord will be in touch.'}
-            {myApplication.status === 'rejected' && 'Not selected this time.'}
-          </Text>
-          {myApplication.status === 'rejected' && (
-            <Button title="Find other rooms" variant="outline" onPress={() => router.push('/(app)/(tabs)/find' as never)} fullWidth style={styles.browseBtn} />
-          )}
-        </Card>
-      )}
+      <FactGrid
+        items={[
+          { label: 'Size', value: listing.room?.sizeSqm ? `${listing.room.sizeSqm} m²` : '—' },
+          { label: 'Furnished', value: listing.room ? (listing.room.furnished ? 'Yes' : 'No') : '—' },
+          { label: 'Applications', value: hmore ? '—' : String(related.length) },
+          { label: 'Listed', value: listing.createdAt ? formatUKDate(listing.createdAt) : '—' },
+        ]}
+      />
 
-      {isTenant && listing.status === 'active' && !hasActiveApplication && (
-        <Card style={styles.apply}>
-          <Text style={styles.sectionTitle}>Apply for this room</Text>
-          <Input
-            label="Message (optional)"
-            value={message}
-            onChangeText={setMessage}
-            multiline
-            placeholder="A short note about yourself"
-          />
-          <Button title="Send application" onPress={handleApply} loading={apply.isPending} fullWidth size="lg" variant="accent" />
-        </Card>
-      )}
+      {listing.description ? <Text style={styles.body}>{listing.description}</Text> : null}
 
-      {listing.description ? (
-        <Card style={styles.section}>
-          <Text style={styles.sectionTitle}>About</Text>
-          <Text style={styles.body}>{listing.description}</Text>
-        </Card>
+      {canManage && (pending.length > 0 || listing.createdAt) ? (
+        <View style={styles.enquiries}>
+          <Text style={styles.section}>Enquiries</Text>
+          {pending.map((app) => {
+            const name = `${app.tenant?.firstName ?? ''} ${app.tenant?.lastName ?? ''}`.trim() || 'Applicant';
+            return (
+              <Pressable
+                key={app.id}
+                onPress={() => reviewApplication(app.id, name, app.message)}
+                accessibilityRole="button"
+                accessibilityLabel={`Application from ${name}`}
+                style={styles.event}
+              >
+                <View style={styles.dot} />
+                <Text style={styles.eventTitle} numberOfLines={1}>{`Application · ${name}`}</Text>
+                <Text style={styles.eventDate}>{formatUKDate(app.createdAt)}</Text>
+              </Pressable>
+            );
+          })}
+          {listing.createdAt ? (
+            <View style={styles.event}>
+              <View style={[styles.dot, styles.dotMuted]} />
+              <Text style={styles.eventTitle} numberOfLines={1}>
+                {listing.status === 'active' ? 'Listing published' : 'Listing created'}
+              </Text>
+              <Text style={styles.eventDate}>{formatUKDate(listing.createdAt)}</Text>
+            </View>
+          ) : null}
+        </View>
       ) : null}
 
-      {property?.id && (
-        <Pressable onPress={() => router.push(`/(app)/property/${property.id}`)} style={styles.propertyLink}>
-          <Text style={styles.propertyLinkText}>View property details</Text>
-        </Pressable>
-      )}
+      {isTenant && listing.status === 'active' && !hasActiveApplication ? (
+        <View>
+          <Input label="Message" value={message} onChangeText={setMessage} multiline placeholder="Optional note" />
+          <Button title="Send application" onPress={handleApply} loading={apply.isPending} fullWidth size="lg" />
+        </View>
+      ) : null}
 
-      {canManage && (
-        <Card style={styles.apply}>
-          <Text style={styles.sectionTitle}>Manage listing</Text>
-          <Button
-            title={listing.status === 'active' ? 'Pause listing' : 'Activate listing'}
-            variant="secondary"
-            onPress={() =>
-              updateListing.mutate(
-                { id: listing.id, status: listing.status === 'active' ? 'paused' : 'active' },
-                { onSuccess: () => refetch() }
-              )
-            }
-            loading={updateListing.isPending}
-            fullWidth
-          />
-        </Card>
-      )}
+      {canManage ? (
+        <Button
+          title="Manage listing"
+          accessibilityLabel={listing.status === 'active' ? 'Pause listing' : 'Activate listing'}
+          onPress={() =>
+            updateListing.mutate(
+              { id: listing.id, status: listing.status === 'active' ? 'paused' : 'active' },
+              { onSuccess: () => refetch() },
+            )
+          }
+          loading={updateListing.isPending}
+          fullWidth
+          size="lg"
+        />
+      ) : null}
     </ScrollView>
   );
 }
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: theme.colors.background },
-  content: { padding: theme.spacing.md, paddingBottom: 40 },
-  hero: { borderColor: theme.colors.border },
-  heroTop: { flexDirection: 'row', alignItems: 'flex-start', justifyContent: 'space-between', gap: 8 },
-  title: { ...theme.typography.h1, color: theme.colors.text, flex: 1 },
-  address: { color: theme.colors.textSecondary, marginTop: 8, fontSize: 15, lineHeight: 22 },
-  rent: { fontSize: 28, fontWeight: '700', color: theme.colors.text, marginTop: 14, letterSpacing: -0.5 },
-  perMonth: { fontSize: 16, fontWeight: '500', color: theme.colors.textMuted },
-  tags: { flexDirection: 'row', gap: 8, marginTop: 14, flexWrap: 'wrap' },
-  costRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'flex-start',
-    gap: 12,
-    paddingVertical: 10,
-    borderBottomWidth: 1,
-    borderBottomColor: theme.colors.borderLight,
-  },
-  costRowLast: { borderBottomWidth: 0 },
-  costLabel: { flex: 1, fontSize: 14, color: theme.colors.textSecondary, lineHeight: 20 },
-  costValue: { fontSize: 14, fontWeight: '600', color: theme.colors.text, textAlign: 'right' },
-  costHint: {
-    marginTop: 8,
-    fontSize: 13,
-    lineHeight: 19,
-    color: theme.colors.textMuted,
-  },
-  propertyLink: { marginTop: theme.spacing.lg, paddingVertical: 8 },
-  propertyLinkText: { color: theme.colors.secondary, fontWeight: '600', fontSize: 15 },
-  section: { marginTop: theme.spacing.lg },
-  sectionTitle: { fontWeight: '700', marginBottom: 8, fontSize: 16 },
-  body: { color: theme.colors.textSecondary, lineHeight: 24, fontSize: 15 },
-  apply: { marginTop: theme.spacing.lg },
-  statusCard: { marginTop: theme.spacing.lg, backgroundColor: theme.colors.infoLight, borderColor: theme.colors.info },
-  statusHint: { color: theme.colors.textSecondary, lineHeight: 22, fontSize: 14, marginTop: 10 },
-  browseBtn: { marginTop: 12 },
+  content: { padding: theme.spacing.md, paddingBottom: 48 },
+  back: { flexDirection: 'row', alignItems: 'center', marginBottom: theme.spacing.md, alignSelf: 'flex-start' },
+  backText: { fontFamily: FONT_SEMIBOLD, color: theme.colors.secondaryDark, fontSize: 15 },
+  titleRow: { flexDirection: 'row', alignItems: 'flex-start', justifyContent: 'space-between', gap: 8 },
+  title: { flex: 1, fontSize: 26, fontFamily: FONT_BOLD, fontWeight: '700', color: theme.colors.text, letterSpacing: -0.4 },
+  subtitle: { fontFamily: FONT_MEDIUM, color: theme.colors.textSecondary, marginTop: 4 },
+  chips: { flexDirection: 'row', flexWrap: 'wrap', gap: 8, marginTop: 12 },
+  body: { fontFamily: FONT_MEDIUM, color: theme.colors.textSecondary, lineHeight: 22, marginBottom: theme.spacing.md },
+  enquiries: { marginBottom: theme.spacing.md },
+  section: { fontFamily: FONT_SEMIBOLD, fontSize: 16, color: theme.colors.text, marginBottom: theme.spacing.sm },
+  event: { flexDirection: 'row', alignItems: 'center', gap: 8, paddingVertical: 8, minHeight: 44 },
+  dot: { width: 8, height: 8, borderRadius: 4, backgroundColor: theme.colors.secondary },
+  dotMuted: { backgroundColor: theme.colors.textMuted },
+  eventTitle: { flex: 1, fontFamily: FONT_MEDIUM, color: theme.colors.text, fontSize: 14 },
+  eventDate: { fontFamily: FONT_MEDIUM, color: theme.colors.textMuted, fontSize: 12 },
 });

@@ -27,7 +27,7 @@ export default async function NewTrainingPage() {
   }
   return (
     <div className="mx-auto max-w-xl space-y-6">
-      <PageHeader eyebrow="F2.3" title="New training record" description="Record staff training completion and expiry." />
+      <PageHeader eyebrow="Me" title="New training record" description="Record completion and the expiry date your organisation uses." />
       <TrainingForm
         accessToken={token}
         organisationId={orgId}

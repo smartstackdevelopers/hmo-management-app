@@ -1,6 +1,7 @@
 import { Ionicons } from '@expo/vector-icons';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 
+import { Chip, toneColors, type Tone } from '@/components/ui/Chip';
 import { FONT_BOLD, FONT_MEDIUM, FONT_SEMIBOLD } from '@/constants/fonts';
 import { theme } from '@/constants/theme';
 
@@ -40,9 +41,16 @@ interface ListRowProps {
   icon?: keyof typeof Ionicons.glyphMap;
   iconColor?: string;
   iconBg?: string;
+  /** Icon tile tone; `iconColor`/`iconBg` win when set. */
+  tone?: Tone;
   onPress?: () => void;
   right?: React.ReactNode;
+  /** Status chip shown on the right (ignored when `right` is set). */
+  chipLabel?: string;
+  chipTone?: Tone;
   chevron?: boolean;
+  /** Bottom hairline, for rows stacked inside a Card. */
+  divider?: boolean;
   accessibilityLabel?: string;
 }
 
@@ -51,18 +59,25 @@ export function ListRow({
   subtitle,
   meta,
   icon,
-  iconColor = theme.colors.secondary,
-  iconBg = theme.colors.accentLight,
+  iconColor,
+  iconBg,
+  tone = 'blue',
   onPress,
   right,
+  chipLabel,
+  chipTone = 'gray',
   chevron = !!onPress,
+  divider = false,
   accessibilityLabel,
 }: ListRowProps) {
+  const tileColors = toneColors[tone];
+  const trailing = right ?? (chipLabel ? <Chip label={chipLabel} tone={chipTone} /> : null);
+
   const content = (
     <View style={styles.row}>
       {icon && (
-        <View style={[styles.iconBox, { backgroundColor: iconBg }]}>
-          <Ionicons name={icon} size={20} color={iconColor} />
+        <View style={[styles.iconBox, { backgroundColor: iconBg ?? tileColors.bg }]}>
+          <Ionicons name={icon} size={20} color={iconColor ?? tileColors.text} />
         </View>
       )}
       <View style={styles.copy}>
@@ -70,7 +85,7 @@ export function ListRow({
         {subtitle && <Text style={styles.subtitle} numberOfLines={2}>{subtitle}</Text>}
         {meta && <Text style={styles.meta}>{meta}</Text>}
       </View>
-      {right}
+      {trailing}
       {chevron && !right && (
         <Ionicons name="chevron-forward" size={18} color={theme.colors.textMuted} />
       )}
@@ -83,7 +98,7 @@ export function ListRow({
         onPress={onPress}
         accessibilityRole="button"
         accessibilityLabel={accessibilityLabel ?? title}
-        style={({ pressed }) => [styles.pressable, pressed && styles.pressed]}
+        style={({ pressed }) => [styles.pressable, divider && styles.divider, pressed && styles.pressed]}
       >
         {content}
       </Pressable>
@@ -91,7 +106,7 @@ export function ListRow({
   }
 
   return (
-    <View style={styles.pressable} accessibilityLabel={accessibilityLabel ?? title}>
+    <View style={[styles.pressable, divider && styles.divider]} accessibilityLabel={accessibilityLabel ?? title}>
       {content}
     </View>
   );
@@ -103,7 +118,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     borderWidth: 1.5,
-    borderColor: '#99F6E4',
+    borderColor: theme.colors.accentSoft,
   },
   avatarText: {
     color: theme.colors.secondaryDark,
@@ -111,19 +126,22 @@ const styles = StyleSheet.create({
     fontWeight: '700',
   },
   pressable: {
-    paddingVertical: 14,
+    minHeight: 68,
+    justifyContent: 'center',
+    paddingVertical: 12,
     paddingHorizontal: theme.spacing.md,
   },
-  pressed: { backgroundColor: theme.colors.surfaceMuted },
+  divider: { borderBottomWidth: 1, borderBottomColor: theme.colors.borderLight },
+  pressed: { backgroundColor: theme.colors.surfaceSecondary },
   row: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: theme.spacing.md,
+    gap: 12,
   },
   iconBox: {
     width: 40,
     height: 40,
-    borderRadius: theme.radius.md,
+    borderRadius: 12,
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -143,6 +161,7 @@ const styles = StyleSheet.create({
   },
   meta: {
     fontSize: 12,
+    fontFamily: FONT_MEDIUM,
     color: theme.colors.textMuted,
     marginTop: 4,
   },

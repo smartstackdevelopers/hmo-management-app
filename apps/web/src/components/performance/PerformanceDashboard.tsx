@@ -36,7 +36,8 @@ export function PerformanceDashboard({ accessToken, organisationId, role, canRun
 
   return (
     <div className="space-y-6">
-      <h1 className="text-2xl font-semibold">Performance monitoring</h1>
+      <p className="text-xs font-semibold uppercase tracking-[0.16em] text-brand-700">Platform</p>
+      <h1 className="mt-1.5 text-2xl font-bold tracking-tight text-slate-900">Performance</h1>
       <p className="text-sm text-slate-600">
         Measured synthetic journey probes (auth gates + health). Capacity targets:{" "}
         {String(dash.capacity_targets)}. Sentry: {String(dash.sentry_configured)}.
@@ -44,7 +45,7 @@ export function PerformanceDashboard({ accessToken, organisationId, role, canRun
       {canRun ? (
         <button
           type="button"
-          className="min-h-11 rounded-md bg-slate-900 px-4 py-2 text-sm text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-teal-700"
+          className="inline-flex h-10 items-center justify-center rounded-lg bg-brand-700 px-4 text-sm font-semibold text-white shadow-sm hover:bg-brand-800 disabled:cursor-not-allowed disabled:opacity-60 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-600 focus-visible:ring-offset-2"
           onClick={async () => {
             await runPerformanceBenchmark(auth, 5);
             await load();

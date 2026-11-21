@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { btnPrimary, inputClass } from "@/components/ui/primitives";
 import { saveEmploymentSupportNotes } from "@/lib/employmentApi";
 
 export function StaffNotesForm(props: {
@@ -26,22 +27,22 @@ export function StaffNotesForm(props: {
         notes,
       });
       setStatus("Support notes saved.");
-    } catch (error) {
-      setStatus(error instanceof Error ? error.message : "Save failed.");
+    } catch {
+      setStatus("Save failed.");
     } finally {
       setSaving(false);
     }
   }
 
   return (
-    <div className="space-y-3 rounded-lg border border-slate-200 bg-white p-5">
-      <h2 className="text-sm font-semibold text-slate-900">Support notes</h2>
+    <div className="space-y-3 rounded-2xl border border-slate-200 bg-white p-5 shadow-card">
+      <h2 className="text-base font-semibold text-slate-900">Support notes</h2>
       <p className="text-sm text-slate-600">
         Permitted employment support notes only. Do not paste private CV content or contact details
         unless policy allows.
       </p>
       <textarea
-        className="min-h-28 w-full rounded border border-slate-300 p-3 text-sm"
+        className={`${inputClass} h-auto min-h-28 py-2`}
         value={notes}
         onChange={(event) => setNotes(event.target.value)}
       />
@@ -49,7 +50,7 @@ export function StaffNotesForm(props: {
         type="button"
         disabled={saving || !notes.trim()}
         onClick={() => void onSave()}
-        className="rounded bg-slate-900 px-4 py-2 text-sm text-white disabled:opacity-50"
+        className={btnPrimary}
       >
         {saving ? "Saving…" : "Save notes"}
       </button>

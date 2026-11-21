@@ -20,7 +20,7 @@ const styles = StyleSheet.create({
   webOuter: {
     flex: 1,
     minHeight: '100dvh' as unknown as number,
-    backgroundColor: '#E8EEF2',
+    backgroundColor: '#E4ECF7',
     alignItems: 'center',
     justifyContent: 'center',
     position: 'relative',
@@ -31,7 +31,7 @@ const styles = StyleSheet.create({
     width: 520,
     height: 520,
     borderRadius: 260,
-    backgroundColor: 'rgba(13, 148, 136, 0.08)',
+    backgroundColor: 'rgba(37, 99, 235, 0.10)',
   },
   webFrame: {
     flex: 1,

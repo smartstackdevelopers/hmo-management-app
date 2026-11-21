@@ -1,8 +1,7 @@
 import { useQuery } from '@tanstack/react-query';
 import { Linking, StyleSheet, Text } from 'react-native';
 
-import { Button } from '@/components/ui/Button';
-import { Card } from '@/components/ui/Card';
+import { StatusRow, statusTone } from '@/components/staff/ui';
 import { Screen } from '@/components/ui/Screen';
 import { ErrorState, LoadingScreen } from '@/components/ui/States';
 import { FONT_BOLD, FONT_MEDIUM } from '@/constants/fonts';
@@ -25,18 +24,19 @@ export default function WellbeingDirectoryScreen() {
         <Text style={styles.empty}>{t('wellbeing.noDirectory')}</Text>
       ) : (
         items.map((item) => (
-          <Card key={String(item.id)} style={styles.card}>
-            <Text style={styles.name}>{String(item.name)}</Text>
-            <Text style={styles.meta}>
-              {String(item.category)} · {String(item.verification_status)}
-              {item.is_clinical ? ` · ${t('wellbeing.clinicalLabel')}` : ` · ${t('wellbeing.communityLabel')}`}
-            </Text>
-            {item.description ? <Text style={styles.body}>{String(item.description)}</Text> : null}
-            {item.contact_info ? <Text style={styles.meta}>{String(item.contact_info)}</Text> : null}
-            {item.source_url ? (
-              <Button title={t('wellbeing.openLink')} variant="secondary" onPress={() => Linking.openURL(String(item.source_url))} />
-            ) : null}
-          </Card>
+          <StatusRow
+            key={String(item.id)}
+            name={String(item.name)}
+            title={String(item.name)}
+            subtitle={[
+              String(item.category || '').replaceAll('_', ' '),
+              item.is_clinical ? t('wellbeing.clinicalLabel') : t('wellbeing.communityLabel'),
+              item.contact_info ? String(item.contact_info) : null,
+            ].filter(Boolean).join(' · ')}
+            chip={String(item.verification_status || '').replaceAll('_', ' ')}
+            tone={statusTone(String(item.verification_status || ''))}
+            onPress={item.source_url ? () => Linking.openURL(String(item.source_url)) : undefined}
+          />
         ))
       )}
     </Screen>

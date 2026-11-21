@@ -33,7 +33,7 @@ export function SummaryReviewActions(props: Props) {
       body: JSON.stringify({ decision, review_comment: comment || null }),
     });
     if (!response.ok) {
-      setError(await response.text());
+      setError("We couldn't save that review. Please try again.");
       return;
     }
     startTransition(() => router.refresh());
@@ -48,7 +48,7 @@ export function SummaryReviewActions(props: Props) {
         id="review-comment"
         value={comment}
         onChange={(event) => setComment(event.target.value)}
-        className="w-full rounded-md border border-slate-300 p-2 text-sm"
+        className="block w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 placeholder:text-slate-400 focus:border-brand-600 focus:outline-none focus:ring-2 focus:ring-brand-100"
         rows={3}
         maxLength={2000}
       />
@@ -56,7 +56,7 @@ export function SummaryReviewActions(props: Props) {
         <button
           type="button"
           disabled={pending}
-          className="rounded-md border border-slate-300 px-3 py-2 text-sm"
+          className="inline-flex h-10 items-center justify-center rounded-lg border border-slate-200 bg-white px-4 text-sm font-semibold text-slate-700 hover:bg-slate-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-600"
           onClick={() => void review("approve")}
         >
           Approve summary
@@ -64,7 +64,7 @@ export function SummaryReviewActions(props: Props) {
         <button
           type="button"
           disabled={pending}
-          className="rounded-md border border-slate-300 px-3 py-2 text-sm"
+          className="inline-flex h-10 items-center justify-center rounded-lg border border-slate-200 bg-white px-4 text-sm font-semibold text-slate-700 hover:bg-slate-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-600"
           onClick={() => void review("reject")}
         >
           Reject summary

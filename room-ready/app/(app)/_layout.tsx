@@ -59,10 +59,12 @@ export default function AppLayout() {
         <Stack.Screen name="documents" options={{ ...headerOptions, headerShown: true, title: tenant ? t('nav.files') : 'My files' }} />
         <Stack.Screen name="notifications" options={{ ...headerOptions, headerShown: true, title: tenant ? t('nav.alerts') : 'Notifications' }} />
         <Stack.Screen name="staff/visits" options={{ ...headerOptions, headerShown: true, title: 'Visits' }} />
+        <Stack.Screen name="staff/handovers" options={{ ...headerOptions, headerShown: true, title: 'Handovers' }} />
         <Stack.Screen name="staff/tasks" options={{ ...headerOptions, headerShown: true, title: 'Tasks' }} />
         <Stack.Screen name="staff/incidents" options={{ ...headerOptions, headerShown: true, title: 'Incidents' }} />
         <Stack.Screen name="staff/occupancy" options={{ ...headerOptions, headerShown: true, title: 'Occupancy surveys' }} />
         <Stack.Screen name="staff/approvals" options={{ ...headerOptions, headerShown: true, title: 'Approvals' }} />
+        <Stack.Screen name="staff/safeguarding-alerts" options={{ ...headerOptions, headerShown: true, title: 'Safeguarding' }} />
         <Stack.Screen name="staff/case/[tenantId]" options={{ ...headerOptions, headerShown: true, title: 'Tenant' }} />
         <Stack.Screen name="staff/incident/[id]" options={{ ...headerOptions, headerShown: true, title: 'Incident' }} />
         <Stack.Screen name="staff/work-order/[id]" options={{ ...headerOptions, headerShown: true, title: 'Work order' }} />

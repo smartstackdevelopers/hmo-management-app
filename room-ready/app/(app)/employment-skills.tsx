@@ -2,8 +2,8 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useEffect, useState } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 
+import { StatusRow, statusTone } from '@/components/staff/ui';
 import { Button } from '@/components/ui/Button';
-import { Card } from '@/components/ui/Card';
 import { Input } from '@/components/ui/Input';
 import { Screen } from '@/components/ui/Screen';
 import { ErrorState, LoadingScreen } from '@/components/ui/States';
@@ -72,21 +72,24 @@ export default function EmploymentSkillsScreen() {
         {t('employment.completion')}: {String(query.data?.completion_percent ?? 0)}% · {String(query.data?.status)}
       </Text>
       <Text style={styles.note}>{String(summary.note ?? '')}</Text>
-      <Card style={styles.card}>
-        {skills.length === 0 ? (
-          <Text style={styles.empty}>{t('employment.noSkills')}</Text>
-        ) : (
-          skills.map((skill, index) => (
-            <Text key={`${skill.name}-${index}`} style={styles.item}>
-              {String(skill.name)} · {String(skill.category)} · {String(skill.level ?? 'n/a')}
-            </Text>
-          ))
-        )}
-      </Card>
+      {skills.length === 0 ? (
+        <Text style={styles.empty}>{t('employment.noSkills')}</Text>
+      ) : (
+        skills.map((skill, index) => (
+          <StatusRow
+            key={`${skill.name}-${index}`}
+            name={String(skill.name)}
+            title={String(skill.name)}
+            subtitle={String(skill.category ?? '').replaceAll('_', ' ')}
+            chip={skill.level != null ? String(skill.level).replaceAll('_', ' ') : undefined}
+            tone={statusTone(skill.level != null ? String(skill.level) : undefined)}
+          />
+        ))
+      )}
       <Input label={t('employment.addSkill')} value={skillName} onChangeText={setSkillName} />
       <Input label={t('employment.interests')} value={interests} onChangeText={setInterests} />
       <Input label={t('employment.goals')} value={goals} onChangeText={setGoals} />
-      <Button title={t('employment.save')} onPress={() => save.mutate()} disabled={save.isPending} />
+      <Button title={t('employment.save')} onPress={() => save.mutate()} disabled={save.isPending} fullWidth />
       {message ? <Text style={styles.ok}>{message}</Text> : null}
       {save.error ? <Text style={styles.err}>{hmoreErrorMessage(save.error)}</Text> : null}
     </Screen>

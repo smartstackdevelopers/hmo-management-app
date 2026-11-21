@@ -1,34 +1,36 @@
 /**
- * Room Ready — professional property management UI.
- * Cool slate surfaces, deep teal accent, calm hierarchy.
+ * HMore — Blue & White design system (docs/audit/HMORE_UI_UX_DESIGN_SPEC_COMPLETE_BLUE.pdf §3).
+ * White surfaces, royal blue accent, navy brand, calm hierarchy.
  */
 export const theme = {
   colors: {
     primary: '#0B1220',
     primaryLight: '#1E293B',
     primaryMuted: '#64748B',
-    secondary: '#0D9488',
-    secondaryLight: '#2DD4BF',
-    secondaryDark: '#0F766E',
-    accent: '#0D9488',
-    accentLight: '#F0FDFA',
+    secondary: '#2563EB',
+    secondaryLight: '#60A5FA',
+    secondaryDark: '#1D4ED8',
+    accent: '#2563EB',
+    accentLight: '#EFF6FF',
+    accentSoft: '#DBEAFE',
+    brand: '#172554',
 
-    background: '#F4F7F9',
-    backgroundAlt: '#F4F7F9',
+    background: '#F3F7FD',
+    backgroundAlt: '#F3F7FD',
     surface: '#FFFFFF',
-    surfaceSecondary: '#F8FAFC',
-    surfaceMuted: '#EEF2F6',
+    surfaceSecondary: '#F8FBFF',
+    surfaceMuted: '#EEF3FA',
     surfaceElevated: '#FFFFFF',
     glass: '#FFFFFF',
-    glassBorder: '#E2E8F0',
+    glassBorder: '#DFE6F1',
 
     text: '#0B1220',
     textSecondary: '#475569',
     textMuted: '#94A3B8',
     textInverse: '#FFFFFF',
 
-    border: '#E2E8F0',
-    borderLight: '#F1F5F9',
+    border: '#DFE6F1',
+    borderLight: '#F1F5FB',
 
     success: '#059669',
     successLight: '#ECFDF5',
@@ -39,19 +41,19 @@ export const theme = {
     /** Alias used by wellbeing/job-matching screens */
     danger: '#DC2626',
     dangerLight: '#FEF2F2',
-    info: '#0284C7',
-    infoLight: '#F0F9FF',
+    info: '#4F46E5',
+    infoLight: '#EEF2FF',
 
     tabBar: '#FFFFFF',
-    tabBarBorder: '#E2E8F0',
-    tabBarActive: '#0D9488',
+    tabBarBorder: '#DFE6F1',
+    tabBarActive: '#1D4ED8',
     tabBarInactive: '#94A3B8',
     overlay: 'rgba(11, 18, 32, 0.48)',
 
     gradientStart: '#FFFFFF',
-    gradientMid: '#F8FAFC',
-    gradientEnd: '#F1F5F9',
-    gradientAccent: '#0D9488',
+    gradientMid: '#F8FBFF',
+    gradientEnd: '#EEF3FA',
+    gradientAccent: '#2563EB',
   },
 
   spacing: { xs: 4, sm: 8, md: 16, lg: 24, xl: 32, xxl: 48 },
@@ -82,7 +84,7 @@ export const theme = {
     sm: { shadowColor: '#0B1220', shadowOffset: { width: 0, height: 1 }, shadowOpacity: 0.05, shadowRadius: 3, elevation: 1 },
     md: { shadowColor: '#0B1220', shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.07, shadowRadius: 12, elevation: 3 },
     lg: { shadowColor: '#0B1220', shadowOffset: { width: 0, height: 8 }, shadowOpacity: 0.1, shadowRadius: 24, elevation: 6 },
-    glow: { shadowColor: '#0D9488', shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.22, shadowRadius: 10, elevation: 3 },
+    glow: { shadowColor: '#2563EB', shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.22, shadowRadius: 10, elevation: 3 },
   },
 } as const;
 

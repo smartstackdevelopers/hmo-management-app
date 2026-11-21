@@ -3,6 +3,7 @@ import { redirect } from "next/navigation";
 import { EmptyState } from "@/components/dashboard/EmptyState";
 import { ErrorState } from "@/components/dashboard/ErrorState";
 import { PageHeader } from "@/components/dashboard/PageHeader";
+import { DataTable, StatusChip, Td, Th, btnSecondary } from "@/components/ui/primitives";
 import { auth0, isAuth0Configured } from "@/lib/auth0";
 import { fetchWaitingList } from "@/lib/housingApi";
 import { canAny } from "@/lib/rbac";
@@ -21,60 +22,82 @@ export default async function WaitingListPage() {
     return <EmptyState title="Organisation required" description="Active organisation needed." />;
   }
   if (!isAuth0Configured() || !auth0) {
-    return <EmptyState title="Auth0 not configured" description="Cannot load waiting list." />;
+    return <EmptyState title="Sign-in not configured" description="Sign-in isn't set up in this environment yet, so this page can't load." />;
   }
   try {
     const token = (await auth0.getAccessToken())?.token;
-    if (!token) return <ErrorState description="Access token unavailable." />;
+    if (!token) return <ErrorState description="We couldn't confirm your sign-in. Please sign in again." />;
     const page = await fetchWaitingList({
       accessToken: token,
       organisationId: orgId,
       role: session.authorization?.active_role,
     });
     return (
-      <div className="mx-auto max-w-4xl space-y-6">
+      <div className="mx-auto max-w-6xl space-y-6">
         <PageHeader
-          eyebrow="F2.5"
+          eyebrow="Housing / Waiting list"
           title="Housing waiting list"
           description="Organisation FIFO positions with optional priority labels. Position does not guarantee allocation."
+          actions={
+            <Link href="/dashboard/housing-applications" className={btnSecondary}>
+              Applications
+            </Link>
+          }
         />
-        <Link
-          href="/dashboard/housing-applications"
-          className="inline-block rounded-md border border-slate-300 px-3 py-2 text-sm"
-        >
-          Applications
-        </Link>
         {page.items.length === 0 ? (
           <EmptyState
             title="Waiting list empty"
             description="Approved applications can be added from the application detail page."
+            action={{ label: "Applications", href: "/dashboard/housing-applications" }}
           />
         ) : (
-          <ul className="divide-y divide-slate-200 rounded-lg border border-slate-200 bg-white">
-            {page.items.map((row) => (
-              <li key={row.id} className="p-4 text-sm">
-                <p className="font-medium text-forest-900">
-                  #{row.position} · {row.application_reference ?? row.application_id}
-                </p>
-                <p className="text-slate-600">
-                  {row.status} · priority {row.priority} · application {row.application_status}
-                </p>
-                <Link
-                  href={`/dashboard/housing-applications/${row.application_id}`}
-                  className="text-teal-800 hover:underline"
-                >
-                  Open application
-                </Link>
-              </li>
-            ))}
-          </ul>
+          <DataTable caption="Housing waiting list">
+            <thead>
+              <tr>
+                <Th>Position</Th>
+                <Th>Application</Th>
+                <Th>Priority</Th>
+                <Th>List status</Th>
+                <Th>Application status</Th>
+              </tr>
+            </thead>
+            <tbody>
+              {page.items.map((row) => (
+                <tr key={row.id} className="hover:bg-slate-50">
+                  <Td className="font-semibold text-slate-900">#{row.position}</Td>
+                  <Td>
+                    <Link
+                      href={`/dashboard/housing-applications/${row.application_id}`}
+                      className="font-semibold text-slate-900 hover:text-brand-700 hover:underline"
+                    >
+                      {row.application_reference || "Open application"}
+                    </Link>
+                  </Td>
+                  <Td>
+                    <StatusChip status={row.priority} />
+                  </Td>
+                  <Td>
+                    <StatusChip status={row.status} />
+                  </Td>
+                  <Td>
+                    <StatusChip status={row.application_status} />
+                  </Td>
+                </tr>
+              ))}
+            </tbody>
+          </DataTable>
         )}
+        <p className="text-xs text-slate-500">
+          Showing {page.items.length === 0 ? "0" : `1–${page.items.length}`} of {page.total}
+        </p>
       </div>
     );
-  } catch (error) {
+  } catch {
     return (
       <ErrorState
-        description={error instanceof Error ? error.message : "Failed to load waiting list."}
+        title="Couldn't load the waiting list"
+        description="Something went wrong on our side. Please try again."
+        retryHref="/dashboard/waiting-list"
       />
     );
   }

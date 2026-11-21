@@ -122,12 +122,17 @@ def test_migration_history_has_single_head(alembic_config) -> None:
 
 def test_upgrade_downgrade_roundtrip(alembic_config, migrated_engine: Engine) -> None:
     # Fixture already upgraded to head. Prove downgrade and re-upgrade work.
-    command.downgrade(alembic_config, "base")
-    inspector = inspect(migrated_engine)
-    assert "organisations" not in inspector.get_table_names()
-    command.upgrade(alembic_config, "head")
-    inspector = inspect(migrated_engine)
-    assert "organisations" in inspector.get_table_names()
+    try:
+        command.downgrade(alembic_config, "base")
+        inspector = inspect(migrated_engine)
+        assert "organisations" not in inspector.get_table_names()
+        command.upgrade(alembic_config, "head")
+        inspector = inspect(migrated_engine)
+        assert "organisations" in inspector.get_table_names()
+    except Exception:
+        # Never leave the session-scoped test DB below head for later tests.
+        command.upgrade(alembic_config, "head")
+        raise
 
 
 def test_organisation_and_user_unique_constraints(

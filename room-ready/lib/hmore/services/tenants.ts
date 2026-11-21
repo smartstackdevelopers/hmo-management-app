@@ -1,18 +1,20 @@
 import { HmoreApiError, hmoreFetch } from '@/lib/hmore/client';
 import type { Page, Tenant, TenantSelf } from '@/lib/hmore/types';
 
-const SELF_PATCH_FIELDS = ['preferred_name', 'phone'] as const;
+const SELF_PATCH_FIELDS = ['preferred_name', 'phone', 'needs_goals'] as const;
 
 export type TenantSelfPatch = {
   preferred_name?: string;
   phone?: string | null;
+  needs_goals?: string | null;
 };
 
-/** Copies only preferred_name and phone. Every other key is dropped. */
+/** Copies only preferred_name, phone, and needs_goals. Every other key is dropped. */
 export function tenantSelfPatchBody(input: Record<string, unknown>): TenantSelfPatch {
   const body: TenantSelfPatch = {};
   if (typeof input.preferred_name === 'string') body.preferred_name = input.preferred_name;
   if (typeof input.phone === 'string' || input.phone === null) body.phone = input.phone;
+  if (typeof input.needs_goals === 'string' || input.needs_goals === null) body.needs_goals = input.needs_goals;
   return body;
 }
 

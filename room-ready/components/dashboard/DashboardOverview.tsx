@@ -1,15 +1,13 @@
 import { router } from 'expo-router';
-import { Ionicons } from '@expo/vector-icons';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
+import { Chip } from '@/components/ui/Chip';
 import { Avatar } from '@/components/ui/ListRow';
 import { FocusStatusBar } from '@/components/ui/FocusStatusBar';
-import { FONT_BOLD, FONT_MEDIUM, FONT_SEMIBOLD } from '@/constants/fonts';
+import { FONT_BOLD, FONT_MEDIUM } from '@/constants/fonts';
 import { theme } from '@/constants/theme';
 import { UserRole } from '@/types';
-
-import { DASHBOARD_ACTIONS } from './dashboardActions';
 
 type StatusTone = 'success' | 'warning' | 'error' | 'neutral';
 
@@ -22,11 +20,11 @@ interface DashboardOverviewProps {
   unreadCount?: number;
 }
 
-const TONE_STYLES: Record<StatusTone, { bg: string; text: string; dot: string }> = {
-  success: { bg: theme.colors.successLight, text: theme.colors.success, dot: theme.colors.success },
-  warning: { bg: theme.colors.warningLight, text: theme.colors.warning, dot: theme.colors.warning },
-  error: { bg: theme.colors.errorLight, text: theme.colors.error, dot: theme.colors.error },
-  neutral: { bg: theme.colors.surfaceMuted, text: theme.colors.textSecondary, dot: theme.colors.textMuted },
+const STATUS_TONE: Record<StatusTone, 'green' | 'amber' | 'red' | 'gray'> = {
+  success: 'green',
+  warning: 'amber',
+  error: 'red',
+  neutral: 'gray',
 };
 
 export function DashboardOverview({
@@ -38,76 +36,40 @@ export function DashboardOverview({
   unreadCount = 0,
 }: DashboardOverviewProps) {
   const insets = useSafeAreaInsets();
-  const actions = DASHBOARD_ACTIONS[role].slice(0, 3);
-  const tone = TONE_STYLES[status.tone];
-  const displayName = `${firstName}${lastName ? ` ${lastName.charAt(0)}.` : ''}`;
+  const portfolio = role === 'landlord' || role === 'property_manager';
+  const displayName = `${firstName}${lastName ? ` ${lastName}` : ''}`;
 
   return (
-    <View style={[styles.shell, { paddingTop: insets.top + 10 }]}>
+    <View style={[styles.shell, { paddingTop: insets.top + 8 }]}>
       <FocusStatusBar style="dark" />
-
       <View style={styles.topBar}>
         <View style={styles.topCopy}>
-          <Text style={styles.greeting} numberOfLines={1}>
-            {getGreeting()}, {firstName}
+          <Text style={styles.kicker} numberOfLines={1}>
+            {portfolio ? 'Portfolio overview' : getGreeting()}
           </Text>
-          <Text style={styles.subtitle} numberOfLines={2}>{subtitle}</Text>
-        </View>
-        <View style={styles.topActions}>
-          <Pressable
-            style={styles.iconBtn}
-            onPress={() => router.push('/(app)/notifications')}
-            accessibilityLabel="Alerts"
-          >
-            <Ionicons name="notifications-outline" size={20} color={theme.colors.text} />
-            {unreadCount > 0 && (
-              <View style={styles.badge}>
-                <Text style={styles.badgeText}>{unreadCount > 9 ? '9+' : unreadCount}</Text>
-              </View>
-            )}
-          </Pressable>
-          <Pressable
-            style={styles.iconBtn}
-            onPress={() => router.push('/(app)/(tabs)/more')}
-            accessibilityLabel="Account"
-          >
-            <Avatar name={displayName} size={34} />
-          </Pressable>
-        </View>
-      </View>
-
-      <View style={[styles.statusPill, { backgroundColor: tone.bg }]}>
-        <View style={[styles.statusDot, { backgroundColor: tone.dot }]} />
-        <Text style={[styles.statusText, { color: tone.text }]} numberOfLines={1}>{status.label}</Text>
-      </View>
-
-      <View style={styles.actions}>
-        {actions.map((action) => (
-          <Pressable
-            key={action.label}
-            style={({ pressed }) => [
-              styles.action,
-              action.primary ? styles.actionPrimary : styles.actionSecondary,
-              pressed && styles.actionPressed,
-            ]}
-            onPress={() => router.push(action.route as never)}
-          >
-            <View style={[styles.actionIcon, action.primary && styles.actionIconPrimary]}>
-              <Ionicons
-                name={action.icon}
-                size={18}
-                color={action.primary ? theme.colors.textInverse : theme.colors.secondary}
-              />
-            </View>
-            <Text
-              style={[styles.actionLabel, action.primary && styles.actionLabelPrimary]}
-              numberOfLines={1}
-            >
-              {action.label}
+          <Text style={styles.name} numberOfLines={1}>
+            {firstName}
+          </Text>
+          {!portfolio && subtitle ? (
+            <Text style={styles.subtitle} numberOfLines={2}>
+              {subtitle}
             </Text>
-          </Pressable>
-        ))}
+          ) : null}
+        </View>
+        <Pressable
+          onPress={() => router.push(unreadCount > 0 ? '/(app)/notifications' : '/(app)/(tabs)/more')}
+          accessibilityRole="button"
+          accessibilityLabel={unreadCount > 0 ? `${unreadCount} alerts` : 'Account'}
+        >
+          <Avatar name={displayName} size={48} />
+          {unreadCount > 0 ? (
+            <View style={styles.badge}>
+              <Text style={styles.badgeText}>{unreadCount > 9 ? '9+' : unreadCount}</Text>
+            </View>
+          ) : null}
+        </Pressable>
       </View>
+      {!portfolio ? <Chip label={status.label} tone={STATUS_TONE[status.tone]} style={styles.status} /> : null}
     </View>
   );
 }
@@ -122,25 +84,29 @@ function getGreeting(): string {
 const styles = StyleSheet.create({
   shell: {
     paddingHorizontal: theme.spacing.md,
-    paddingBottom: theme.spacing.md,
-    backgroundColor: theme.colors.backgroundAlt,
-    gap: theme.spacing.md,
+    paddingBottom: theme.spacing.sm,
+    backgroundColor: theme.colors.background,
     width: '100%',
   },
   topBar: {
     flexDirection: 'row',
-    alignItems: 'flex-start',
+    alignItems: 'center',
     justifyContent: 'space-between',
     gap: theme.spacing.sm,
   },
   topCopy: { flex: 1, minWidth: 0 },
-  greeting: {
-    fontSize: 26,
+  kicker: {
+    fontSize: 14,
+    fontFamily: FONT_MEDIUM,
+    color: theme.colors.textSecondary,
+  },
+  name: {
+    fontSize: 32,
     fontFamily: FONT_BOLD,
     fontWeight: '700',
     color: theme.colors.text,
-    letterSpacing: -0.6,
-    lineHeight: 32,
+    letterSpacing: -0.8,
+    marginTop: 2,
   },
   subtitle: {
     fontSize: 14,
@@ -149,87 +115,20 @@ const styles = StyleSheet.create({
     marginTop: 4,
     lineHeight: 20,
   },
-  topActions: { flexDirection: 'row', alignItems: 'center', gap: 8, flexShrink: 0 },
-  iconBtn: {
-    width: 42,
-    height: 42,
-    alignItems: 'center',
-    justifyContent: 'center',
-    borderRadius: theme.radius.full,
-    backgroundColor: theme.colors.surface,
-    borderWidth: 1,
-    borderColor: theme.colors.border,
-  },
   badge: {
     position: 'absolute',
-    top: 2,
-    right: 2,
-    minWidth: 16,
-    height: 16,
-    borderRadius: 8,
-    backgroundColor: theme.colors.error,
+    top: -2,
+    right: -2,
+    minWidth: 18,
+    height: 18,
+    borderRadius: 9,
+    backgroundColor: theme.colors.secondaryDark,
     alignItems: 'center',
     justifyContent: 'center',
-    paddingHorizontal: 3,
+    paddingHorizontal: 4,
     borderWidth: 2,
-    borderColor: theme.colors.surface,
+    borderColor: theme.colors.background,
   },
-  badgeText: { color: '#fff', fontSize: 9, fontFamily: FONT_BOLD, fontWeight: '700' },
-  statusPill: {
-    alignSelf: 'flex-start',
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 7,
-    paddingHorizontal: 12,
-    paddingVertical: 7,
-    borderRadius: theme.radius.full,
-    maxWidth: '100%',
-  },
-  statusDot: { width: 7, height: 7, borderRadius: 4 },
-  statusText: { fontSize: 13, fontFamily: FONT_SEMIBOLD, fontWeight: '600', flexShrink: 1 },
-  actions: {
-    flexDirection: 'row',
-    gap: theme.spacing.sm,
-    width: '100%',
-  },
-  action: {
-    flex: 1,
-    minWidth: 0,
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: 8,
-    paddingVertical: 14,
-    paddingHorizontal: 6,
-    borderRadius: theme.radius.lg,
-  },
-  actionPrimary: {
-    backgroundColor: theme.colors.secondary,
-  },
-  actionSecondary: {
-    backgroundColor: theme.colors.surface,
-    borderWidth: 1,
-    borderColor: theme.colors.border,
-  },
-  actionPressed: { opacity: 0.9, transform: [{ scale: 0.98 }] },
-  actionIcon: {
-    width: 36,
-    height: 36,
-    borderRadius: theme.radius.md,
-    alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: theme.colors.accentLight,
-  },
-  actionIconPrimary: {
-    backgroundColor: 'rgba(255,255,255,0.18)',
-  },
-  actionLabel: {
-    fontSize: 12,
-    fontFamily: FONT_SEMIBOLD,
-    fontWeight: '600',
-    color: theme.colors.text,
-    textAlign: 'center',
-  },
-  actionLabelPrimary: {
-    color: theme.colors.textInverse,
-  },
+  badgeText: { color: theme.colors.textInverse, fontSize: 10, fontFamily: FONT_BOLD, fontWeight: '700' },
+  status: { marginTop: theme.spacing.sm },
 });

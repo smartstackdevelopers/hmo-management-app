@@ -14,12 +14,13 @@ export default async function DashboardFilesPage() {
   return (
     <div className="mx-auto max-w-3xl space-y-6">
       <PageHeader
+        eyebrow="Files"
         title="Private files"
-        description="F1.8 private storage. Uploads go through the authenticated API — never directly to a public bucket."
+        description="Files stay in private storage. Nothing on this page is published to a public link."
       />
       <EmptyState
-        title="File library UI not expanded in F1.9"
-        description="Use the PrivateFileUpload component or POST /api/v1/files with a bearer token and organisation context."
+        title="No files to show"
+        description="When a file is uploaded for this organisation, it will be listed here."
       />
     </div>
   );

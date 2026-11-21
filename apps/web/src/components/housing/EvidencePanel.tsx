@@ -20,6 +20,7 @@ import {
   type Readiness,
   type ReviewHistory,
 } from "@/lib/evidenceApi";
+import { btnPrimary, btnSecondary, inputClass, labelClass, linkClass } from "@/components/ui/primitives";
 import { organisationRequestHeaders } from "@/lib/organisation";
 
 const REVIEW_STATUSES = [
@@ -98,10 +99,10 @@ export function EvidencePanel({
   const warning = packReadinessWarning(readiness);
 
   return (
-    <section className="space-y-4 rounded-lg border border-slate-200 bg-white p-4">
+    <section className="space-y-4 rounded-2xl border border-slate-200 bg-white p-6 shadow-card">
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div>
-          <h2 className="text-lg font-semibold text-slate-900">Evidence checklist</h2>
+          <h2 className="text-base font-semibold text-slate-900">Evidence checklist</h2>
           <p className="text-sm text-slate-600">
             Organisation-configurable requirements — not a statutory evidence list.
           </p>
@@ -111,7 +112,7 @@ export function EvidencePanel({
             <button
               type="button"
               disabled={pending}
-              className="rounded border border-slate-300 px-3 py-1.5 text-sm"
+              className={btnSecondary}
               onClick={() => void run(() => seedChecklist(auth))}
             >
               Seed from templates
@@ -119,7 +120,7 @@ export function EvidencePanel({
             <button
               type="button"
               disabled={pending}
-              className="rounded bg-teal-700 px-3 py-1.5 text-sm text-white"
+              className={btnPrimary}
               onClick={() =>
                 void run(() =>
                   createChecklistItem({
@@ -143,7 +144,7 @@ export function EvidencePanel({
 
       {readiness ? (
         <div
-          className={`rounded border p-3 text-sm ${
+          className={`rounded-xl border p-4 text-sm ${
             readiness.is_complete
               ? "border-emerald-200 bg-emerald-50 text-emerald-900"
               : "border-amber-200 bg-amber-50 text-amber-950"
@@ -163,7 +164,7 @@ export function EvidencePanel({
           return (
             <li
               key={item.id}
-              className={`rounded border p-3 ${
+              className={`rounded-xl border p-4 ${
                 item.status === "rejected" || item.status === "missing" || blocking
                   ? "border-amber-300 bg-amber-50/40"
                   : "border-slate-200"
@@ -188,7 +189,7 @@ export function EvidencePanel({
                   </p>
                 </div>
                 {canManage ? (
-                  <label className="text-xs text-slate-700">
+                  <label className={labelClass}>
                     Upload
                     <input
                       type="file"
@@ -241,7 +242,7 @@ export function EvidencePanel({
                   <select
                     name="status"
                     defaultValue={item.status}
-                    className="rounded border px-2 py-1.5 text-sm"
+                    className={inputClass}
                   >
                     {REVIEW_STATUSES.map((status) => (
                       <option key={status} value={status}>
@@ -252,18 +253,14 @@ export function EvidencePanel({
                   <input
                     name="reviewer_notes"
                     placeholder="Reviewer notes"
-                    className="rounded border px-2 py-1.5 text-sm"
+                    className={inputClass}
                   />
                   <input
                     name="rejection_reason"
                     placeholder="Rejection reason (if rejecting)"
-                    className="rounded border px-2 py-1.5 text-sm"
+                    className={inputClass}
                   />
-                  <button
-                    type="submit"
-                    disabled={pending}
-                    className="rounded bg-slate-800 px-3 py-1.5 text-sm text-white sm:col-span-3 sm:w-fit"
-                  >
+                  <button type="submit" disabled={pending} className={btnSecondary}>
                     Update status
                   </button>
                 </form>
@@ -271,7 +268,7 @@ export function EvidencePanel({
 
               <button
                 type="button"
-                className="mt-2 text-xs text-teal-800 underline"
+                className={`mt-2 text-xs ${linkClass}`}
                 onClick={() =>
                   void (async () => {
                     try {
@@ -331,7 +328,7 @@ export function EvidencePanel({
             <button
               type="button"
               disabled={pending || (!!warning && !allowIncomplete)}
-              className="rounded bg-teal-700 px-3 py-1.5 text-sm text-white disabled:opacity-50"
+              className={canManage ? btnSecondary : btnPrimary}
               onClick={() => setConfirmGenerate(true)}
             >
               Prepare pack generation
@@ -341,7 +338,7 @@ export function EvidencePanel({
               <button
                 type="button"
                 disabled={pending}
-                className="rounded bg-teal-800 px-3 py-1.5 text-sm text-white"
+                className={canManage ? btnSecondary : btnPrimary}
                 onClick={() =>
                   void run(async () => {
                     await generateEvidencePack({ ...auth, allowIncomplete });
@@ -353,7 +350,7 @@ export function EvidencePanel({
               </button>
               <button
                 type="button"
-                className="rounded border px-3 py-1.5 text-sm"
+                className={btnSecondary}
                 onClick={() => setConfirmGenerate(false)}
               >
                 Cancel
@@ -377,7 +374,7 @@ export function EvidencePanel({
                   {pack.outstanding_summary ? ` · outstanding: ${pack.outstanding_summary}` : ""}
                 </span>
                 <a
-                  className="text-teal-800 underline"
+                  className={linkClass}
                   href={evidencePackDownloadUrl(pack.id)}
                   onClick={async (event) => {
                     event.preventDefault();

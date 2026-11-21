@@ -2,7 +2,20 @@
 
 from app.db.models.audit import AuditEvent
 from app.db.models.emergency_access import EmergencyAccess
-from app.db.models.enums import HMoreRole, MembershipStatus, RecordStatus
+from app.db.models.enums import (
+    AccountStatus,
+    HMoreRole,
+    MembershipStatus,
+    RecordStatus,
+    RegistrationRequestStatus,
+)
+from app.db.models.native_auth import (
+    AuthAuditEvent,
+    AuthNotification,
+    AuthRefreshToken,
+    PasswordResetToken,
+    RegistrationRequest,
+)
 from app.db.models.file_metadata import FileMetadata
 from app.db.models.membership import OrganisationMembership
 from app.db.models.occupancy_survey import (
@@ -407,6 +420,13 @@ __all__ = [
     "FileMetadata",
     "Handover",
     "HMoreRole",
+    "AccountStatus",
+    "RegistrationRequestStatus",
+    "RegistrationRequest",
+    "AuthRefreshToken",
+    "PasswordResetToken",
+    "AuthNotification",
+    "AuthAuditEvent",
     "MaintenanceApproval",
     "MaintenanceCategory",
     "MaintenanceEmergencyContent",

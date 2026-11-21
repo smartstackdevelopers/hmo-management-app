@@ -1,9 +1,11 @@
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { Linking, StyleSheet, Text } from 'react-native';
+import { Linking, StyleSheet, Text, View } from 'react-native';
 import { useState } from 'react';
 
+import { FactGrid } from '@/components/dashboard/mobileChrome';
 import { Button } from '@/components/ui/Button';
+import { Chip } from '@/components/ui/Chip';
 import { Screen } from '@/components/ui/Screen';
 import { ErrorState, LoadingScreen } from '@/components/ui/States';
 import { FONT_BOLD, FONT_MEDIUM } from '@/constants/fonts';
@@ -54,33 +56,36 @@ export default function JobMatchingDetailScreen() {
     return <ErrorState message={hmoreErrorMessage(query.error)} onRetry={query.refetch} />;
   }
   const job = query.data;
+  const facts = [
+    job.employer_name ? { label: t('employment.employer'), value: String(job.employer_name) } : null,
+    job.location ? { label: t('employment.location'), value: String(job.location) } : null,
+    job.source_name ? { label: t('jobs.source'), value: String(job.source_name) } : null,
+    job.score != null ? { label: t('jobMatching.score'), value: String(job.score) } : null,
+  ].filter((item): item is { label: string; value: string } => !!item);
   return (
     <Screen>
-      <Text style={[styles.title, { fontSize: 22 * fontScale }]}>{String(job.title)}</Text>
-      <Text style={styles.meta}>
-        {String(job.employer_name)} · {String(job.location ?? '—')} · {String(job.source_name)}
-      </Text>
-      {job.score != null ? (
-        <Text style={styles.meta}>
-          {t('jobMatching.score')}: {String(job.score)}
-        </Text>
-      ) : null}
-      {Array.isArray(job.reasons)
-        ? job.reasons.map((reason) => (
+      <Text style={[styles.title, { fontSize: 28 * fontScale }]} accessibilityRole="header">{String(job.title)}</Text>
+      {job.score != null ? <Chip label={`${t('jobMatching.score')} ${String(job.score)}`} tone="green" /> : null}
+      <FactGrid items={facts} />
+      {Array.isArray(job.reasons) && job.reasons.length ? (
+        <View style={styles.card}>
+          <Text style={styles.meta}>{t('jobMatching.explain')}</Text>
+          {job.reasons.map((reason) => (
             <Text key={String(reason)} style={styles.body}>
-              • {String(reason)}
+              {String(reason)}
             </Text>
-          ))
-        : null}
+          ))}
+        </View>
+      ) : null}
       {Array.isArray(job.missing_skills) && job.missing_skills.length ? (
         <Text style={styles.meta}>
           {t('jobMatching.missingSkills')}: {job.missing_skills.map(String).join(', ')}
         </Text>
       ) : null}
       {job.description ? <Text style={styles.body}>{String(job.description).slice(0, 1200)}</Text> : null}
-      <Button title={t('jobMatching.save')} onPress={() => save.mutate()} />
-      <Button title={t('jobMatching.addTracker')} variant="secondary" onPress={() => track.mutate()} />
-      <Button title={t('jobMatching.explain')} variant="secondary" onPress={() => explain.mutate()} />
+      <Button title={t('jobMatching.addTracker')} onPress={() => track.mutate()} fullWidth />
+      <Button title={t('jobMatching.save')} variant="outline" onPress={() => save.mutate()} fullWidth />
+      <Button title={t('jobMatching.explain')} variant="ghost" onPress={() => explain.mutate()} fullWidth />
       {job.source_url ? (
         <Button title={t('jobMatching.openSource')} variant="secondary" onPress={() => Linking.openURL(String(job.source_url))} />
       ) : null}
@@ -97,7 +102,10 @@ export default function JobMatchingDetailScreen() {
 }
 
 const styles = StyleSheet.create({
-  title: { fontFamily: FONT_BOLD, color: theme.colors.text, marginBottom: theme.spacing.xs },
+  title: { fontFamily: FONT_BOLD, color: theme.colors.text, letterSpacing: -0.3 },
+  hero: { flexDirection: 'row', gap: 12, alignItems: 'center', marginBottom: theme.spacing.md },
+  heroCopy: { flex: 1, minWidth: 0, gap: 6 },
+  card: { marginBottom: theme.spacing.md, gap: 4 },
   meta: { fontFamily: FONT_MEDIUM, color: theme.colors.textSecondary, marginBottom: 6 },
   body: { fontFamily: FONT_MEDIUM, color: theme.colors.text, marginBottom: 8, lineHeight: 22 },
   error: { fontFamily: FONT_MEDIUM, color: theme.colors.danger, marginTop: 8 },

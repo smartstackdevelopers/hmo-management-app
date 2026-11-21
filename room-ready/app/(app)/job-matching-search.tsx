@@ -1,10 +1,11 @@
 import { useRouter } from 'expo-router';
 import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, Text } from 'react-native';
 
+import { FilterChips, SearchField } from '@/components/dashboard/mobileChrome';
+import { StatusRow } from '@/components/staff/ui';
 import { Button } from '@/components/ui/Button';
-import { Card } from '@/components/ui/Card';
 import { Input } from '@/components/ui/Input';
 import { Screen } from '@/components/ui/Screen';
 import { ErrorState, LoadingScreen } from '@/components/ui/States';
@@ -39,11 +40,24 @@ export default function JobMatchingSearchScreen() {
 
   return (
     <Screen>
-      <Text style={[styles.title, { fontSize: 22 * fontScale }]}>{t('jobMatching.search')}</Text>
-      <Input label={t('jobMatching.keywords')} value={draft} onChangeText={setDraft} />
+      <Text style={[styles.title, { fontSize: 28 * fontScale }]} accessibilityRole="header">{t('jobMatching.search')}</Text>
+      <SearchField value={draft} onChangeText={setDraft} placeholder={t('jobMatching.keywords')} />
+      <FilterChips
+        value="search"
+        onChange={(id) => {
+          if (id === 'recommended') router.push('/(app)/job-matching-recommended');
+          if (id === 'saved') router.push('/(app)/job-matching-saved');
+        }}
+        options={[
+          { id: 'search', label: t('jobMatching.search') },
+          { id: 'recommended', label: t('jobMatching.recommended') },
+          { id: 'saved', label: t('jobMatching.saved') },
+        ]}
+      />
       <Input label={t('employment.location')} value={location} onChangeText={setLocation} />
       <Button
         title={t('jobMatching.searchAction')}
+        fullWidth
         onPress={() => {
           setQ(draft.trim());
           setLoc(location.trim());
@@ -59,18 +73,15 @@ export default function JobMatchingSearchScreen() {
         <Text style={styles.empty}>{t('jobMatching.empty')}</Text>
       ) : (
         items.map((item) => (
-          <Pressable key={String(item.id)} onPress={() => router.push(`/(app)/job-matching-detail/${item.id}`)}>
-            <Card style={styles.card}>
-              <Text style={styles.name}>{String(item.title)}</Text>
-              <Text style={styles.meta}>
-                {String(item.employer_name)} · {String(item.source_name)}
-                {item.score != null ? ` · ${t('jobMatching.score')} ${item.score}` : ''}
-              </Text>
-              {Array.isArray(item.reasons) && item.reasons[0] ? (
-                <Text style={styles.body}>{String(item.reasons[0])}</Text>
-              ) : null}
-            </Card>
-          </Pressable>
+          <StatusRow
+            key={String(item.id)}
+            name={String(item.title)}
+            title={String(item.title)}
+            subtitle={[String(item.employer_name || ''), String(item.source_name || '')].filter((part) => part && part !== 'undefined').join(' · ')}
+            chip={item.score != null ? String(item.score) : undefined}
+            tone="green"
+            onPress={() => router.push(`/(app)/job-matching-detail/${item.id}`)}
+          />
         ))
       )}
       <Text style={styles.disclaimer}>{query.data?.disclaimer}</Text>
@@ -79,11 +90,10 @@ export default function JobMatchingSearchScreen() {
 }
 
 const styles = StyleSheet.create({
-  title: { fontFamily: FONT_BOLD, color: theme.colors.text, marginBottom: theme.spacing.sm },
+  title: { fontFamily: FONT_BOLD, color: theme.colors.text, letterSpacing: -0.4, marginBottom: theme.spacing.sm },
   card: { marginTop: theme.spacing.sm },
-  name: { fontFamily: FONT_BOLD, color: theme.colors.text },
   meta: { fontFamily: FONT_MEDIUM, color: theme.colors.textSecondary, marginTop: 4 },
-  body: { fontFamily: FONT_MEDIUM, color: theme.colors.text, marginTop: 6 },
+  body: { fontFamily: FONT_MEDIUM, color: theme.colors.text, marginTop: 6, marginHorizontal: theme.spacing.md, marginBottom: theme.spacing.md },
   empty: { fontFamily: FONT_MEDIUM, color: theme.colors.textSecondary, marginTop: theme.spacing.md },
   disclaimer: { fontFamily: FONT_MEDIUM, color: theme.colors.textSecondary, marginTop: theme.spacing.lg, fontSize: 12 },
 });

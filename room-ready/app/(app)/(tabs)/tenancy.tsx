@@ -1,6 +1,8 @@
+import { Ionicons } from '@expo/vector-icons';
 import { router } from 'expo-router';
-import { Image, Linking, RefreshControl, StyleSheet, Text, View } from 'react-native';
+import { Linking, Pressable, RefreshControl, StyleSheet, Text, View } from 'react-native';
 
+import { FactGrid, HouseBanner, useHideTabHeader } from '@/components/dashboard/mobileChrome';
 import { CouncilContactCard, CouncilStandardsBanner } from '@/components/compliance/CouncilStandardsBanner';
 import { Badge } from '@/components/ui/Badge';
 import { Button } from '@/components/ui/Button';
@@ -16,9 +18,9 @@ import { TAB_ROLES } from '@/constants/permissions';
 import { useAuth } from '@/contexts/AuthContext';
 import { useApplications, useTenancies } from '@/hooks/useApi';
 import { useRoleGuard } from '@/hooks/useRoleGuard';
-import { propertyCoverUrl } from '@/lib/propertyCovers';
 
 function LegacyTenancyScreen() {
+  useHideTabHeader();
   const guard = useRoleGuard(TAB_ROLES.tenancy);
   if (guard) return guard;
 
@@ -67,54 +69,42 @@ function LegacyTenancyScreen() {
 
   const property = tenancy.room?.property;
   const isBirmingham = property?.postcode ? isBirminghamPostcode(property.postcode) : false;
-  const cover = property?.id ? propertyCoverUrl(property.id) : propertyCoverUrl('seed-property-1');
-
   return (
     <Screen refreshControl={<RefreshControl refreshing={isRefetching} onRefresh={refetch} tintColor={theme.colors.secondary} />}>
       {isBirmingham && <CouncilStandardsBanner variant="compact" />}
 
-      <Card style={styles.hero} padded={false}>
-        <Image source={{ uri: cover }} style={styles.cover} resizeMode="cover" />
-        <View style={styles.heroBody}>
-          <View style={styles.header}>
-            <Text style={styles.title}>{property?.name}</Text>
-            <Badge label="Active" variant="success" />
-          </View>
-          <Text style={styles.address}>
-            {property?.addressLine1}{'\n'}{property?.city}, {property?.postcode}
-          </Text>
-          {property?.id ? (
-            <Button
-              title="View property"
-              variant="outline"
-              size="sm"
-              onPress={() => router.push(`/(app)/property/${property.id}`)}
-              fullWidth
-              style={styles.viewProperty}
-            />
-          ) : null}
-        </View>
-      </Card>
-
-      <Text style={styles.sectionLabel}>What you pay</Text>
-      <View style={styles.stats}>
-        <Card style={styles.stat}>
-          <Text style={styles.statVal}>{formatGBP(tenancy.rentPcm)}</Text>
-          <Text style={styles.statLbl}>Room rent pcm</Text>
-        </Card>
-        <Card style={styles.stat}>
-          <Text style={styles.statVal}>{formatGBP(tenancy.deposit)}</Text>
-          <Text style={styles.statLbl}>Deposit</Text>
-        </Card>
-        <Card style={styles.stat}>
-          <Text style={styles.statVal}>{tenancy.room?.name?.replace('Room ', 'R') ?? '—'}</Text>
-          <Text style={styles.statLbl}>Your room</Text>
-        </Card>
+      <Pressable
+        accessibilityRole="button"
+        accessibilityLabel="Back"
+        onPress={() => (router.canGoBack() ? router.back() : router.push('/(app)/(tabs)'))}
+        style={styles.back}
+      >
+        <Ionicons name="chevron-back" size={18} color={theme.colors.secondaryDark} />
+        <Text style={styles.backText}>Back</Text>
+      </Pressable>
+      <HouseBanner />
+      <View style={styles.header}>
+        <Text style={styles.title}>{[tenancy.room?.name, property?.addressLine1 || property?.name].filter(Boolean).join(' · ')}</Text>
+        <Badge label={tenancy.status === 'active' ? 'Active' : tenancy.status} variant={tenancy.status === 'active' ? 'success' : 'default'} format={false} />
       </View>
-      <Card style={styles.costsHint}>
-        <Text style={styles.costsTitle}>Council tax</Text>
-        <Text style={styles.costsBody}>Landlord pays — not charged to HMO tenants in this demo.</Text>
-      </Card>
+      <Text style={styles.address}>
+        {[property?.city, property?.postcode].filter(Boolean).join(' · ')}
+      </Text>
+      <FactGrid
+        items={[
+          { label: 'Move-in', value: formatUKDate(tenancy.startDate) },
+          { label: 'Rent', value: `${formatGBP(tenancy.rentPcm)} / month` },
+          { label: 'Room', value: tenancy.room?.name || 'Not recorded' },
+          { label: 'Deposit', value: formatGBP(tenancy.deposit) },
+        ]}
+      />
+      <Button
+        title="Message"
+        onPress={() => router.push('/(app)/(tabs)/messages')}
+        fullWidth
+        size="lg"
+        style={styles.viewProperty}
+      />
 
       <Card style={styles.section}>
         <Text style={styles.sectionTitle}>Tenancy period</Text>
@@ -153,12 +143,6 @@ function LegacyTenancyScreen() {
           Report housing hazards to {BIRMINGHAM_COUNCIL.name} →
         </Text>
       </Card>
-
-      <View style={styles.actions}>
-        <Button title="Report a repair" variant="secondary" onPress={() => router.push('/(app)/maintenance/new')} fullWidth />
-        <Button title="View all repairs" variant="outline" onPress={() => router.push('/(app)/(tabs)/maintenance')} fullWidth />
-        <Button title="View documents" variant="outline" onPress={() => router.push('/(app)/documents')} fullWidth />
-      </View>
 
       {isBirmingham && <CouncilContactCard />}
     </Screen>
@@ -205,13 +189,6 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
   statLbl: { fontSize: 11, color: theme.colors.textMuted, marginTop: 4, textAlign: 'center', fontFamily: FONT_MEDIUM },
-  costsHint: {
-    marginBottom: theme.spacing.lg,
-    backgroundColor: theme.colors.accentLight,
-    borderColor: theme.colors.border,
-  },
-  costsTitle: { fontFamily: FONT_SEMIBOLD, fontWeight: '600', color: theme.colors.text, marginBottom: 4 },
-  costsBody: { fontSize: 13, color: theme.colors.textSecondary, lineHeight: 18, fontFamily: FONT_MEDIUM },
   section: { marginBottom: theme.spacing.md },
   sectionTitle: { fontFamily: FONT_SEMIBOLD, fontWeight: '700', color: theme.colors.text, marginBottom: 8 },
   body: { color: theme.colors.textSecondary, lineHeight: 22, fontSize: 15, fontFamily: FONT_MEDIUM },
@@ -221,12 +198,21 @@ const styles = StyleSheet.create({
   rightsCard: { marginBottom: theme.spacing.lg },
   rightItem: { fontSize: 14, color: theme.colors.textSecondary, lineHeight: 22, marginBottom: 4, fontFamily: FONT_MEDIUM },
   reportLink: { fontSize: 14, color: theme.colors.secondary, fontFamily: FONT_SEMIBOLD, fontWeight: '600', marginTop: 12 },
-  actions: { gap: theme.spacing.sm, marginBottom: theme.spacing.lg },
   appCard: { marginBottom: theme.spacing.sm },
   appRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', gap: 8 },
   appTitle: { fontFamily: FONT_SEMIBOLD, fontWeight: '600', fontSize: 15, color: theme.colors.text, flex: 1 },
   appMeta: { color: theme.colors.textMuted, fontSize: 13, marginTop: 4, fontFamily: FONT_MEDIUM },
   browseBtn: { marginTop: theme.spacing.md },
+  back: {
+    minHeight: 44,
+    flexDirection: 'row',
+    alignItems: 'center',
+    alignSelf: 'flex-start',
+    gap: 2,
+    marginBottom: 4,
+    paddingRight: 8,
+  },
+  backText: { fontFamily: FONT_SEMIBOLD, fontSize: 15, color: theme.colors.secondaryDark },
 });
 
 export default function TenancyScreen() {

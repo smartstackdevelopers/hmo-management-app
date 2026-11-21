@@ -1,28 +1,63 @@
-import { Auth0Client } from "@auth0/nextjs-auth0/server";
+/**
+ * Auth token source for Next.js server components.
+ *
+ * Prompt 12: Auth0 is no longer the active application authentication dependency.
+ * This module keeps the historical `auth0` / `isAuth0Configured` names so existing
+ * dashboard pages continue to call `auth0.getAccessToken()` without a 99-file rewrite.
+ * Tokens come from native HttpOnly cookies (or demo cookie via session.ts).
+ */
 
-export function isAuth0Configured(): boolean {
+import { NextResponse } from "next/server";
+import type { NextRequest } from "next/server";
+import { isNativeAuthEnabled, readNativeAccessToken } from "@/lib/nativeAuth";
+
+function hasLegacyAuth0Env(): boolean {
   return Boolean(
     process.env.AUTH0_DOMAIN &&
       process.env.AUTH0_CLIENT_ID &&
       process.env.AUTH0_CLIENT_SECRET &&
       process.env.AUTH0_SECRET &&
-      process.env.APP_BASE_URL,
+      process.env.APP_BASE_URL &&
+      process.env.HMORE_ALLOW_AUTH0 === "true",
   );
 }
 
-/**
- * Auth0 SDK client for the Next.js App Router.
- * Construct only when configuration is present so CI builds without a real tenant.
- */
+/** True when the app can obtain a server-side API access token. */
+export function isAuth0Configured(): boolean {
+  return isNativeAuthEnabled() || hasLegacyAuth0Env();
+}
+
+type TokenResult = { token: string };
+
+async function getAccessToken(): Promise<TokenResult | undefined> {
+  const token = await readNativeAccessToken();
+  if (!token) return undefined;
+  return { token };
+}
+
+async function getSession(): Promise<{
+  user: { sub?: string; email?: string | null; name?: string | null; nickname?: string | null };
+} | null> {
+  const token = await readNativeAccessToken();
+  if (!token) return null;
+  // Lightweight session for UI; RBAC still comes from /rbac/me.
+  return {
+    user: {
+      sub: "native",
+      email: null,
+      name: "HMore user",
+    },
+  };
+}
+
+async function middleware(_request: NextRequest) {
+  return NextResponse.next();
+}
+
 export const auth0 = isAuth0Configured()
-  ? new Auth0Client({
-      authorizationParameters: process.env.AUTH0_AUDIENCE
-        ? {
-            audience: process.env.AUTH0_AUDIENCE,
-            scope: "openid profile email offline_access",
-          }
-        : {
-            scope: "openid profile email offline_access",
-          },
-    })
+  ? {
+      getAccessToken,
+      getSession,
+      middleware,
+    }
   : null;

@@ -19,14 +19,15 @@ export default async function TenantAssistantPage() {
     return <EmptyState title="Organisation required" description="Active organisation needed." />;
   }
   if (!isAuth0Configured() || !auth0) {
-    return <EmptyState title="Auth0 not configured" description="Cannot load Tenant Assistant." />;
+    return <EmptyState title="Sign-in not configured" description="Sign-in isn't set up in this environment yet, so this page can't load." />;
   }
   try {
     const token = (await auth0.getAccessToken())?.token;
-    if (!token) return <ErrorState description="Access token unavailable." />;
+    if (!token) return <ErrorState description="We couldn't confirm your sign-in. Please sign in again." />;
     return (
       <div className="mx-auto max-w-3xl space-y-6">
         <PageHeader
+          eyebrow="AI"
           title="Tenant assistant"
           description="Pilot assistant that answers only from approved organisation content."
         />

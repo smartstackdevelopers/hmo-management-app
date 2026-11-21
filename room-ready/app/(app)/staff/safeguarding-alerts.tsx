@@ -1,68 +1,87 @@
-import { useEffect, useState } from 'react';
-import { Text, View, StyleSheet, ScrollView, ActivityIndicator } from 'react-native';
-import {
-  listSafeguardingAlerts,
-  type SafeguardingAlertRecord,
-} from '@/lib/hmore/services/staff/safeguardingAlerts';
+import { useMemo, useState } from 'react';
+import { Text } from 'react-native';
+
+import { FilterChips, SearchField, useHideTabHeader } from '@/components/dashboard/mobileChrome';
+import { BackLink, StaffPage, StatusRow, staffLabel, statusTone } from '@/components/staff/ui';
+import { ErrorState, LoadingScreen } from '@/components/ui/States';
+import { FONT_MEDIUM } from '@/constants/fonts';
+import { theme } from '@/constants/theme';
+import { useNavigation } from 'expo-router';
+import { useLayoutEffect } from 'react';
+import { listSafeguardingAlerts, type SafeguardingAlertRecord } from '@/lib/hmore/services/staff/safeguardingAlerts';
+import { useQuery } from '@tanstack/react-query';
+
+type Filter = 'all' | 'open' | 'acknowledged' | 'closed';
+
+function bucket(status: string): Exclude<Filter, 'all'> {
+  const value = status.toLowerCase();
+  if (value === 'acknowledged') return 'acknowledged';
+  if (['closed', 'resolved', 'cancelled'].includes(value)) return 'closed';
+  return 'open';
+}
 
 export default function StaffSafeguardingAlertsScreen() {
-  const [loading, setLoading] = useState(true);
-  const [alerts, setAlerts] = useState<SafeguardingAlertRecord[]>([]);
-  const [error, setError] = useState<string | null>(null);
+  const navigation = useNavigation();
+  useLayoutEffect(() => {
+    navigation.setOptions({ headerShown: false });
+  }, [navigation]);
+  const [queryText, setQueryText] = useState('');
+  const [filter, setFilter] = useState<Filter>('open');
+  const query = useQuery({
+    queryKey: ['hmore', 'safeguarding-alerts'],
+    queryFn: listSafeguardingAlerts,
+  });
 
-  useEffect(() => {
-    listSafeguardingAlerts()
-      .then(setAlerts)
-      .catch(() => setError('Unable to load safeguarding alerts.'))
-      .finally(() => setLoading(false));
-  }, []);
+  const alerts = query.data ?? [];
+  const visible = useMemo(() => {
+    const needle = queryText.trim().toLowerCase();
+    return alerts.filter((alert) => {
+      if (filter !== 'all' && bucket(alert.status) !== filter) return false;
+      if (!needle) return true;
+      return `${alert.reference_number} ${alert.description} ${alert.priority}`.toLowerCase().includes(needle);
+    });
+  }, [alerts, filter, queryText]);
 
-  if (loading) {
-    return (
-      <View style={styles.centered}>
-        <ActivityIndicator />
-      </View>
-    );
-  }
+  if (query.isLoading) return <LoadingScreen message="Loading alerts..." />;
+  if (query.isError) return <ErrorState message="Unable to load safeguarding alerts." onRetry={query.refetch} />;
 
   return (
-    <ScrollView style={styles.container} contentContainerStyle={styles.content}>
-      <Text style={styles.title}>Safeguarding alerts</Text>
-      <Text style={styles.subtitle}>Push notifications never include confidential case details.</Text>
-      {error ? <Text style={styles.error}>{error}</Text> : null}
-      {alerts.length === 0 ? (
-        <Text style={styles.muted}>No alerts assigned or visible.</Text>
+    <StaffPage
+      title="Alerts"
+      subtitle="Safeguarding and operational alerts. Push text never includes case details."
+      leading={<BackLink />}
+      onRefresh={query.refetch}
+      refreshing={query.isRefetching}
+    >
+      <SearchField value={queryText} onChangeText={setQueryText} placeholder="Search alerts" />
+      <FilterChips
+        value={filter}
+        onChange={(id) => setFilter(id as Filter)}
+        options={[
+          { id: 'open', label: 'Open' },
+          { id: 'acknowledged', label: 'Acknowledged' },
+          { id: 'closed', label: 'Closed' },
+          { id: 'all', label: 'All' },
+        ]}
+      />
+      {visible.length === 0 ? (
+        <Text style={{ fontFamily: FONT_MEDIUM, color: theme.colors.textSecondary }}>No alerts in this view.</Text>
       ) : (
-        alerts.map((a) => (
-          <View key={a.id} style={styles.card}>
-            <Text style={styles.ref}>{a.reference_number}</Text>
-            <Text style={styles.meta}>
-              {a.priority} · {a.status}
-              {a.requires_human_review ? ' · Review required' : ''}
-            </Text>
-          </View>
-        ))
+        visible.map((alert) => <AlertRow key={alert.id} alert={alert} />)
       )}
-    </ScrollView>
+    </StaffPage>
   );
 }
 
-const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#f8fafc' },
-  content: { padding: 16 },
-  centered: { flex: 1, alignItems: 'center', justifyContent: 'center' },
-  title: { fontSize: 22, fontWeight: '600', color: '#0f172a' },
-  subtitle: { marginTop: 6, fontSize: 13, color: '#64748b' },
-  error: { marginTop: 12, color: '#b91c1c' },
-  muted: { marginTop: 16, color: '#64748b' },
-  card: {
-    marginTop: 12,
-    padding: 12,
-    borderRadius: 8,
-    backgroundColor: '#fff',
-    borderWidth: 1,
-    borderColor: '#e2e8f0',
-  },
-  ref: { fontWeight: '600', color: '#0f172a' },
-  meta: { marginTop: 4, fontSize: 13, color: '#475569' },
-});
+function AlertRow({ alert }: { alert: SafeguardingAlertRecord }) {
+  const title = alert.reference_number || 'Alert';
+  return (
+    <StatusRow
+      name={title}
+      title={title}
+      subtitle={alert.description?.trim() || staffLabel(alert.status)}
+      chip={staffLabel(alert.priority)}
+      tone={statusTone(alert.priority)}
+    />
+  );
+}

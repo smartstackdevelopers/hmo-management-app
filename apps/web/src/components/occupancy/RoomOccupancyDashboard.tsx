@@ -73,7 +73,8 @@ export function RoomOccupancyDashboard({
   return (
     <div className="space-y-8">
       <div>
-        <h1 className="text-2xl font-semibold text-slate-900">Room occupancy</h1>
+        <p className="text-xs font-semibold uppercase tracking-[0.16em] text-brand-700">Housing</p>
+        <h1 className="mt-1.5 text-2xl font-bold tracking-tight text-slate-900">Room occupancy</h1>
         <p className="mt-1 text-sm text-slate-600">
           Estimated people counts only. No facial recognition, identity tracking, or raw video by
           default. Live camera activation stays disabled until the privacy approval gate is complete.
@@ -129,16 +130,16 @@ export function RoomOccupancyDashboard({
 
       <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
         {STATUSES.map((s) => (
-          <div key={s} className="rounded-lg border border-slate-200 bg-white p-4 shadow-sm">
+          <div key={s} className="rounded-2xl border border-slate-200 bg-white p-5 shadow-card">
             <div className="text-xs uppercase tracking-wide text-slate-500">{s.replace("_", " ")}</div>
-            <div className="mt-1 text-2xl font-semibold text-slate-900">{statusCounts[s] ?? 0}</div>
+            <div className="mt-1 text-2xl font-bold tracking-tight text-slate-900">{statusCounts[s] ?? 0}</div>
           </div>
         ))}
       </div>
 
       <div className="flex flex-wrap gap-2">
         <select
-          className="rounded border px-2 py-1.5 text-sm"
+          className="block h-10 rounded-lg border border-slate-300 bg-white px-3 text-sm text-slate-900 placeholder:text-slate-400 focus:border-brand-600 focus:outline-none focus:ring-2 focus:ring-brand-100"
           value={statusFilter}
           onChange={(e) => setStatusFilter(e.target.value)}
         >
@@ -150,12 +151,12 @@ export function RoomOccupancyDashboard({
           ))}
         </select>
         <input
-          className="rounded border px-2 py-1.5 text-sm"
+          className="block h-10 rounded-lg border border-slate-300 bg-white px-3 text-sm text-slate-900 placeholder:text-slate-400 focus:border-brand-600 focus:outline-none focus:ring-2 focus:ring-brand-100"
           placeholder="Floor label"
           value={floorFilter}
           onChange={(e) => setFloorFilter(e.target.value)}
         />
-        <button type="button" className="rounded border px-3 py-1.5 text-sm" onClick={refresh}>
+        <button type="button" className="inline-flex h-10 items-center justify-center rounded-lg border border-slate-200 bg-white px-4 text-sm font-semibold text-slate-700 hover:bg-slate-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-600" onClick={refresh}>
           Refresh
         </button>
       </div>
@@ -170,7 +171,7 @@ export function RoomOccupancyDashboard({
         ) : (
           <ul className="space-y-2">
             {rooms.map((room) => (
-              <li key={String(room.id)} className="rounded-lg border border-slate-200 bg-white p-3 text-sm shadow-sm">
+              <li key={String(room.id)} className="rounded-2xl border border-slate-200 bg-white p-4 text-sm shadow-card">
                 <div className="flex flex-wrap items-start justify-between gap-2">
                   <div>
                     <div className="font-medium text-slate-900">
@@ -192,7 +193,7 @@ export function RoomOccupancyDashboard({
                   {canCorrect && room.occupancy_status !== "offline" ? (
                     <button
                       type="button"
-                      className="rounded border px-2 py-1"
+                      className="inline-flex h-8 items-center justify-center rounded-lg border border-slate-200 bg-white px-3 text-xs font-semibold text-slate-700 hover:bg-slate-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-600"
                       onClick={() =>
                         startTransition(async () => {
                           const raw = window.prompt("Corrected estimated count", String(room.estimated_count ?? 0));
@@ -228,7 +229,7 @@ export function RoomOccupancyDashboard({
         ) : (
           <ul className="space-y-2">
             {alerts.map((a) => (
-              <li key={String(a.id)} className="rounded border bg-white p-3 text-sm">
+              <li key={String(a.id)} className="rounded-2xl border border-slate-200 bg-white p-4 text-sm shadow-card">
                 {String(a.alert_category)} · {String(a.severity)} · {String(a.message)}
               </li>
             ))}
@@ -258,7 +259,7 @@ export function RoomOccupancyDashboard({
           </p>
           <button
             type="button"
-            className="mt-3 rounded border px-3 py-1.5"
+            className="mt-3 inline-flex h-10 items-center justify-center rounded-lg border border-slate-200 bg-white px-4 text-sm font-semibold text-slate-700 hover:bg-slate-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-600"
             onClick={() =>
               startTransition(async () => {
                 try {

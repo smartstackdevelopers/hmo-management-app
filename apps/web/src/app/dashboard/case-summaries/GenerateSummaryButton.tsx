@@ -35,7 +35,7 @@ export function GenerateSummaryButton(props: Props) {
         body: JSON.stringify({ tenant_id: props.tenantId, force: props.force ?? false }),
       });
       if (!response.ok) {
-        setError(await response.text());
+        setError("We couldn't create that summary. Please try again.");
         setState(nextGenState("failure"));
         return;
       }
@@ -45,8 +45,8 @@ export function GenerateSummaryButton(props: Props) {
         router.push(`/dashboard/case-summaries/${data.id}`);
         router.refresh();
       }
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "Case summary request failed");
+    } catch {
+      setError("We couldn't create that summary. Please try again.");
       setState(nextGenState("failure"));
     }
   }
@@ -57,7 +57,7 @@ export function GenerateSummaryButton(props: Props) {
         type="button"
         onClick={() => void generate()}
         disabled={state === "loading"}
-        className="rounded-md bg-teal-700 px-3 py-2 text-sm text-white disabled:opacity-60"
+        className="inline-flex h-10 items-center justify-center rounded-lg bg-brand-700 px-4 text-sm font-semibold text-white shadow-sm hover:bg-brand-800 disabled:cursor-not-allowed disabled:opacity-60 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-600 focus-visible:ring-offset-2"
       >
         {state === "loading" ? "Generating summary…" : props.label ?? "Generate case summary"}
       </button>

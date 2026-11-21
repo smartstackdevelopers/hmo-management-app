@@ -2,6 +2,7 @@ import { redirect } from "next/navigation";
 import { EmptyState } from "@/components/dashboard/EmptyState";
 import { ErrorState } from "@/components/dashboard/ErrorState";
 import { PageHeader } from "@/components/dashboard/PageHeader";
+import { DataTable, StatusChip, Td, Th, humanize } from "@/components/ui/primitives";
 import { auth0, isAuth0Configured } from "@/lib/auth0";
 import { listWorkflows } from "@/lib/orgWorkflowsApi";
 import { can } from "@/lib/rbac";
@@ -14,34 +15,45 @@ export default async function WorkflowsConfigPage() {
   }
   const orgId = session.authorization?.active_organisation_id;
   if (!orgId || !isAuth0Configured() || !auth0) {
-    return <EmptyState title="Unavailable" description="Organisation and Auth0 required." />;
+    return <EmptyState title="Unavailable" description="Select the organisation you're working in." />;
   }
   const token = (await auth0.getAccessToken())?.token;
-  if (!token) return <ErrorState description="Access token unavailable." />;
+  if (!token) return <ErrorState description="We couldn't confirm your sign-in. Please sign in again." />;
   let items: Array<Record<string, unknown>> = [];
   try {
     items = (await listWorkflows({ accessToken: token, organisationId: orgId, role: session.authorization?.active_role })).items;
-  } catch (e) {
-    return <ErrorState description={e instanceof Error ? e.message : "Failed to load workflows"} />;
+  } catch {
+    return <ErrorState description={"Failed to load workflows"} />;
   }
 
   return (
-    <div className="space-y-6">
-      <PageHeader title="Approval workflows" description="Versioned configuration — use API to create and activate." />
+    <div className="mx-auto max-w-6xl space-y-6">
+      <PageHeader eyebrow="Operations" title="Approval workflows" description="Versioned approval workflows for this organisation." />
       {items.length === 0 ? (
-        <EmptyState title="No workflows" description="Create workflows via POST /api/v1/org-workflows/workflows." />
+        <EmptyState title="No workflows" description="Workflows you configure will appear here." />
       ) : (
-        <ul className="divide-y rounded-lg border bg-white">
-          {items.map((w) => (
-            <li key={String(w.id)} className="p-4">
-              <div className="font-medium">{String(w.name)}</div>
-              <div className="text-sm text-slate-600">
-                {String(w.code)} · {String(w.process_type)} · {String(w.status)}
-              </div>
-            </li>
-          ))}
-        </ul>
+        <DataTable caption="Approval workflows">
+          <thead>
+            <tr>
+              <Th>Workflow</Th>
+              <Th>Process</Th>
+              <Th>Status</Th>
+            </tr>
+          </thead>
+          <tbody>
+            {items.map((w) => (
+              <tr key={String(w.id)}>
+                <Td className="font-semibold text-slate-900">{String(w.name)}</Td>
+                <Td>{humanize(String(w.process_type ?? ""))}</Td>
+                <Td>
+                  <StatusChip status={String(w.status)} />
+                </Td>
+              </tr>
+            ))}
+          </tbody>
+        </DataTable>
       )}
+      <p className="text-xs text-slate-500">Showing {items.length === 0 ? "0" : `1–${items.length}`} of {items.length}</p>
     </div>
   );
 }

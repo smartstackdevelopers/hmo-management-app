@@ -8,6 +8,7 @@ import { canRunDocumentCheck } from "@/lib/documentCheckView";
 import { EmptyState } from "@/components/dashboard/EmptyState";
 import { ErrorState } from "@/components/dashboard/ErrorState";
 import { PageHeader } from "@/components/dashboard/PageHeader";
+import { Card, CardHeader, DataTable, StatusChip, Td, Th, linkClass } from "@/components/ui/primitives";
 import { auth0, isAuth0Configured } from "@/lib/auth0";
 import { getDocument, listDocumentVersions, listDocumentCategories } from "@/lib/managedDocumentsApi";
 import { can, canAny } from "@/lib/rbac";
@@ -24,10 +25,10 @@ export default async function DocumentDetailPage({ params }: { params: Promise<{
     return <EmptyState title="Organisation required" description="Active organisation membership needed." />;
   }
   if (!isAuth0Configured() || !auth0) {
-    return <EmptyState title="Auth0 not configured" description="Configure Auth0 to load this page." />;
+    return <EmptyState title="Sign-in not configured" description="Sign-in isn't set up in this environment yet." />;
   }
   const token = (await auth0.getAccessToken())?.token;
-  if (!token) return <ErrorState description="Access token unavailable." />;
+  if (!token) return <ErrorState description="We couldn't confirm your sign-in. Please sign in again." />;
 
   const perms = session.authorization?.permissions;
   const role = session.authorization?.active_role;
@@ -44,35 +45,41 @@ export default async function DocumentDetailPage({ params }: { params: Promise<{
 
     return (
       <div className="mx-auto max-w-3xl space-y-6">
-        <div className="flex flex-wrap items-start justify-between gap-4">
-          <PageHeader
-            eyebrow={String(d.reference_number ?? "")}
-            title={String(d.title ?? "Document")}
-            description={`Category: ${catLabel} · Status: ${String(d.status)} · Expiry: ${String(d.expiry_tracking)}`}
-          />
-          <Link href="/dashboard/documents/browse" className="text-sm text-teal-800 underline">
-            Back to list
-          </Link>
+        <Link href="/dashboard/documents/browse" className={`text-sm ${linkClass}`}>
+          ← Back to library
+        </Link>
+        <PageHeader
+          eyebrow={String(d.reference_number ?? "")}
+          title={String(d.title ?? "Document")}
+          description={`Category: ${catLabel}`}
+        />
+        <div className="flex flex-wrap gap-2">
+          <StatusChip status={String(d.status)} />
+          <StatusChip status={String(d.expiry_tracking)} />
+          {d.legal_hold ? <StatusChip tone="red">Legal hold</StatusChip> : null}
         </div>
 
-        <dl className="grid gap-2 rounded-lg border border-slate-200 bg-white p-4 text-sm sm:grid-cols-2">
-          <div>
-            <dt className="text-slate-500">Retention</dt>
-            <dd className="font-medium">{String(d.retention_status)}</dd>
-          </div>
-          <div>
-            <dt className="text-slate-500">Classification</dt>
-            <dd className="font-medium">{String(d.effective_classification ?? d.access_classification)}</dd>
-          </div>
-          <div>
-            <dt className="text-slate-500">Legal hold</dt>
-            <dd className="font-medium">{d.legal_hold ? "Yes" : "No"}</dd>
-          </div>
-          <div>
-            <dt className="text-slate-500">Expiry date</dt>
-            <dd className="font-medium">{d.expiry_date ? String(d.expiry_date) : "—"}</dd>
-          </div>
-        </dl>
+        <Card>
+          <CardHeader title="Record" />
+          <dl className="grid gap-4 text-sm sm:grid-cols-2">
+            <div>
+              <dt className="text-slate-500">Retention</dt>
+              <dd className="mt-0.5 font-medium text-slate-900">{String(d.retention_status)}</dd>
+            </div>
+            <div>
+              <dt className="text-slate-500">Classification</dt>
+              <dd className="mt-0.5 font-medium text-slate-900">{String(d.effective_classification ?? d.access_classification)}</dd>
+            </div>
+            <div>
+              <dt className="text-slate-500">Legal hold</dt>
+              <dd className="mt-0.5 font-medium text-slate-900">{d.legal_hold ? "Yes" : "No"}</dd>
+            </div>
+            <div>
+              <dt className="text-slate-500">Expiry date</dt>
+              <dd className="mt-0.5 font-medium text-slate-900">{d.expiry_date ? String(d.expiry_date) : "—"}</dd>
+            </div>
+          </dl>
+        </Card>
 
         <div className="flex flex-wrap gap-2">
           {can(perms, "documents.read.content") ? (
@@ -83,22 +90,33 @@ export default async function DocumentDetailPage({ params }: { params: Promise<{
               documentId={id}
             />
           ) : (
-            <p className="text-sm text-slate-600">You do not have permission to download file content.</p>
+            <p className="text-sm text-slate-600">Downloading the file isn't available on your account.</p>
           )}
         </div>
 
-        <div>
-          <h2 className="text-lg font-semibold text-forest-900">Versions</h2>
+        <div className="space-y-3">
+          <CardHeader title="Versions" />
           {(versions as Record<string, unknown>[]).length === 0 ? (
-            <p className="text-sm text-slate-600">No versions.</p>
+            <EmptyState title="No versions" description="This document has no file versions yet." />
           ) : (
-            <ul className="mt-2 divide-y divide-slate-200 rounded-lg border border-slate-200 bg-white text-sm">
-              {(versions as Record<string, string>[]).map((v) => (
-                <li key={v.id} className="px-3 py-2">
-                  v{v.version_number} · {v.change_description || "—"} · {v.created_at}
-                </li>
-              ))}
-            </ul>
+            <DataTable caption="Document versions">
+              <thead>
+                <tr>
+                  <Th>Version</Th>
+                  <Th>Change</Th>
+                  <Th>Created</Th>
+                </tr>
+              </thead>
+              <tbody>
+                {(versions as Record<string, string>[]).map((v) => (
+                  <tr key={v.id}>
+                    <Td className="font-semibold text-slate-900">v{v.version_number}</Td>
+                    <Td>{v.change_description || "—"}</Td>
+                    <Td className="whitespace-nowrap text-slate-500">{v.created_at}</Td>
+                  </tr>
+                ))}
+              </tbody>
+            </DataTable>
           )}
         </div>
 
@@ -126,7 +144,7 @@ export default async function DocumentDetailPage({ params }: { params: Promise<{
         </p>
       </div>
     );
-  } catch (e) {
-    return <ErrorState description={e instanceof Error ? e.message : "Failed to load document"} />;
+  } catch {
+    return <ErrorState description={"Failed to load document"} />;
   }
 }

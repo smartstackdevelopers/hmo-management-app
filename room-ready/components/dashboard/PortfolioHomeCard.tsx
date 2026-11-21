@@ -1,167 +1,106 @@
 import { router } from 'expo-router';
-import { Image, StyleSheet, Text, View } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
+import { StyleSheet, View } from 'react-native';
 
-import { Badge } from '@/components/ui/Badge';
-import { Card } from '@/components/ui/Card';
-import { FONT_BOLD, FONT_MEDIUM, FONT_SEMIBOLD } from '@/constants/fonts';
+import { compactGBP, StatTiles } from '@/components/dashboard/mobileChrome';
+import { HeroCard } from '@/components/ui/HeroCard';
+import { QuickActions } from '@/components/ui/QuickActions';
+import { Section } from '@/components/ui/Section';
 import { theme } from '@/constants/theme';
 import { PropertyItem } from '@/lib/api';
-import { assessPropertyCompliance } from '@/lib/compliance';
-import { propertyCoverUrl } from '@/lib/propertyCovers';
 
 interface PortfolioHomeCardProps {
   properties: PropertyItem[];
   portfolioScore: number | null;
   openRepairs: number;
   expiringDocs: number;
+  role?: string;
 }
 
 export function PortfolioHomeCard({
   properties,
-  portfolioScore,
   openRepairs,
   expiringDocs,
+  role,
 }: PortfolioHomeCardProps) {
   if (properties.length === 0) {
     return (
-      <Card style={styles.empty} onPress={() => router.push('/(app)/property/new')}>
-        <View style={styles.emptyIcon}>
-          <Ionicons name="business-outline" size={22} color={theme.colors.secondary} />
-        </View>
-        <Text style={styles.emptyTitle}>Start your portfolio</Text>
-        <Text style={styles.emptyBody}>Add your first HMO to manage rooms, certificates and repairs.</Text>
-        <Text style={styles.link}>Add property →</Text>
-      </Card>
+      <HeroCard
+        kicker="Occupancy"
+        title="Add your first property"
+        subtitle="Rooms, certificates and repairs show up here once a property is added."
+        icon="home-outline"
+        ctaLabel="Add property"
+        onCta={() => router.push('/(app)/property/new')}
+      />
     );
   }
 
-  const featured = properties[0];
   const occupied = properties.reduce(
-    (sum, p) => sum + (p.rooms?.filter((r) => r.status === 'occupied').length ?? 0),
+    (sum, property) => sum + (property.rooms?.filter((room) => room.status === 'occupied').length ?? 0),
     0
   );
-  const rooms = properties.reduce((sum, p) => sum + (p.rooms?.length ?? 0), 0);
-  const cover = propertyCoverUrl(featured.id);
-  const score = portfolioScore ?? assessPropertyCompliance(featured).score;
-  const scoreTone = score >= 85 ? 'success' : score >= 60 ? 'warning' : 'error';
+  const rooms = properties.reduce((sum, property) => sum + (property.rooms?.length ?? 0), 0);
+  const vacant = Math.max(rooms - occupied, 0);
+  const percent = rooms > 0 ? Math.round((occupied / rooms) * 100) : 0;
+  const listings = properties.reduce(
+    (sum, property) => sum + (property.rooms?.filter((room) => room.listing).length ?? 0),
+    0
+  );
+  const rent = properties.reduce(
+    (sum, property) =>
+      sum +
+      (property.rooms?.filter((room) => room.status === 'occupied').reduce((roomSum, room) => roomSum + (room.rentPcm || 0), 0) ?? 0),
+    0
+  );
+  const subtitle = [
+    `${vacant} room${vacant === 1 ? '' : 's'} vacant`,
+    listings > 0 ? `${listings} listing${listings === 1 ? '' : 's'} live` : null,
+  ]
+    .filter(Boolean)
+    .join(' · ');
 
   return (
-    <Card style={styles.card} padded={false} onPress={() => router.push('/(app)/(tabs)/properties')}>
-      <Image source={{ uri: cover }} style={styles.cover} resizeMode="cover" />
-      <View style={styles.body}>
-        <View style={styles.top}>
-          <View style={styles.copy}>
-            <Text style={styles.eyebrow}>Your portfolio</Text>
-            <Text style={styles.title} numberOfLines={1}>
-              {properties.length} HMO{properties.length === 1 ? '' : 's'} · {rooms} rooms
-            </Text>
-            <Text style={styles.address} numberOfLines={1}>
-              Featured · {featured.name}
-            </Text>
-          </View>
-          <Badge label={`${score}% checks`} variant={scoreTone} format={false} />
-        </View>
-
-        <View style={styles.metaRow}>
-          <View style={styles.meta}>
-            <Text style={styles.metaLabel}>Occupied</Text>
-            <Text style={styles.metaValue}>
-              {occupied}/{rooms}
-            </Text>
-          </View>
-          <View style={styles.meta}>
-            <Text style={styles.metaLabel}>Open repairs</Text>
-            <Text style={styles.metaValue}>{openRepairs}</Text>
-          </View>
-          <View style={styles.meta}>
-            <Text style={styles.metaLabel}>Docs due</Text>
-            <Text style={styles.metaValue}>{expiringDocs}</Text>
-          </View>
-        </View>
-
-        <View style={styles.linkRow}>
-          <Text style={styles.link}>Manage properties</Text>
-          <Ionicons name="chevron-forward" size={16} color={theme.colors.secondary} />
-        </View>
-      </View>
-    </Card>
+    <View style={styles.wrap}>
+      <HeroCard
+        kicker="Occupancy"
+        value={rooms > 0 ? `${percent}% · ${occupied} of ${rooms}` : `${properties.length}`}
+        subtitle={subtitle}
+        ctaLabel={vacant > 0 ? 'View vacancies' : 'View properties'}
+        onCta={() => router.push('/(app)/(tabs)/properties')}
+      />
+      <StatTiles
+        items={[
+          { value: String(openRepairs), label: 'Open repairs' },
+          { value: String(expiringDocs), label: 'Certs due' },
+          { value: rent > 0 ? compactGBP(rent) : '—', label: 'Rent this month' },
+        ]}
+      />
+      <Section title="Quick actions">
+        <QuickActions
+          actions={[
+            {
+              key: 'add',
+              label: role === 'property_manager' ? 'Properties' : 'Add property',
+              icon: role === 'property_manager' ? 'business-outline' : 'add',
+              tone: 'blue',
+              onPress: () => router.push(role === 'property_manager' ? '/(app)/(tabs)/properties' : '/(app)/property/new'),
+            },
+            { key: 'repair', label: 'Log repair', icon: 'construct-outline', tone: 'indigo', onPress: () => router.push('/(app)/maintenance/new') },
+            {
+              key: 'inspect',
+              label: role === 'property_manager' ? 'Inspection' : 'Checks',
+              icon: 'clipboard-outline',
+              tone: 'amber',
+              onPress: () => router.push(role === 'property_manager' ? '/(app)/(tabs)/inspections' : '/(app)/(tabs)/compliance'),
+            },
+            { key: 'listing', label: 'Listing', icon: 'list-outline', tone: 'green', onPress: () => router.push('/(app)/(tabs)/listings') },
+          ]}
+        />
+      </Section>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
-  card: { marginBottom: theme.spacing.lg, overflow: 'hidden' },
-  cover: { width: '100%', height: 140, backgroundColor: theme.colors.surfaceMuted },
-  body: { padding: theme.spacing.md },
-  top: { flexDirection: 'row', alignItems: 'flex-start', gap: 10 },
-  copy: { flex: 1, minWidth: 0 },
-  eyebrow: {
-    fontSize: 11,
-    fontFamily: FONT_SEMIBOLD,
-    fontWeight: '600',
-    color: theme.colors.secondary,
-    textTransform: 'uppercase',
-    letterSpacing: 0.6,
-    marginBottom: 4,
-  },
-  title: {
-    fontSize: 18,
-    fontFamily: FONT_BOLD,
-    fontWeight: '700',
-    color: theme.colors.text,
-    letterSpacing: -0.3,
-  },
-  address: {
-    fontSize: 13,
-    fontFamily: FONT_MEDIUM,
-    color: theme.colors.textSecondary,
-    marginTop: 4,
-  },
-  metaRow: {
-    flexDirection: 'row',
-    gap: 8,
-    marginTop: theme.spacing.md,
-    paddingTop: theme.spacing.md,
-    borderTopWidth: 1,
-    borderTopColor: theme.colors.borderLight,
-  },
-  meta: { flex: 1 },
-  metaLabel: { fontSize: 11, color: theme.colors.textMuted, fontFamily: FONT_MEDIUM },
-  metaValue: {
-    fontSize: 14,
-    fontFamily: FONT_SEMIBOLD,
-    fontWeight: '600',
-    color: theme.colors.text,
-    marginTop: 2,
-  },
-  linkRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 4,
-    marginTop: theme.spacing.md,
-  },
-  link: { fontSize: 14, fontFamily: FONT_SEMIBOLD, fontWeight: '600', color: theme.colors.secondary },
-  empty: { marginBottom: theme.spacing.lg },
-  emptyIcon: {
-    width: 44,
-    height: 44,
-    borderRadius: theme.radius.md,
-    backgroundColor: theme.colors.accentLight,
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginBottom: 10,
-  },
-  emptyTitle: {
-    fontSize: 17,
-    fontFamily: FONT_BOLD,
-    fontWeight: '700',
-    color: theme.colors.text,
-  },
-  emptyBody: {
-    fontSize: 14,
-    fontFamily: FONT_MEDIUM,
-    color: theme.colors.textSecondary,
-    marginTop: 6,
-    lineHeight: 20,
-  },
+  wrap: { marginBottom: theme.spacing.sm },
 });

@@ -1,407 +1,299 @@
-import { useMemo, useState } from 'react';
-import { Alert, Pressable, StyleSheet, Text, View } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import { useQuery } from '@tanstack/react-query';
+import { router } from 'expo-router';
+import { useMemo, useState } from 'react';
+import { Alert, Platform, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 
-import { HmoreDocuments } from '@/components/tenant/HmoreDocuments';
-import { Badge } from '@/components/ui/Badge';
+import { FactGrid, FilterChips, InitialsTile, SearchField, titleCase, useHideTabHeader } from '@/components/dashboard/mobileChrome';
 import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
+import { Chip, type Tone } from '@/components/ui/Chip';
 import { ListScreen } from '@/components/ui/ListScreen';
+import { ScreenHeader } from '@/components/ui/Screen';
 import { EmptyState, ErrorState, LoadingScreen } from '@/components/ui/States';
 import { FONT_BOLD, FONT_MEDIUM, FONT_SEMIBOLD } from '@/constants/fonts';
-import { SIMPLE } from '@/constants/simpleCopy';
 import { DOCUMENT_TYPES, formatUKDate } from '@/constants/uk';
 import { theme } from '@/constants/theme';
 import { roleHasAccess, ROUTE_ROLES } from '@/constants/permissions';
 import { useAuth } from '@/contexts/AuthContext';
-import { useDeleteDocument, useDocuments, useEvidencePack } from '@/hooks/useApi';
-import { openDocumentFile } from '@/lib/openDocument';
-import { pickDocument, uploadFile } from '@/lib/uploads';
+import { useI18n } from '@/hooks/useI18n';
+import { useDocuments } from '@/hooks/useApi';
 import { DocumentItem } from '@/lib/api';
+import { HmoreApiError, hmoreErrorMessage } from '@/lib/hmore/client';
+import { fetchDocumentContent, listDocuments } from '@/lib/hmore/services/documents';
+import type { ManagedDocument, Page } from '@/lib/hmore/types';
+import { openDocumentFile } from '@/lib/openDocument';
 
-const TENANCY_TYPES = new Set(['tenancy_agreement', 'inventory', 'other']);
+type FileFilter = 'all' | 'tenancy' | 'certificate' | 'id';
 
-function isUrgent(doc: DocumentItem): boolean {
-  if (doc.expiryDate && new Date(doc.expiryDate) < new Date()) return true;
-  if (typeof doc.daysLeft === 'number' && doc.daysLeft <= 30) return true;
-  return doc.riskLevel === 'critical' || doc.riskLevel === 'high';
+type FileBucket = 'tenancy' | 'certificate' | 'id' | 'other';
+
+type FileRow = {
+  id: string;
+  title: string;
+  meta: string;
+  bucket: FileBucket;
+  chip: string;
+  tone: Tone;
+  facts: { label: string; value: string }[];
+  onPress: () => void;
+};
+
+const FILTERS: { id: FileFilter; label: string }[] = [
+  { id: 'all', label: 'All' },
+  { id: 'tenancy', label: 'Tenancy' },
+  { id: 'certificate', label: 'Certificates' },
+  { id: 'id', label: 'ID' },
+];
+
+function fileBucket(type: string, title: string): FileBucket {
+  const blob = `${type} ${title}`.toLowerCase();
+  if (/(passport|identity|proof of id|\bid\b|driving)/.test(blob)) return 'id';
+  if (/(tenancy|agreement|inventory)/.test(blob)) return 'tenancy';
+  if (/(cert|gas|epc|eicr|electrical|fire|licen[cs]e|hmo|legionella|insurance)/.test(blob)) return 'certificate';
+  return 'other';
 }
 
-function typeLabel(type: string): string {
-  return DOCUMENT_TYPES.find((t) => t.id === type)?.label ?? type.replace(/_/g, ' ');
-}
-
-function typeIcon(type: string): keyof typeof Ionicons.glyphMap {
-  switch (type) {
-    case 'tenancy_agreement':
-      return 'document-text-outline';
-    case 'inventory':
-      return 'clipboard-outline';
-    case 'hmo_licence':
-      return 'shield-checkmark-outline';
-    case 'gas_safety':
-      return 'flame-outline';
-    case 'epc':
-      return 'leaf-outline';
-    case 'electrical_safety':
-      return 'flash-outline';
-    default:
-      return 'folder-outline';
-  }
-}
-
-function LegacyDocumentsScreen() {
-  const { user } = useAuth();
-  const { data, isLoading, error, refetch, isRefetching } = useDocuments();
-  const deleteDoc = useDeleteDocument();
-  const evidencePack = useEvidencePack();
-  const canUpload = roleHasAccess(user?.role, ROUTE_ROLES.documentsUpload);
-  const canExportPack = ['landlord', 'property_manager', 'admin'].includes(user?.role ?? '');
-  const isTenant = user?.role === 'tenant';
-  const [uploading, setUploading] = useState(false);
-
-  const documents = data?.documents ?? [];
-
-  const { urgent, tenancyDocs, certificates } = useMemo(() => {
-    const urgentDocs = documents.filter(isUrgent);
-    const urgentIds = new Set(urgentDocs.map((d) => d.id));
-    const rest = documents.filter((d) => !urgentIds.has(d.id));
-    return {
-      urgent: urgentDocs,
-      tenancyDocs: rest.filter((d) => TENANCY_TYPES.has(d.type)),
-      certificates: rest.filter((d) => !TENANCY_TYPES.has(d.type)),
-    };
-  }, [documents]);
-
-  if (isLoading) return <LoadingScreen message="Loading files..." />;
-  if (error) return <ErrorState message="Could not load your files" onRetry={refetch} />;
-
-  async function handleUpload() {
-    const file = await pickDocument();
-    if (!file) return;
-    setUploading(true);
-    try {
-      await uploadFile(file.uri, file.name, file.mimeType ?? 'application/pdf', {
-        type: 'other',
-        name: file.name,
-      });
-      refetch();
-      Alert.alert('Done', 'Your file was uploaded.');
-    } catch (err) {
-      Alert.alert('Upload failed', err instanceof Error ? err.message : 'Please try again.');
-    } finally {
-      setUploading(false);
+function statusChip(expiry: string | null | undefined, tracking?: string | null, daysLeft?: number | null): { label: string; tone: Tone } {
+  if (tracking === 'expired') return { label: 'Expired', tone: 'red' };
+  if (tracking === 'expiring_soon') return { label: 'Due soon', tone: 'amber' };
+  if (typeof daysLeft === 'number' && daysLeft <= 30) return { label: daysLeft < 0 ? 'Expired' : 'Due soon', tone: daysLeft < 0 ? 'red' : 'amber' };
+  if (expiry) {
+    const time = new Date(expiry).getTime();
+    if (!Number.isNaN(time)) {
+      if (time < Date.now()) return { label: 'Expired', tone: 'red' };
+      if (time - Date.now() < 30 * 24 * 60 * 60 * 1000) return { label: 'Due soon', tone: 'amber' };
+      return { label: 'Valid', tone: 'green' };
     }
   }
+  if (tracking === 'valid' || tracking === 'renewed') return { label: 'Valid', tone: 'green' };
+  return { label: 'On file', tone: 'gray' };
+}
 
-  async function handleDelete(doc: DocumentItem) {
-    Alert.alert('Remove file?', doc.name, [
-      { text: 'Cancel', style: 'cancel' },
-      {
-        text: 'Remove',
-        style: 'destructive',
-        onPress: async () => {
-          try {
-            await deleteDoc.mutateAsync(doc.id);
-            refetch();
-          } catch (err) {
-            Alert.alert('Error', err instanceof Error ? err.message : 'Could not remove file');
-          }
-        },
-      },
-    ]);
+async function loadManaged(): Promise<Page<ManagedDocument>> {
+  try {
+    return await listDocuments();
+  } catch (error) {
+    if (error instanceof HmoreApiError && (error.status === 400 || error.status === 403 || error.status === 404)) {
+      return { items: [], page: 1, page_size: 50, total: 0 };
+    }
+    throw error;
   }
+}
 
-  async function handleExportPack() {
-    const properties = documents
-      .map((d) => d.property)
-      .filter((p): p is { id: string; name: string } => !!p?.id);
-    if (properties.length === 0) {
-      Alert.alert('No property found', 'Add a property first, then upload certificates.');
+async function openManaged(doc: ManagedDocument) {
+  try {
+    const { bytes, contentType } = await fetchDocumentContent(doc.id);
+    if (Platform.OS === 'web' && typeof window !== 'undefined') {
+      const blob = new Blob([bytes], { type: contentType });
+      const url = URL.createObjectURL(blob);
+      window.open(url, '_blank', 'noopener,noreferrer');
       return;
     }
-    try {
-      await evidencePack.mutateAsync(properties[0].id);
-      Alert.alert('Pack ready', `Summary created for ${properties[0].name}.`);
-    } catch (err) {
-      Alert.alert('Download failed', err instanceof Error ? err.message : 'Please try again.');
-    }
+    const kb = Math.max(1, Math.round(bytes.byteLength / 1024));
+    Alert.alert(doc.title, `Retrieved securely (${contentType}, ${kb} KB). This build does not include a native file viewer.`);
+  } catch (error) {
+    Alert.alert('Could not open file', error instanceof Error ? error.message : 'Please try again.');
   }
-
-  const listData = [...tenancyDocs, ...certificates];
-
-  return (
-    <ListScreen
-      data={listData}
-      keyExtractor={(item) => item.id}
-      refreshing={isRefetching}
-      onRefresh={refetch}
-      contentContainerStyle={documents.length === 0 ? styles.emptyList : undefined}
-      ListHeaderComponent={
-        <View style={styles.header}>
-          <Text style={styles.title}>{isTenant ? 'Your documents' : 'Portfolio documents'}</Text>
-          <Text style={styles.subtitle}>
-            {isTenant
-              ? 'Read your tenancy agreement, house rules and property certificates.'
-              : 'Read HMO licences, safety certificates and tenancy papers across your properties.'}
-          </Text>
-
-          {documents.length > 0 && (
-            <View style={styles.summary}>
-              <View style={styles.summaryItem}>
-                <Text style={styles.summaryValue}>{documents.length}</Text>
-                <Text style={styles.summaryLabel}>Files</Text>
-              </View>
-              <View style={styles.summaryItem}>
-                <Text style={[styles.summaryValue, urgent.length > 0 && styles.summaryWarn]}>
-                  {urgent.length}
-                </Text>
-                <Text style={styles.summaryLabel}>Need attention</Text>
-              </View>
-              <View style={styles.summaryItem}>
-                <Text style={styles.summaryValue}>{tenancyDocs.length}</Text>
-                <Text style={styles.summaryLabel}>Tenancy</Text>
-              </View>
-            </View>
-          )}
-
-          <View style={styles.actions}>
-            {canUpload && (
-              <Button title={SIMPLE.documents.upload} onPress={handleUpload} loading={uploading} style={styles.actionBtn} />
-            )}
-            {canExportPack && documents.length > 0 && (
-              <Button
-                title={SIMPLE.documents.export}
-                variant="outline"
-                onPress={handleExportPack}
-                loading={evidencePack.isPending}
-                style={styles.actionBtn}
-              />
-            )}
-          </View>
-
-          {urgent.length > 0 && (
-            <>
-              <Text style={styles.sectionLabel}>{SIMPLE.documents.actionNeeded}</Text>
-              {urgent.map((doc) => (
-                <DocumentCard
-                  key={doc.id}
-                  doc={doc}
-                  canDelete={canUpload}
-                  onOpen={() => openDocumentFile(doc.fileUrl)}
-                  onDelete={() => handleDelete(doc)}
-                />
-              ))}
-            </>
-          )}
-
-          {tenancyDocs.length > 0 && (
-            <Text style={styles.sectionLabel}>
-              {isTenant ? 'Your tenancy papers' : 'Tenancy & house info'}
-            </Text>
-          )}
-        </View>
-      }
-      ListEmptyComponent={
-        <EmptyState
-          title="No files yet"
-          message={
-            isTenant
-              ? 'When your landlord shares agreements and certificates, they will appear here.'
-              : SIMPLE.documents.empty
-          }
-          icon="folder-open-outline"
-          actionLabel={canUpload ? SIMPLE.documents.upload : undefined}
-          onAction={canUpload && !uploading ? handleUpload : undefined}
-        />
-      }
-      renderItem={({ item, index }) => (
-        <>
-          {index === tenancyDocs.length && certificates.length > 0 && tenancyDocs.length > 0 ? (
-            <Text style={styles.sectionLabelInline}>Property certificates</Text>
-          ) : null}
-          {index === 0 && tenancyDocs.length === 0 && certificates.length > 0 ? (
-            <Text style={styles.sectionLabelInline}>Property certificates</Text>
-          ) : null}
-          <DocumentCard
-            doc={item}
-            canDelete={canUpload}
-            onOpen={() => openDocumentFile(item.fileUrl)}
-            onDelete={() => handleDelete(item)}
-          />
-        </>
-      )}
-    />
-  );
 }
 
-function DocumentCard({
-  doc,
-  canDelete,
-  onOpen,
-  onDelete,
-}: {
-  doc: DocumentItem;
-  canDelete: boolean;
-  onOpen: () => void;
-  onDelete: () => void;
-}) {
-  const expired = !!(doc.expiryDate && new Date(doc.expiryDate) < new Date());
-  const dueSoon =
-    !expired &&
-    !!doc.expiryDate &&
-    (typeof doc.daysLeft === 'number'
-      ? doc.daysLeft <= 30
-      : new Date(doc.expiryDate).getTime() - Date.now() < 30 * 24 * 60 * 60 * 1000);
+function fromLegacy(doc: DocumentItem): FileRow {
+  const typeLabel = DOCUMENT_TYPES.find((item) => item.id === doc.type)?.label ?? doc.type.replace(/_/g, ' ');
+  const chip = statusChip(doc.expiryDate, null, doc.daysLeft);
+  const meta = [typeLabel, doc.property?.name, doc.expiryDate ? formatUKDate(doc.expiryDate) : null].filter(Boolean).join(' · ');
+  const facts = [
+    { label: 'Type', value: typeLabel },
+    doc.property?.name ? { label: 'Property', value: doc.property.name } : null,
+    doc.expiryDate ? { label: 'Expires', value: formatUKDate(doc.expiryDate) } : null,
+    doc.notes ? { label: 'Notes', value: doc.notes } : null,
+  ].filter((item): item is { label: string; value: string } => item != null);
+  return {
+    id: doc.id,
+    title: doc.name,
+    meta,
+    bucket: fileBucket(doc.type, doc.name),
+    chip: chip.label,
+    tone: chip.tone,
+    facts,
+    onPress: () => openDocumentFile(doc.fileUrl),
+  };
+}
+
+function fromManaged(doc: ManagedDocument): FileRow {
+  const chip = statusChip(doc.expiry_date, doc.expiry_tracking);
+  const meta = [doc.reference_number, doc.expiry_date ? formatUKDate(doc.expiry_date) : doc.created_at ? formatUKDate(doc.created_at) : null]
+    .filter(Boolean)
+    .join(' · ');
+  const facts = [
+    doc.reference_number ? { label: 'Reference', value: doc.reference_number } : null,
+    doc.category_code ? { label: 'Type', value: titleCase(doc.category_code) } : null,
+    { label: 'Status', value: titleCase(doc.status) },
+    doc.expiry_date ? { label: 'Expires', value: formatUKDate(doc.expiry_date) } : null,
+    doc.created_at ? { label: 'Added', value: formatUKDate(doc.created_at) } : null,
+  ].filter((item): item is { label: string; value: string } => item != null);
+  return {
+    id: doc.id,
+    title: doc.title,
+    meta: meta || doc.status.replace(/_/g, ' '),
+    bucket: fileBucket(doc.category_code ?? '', doc.title),
+    chip: chip.label,
+    tone: chip.tone,
+    facts,
+    onPress: () => {
+      void openManaged(doc);
+    },
+  };
+}
+
+export default function DocumentsScreen() {
+  useHideTabHeader();
+  const { t } = useI18n();
+  const { user, hmore } = useAuth();
+  const legacy = useDocuments();
+  const managed = useQuery({
+    queryKey: ['hmore', 'documents', 'files'],
+    queryFn: loadManaged,
+    enabled: !!hmore,
+  });
+  const [filter, setFilter] = useState<FileFilter>('all');
+  const [query, setQuery] = useState('');
+  const [selectedId, setSelectedId] = useState<string | null>(null);
+  const canUpload = !!hmore || roleHasAccess(user?.role, ROUTE_ROLES.documentsUpload);
+
+  const rows = useMemo(
+    () => (hmore ? (managed.data?.items ?? []).map(fromManaged) : (legacy.data?.documents ?? []).map(fromLegacy)),
+    [hmore, managed.data, legacy.data],
+  );
+  const filtered = useMemo(() => {
+    const needle = query.trim().toLowerCase();
+    return rows.filter((row) => {
+      if (filter !== 'all' && row.bucket !== filter) return false;
+      if (!needle) return true;
+      return `${row.title} ${row.meta}`.toLowerCase().includes(needle);
+    });
+  }, [rows, filter, query]);
+
+  const selected = rows.find((row) => row.id === selectedId) ?? null;
+  const loading = hmore ? managed.isLoading : legacy.isLoading;
+  const loadError = hmore ? managed.error : legacy.error;
+  if (loading) return <LoadingScreen message={t('documents.loading')} />;
+  if (loadError) {
+    return (
+      <ErrorState
+        message={hmoreErrorMessage(loadError, t('documents.loadError'))}
+        onRetry={() => (hmore ? managed.refetch() : legacy.refetch())}
+      />
+    );
+  }
+
+  function upload() {
+    router.push('/(app)/property/upload-document');
+  }
+
+  if (selected) {
+    return (
+      <ScrollView style={styles.screen} contentContainerStyle={styles.detail} keyboardShouldPersistTaps="handled">
+        <Pressable onPress={() => setSelectedId(null)} style={[styles.back, styles.detailBack]} accessibilityRole="button" accessibilityLabel="Back">
+          <Ionicons name="chevron-back" size={18} color={theme.colors.secondaryDark} />
+          <Text style={styles.backText}>Back</Text>
+        </Pressable>
+        <View style={styles.banner}>
+          <View style={styles.fileMark}>
+            <Ionicons name="document-text" size={32} color={theme.colors.textInverse} />
+          </View>
+        </View>
+        <Text style={styles.detailTitle}>{selected.title}</Text>
+        {selected.meta ? <Text style={styles.detailMeta}>{selected.meta}</Text> : null}
+        <View style={styles.chips}>
+          <Chip label={selected.chip} tone={selected.tone} />
+        </View>
+        {selected.facts.length > 0 ? <FactGrid items={selected.facts} /> : null}
+        <Button title="Open file" onPress={selected.onPress} fullWidth size="lg" />
+      </ScrollView>
+    );
+  }
 
   return (
-    <Card style={[styles.card, expired && styles.expired, dueSoon && !expired && styles.dueSoon]} onPress={onOpen}>
-      <View style={styles.cardTop}>
-        <View style={styles.fileIcon}>
-          <Ionicons name={typeIcon(doc.type)} size={20} color={theme.colors.secondary} />
-        </View>
-        <View style={styles.cardCopy}>
-          <Text style={styles.name}>{doc.name}</Text>
-          <Text style={styles.type}>{typeLabel(doc.type)}</Text>
-          {doc.property && <Text style={styles.property}>{doc.property.name}</Text>}
-          {doc.notes ? <Text style={styles.notes}>{doc.notes}</Text> : null}
-        </View>
-        {expired ? (
-          <Badge label="Expired" variant="error" />
-        ) : dueSoon ? (
-          <Badge label="Due soon" variant="warning" />
-        ) : (
-          <Badge label="Readable" variant="success" format={false} />
+    <View style={styles.screen}>
+      <Pressable onPress={() => router.back()} style={styles.back} accessibilityRole="button" accessibilityLabel="Back">
+        <Ionicons name="chevron-back" size={18} color={theme.colors.secondaryDark} />
+        <Text style={styles.backText}>Back</Text>
+      </Pressable>
+      <ListScreen
+        data={filtered}
+        keyExtractor={(item) => item.id}
+        refreshing={hmore ? managed.isRefetching : legacy.isRefetching}
+        onRefresh={() => (hmore ? managed.refetch() : legacy.refetch())}
+        padded={false}
+        contentContainerStyle={[styles.list, filtered.length === 0 && styles.emptyList]}
+        ListHeaderComponent={
+          <View>
+            <ScreenHeader
+              title={t('nav.files')}
+              subtitle={t('documents.lead')}
+              action={canUpload ? <Button title={t('documents.upload')} size="sm" icon="add" onPress={upload} /> : undefined}
+            />
+            <SearchField value={query} onChangeText={setQuery} placeholder="Search files" />
+            {rows.length > 0 ? <FilterChips options={FILTERS} value={filter} onChange={(id) => setFilter(id as FileFilter)} /> : null}
+          </View>
+        }
+        ListEmptyComponent={
+          <EmptyState
+            title={rows.length === 0 ? t('documents.empty') : 'Nothing in this filter'}
+            message={rows.length === 0 ? undefined : 'Try another filter or search.'}
+            icon="folder-open-outline"
+            actionLabel={canUpload && rows.length === 0 ? t('documents.upload') : undefined}
+            onAction={canUpload && rows.length === 0 ? upload : undefined}
+          />
+        }
+        renderItem={({ item }) => (
+          <Card style={styles.card} onPress={() => setSelectedId(item.id)}>
+            <View style={styles.row}>
+              <InitialsTile name={item.title} size={42} />
+              <View style={styles.copy}>
+                <Text style={styles.title} numberOfLines={1}>{item.title}</Text>
+                <Text style={styles.meta} numberOfLines={1}>{item.meta}</Text>
+              </View>
+              <Chip label={item.chip} tone={item.tone} />
+              <Ionicons name="chevron-forward" size={18} color={theme.colors.textMuted} />
+            </View>
+          </Card>
         )}
-      </View>
-      {doc.expiryDate && (
-        <Text style={[styles.expiry, expired && styles.expiryBad, dueSoon && !expired && styles.expiryWarn]}>
-          {expired ? 'Expired' : 'Expires'} {formatUKDate(doc.expiryDate)}
-        </Text>
-      )}
-      <View style={styles.readRow}>
-        <Ionicons name="book-outline" size={14} color={theme.colors.secondary} />
-        <Text style={styles.open}>Tap to read</Text>
-      </View>
-      {canDelete && (
-        <Pressable onPress={onDelete} hitSlop={8}>
-          <Text style={styles.deleteText}>Remove</Text>
-        </Pressable>
-      )}
-    </Card>
+      />
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
+  screen: { flex: 1, backgroundColor: theme.colors.background, paddingTop: theme.spacing.sm },
+  back: { flexDirection: 'row', alignItems: 'center', marginLeft: theme.spacing.md, marginBottom: theme.spacing.xs },
+  backText: { fontFamily: FONT_SEMIBOLD, color: theme.colors.secondaryDark, fontSize: 15 },
+  list: { paddingHorizontal: theme.spacing.md },
   emptyList: { flexGrow: 1 },
-  header: { marginBottom: theme.spacing.sm },
-  title: {
-    fontSize: 26,
-    fontFamily: FONT_BOLD,
-    fontWeight: '700',
-    color: theme.colors.text,
-    letterSpacing: -0.4,
-  },
-  subtitle: {
-    color: theme.colors.textSecondary,
-    fontSize: 14,
-    marginTop: 4,
-    marginBottom: theme.spacing.md,
-    fontFamily: FONT_MEDIUM,
-    lineHeight: 20,
-  },
-  summary: {
-    flexDirection: 'row',
-    gap: theme.spacing.sm,
-    marginBottom: theme.spacing.md,
-  },
-  summaryItem: {
-    flex: 1,
-    backgroundColor: theme.colors.surfaceMuted,
-    borderRadius: theme.radius.lg,
-    paddingVertical: 12,
-    alignItems: 'center',
-  },
-  summaryValue: {
-    fontSize: 20,
-    fontFamily: FONT_BOLD,
-    fontWeight: '700',
-    color: theme.colors.text,
-  },
-  summaryWarn: { color: theme.colors.warning },
-  summaryLabel: {
-    fontSize: 11,
-    fontFamily: FONT_MEDIUM,
-    color: theme.colors.textMuted,
-    marginTop: 2,
-  },
-  actions: { flexDirection: 'column', gap: theme.spacing.sm, marginBottom: theme.spacing.md, width: '100%' },
-  actionBtn: { width: '100%' },
-  sectionLabel: {
-    fontSize: 12,
-    fontFamily: FONT_SEMIBOLD,
-    fontWeight: '600',
-    color: theme.colors.textMuted,
-    textTransform: 'uppercase',
-    letterSpacing: 0.5,
-    marginBottom: theme.spacing.sm,
-    marginTop: theme.spacing.sm,
-  },
-  sectionLabelInline: {
-    fontSize: 12,
-    fontFamily: FONT_SEMIBOLD,
-    fontWeight: '600',
-    color: theme.colors.textMuted,
-    textTransform: 'uppercase',
-    letterSpacing: 0.5,
-    marginBottom: theme.spacing.sm,
-    marginTop: theme.spacing.md,
-  },
-  card: { marginBottom: theme.spacing.sm },
-  expired: { borderColor: theme.colors.error, backgroundColor: theme.colors.errorLight },
-  dueSoon: { borderColor: theme.colors.warning, backgroundColor: theme.colors.warningLight },
-  cardTop: { flexDirection: 'row', alignItems: 'flex-start', gap: 12 },
-  fileIcon: {
-    width: 42,
-    height: 42,
-    borderRadius: theme.radius.md,
+  detail: { paddingHorizontal: theme.spacing.md, paddingBottom: 48 },
+  detailBack: { marginLeft: 0 },
+  banner: {
+    height: 132,
+    borderRadius: theme.radius.xl,
     backgroundColor: theme.colors.accentLight,
     alignItems: 'center',
     justifyContent: 'center',
+    marginBottom: theme.spacing.md,
   },
-  cardCopy: { flex: 1, minWidth: 0 },
-  name: {
-    fontFamily: FONT_BOLD,
-    fontWeight: '700',
-    fontSize: 15,
-    color: theme.colors.text,
-    letterSpacing: -0.2,
+  fileMark: {
+    width: 72,
+    height: 72,
+    borderRadius: 24,
+    backgroundColor: theme.colors.secondaryDark,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
-  type: { color: theme.colors.textMuted, fontSize: 13, marginTop: 2, fontFamily: FONT_MEDIUM },
-  property: {
-    color: theme.colors.secondary,
-    fontSize: 12,
-    marginTop: 4,
-    fontFamily: FONT_SEMIBOLD,
-    fontWeight: '600',
-  },
-  notes: { color: theme.colors.textSecondary, fontSize: 12, marginTop: 4, fontFamily: FONT_MEDIUM },
-  expiry: {
-    color: theme.colors.textMuted,
-    fontSize: 12,
-    marginTop: 10,
-    fontFamily: FONT_SEMIBOLD,
-    fontWeight: '600',
-  },
-  expiryBad: { color: theme.colors.error },
-  expiryWarn: { color: theme.colors.warning },
-  readRow: { flexDirection: 'row', alignItems: 'center', gap: 6, marginTop: 8 },
-  open: { color: theme.colors.secondary, fontSize: 13, fontFamily: FONT_SEMIBOLD, fontWeight: '700' },
-  deleteText: { color: theme.colors.error, fontSize: 12, fontFamily: FONT_SEMIBOLD, fontWeight: '600', marginTop: 8 },
+  detailTitle: { fontSize: 28, fontFamily: FONT_BOLD, fontWeight: '700', color: theme.colors.text, letterSpacing: -0.4 },
+  detailMeta: { fontFamily: FONT_MEDIUM, color: theme.colors.textSecondary, marginTop: 6, fontSize: 14 },
+  chips: { flexDirection: 'row', flexWrap: 'wrap', gap: 8, marginTop: 12 },
+  card: { marginBottom: theme.spacing.sm },
+  row: { flexDirection: 'row', alignItems: 'center', gap: 12 },
+  copy: { flex: 1, minWidth: 0 },
+  title: { fontFamily: FONT_SEMIBOLD, fontWeight: '600', fontSize: 15, color: theme.colors.text },
+  meta: { fontFamily: FONT_MEDIUM, fontSize: 13, color: theme.colors.textSecondary, marginTop: 2 },
 });
-
-export default function DocumentsScreen() {
-  const { hmore } = useAuth();
-  if (hmore) return <HmoreDocuments />;
-  return <LegacyDocumentsScreen />;
-}

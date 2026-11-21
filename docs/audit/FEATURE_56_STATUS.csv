@@ -1,0 +1,57 @@
+feature_id,feature_name,status,api_paths,web_paths,mobile_paths,test_evidence,prompt7_notes
+M01.1,Six roles enforced,PASS,app/rbac/roles.py,dashboard/*,room-ready/constants/permissions.ts,tests/test_rbac_registry.py::test_exactly_six_approved_roles,Unchanged
+M01.2,Auth0 login logout,PARTIAL,app/api/v1/auth.py,src/middleware.ts,room-ready/lib/hmoreAuth0.ts,tests/test_auth_tokens.py,Live Auth0 not exercised
+M01.3,Org isolation,PASS,app/tenancy/*,server-enforced,room-ready/lib/hmore/client.py,tests/test_organisation_isolation.py,Unchanged
+M01.4,Audit events on writes,PARTIAL,app/api/v1/audit.py,dashboard/audit,—,tests/test_f17_audit.py,Browser not run
+M01.5,Emergency access logged,PARTIAL,app/api/v1/emergency_access.py,API-only,—,tests/test_f17_audit.py,API tests only
+M01.6,MFA staff path,UNVERIFIED,app/auth/deps.py,Auth0 policy,—,partial test refs,Auth0 policy not verified locally
+M02.1,Tenant profile contact,PARTIAL,app/api/v1/tenant_me.py,dashboard/caseload,room-ready tenant screens,tests/test_f41_tenant_mobile.py; test_f21,P3 commit f3097b2
+M02.2,Needs and goals,PARTIAL,support_plans.py; tenant profile,dashboard/support-plans,mobile,tests/test_f210_support_plans.py,P3 needs_goals on profile
+M02.3,Timeline follow-ups,PARTIAL,tenant_timeline.py,dashboard/support-plans,mobile,tests/test_f29_tenant_timeline.py,Automated only
+M02.4,Tenant own-record access,PARTIAL,tenant_me + RBAC,—,tenant role mobile,tests/test_f41_tenant_mobile.py,No device smoke
+M03.1,Properties rooms CRUD,PARTIAL,properties.py; rooms.py,dashboard/landlord,mobile,tests/test_f16_records.py; test_f61,Auth0 E2E unverified
+M03.2,Vacancies listings,PARTIAL,opportunities.py,browse,mobile browse,partial housing tests,Automated only
+M03.3,Housing applications,PARTIAL,housing.py,dashboard/housing-applications,—,tests/test_f25_housing_applications.py,Automated only
+M03.4,Waiting list,PARTIAL,housing.py,dashboard/waiting-list,—,tests/test_f25_housing_applications.py,Automated only
+M03.5,Evidence pack exports,PARTIAL,evidence.py,dashboard/reports/housing,—,tests/test_f26_evidence_packs.py,Automated only
+M04.1,Caseload,PARTIAL,support.py,dashboard/caseload/[tenantId],staff mobile,tests/test_f21_support_caseloads.py,P3 tests extended
+M04.2,Daily logs,PARTIAL,support.py,dashboard/daily-logs/new,staff,tests/test_f21; test_f44,Automated only
+M04.3,Handovers,PARTIAL,support.py,dashboard/handovers,staff/handovers.tsx,tests/test_f21_support_caseloads.py,Mobile handover screen added P3
+M04.4,Rota visits tasks,PARTIAL,support.py rota,dashboard/rota; visits; tasks,staff,tests/test_f22_rota_visits_tasks.py,Automated only
+M04.5,Training safeguarding,PARTIAL,compliance.py,dashboard/training; safeguarding,staff,tests/test_f23_training_safeguarding.py,Automated only
+M04.6,Incidents workload,PARTIAL,incidents.py,dashboard/incidents; workload,staff,tests/test_f24_incidents_workload.py,Automated only
+M05.1,Goals milestones,PARTIAL,support_plans.py,dashboard/support-plans,mobile,tests/test_f210_support_plans.py,Automated only
+M05.2,Reviews export,PARTIAL,support_plans; reporting,dashboard/support-plans,—,tests/test_f210_support_plans.py,Browser export unverified
+M06.1,Skills CV,PARTIAL,employment.py,dashboard/employment-support,mobile employment,tests/test_f53_employment_prep.py,Automated only
+M06.2,Job matching,PARTIAL,job_matching.py,dashboard/job-matching,mobile,tests/test_f54_job_matching.py,Automated only
+M06.3,Career roadmap,PARTIAL,employment.py,—,mobile roadmap,tests/test_f53_employment_prep.py,Automated only
+M07.1,Community directory,PARTIAL,community_services.py,dashboard/community-directory,mobile,tests/test_f51_community_directory.py,Automated only
+M07.2,Help Near Me,PARTIAL,help_near_me.py,dashboard/help-near-me,mobile,tests/test_f52_help_near_me.py,Automated only
+M07.3,Report outdated,PARTIAL,community_services.py,community UI,mobile,tests/test_f51_community_directory.py,Automated only
+M08.1,Report repair photos,PARTIAL,maintenance.py; files.py,dashboard/maintenance/new,mobile maintenance,tests/test_f28_maintenance.py,Mandatory gate not E2E proven
+M08.2,Priorities escalation,PARTIAL,maintenance; complaints,dashboard complaints,mobile,tests/test_f27; test_f28,Automated only
+M08.3,Contractor workflow,PARTIAL,maintenance.py,maintenance views,contractor mobile,tests/test_f28_maintenance.py,Automated only
+M08.4,Emergency instructions,PARTIAL,communication templates,templates,mobile copy,limited test,Content smoke not run
+M09.1,Wellbeing check-ins,PARTIAL,wellbeing.py,dashboard/wellbeing-resources,mobile,tests/test_f55_wellbeing.py,Automated only
+M09.2,Directory navigator,PARTIAL,wellbeing.py,wellbeing pages,navigator,tests/test_f55_wellbeing.py,Automated only
+M10.1,Super Admin organisations,PARTIAL,platform_governance list,dashboard/super-admin/organisations,—,platform tests partial,UI wired Prompt 1; browser UNVERIFIED
+M10.2,Approvals inbox,PARTIAL,org_workflows.py,dashboard/org-workflows/approvals,—,tests/test_f213_org_workflows.py,Mandatory gate not browser proven
+M10.3,Custom forms workflows,PARTIAL,org_workflows.py,dashboard/org-workflows/forms,—,tests/test_f213_org_workflows.py,Many tests skipped w/o DB
+M10.4,Secure sharing,PARTIAL,org_workflows.py,dashboard/org-workflows/sharing,—,tests/test_f213_org_workflows.py,Many tests skipped w/o DB
+M10.5,Council Portal add-on,PARTIAL,council_portal.py,dashboard/council-portal,—,tests/test_f67_council_portal.py,Optional add-on
+M11.1,In-app messages,PARTIAL,communication.py,dashboard/communications/inbox,mobile,tests/test_f212_communication.py,Automated only
+M11.2,Templates reminders,PARTIAL,communication.py,communications templates,—,tests/test_f212_communication.py,Automated only
+M11.3,Push email SMS,MOCK,communication.py; push.py,preferences,mobile push,tests/test_f43_push_notifications.py,Accepted MOCK per plan
+M11.4,Emergency announcements,PARTIAL,communication.py,announcements,—,tests/test_f212_communication.py,Automated only
+M11.5,Translation hooks,PARTIAL,communication.py,translations,mobile i18n,tests/test_f212_communication.py partial,Automated only
+M12.1,Upload browse,PARTIAL,managed_documents; files,dashboard/documents,mobile docs,tests/test_f211; test_f18,Automated only
+M12.2,Version expiry,PARTIAL,managed_documents.py,documents expiring,—,tests/test_f211_managed_documents.py,Automated only
+M12.3,Access requests,PARTIAL,managed_documents.py,documents/access,—,tests/test_f211_managed_documents.py,Automated only
+M12.4,E-sign baseline,MOCK,signatures routes,dashboard/documents/signatures,—,tests/test_f211; digital_id 501,Accepted MOCK
+M13.1,Dashboard reports,PARTIAL,reporting.py,dashboard/reports,—,tests/test_f214; test_f62,Automated only
+M13.2,Exports CSV PDF,PARTIAL,reporting.py,report exports,—,tests/test_f214_reporting.py,Automated only
+M13.3,Scheduled reports,MOCK,reporting + celery,reports/schedules,—,tests/test_f68_phase6_celery_beat.py,Redis/Celery not proven
+M13.4,Early-warning alerts,PARTIAL,reporting.py,reports/alerts,—,tests/test_f62_reports_analytics.py,Automated only
+M14.1,Occupancy survey pack,PARTIAL,occupancy_surveys.py,dashboard/occupancy-survey,—,tests/test_f110_occupancy_survey.py,Web shell PARTIAL
+M14.2,Manual occupancy state,MOCK,room_occupancy.py,dashboard/room-occupancy,mobile partial,tests/test_f65_room_occupancy.py,Accepted MOCK
+M14.3,Live camera ingest,DEFER,room_occupancy DPIA gate,—,—,tests/test_f65_room_occupancy.py,Accepted DEFER per plan

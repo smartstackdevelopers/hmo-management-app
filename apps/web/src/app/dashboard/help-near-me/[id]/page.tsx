@@ -4,6 +4,7 @@ import { ReportModerationActions } from "@/components/community/ReportModeration
 import { EmptyState } from "@/components/dashboard/EmptyState";
 import { ErrorState } from "@/components/dashboard/ErrorState";
 import { PageHeader } from "@/components/dashboard/PageHeader";
+import { btnSecondary, humanize, StatusChip } from "@/components/ui/primitives";
 import { auth0, isAuth0Configured } from "@/lib/auth0";
 import { getAdminReport } from "@/lib/helpNearMeApi";
 import { canAny } from "@/lib/rbac";
@@ -31,12 +32,12 @@ export default async function HelpNearMeReportDetailPage({
     return <EmptyState title="Organisation required" description="Active organisation needed." />;
   }
   if (!isAuth0Configured() || !auth0) {
-    return <EmptyState title="Auth0 not configured" description="Cannot load report." />;
+    return <EmptyState title="Sign-in not configured" description="Sign-in isn't set up in this environment yet, so this page can't load." />;
   }
   const { id } = await params;
   try {
     const token = (await auth0.getAccessToken())?.token;
-    if (!token) return <ErrorState description="Access token unavailable." />;
+    if (!token) return <ErrorState description="We couldn't confirm your sign-in. Please sign in again." />;
     const report = await getAdminReport({
       accessToken: token,
       organisationId: orgId,
@@ -46,22 +47,22 @@ export default async function HelpNearMeReportDetailPage({
     return (
       <div className="mx-auto max-w-3xl space-y-6">
         <PageHeader
-          eyebrow="F5.2"
+          eyebrow="Community"
           title={report.service_name ?? "Service report"}
-          description={`${report.reason.replaceAll("_", " ")} · ${report.status.replaceAll("_", " ")}`}
+          description={humanize(report.reason)}
+          actions={
+            <>
+              <Link href="/dashboard/help-near-me" className={btnSecondary}>
+                All reports
+              </Link>
+              <Link href={`/dashboard/community-directory/${report.service_id}`} className={btnSecondary}>
+                Open service
+              </Link>
+            </>
+          }
         />
-        <div className="flex flex-wrap gap-3 text-sm">
-          <Link href="/dashboard/help-near-me" className="rounded-md border border-slate-300 px-3 py-2">
-            Back to reports
-          </Link>
-          <Link
-            href={`/dashboard/community-directory/${report.service_id}`}
-            className="rounded-md bg-teal-700 px-3 py-2 text-white"
-          >
-            Open service listing
-          </Link>
-        </div>
-        <dl className="grid gap-4 rounded-lg border border-slate-200 bg-white p-5 sm:grid-cols-2">
+        <StatusChip status={report.status} />
+        <dl className="grid gap-4 rounded-2xl border border-slate-200 bg-white p-5 shadow-card sm:grid-cols-2">
           <div>
             <dt className="text-xs font-semibold uppercase tracking-wide text-slate-500">Details</dt>
             <dd className="mt-1 text-sm">{report.details?.trim() ? report.details : "No extra details"}</dd>
@@ -88,9 +89,9 @@ export default async function HelpNearMeReportDetailPage({
         />
       </div>
     );
-  } catch (error) {
+  } catch {
     return (
-      <ErrorState description={error instanceof Error ? error.message : "Failed to load report."} />
+      <ErrorState description={"Failed to load report."} />
     );
   }
 }

@@ -186,3 +186,79 @@ def find_own_tenant(session: Session, ctx: OrganisationContext) -> Tenant | None
             Tenant.user_id == ctx.user_id,
         )
     )
+
+
+def ensure_linked_tenant_for_user(
+    session: Session,
+    *,
+    organisation_id: uuid.UUID,
+    user_id: uuid.UUID,
+    preferred_name: str,
+    full_name: str | None = None,
+    email: str | None = None,
+    phone: str | None = None,
+    actor_user_id: uuid.UUID | None = None,
+    actor_role: str = "system",
+) -> Tenant:
+    """Create or return the organisation tenant person row linked to a login user.
+
+    Native registration approves the membership role but historically did not create
+    the tenant person profile. Tenant mobile/home screens require that link.
+    """
+    existing = session.scalar(
+        select(Tenant).where(
+            Tenant.organisation_id == organisation_id,
+            Tenant.user_id == user_id,
+        )
+    )
+    if existing is not None:
+        return existing
+
+    name = (preferred_name or full_name or email or "Tenant").strip() or "Tenant"
+    tenant = Tenant(
+        organisation_id=organisation_id,
+        user_id=user_id,
+        preferred_name=name[:255],
+        full_name=(full_name or name)[:255] if (full_name or name) else name,
+        email=email,
+        phone=phone,
+        status=RecordStatus.ACTIVE,
+    )
+    session.add(tenant)
+    session.flush()
+    record_crud_event(
+        session,
+        organisation_id=organisation_id,
+        actor_user_id=actor_user_id or user_id,
+        actor_role=actor_role,
+        action="tenant.link_on_registration",
+        resource_type="tenant",
+        resource_id=tenant.id,
+        summary=f"Linked tenant profile for {tenant.preferred_name}",
+    )
+    return tenant
+
+
+def ensure_own_tenant(session: Session, ctx: OrganisationContext) -> Tenant | None:
+    """For tenant-role callers, ensure a linked person profile exists."""
+    if ctx.role != HMoreRole.TENANT:
+        return None
+    existing = find_own_tenant(session, ctx)
+    if existing is not None:
+        return existing
+
+    from app.db.models.user import User
+
+    user = session.get(User, ctx.user_id)
+    display = (user.display_name if user else None) or (user.email if user else None) or "Tenant"
+    return ensure_linked_tenant_for_user(
+        session,
+        organisation_id=ctx.organisation_id,
+        user_id=ctx.user_id,
+        preferred_name=display,
+        full_name=display,
+        email=user.email if user else None,
+        phone=user.phone if user else None,
+        actor_user_id=ctx.user_id,
+        actor_role=ctx.role.value,
+    )

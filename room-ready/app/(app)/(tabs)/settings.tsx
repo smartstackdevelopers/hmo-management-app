@@ -1,29 +1,27 @@
 import { router } from 'expo-router';
-import { RefreshControl, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { Text, View } from 'react-native';
 
-import { Button } from '@/components/ui/Button';
+import { InitialsTile, useHideTabHeader } from '@/components/dashboard/mobileChrome';
 import { Card } from '@/components/ui/Card';
-import { StatCard } from '@/components/ui/StatCard';
-import { ErrorState, LoadingScreen } from '@/components/ui/States';
+import { Chip } from '@/components/ui/Chip';
+import { ListRow } from '@/components/ui/ListRow';
+import { Screen } from '@/components/ui/Screen';
+import { Section } from '@/components/ui/Section';
+import { FONT_BOLD, FONT_MEDIUM } from '@/constants/fonts';
 import { theme } from '@/constants/theme';
-import { UK_CONFIG } from '@/constants/uk';
 import { TAB_ROLES } from '@/constants/permissions';
 import { useAuth } from '@/contexts/AuthContext';
-import { useAdminAnalytics } from '@/hooks/useApi';
 import { useRoleGuard } from '@/hooks/useRoleGuard';
+import { ROLE_LABELS } from '@/types';
 
 export default function SettingsScreen() {
+  useHideTabHeader();
   const guard = useRoleGuard(TAB_ROLES.settings);
+  const { user, signOut } = useAuth();
+
   if (guard) return guard;
 
-  const { signOut } = useAuth();
-  const { data, isLoading, error, refetch, isRefetching } = useAdminAnalytics();
-
-  if (isLoading) return <LoadingScreen />;
-  if (error) return <ErrorState message="Could not load platform data" onRetry={refetch} />;
-
-  const analytics = (data?.analytics ?? {}) as Record<string, unknown>;
-  const usersByRole = analytics.usersByRole as Record<string, number> | undefined;
+  const name = `${user?.firstName ?? ''} ${user?.lastName ?? ''}`.trim() || 'Account';
 
   async function handleSignOut() {
     await signOut();
@@ -31,56 +29,30 @@ export default function SettingsScreen() {
   }
 
   return (
-    <ScrollView
-      style={styles.container}
-      contentContainerStyle={styles.content}
-      refreshControl={<RefreshControl refreshing={isRefetching} onRefresh={refetch} tintColor={theme.colors.secondary} />}
-    >
-      <Text style={styles.title}>Platform</Text>
-      <Text style={styles.subtitle}>Room Ready administration · {UK_CONFIG.country}</Text>
-
-      <View style={styles.grid}>
-        <StatCard label="Total Users" value={String(analytics.totalUsers ?? 0)} icon="people-outline" style={styles.stat} />
-        <StatCard label="Active Listings" value={String(analytics.activeListings ?? 0)} icon="list-outline" variant="info" style={styles.stat} />
-        <StatCard label="Unverified" value={String(analytics.pendingVerification ?? 0)} icon="shield-outline" variant="warning" style={styles.stat} />
-        <StatCard label="Open Repairs" value={String(analytics.openMaintenance ?? 0)} icon="construct-outline" style={styles.stat} />
-      </View>
-
-      {usersByRole && (
-        <Card style={styles.section}>
-          <Text style={styles.sectionTitle}>Users by Role</Text>
-          {Object.entries(usersByRole).map(([role, count]) => (
-            <View key={role} style={styles.roleRow}>
-              <Text style={styles.roleName}>{role.replace(/_/g, ' ')}</Text>
-              <Text style={styles.roleCount}>{count}</Text>
-            </View>
-          ))}
-        </Card>
-      )}
-
-      <Card style={styles.section}>
-        <Text style={styles.sectionTitle}>Configuration</Text>
-        <Text style={styles.setting}>Region: {UK_CONFIG.country}</Text>
-        <Text style={styles.setting}>Currency: {UK_CONFIG.currency} ({UK_CONFIG.currencySymbol})</Text>
-        <Text style={styles.setting}>Compliance reminders: Enabled</Text>
+    <Screen>
+      <Text accessibilityRole="header" style={{ fontFamily: FONT_BOLD, fontSize: 28, color: theme.colors.text, letterSpacing: -0.4 }}>
+        Platform
+      </Text>
+      <Card style={{ marginTop: 12, marginBottom: 16 }}>
+        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
+          <InitialsTile name={name} size={48} />
+          <View style={{ flex: 1, minWidth: 0 }}>
+            <Text style={{ fontFamily: FONT_BOLD, fontSize: 16, color: theme.colors.text }} numberOfLines={1}>{name}</Text>
+            {user?.email ? <Text style={{ fontFamily: FONT_MEDIUM, color: theme.colors.textSecondary, marginTop: 2 }} numberOfLines={1}>{user.email}</Text> : null}
+            {user?.role ? <Chip label={ROLE_LABELS[user.role]} tone="blue" style={{ marginTop: 6 }} /> : null}
+          </View>
+        </View>
       </Card>
-
-      <Button title="Sign Out" variant="outline" onPress={handleSignOut} fullWidth />
-    </ScrollView>
+      <Section title="Platform">
+        <Card padded={false}>
+          <ListRow title="Users" icon="people-outline" onPress={() => router.push('/(app)/(tabs)/users')} />
+        </Card>
+      </Section>
+      <Section title="Account">
+        <Card padded={false}>
+          <ListRow title="Sign out" icon="log-out-outline" tone="red" onPress={handleSignOut} />
+        </Card>
+      </Section>
+    </Screen>
   );
 }
-
-const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: theme.colors.background },
-  content: { padding: theme.spacing.md, paddingBottom: 40 },
-  title: { ...theme.typography.h1, color: theme.colors.text },
-  subtitle: { color: theme.colors.textSecondary, marginBottom: theme.spacing.lg, marginTop: 4 },
-  grid: { flexDirection: 'row', flexWrap: 'wrap', gap: theme.spacing.sm, marginBottom: theme.spacing.lg },
-  stat: { width: '48%', flexGrow: 1 },
-  section: { marginBottom: theme.spacing.md },
-  sectionTitle: { fontWeight: '700', marginBottom: 12, color: theme.colors.text, fontSize: 16 },
-  roleRow: { flexDirection: 'row', justifyContent: 'space-between', paddingVertical: 10, borderBottomWidth: 1, borderBottomColor: theme.colors.borderLight },
-  roleName: { textTransform: 'capitalize', color: theme.colors.textSecondary },
-  roleCount: { fontWeight: '700', color: theme.colors.text },
-  setting: { color: theme.colors.textSecondary, paddingVertical: 6, fontSize: 15 },
-});

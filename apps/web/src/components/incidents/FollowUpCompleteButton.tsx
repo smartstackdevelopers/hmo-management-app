@@ -2,6 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { btnSecondary } from "@/components/ui/primitives";
 import { completeFollowUp } from "@/lib/incidentsApi";
 
 export function FollowUpCompleteButton({
@@ -24,7 +25,7 @@ export function FollowUpCompleteButton({
     <div>
       <button
         type="button"
-        className="rounded border border-slate-300 px-2 py-1 text-xs"
+        className={btnSecondary}
         onClick={async () => {
           setError(null);
           try {

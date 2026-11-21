@@ -29,7 +29,7 @@ export default async function EmploymentSupportPage({
     return <EmptyState title="Organisation required" description="Active organisation needed." />;
   }
   if (!isAuth0Configured() || !auth0) {
-    return <EmptyState title="Auth0 not configured" description="Cannot load employment support." />;
+    return <EmptyState title="Sign-in not configured" description="Sign-in isn't set up in this environment yet, so this page can't load." />;
   }
   const params = searchParams ? await searchParams : {};
   const tenantId = params.tenantId?.trim();
@@ -37,7 +37,7 @@ export default async function EmploymentSupportPage({
     return (
       <div className="mx-auto max-w-3xl space-y-6">
         <PageHeader
-          eyebrow="F5.3"
+          eyebrow="Community"
           title="Employment support"
           description="Authorised staff can view a limited skills and employment preparation summary for an assigned tenant. Full CVs and application notes stay private unless policy grants access."
         />
@@ -50,7 +50,7 @@ export default async function EmploymentSupportPage({
   }
   try {
     const token = (await auth0.getAccessToken())?.token;
-    if (!token) return <ErrorState description="Access token unavailable." />;
+    if (!token) return <ErrorState description="We couldn't confirm your sign-in. Please sign in again." />;
     const summary = await fetchEmploymentSummary({
       accessToken: token,
       organisationId: orgId,
@@ -71,11 +71,11 @@ export default async function EmploymentSupportPage({
     return (
       <div className="mx-auto max-w-3xl space-y-6">
         <PageHeader
-          eyebrow="F5.3 / F5.4"
+          eyebrow="Community"
           title="Employment support summary"
           description="Self-reported skills are not formally verified qualifications. CV PDFs and private applications stay restricted. Match scores are advisory only."
         />
-        <dl className="grid gap-4 rounded-lg border border-slate-200 bg-white p-5 sm:grid-cols-2">
+        <dl className="grid gap-4 rounded-2xl border border-slate-200 bg-white p-5 shadow-card sm:grid-cols-2">
           <div>
             <dt className="text-xs font-semibold uppercase text-slate-500">Assessment</dt>
             <dd className="mt-1 text-sm">
@@ -146,9 +146,9 @@ export default async function EmploymentSupportPage({
         ) : null}
       </div>
     );
-  } catch (error) {
+  } catch {
     return (
-      <ErrorState description={error instanceof Error ? error.message : "Failed to load summary."} />
+      <ErrorState description={"Failed to load summary."} />
     );
   }
 }

@@ -30,7 +30,7 @@ export default async function NewIncidentPage() {
   }
   return (
     <div className="mx-auto max-w-xl space-y-6">
-      <PageHeader eyebrow="F2.4" title="New incident" description="Report an operational incident." />
+      <PageHeader eyebrow="Operations" title="Report incident" description="Record what happened, where, and what you did straight away." />
       <IncidentForm
         accessToken={token}
         organisationId={orgId}

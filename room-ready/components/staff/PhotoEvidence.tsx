@@ -1,11 +1,12 @@
 import { useQuery } from '@tanstack/react-query';
 import { useState } from 'react';
-import { Image, Pressable, Text } from 'react-native';
+import { Image, Pressable, Text, View } from 'react-native';
 
-import { Feedback, RecordCard, StaffPage } from '@/components/staff/ui';
+import { FilterChips, useHideTabHeader } from '@/components/dashboard/mobileChrome';
+import { Feedback, StaffPage } from '@/components/staff/ui';
 import { Button } from '@/components/ui/Button';
 import { ErrorState, LoadingScreen } from '@/components/ui/States';
-import { FONT_MEDIUM } from '@/constants/fonts';
+import { FONT_MEDIUM, FONT_SEMIBOLD } from '@/constants/fonts';
 import { theme } from '@/constants/theme';
 import { hmoreErrorMessage } from '@/lib/hmore/client';
 import { validateStaffUpload } from '@/lib/hmore/uploads';
@@ -15,12 +16,14 @@ import { pickImage } from '@/lib/uploads';
 type Photo = { uri: string; name: string; mimeType: string; size: number | null };
 
 export function PhotoEvidence() {
+  useHideTabHeader();
   const orders = useQuery({ queryKey: ['hmore', 'staff', 'work-orders'], queryFn: listAssignedWorkOrders });
   const [requestId, setRequestId] = useState('');
   const [photo, setPhoto] = useState<Photo | null>(null);
   const [feedback, setFeedback] = useState('');
   const [busy, setBusy] = useState(false);
   const selected = requestId || orders.data?.items[0]?.id || '';
+  const current = orders.data?.items.find((order) => order.id === selected);
 
   if (orders.isLoading) return <LoadingScreen message="Loading work orders..." />;
   if (orders.isError) return <ErrorState message={hmoreErrorMessage(orders.error, 'Could not load work orders')} onRetry={orders.refetch} />;
@@ -61,22 +64,54 @@ export function PhotoEvidence() {
     }
   }
 
+  const items = orders.data?.items ?? [];
+
   return (
-    <StaffPage title="Photos" subtitle="Completion photos use the maintenance upload. JPEG, PNG, or WebP, up to 10 MB." onRefresh={orders.refetch} refreshing={orders.isRefetching}>
-      {(orders.data?.items ?? []).map((order) => (
-        <RecordCard key={order.id} title={order.title} status={order.status} detail={order.reference_number} onPress={() => setRequestId(order.id)} />
-      ))}
-      {photo ? (
-        <>
-          <Image source={{ uri: photo.uri }} style={{ width: 160, height: 160, borderRadius: 12, marginBottom: 8 }} />
-          <Pressable onPress={() => setPhoto(null)}>
-            <Text style={{ color: theme.colors.error, fontFamily: FONT_MEDIUM, marginBottom: 8 }}>Remove photo</Text>
-          </Pressable>
-        </>
+    <StaffPage
+      title={current ? `Evidence · ${current.reference_number}` : 'Evidence'}
+      subtitle={current?.title || 'Choose a job, then add a completion photo.'}
+      onRefresh={orders.refetch}
+      refreshing={orders.isRefetching}
+    >
+      {items.length === 0 ? (
+        <Text style={{ fontFamily: FONT_MEDIUM, color: theme.colors.textSecondary }}>No work orders to attach a photo to.</Text>
       ) : (
-        <Button title="Choose photo" variant="outline" onPress={choose} fullWidth />
+        <FilterChips
+          value={selected}
+          onChange={setRequestId}
+          options={items.map((order) => ({ id: order.id, label: order.reference_number || order.title }))}
+        />
       )}
-      <Button title="Upload photo" onPress={upload} loading={busy} disabled={!photo || !selected} fullWidth />
+      <Text style={{ fontFamily: FONT_SEMIBOLD, color: theme.colors.text, marginBottom: 8 }}>Photo</Text>
+      <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 10, marginBottom: 16 }}>
+        {photo ? (
+          <View>
+            <Image source={{ uri: photo.uri }} style={{ width: 96, height: 96, borderRadius: 16 }} />
+            <Pressable onPress={() => setPhoto(null)} accessibilityRole="button" accessibilityLabel="Remove photo">
+              <Text style={{ color: theme.colors.error, fontFamily: FONT_MEDIUM, marginTop: 6 }}>Remove</Text>
+            </Pressable>
+          </View>
+        ) : (
+          <Pressable
+            onPress={choose}
+            accessibilityRole="button"
+            accessibilityLabel="Add photo"
+            style={{
+              width: 96,
+              height: 96,
+              borderRadius: 16,
+              borderWidth: 1,
+              borderColor: theme.colors.border,
+              alignItems: 'center',
+              justifyContent: 'center',
+              backgroundColor: theme.colors.surface,
+            }}
+          >
+            <Text style={{ fontFamily: FONT_SEMIBOLD, color: theme.colors.secondaryDark }}>+ Add</Text>
+          </Pressable>
+        )}
+      </View>
+      <Button title="Submit for sign-off" onPress={upload} loading={busy} disabled={!photo || !selected} fullWidth />
       {feedback ? <Feedback text={feedback} tone={feedback.startsWith('Photo stored') ? 'ok' : 'warn'} /> : null}
     </StaffPage>
   );
