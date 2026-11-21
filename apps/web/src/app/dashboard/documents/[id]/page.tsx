@@ -90,7 +90,7 @@ export default async function DocumentDetailPage({ params }: { params: Promise<{
               documentId={id}
             />
           ) : (
-            <p className="text-sm text-slate-600">Downloading the file isn't available on your account.</p>
+            <p className="text-sm text-slate-600">Downloading the file is not available on your account.</p>
           )}
         </div>
 

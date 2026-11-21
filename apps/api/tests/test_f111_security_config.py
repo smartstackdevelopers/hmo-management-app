@@ -28,8 +28,7 @@ def test_production_requires_critical_settings() -> None:
     )
     errors = settings.production_validation_errors()
     assert any("DATABASE_URL" in item for item in errors)
-    assert any("AUTH0_DOMAIN" in item for item in errors)
-    assert any("AUTH0_AUDIENCE" in item for item in errors)
+    assert any("HMORE_NATIVE_AUTH_SECRET" in item for item in errors)
     assert any("INTEGRATION_SECRETS_KEY" in item for item in errors)
     assert any("memory" in item for item in errors)
     assert any("'*'" in item or "*" in item for item in errors)
@@ -48,6 +47,7 @@ def test_production_accepts_iam_style_s3_without_static_keys() -> None:
         cors_allowed_origins="https://app.hmore.example",
         enforce_https_origins=True,
         integration_secrets_key="dGVzdC1rZXktMzItYnl0ZXMtZm9yLWZlcm5ldCEhIQ==",
+        hmore_native_auth_secret="production-native-auth-secret-not-default",
     )
     assert settings.production_validation_errors() == []
 
