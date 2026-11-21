@@ -233,6 +233,8 @@ export interface ManagedDocument {
   category_code: string | null;
   status: string;
   expiry_date: string | null;
+  /** Server value: none, valid, expiring_soon, expired, renewal_pending, renewed. */
+  expiry_tracking?: string | null;
   created_at: string | null;
   updated_at: string | null;
 }

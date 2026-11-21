@@ -2,7 +2,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { router } from 'expo-router';
 import { useState } from 'react';
 
-import { Feedback, RecordCard, StaffPage } from '@/components/staff/ui';
+import { Feedback, StaffPage, StatusRow, staffLabel, statusTone } from '@/components/staff/ui';
 import { HmoreApiError, hmoreErrorMessage } from '@/lib/hmore/client';
 import { staffAlertHref } from '@/lib/hmore/staff/alerts';
 import { getMessage, listAnnouncements, listInbox, markMessageRead } from '@/lib/hmore/services/communications';
@@ -73,19 +73,28 @@ export function StaffAlertList() {
       refreshing={inbox.isRefetching || announcements.isRefetching}
     >
       {messages.length === 0 && (announcements.data ?? []).length === 0 ? (
-        <RecordCard title="No alerts" detail="The inbox is empty." />
+        <Feedback text="The inbox is empty." />
       ) : null}
       {messages.map((message) => (
-        <RecordCard
+        <StatusRow
           key={message.recipient_id}
+          name={message.subject || 'Message'}
           title={message.subject || 'Message'}
-          status={message.read_at ? 'read' : 'new'}
-          detail={message.body_preview}
+          subtitle={message.body_preview}
+          chip={message.read_at ? 'Read' : 'New'}
+          tone={message.read_at ? 'gray' : 'blue'}
           onPress={() => openMessage(message.message_id, message)}
         />
       ))}
       {(announcements.data ?? []).map((item) => (
-        <RecordCard key={item.id} title={item.title} status={item.priority} detail={item.reference_number} />
+        <StatusRow
+          key={item.id}
+          name={item.title}
+          title={item.title}
+          subtitle={item.reference_number}
+          chip={item.priority ? staffLabel(item.priority) : undefined}
+          tone={statusTone(item.priority)}
+        />
       ))}
       {inbox.isError ? <Feedback text={hmoreErrorMessage(inbox.error, 'Could not load alerts.')} /> : null}
       {feedback ? <Feedback text={feedback} /> : null}

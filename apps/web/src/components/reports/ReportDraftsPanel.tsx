@@ -88,13 +88,13 @@ export function ReportDraftsPanel(props: Props) {
 
   return (
     <section className="space-y-4 rounded-lg border border-amber-200 bg-amber-50/40 p-4">
-      <h2 className="text-lg font-semibold text-forest-900">Report drafts</h2>
+      <h2 className="text-lg font-semibold text-slate-900">Report drafts</h2>
       <p className="text-sm font-medium text-amber-950">{REPORT_DRAFT_NOTICE}</p>
       <div className="flex flex-wrap items-center gap-2">
-        <label className="text-sm text-forest-800">
+        <label className="text-sm text-slate-700">
           Period
           <select
-            className="ml-2 rounded-md border border-forest-200 p-1 text-sm"
+            className="ml-2 block h-10 w-full rounded-lg border border-slate-300 bg-white px-3 text-sm text-slate-900 placeholder:text-slate-400 focus:border-brand-600 focus:outline-none focus:ring-2 focus:ring-brand-100"
             value={periodType}
             onChange={(event) => setPeriodType(event.target.value as "weekly" | "monthly")}
           >
@@ -104,7 +104,7 @@ export function ReportDraftsPanel(props: Props) {
         </label>
         <button
           type="button"
-          className="rounded-md bg-teal-700 px-3 py-2 text-sm text-white disabled:opacity-60"
+          className="inline-flex h-10 items-center justify-center rounded-lg bg-brand-700 px-4 text-sm font-semibold text-white shadow-sm hover:bg-brand-800 disabled:cursor-not-allowed disabled:opacity-60 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-600 focus-visible:ring-offset-2"
           disabled={state === "loading"}
           onClick={() => void generate(false)}
         >
@@ -112,7 +112,7 @@ export function ReportDraftsPanel(props: Props) {
         </button>
         <button
           type="button"
-          className="rounded-md border border-forest-300 px-3 py-2 text-sm"
+          className="rounded-md border border-slate-300 px-3 py-2 text-sm"
           disabled={state === "loading"}
           onClick={() => void generate(true)}
         >
@@ -126,7 +126,7 @@ export function ReportDraftsPanel(props: Props) {
       ) : null}
       {draft ? (
         <div className="space-y-3">
-          <p className="text-sm text-forest-800">
+          <p className="text-sm text-slate-700">
             {String(draft.period_type)} · {String(draft.period_start)} → {String(draft.period_end)} · status{" "}
             {String(draft.status)} · AI {String(draft.ai_status)}
           </p>
@@ -136,7 +136,7 @@ export function ReportDraftsPanel(props: Props) {
           {canReview && draft.status === "draft" ? (
             <>
               <textarea
-                className="w-full rounded-md border border-forest-200 p-2 text-sm"
+                className="block w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 placeholder:text-slate-400 focus:border-brand-600 focus:outline-none focus:ring-2 focus:ring-brand-100"
                 rows={8}
                 value={editedBody}
                 onChange={(event) => setEditedBody(event.target.value)}
@@ -144,21 +144,21 @@ export function ReportDraftsPanel(props: Props) {
               <div className="flex flex-wrap gap-2">
                 <button
                   type="button"
-                  className="rounded-md border border-forest-300 px-3 py-1.5 text-sm"
+                  className="inline-flex h-10 items-center justify-center rounded-lg border border-slate-200 bg-white px-4 text-sm font-semibold text-slate-700 hover:bg-slate-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-600"
                   onClick={() => void saveEdit()}
                 >
                   Save edits
                 </button>
                 <button
                   type="button"
-                  className="rounded-md bg-teal-800 px-3 py-1.5 text-sm text-white"
+                  className="inline-flex h-10 items-center justify-center rounded-lg bg-brand-700 px-4 text-sm font-semibold text-white shadow-sm hover:bg-brand-800 disabled:cursor-not-allowed disabled:opacity-60 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-600 focus-visible:ring-offset-2"
                   onClick={() => void review("approve")}
                 >
                   Approve (no distribution)
                 </button>
                 <button
                   type="button"
-                  className="rounded-md border border-forest-400 px-3 py-1.5 text-sm"
+                  className="inline-flex h-10 items-center justify-center rounded-lg border border-slate-200 bg-white px-4 text-sm font-semibold text-slate-700 hover:bg-slate-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-600"
                   onClick={() => void review("reject")}
                 >
                   Reject

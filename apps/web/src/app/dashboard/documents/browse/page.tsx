@@ -3,6 +3,7 @@ import { redirect } from "next/navigation";
 import { EmptyState } from "@/components/dashboard/EmptyState";
 import { ErrorState } from "@/components/dashboard/ErrorState";
 import { PageHeader } from "@/components/dashboard/PageHeader";
+import { DataTable, StatusChip, Td, Th, btnPrimary, inputClass } from "@/components/ui/primitives";
 import { auth0, isAuth0Configured } from "@/lib/auth0";
 import { listDocuments } from "@/lib/managedDocumentsApi";
 import { canAny } from "@/lib/rbac";
@@ -23,10 +24,10 @@ export default async function DocumentsBrowsePage({
     return <EmptyState title="Organisation required" description="Active organisation membership needed." />;
   }
   if (!isAuth0Configured() || !auth0) {
-    return <EmptyState title="Auth0 not configured" description="Configure Auth0 to load the document list." />;
+    return <EmptyState title="Sign-in not configured" description="Sign-in isn't set up in this environment yet." />;
   }
   const token = (await auth0.getAccessToken())?.token;
-  if (!token) return <ErrorState description="Access token unavailable." />;
+  if (!token) return <ErrorState description="We couldn't confirm your sign-in. Please sign in again." />;
 
   let page;
   try {
@@ -38,42 +39,70 @@ export default async function DocumentsBrowsePage({
       page: 1,
       pageSize: 50,
     });
-  } catch (e) {
-    return <ErrorState description={e instanceof Error ? e.message : "Failed to load"} />;
+  } catch {
+    return <ErrorState description={"Failed to load"} />;
   }
 
   return (
-    <div className="mx-auto max-w-5xl space-y-6">
-      <PageHeader title="Document library" description="Search by title or reference. Results respect your visibility rules." />
-      <form method="get" className="flex flex-wrap gap-2">
+    <div className="mx-auto max-w-6xl space-y-6">
+      <PageHeader
+        eyebrow="Compliance / Documents"
+        title="Document library"
+        description="Search by title or reference. Results respect your visibility rules."
+      />
+      <form method="get" className="flex flex-wrap items-center gap-2">
+        <label htmlFor="document-search" className="sr-only">
+          Search documents
+        </label>
         <input
+          id="document-search"
           name="q"
           defaultValue={params.q ?? ""}
-          placeholder="Search…"
-          className="min-w-[240px] flex-1 rounded border border-slate-300 px-3 py-2 text-sm"
+          placeholder="Search title or reference"
+          className={`min-w-[240px] max-w-md flex-1 ${inputClass}`}
         />
-        <button type="submit" className="rounded bg-teal-700 px-3 py-2 text-sm text-white">
+        <button type="submit" className={btnPrimary}>
           Search
         </button>
       </form>
       {page.items.length === 0 ? (
-        <EmptyState title="No matches" description="Try a different search term." />
+        <EmptyState
+          title="No matches"
+          description={params.q ? "Try a different search term." : "No documents are visible to you yet."}
+          action={params.q ? { label: "Clear search", href: "/dashboard/documents/browse" } : undefined}
+        />
       ) : (
-        <ul className="divide-y divide-slate-200 rounded-lg border border-slate-200 bg-white">
-          {page.items.map((row) => {
-            const r = row as Record<string, string>;
-            return (
-              <li key={r.id} className="px-4 py-3">
-                <Link href={`/dashboard/documents/${r.id}`} className="font-medium text-teal-800 underline">
-                  {r.title}
-                </Link>
-                <p className="text-xs text-slate-500">
-                  {r.reference_number} · status {r.status} · expiry {r.expiry_tracking}
-                </p>
-              </li>
-            );
-          })}
-        </ul>
+        <DataTable caption="Documents">
+          <thead>
+            <tr>
+              <Th>Document</Th>
+              <Th>Reference</Th>
+              <Th>Status</Th>
+              <Th>Expiry</Th>
+            </tr>
+          </thead>
+          <tbody>
+            {page.items.map((row) => {
+              const r = row as Record<string, string>;
+              return (
+                <tr key={r.id} className="hover:bg-slate-50">
+                  <Td>
+                    <Link href={`/dashboard/documents/${r.id}`} className="font-semibold text-slate-900 hover:text-brand-700 hover:underline">
+                      {r.title}
+                    </Link>
+                  </Td>
+                  <Td className="text-slate-500">{r.reference_number}</Td>
+                  <Td>
+                    <StatusChip status={r.status} />
+                  </Td>
+                  <Td>
+                    <StatusChip status={r.expiry_tracking} />
+                  </Td>
+                </tr>
+              );
+            })}
+          </tbody>
+        </DataTable>
       )}
     </div>
   );

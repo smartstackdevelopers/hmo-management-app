@@ -3,6 +3,7 @@ import { Platform, StyleSheet } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { TabIcon } from '@/components/ui/TabIcon';
+import { FONT_SEMIBOLD } from '@/constants/fonts';
 import { tabsForRole, TAB_SCREEN_TITLES, TabConfig } from '@/constants/navigation';
 import { theme } from '@/constants/theme';
 import { useAuth } from '@/contexts/AuthContext';
@@ -49,12 +50,15 @@ export default function TabLayout() {
         tabBarStyle: {
           backgroundColor: theme.colors.tabBar,
           borderTopColor: theme.colors.tabBarBorder,
-          borderTopWidth: 1,
+          borderTopWidth: StyleSheet.hairlineWidth,
           height: tabBarHeight,
-          paddingBottom: insets.bottom > 0 ? insets.bottom : 8,
-          paddingTop: 8,
-          ...(Platform.OS !== 'web' ? theme.shadows.sm : {}),
+          paddingBottom: insets.bottom > 0 ? insets.bottom : 6,
+          paddingTop: 4,
+          elevation: 0,
+          shadowOpacity: 0,
+          ...(Platform.OS === 'web' ? ({ boxShadow: 'none' } as object) : {}),
         },
+        tabBarItemStyle: styles.tabItem,
         tabBarLabelStyle: styles.tabLabel,
       }}
     >
@@ -89,5 +93,12 @@ export default function TabLayout() {
 }
 
 const styles = StyleSheet.create({
-  tabLabel: { fontSize: 11, fontWeight: '600', letterSpacing: -0.1 },
+  tabLabel: {
+    fontSize: 11,
+    fontFamily: FONT_SEMIBOLD,
+    fontWeight: '600',
+    letterSpacing: -0.1,
+    marginTop: 1,
+  },
+  tabItem: { minHeight: 44 },
 });

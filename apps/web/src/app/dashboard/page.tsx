@@ -3,6 +3,7 @@ import { redirect } from "next/navigation";
 import { EmptyState } from "@/components/dashboard/EmptyState";
 import { ErrorState } from "@/components/dashboard/ErrorState";
 import { PageHeader } from "@/components/dashboard/PageHeader";
+import { btnPrimary, linkClass } from "@/components/ui/primitives";
 import { homePathForRole, isF19DashboardRole, roleDisplayName } from "@/lib/dashboardAccess";
 import { LOGIN_PATH } from "@/lib/rbac";
 import { requireAuthenticatedSession } from "@/lib/session";
@@ -15,12 +16,12 @@ export default async function DashboardIndexPage() {
       <div className="mx-auto max-w-3xl">
         <PageHeader
           title="Dashboard unavailable"
-          description="Auth0 is not configured in this environment. Add the variables from apps/web/.env.example to enable sign-in."
+          description="Sign-in isn't set up in this environment yet, so role homes can't load."
         />
         <EmptyState
           title="Sign-in not configured"
-          description="CI and local builds can render this shell without a live Auth0 tenant."
-          hint="Live role routing remains unverified until a real tenant is connected."
+          description="This shell can render without a live sign-in service."
+          hint="Role homes stay unavailable until sign-in is connected."
         />
       </div>
     );
@@ -31,15 +32,15 @@ export default async function DashboardIndexPage() {
       <div className="mx-auto max-w-3xl space-y-6">
         <PageHeader
           title="Dashboard"
-          description="You are signed in, but the HMore API authorization snapshot could not be loaded."
+          description="You are signed in, but your access details could not be loaded."
         />
         <ErrorState
           description={
             session.authorizationDetail ??
-            "Start the FastAPI service (scripts\\start-api-dev.ps1) and ensure NEXT_PUBLIC_API_BASE_URL is http://localhost:8000. Role homes are not selected from client-side guesses."
+            "The service that checks your access didn't respond. Try again in a moment."
           }
         />
-        <Link className="text-sm text-teal-800 underline" href="/account">
+        <Link className={linkClass} href="/account">
           Open account
         </Link>
       </div>
@@ -51,11 +52,11 @@ export default async function DashboardIndexPage() {
       <div className="mx-auto max-w-3xl space-y-6">
         <PageHeader
           title="No HMore role membership"
-          description="Your Auth0 identity is valid, but no active HMore organisation membership was returned."
+          description="You're signed in, but no active organisation membership was found."
         />
         <EmptyState
           title="Membership required"
-          description="Ask a Super Admin or Organisation Admin to assign one of the six approved roles."
+          description="Ask a Super Admin or Organisation Admin to give you a role."
         />
       </div>
     );
@@ -70,21 +71,18 @@ export default async function DashboardIndexPage() {
     <div className="mx-auto max-w-3xl space-y-6">
       <PageHeader
         title="No web dashboard home for this role"
-        description={`Signed in as ${roleDisplayName(role)}. Tenant, Support Worker, and Maintenance dashboards are outside F1.9.`}
+        description={`Signed in as ${roleDisplayName(role)}. Open your account to continue.`}
       />
       <EmptyState
-        title="Use account or mobile"
-        description="Day-to-day work for this role is not part of the Phase 1 web dashboard shell."
+        title="Use your account"
+        description="Day-to-day work for this role starts from your account page."
       />
-      <Link
-        className="inline-flex rounded-md bg-teal-700 px-4 py-2 text-sm font-medium text-white hover:bg-teal-800"
-        href="/account"
-      >
+      <Link className={btnPrimary} href="/account">
         Account
       </Link>
-      <p className="text-xs text-slate-500">
+      <p className="text-sm text-slate-500">
         If you reached this page unexpectedly, sign in again via{" "}
-        <Link className="underline" href={`${LOGIN_PATH}?returnTo=/dashboard`}>
+        <Link className={linkClass} href={`${LOGIN_PATH}?returnTo=/dashboard`}>
           login
         </Link>
         .

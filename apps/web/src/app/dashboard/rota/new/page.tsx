@@ -24,7 +24,7 @@ export default async function NewShiftPage() {
 
   return (
     <div className="mx-auto max-w-xl space-y-6">
-      <PageHeader eyebrow="Rota" title="New shift" description="Overlapping shifts for the same staff member are rejected." />
+      <PageHeader eyebrow="People" title="Add shift" description="Overlapping shifts for the same person are rejected." />
       <ShiftForm accessToken={token} organisationId={orgId} role={session.authorization?.active_role} />
     </div>
   );

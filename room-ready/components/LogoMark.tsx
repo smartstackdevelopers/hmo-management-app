@@ -1,40 +1,57 @@
-import Svg, { Path, Rect } from 'react-native-svg';
+import { StyleSheet, Text, View } from 'react-native';
 
+import { FONT_BOLD } from '@/constants/fonts';
 import { theme } from '@/constants/theme';
 
 interface LogoMarkProps {
   size?: number;
+  /** Tile fill. Defaults to royal blue. */
+  color?: string;
+  /** Letter fill. Defaults to white. */
+  letterColor?: string;
 }
 
-/** Vector app mark — blue house with white stroke and check. */
-export function LogoMark({ size = 44 }: LogoMarkProps) {
+/** Blue rounded tile with a white H — the HMore app mark. */
+export function LogoMark({ size = 44, color, letterColor }: LogoMarkProps) {
+  const radius = Math.round(size * 0.28);
+  const fontSize = Math.round(size * 0.48);
+
   return (
-    <Svg width={size} height={size} viewBox="0 0 48 48">
-      <Rect width={48} height={48} rx={14} fill={theme.colors.secondary} />
-      <Path
-        d="M24 11 L36 20.5 V33 H29.5 V25 H18.5 V33 H12 V20.5 Z"
-        fill="none"
-        stroke="#FFFFFF"
-        strokeWidth={2.2}
-        strokeLinejoin="round"
-        strokeLinecap="round"
-      />
-      <Path
-        d="M30.5 17.5 V13.5 H33.5 V19.5"
-        fill="none"
-        stroke="#FFFFFF"
-        strokeWidth={2}
-        strokeLinejoin="round"
-        strokeLinecap="round"
-      />
-      <Path
-        d="M19 25.5 L22.8 29.5 L31.5 19.5"
-        fill="none"
-        stroke={theme.colors.accentSoft}
-        strokeWidth={2.6}
-        strokeLinejoin="round"
-        strokeLinecap="round"
-      />
-    </Svg>
+    <View
+      accessibilityRole="image"
+      accessibilityLabel="HMore"
+      style={[
+        styles.tile,
+        {
+          width: size,
+          height: size,
+          borderRadius: radius,
+          backgroundColor: color ?? theme.colors.secondary,
+        },
+      ]}
+    >
+      <Text
+        style={[
+          styles.letter,
+          {
+            color: letterColor ?? theme.colors.textInverse,
+            fontSize,
+            lineHeight: Math.round(fontSize * 1.15),
+          },
+        ]}
+      >
+        H
+      </Text>
+    </View>
   );
 }
+
+const styles = StyleSheet.create({
+  tile: { alignItems: 'center', justifyContent: 'center' },
+  letter: {
+    fontFamily: FONT_BOLD,
+    fontWeight: '700',
+    textAlign: 'center',
+    includeFontPadding: false,
+  },
+});

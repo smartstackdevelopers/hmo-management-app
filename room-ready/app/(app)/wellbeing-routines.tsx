@@ -169,11 +169,12 @@ export default function WellbeingRoutinesScreen() {
         title={editingId ? t('wellbeing.updateRoutine') : t('wellbeing.addRoutine')}
         onPress={() => save.mutate()}
         disabled={!title.trim()}
+        fullWidth
       />
       {editingId ? (
         <Button
           title={t('wellbeing.cancelEdit')}
-          variant="secondary"
+          variant="outline"
           onPress={() => {
             setEditingId(null);
             setTitle('');
@@ -196,6 +197,7 @@ export default function WellbeingRoutinesScreen() {
           <View style={styles.row}>
             <Button
               title={t('wellbeing.complete')}
+              variant="outline"
               onPress={() => mark.mutate({ id: String(item.id), status: 'completed' })}
             />
             <Button

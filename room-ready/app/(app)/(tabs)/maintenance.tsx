@@ -1,14 +1,16 @@
 import { router } from 'expo-router';
 import { useMemo, useState } from 'react';
-import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, Text, View } from 'react-native';
 
+import { FilterChips, SearchField, useHideTabHeader } from '@/components/dashboard/mobileChrome';
 import { RepairCard } from '@/components/maintenance/RepairCard';
 import { StaffMobileLater } from '@/components/tenant/StaffMobileLater';
 import { TenantMaintenanceList } from '@/components/tenant/TenantMaintenanceList';
 import { Button } from '@/components/ui/Button';
 import { ListScreen } from '@/components/ui/ListScreen';
+import { ScreenHeader } from '@/components/ui/Screen';
 import { EmptyState, ErrorState, LoadingScreen } from '@/components/ui/States';
-import { FONT_BOLD, FONT_MEDIUM, FONT_SEMIBOLD } from '@/constants/fonts';
+import { FONT_MEDIUM } from '@/constants/fonts';
 import { theme } from '@/constants/theme';
 import { TAB_ROLES } from '@/constants/permissions';
 import { useAuth } from '@/contexts/AuthContext';
@@ -17,7 +19,6 @@ import { useRoleGuard } from '@/hooks/useRoleGuard';
 import {
   RepairFilter,
   isOpenStatus,
-  isUrgentPriority,
   matchesRepairFilter,
 } from '@/lib/maintenance';
 
@@ -29,26 +30,29 @@ const FILTERS: { id: RepairFilter; label: string }[] = [
 ];
 
 function LegacyMaintenanceScreen() {
+  useHideTabHeader();
   const guard = useRoleGuard(TAB_ROLES.maintenance);
   if (guard) return guard;
 
   const { user } = useAuth();
   const { data, isLoading, error, refetch, isRefetching } = useMaintenance();
-  const [filter, setFilter] = useState<RepairFilter>('open');
+  const [filter, setFilter] = useState<RepairFilter>('all');
+  const [query, setQuery] = useState('');
   const canReport = ['tenant', 'landlord', 'property_manager'].includes(user?.role ?? '');
   const isTenant = user?.role === 'tenant';
 
   const requests = data?.requests ?? [];
-  const filtered = useMemo(
-    () => requests.filter((r) => matchesRepairFilter(r, filter)),
-    [requests, filter]
-  );
+  const filtered = useMemo(() => {
+    const needle = query.trim().toLowerCase();
+    return requests.filter((row) => {
+      if (!matchesRepairFilter(row, filter)) return false;
+      if (!needle) return true;
+      const haystack = `${row.title} ${row.property?.name ?? ''} ${row.room?.name ?? ''} ${row.category}`.toLowerCase();
+      return haystack.includes(needle);
+    });
+  }, [requests, filter, query]);
 
-  const openCount = requests.filter((r) => isOpenStatus(r.status)).length;
-  const urgentCount = requests.filter(
-    (r) => isOpenStatus(r.status) && isUrgentPriority(r.priority)
-  ).length;
-  const doneCount = requests.length - openCount;
+  const openCount = requests.filter((row) => isOpenStatus(row.status)).length;
 
   if (isLoading) return <LoadingScreen message="Loading repairs..." />;
   if (error) return <ErrorState message="Could not load repairs" onRetry={refetch} />;
@@ -62,42 +66,27 @@ function LegacyMaintenanceScreen() {
       contentContainerStyle={filtered.length === 0 ? styles.emptyList : undefined}
       ListHeaderComponent={
         <View style={styles.header}>
-          <View style={styles.summary}>
-            <SummaryStat label="Open" value={openCount} tone="warning" />
-            <SummaryStat label="Urgent" value={urgentCount} tone="error" />
-            <SummaryStat label="Done" value={doneCount} tone="success" />
-          </View>
-
-          {canReport && (
-            <Button
-              title={isTenant ? 'Report a repair' : 'New repair'}
-              onPress={() => router.push('/(app)/maintenance/new')}
-              fullWidth
-              style={styles.cta}
-            />
-          )}
-
-          <View style={styles.filters}>
-            {FILTERS.map((f) => {
-              const active = filter === f.id;
-              return (
-                <Pressable
-                  key={f.id}
-                  onPress={() => setFilter(f.id)}
-                  style={[styles.chip, active && styles.chipActive]}
-                >
-                  <Text style={[styles.chipText, active && styles.chipTextActive]}>{f.label}</Text>
-                </Pressable>
-              );
-            })}
-          </View>
-
-          {filtered.length > 0 && (
+          <ScreenHeader
+            title="Repairs"
+            subtitle={openCount > 0 ? `${openCount} open` : 'Track repairs across your properties.'}
+            action={
+              canReport ? (
+                <Button
+                  title={isTenant ? 'Report' : 'New'}
+                  icon="add"
+                  size="sm"
+                  onPress={() => router.push('/(app)/maintenance/new')}
+                />
+              ) : undefined
+            }
+          />
+          <SearchField value={query} onChangeText={setQuery} placeholder="Search repairs" />
+          <FilterChips options={FILTERS} value={filter} onChange={(id) => setFilter(id as RepairFilter)} />
+          {filtered.length > 0 ? (
             <Text style={styles.resultCount}>
               {filtered.length} repair{filtered.length === 1 ? '' : 's'}
-              {filter !== 'all' ? ` · ${FILTERS.find((f) => f.id === filter)?.label}` : ''}
             </Text>
-          )}
+          ) : null}
         </View>
       }
       ListEmptyComponent={
@@ -111,29 +100,6 @@ function LegacyMaintenanceScreen() {
       }
       renderItem={({ item }) => <RepairCard item={item} />}
     />
-  );
-}
-
-function SummaryStat({
-  label,
-  value,
-  tone,
-}: {
-  label: string;
-  value: number;
-  tone: 'warning' | 'error' | 'success';
-}) {
-  const colors = {
-    warning: { bg: theme.colors.warningLight, text: theme.colors.warning },
-    error: { bg: theme.colors.errorLight, text: theme.colors.error },
-    success: { bg: theme.colors.successLight, text: theme.colors.success },
-  }[tone];
-
-  return (
-    <View style={[styles.stat, { backgroundColor: colors.bg }]}>
-      <Text style={[styles.statValue, { color: colors.text }]}>{value}</Text>
-      <Text style={styles.statLabel}>{label}</Text>
-    </View>
   );
 }
 
@@ -158,55 +124,11 @@ function emptyMessage(filter: RepairFilter, isTenant: boolean): string {
 const styles = StyleSheet.create({
   emptyList: { flexGrow: 1 },
   header: { marginBottom: theme.spacing.sm },
-  summary: { flexDirection: 'row', gap: theme.spacing.sm, marginBottom: theme.spacing.md },
-  stat: {
-    flex: 1,
-    borderRadius: theme.radius.lg,
-    paddingVertical: 12,
-    paddingHorizontal: 8,
-    alignItems: 'center',
-  },
-  statValue: {
-    fontSize: 22,
-    fontFamily: FONT_BOLD,
-    fontWeight: '700',
-    letterSpacing: -0.4,
-  },
-  statLabel: {
-    fontSize: 12,
-    fontFamily: FONT_MEDIUM,
-    color: theme.colors.textSecondary,
-    marginTop: 2,
-  },
-  cta: { marginBottom: theme.spacing.md },
-  filters: {
-    flexDirection: 'row',
-    gap: 8,
-    marginBottom: theme.spacing.sm,
-  },
-  chip: {
-    paddingHorizontal: 14,
-    paddingVertical: 8,
-    borderRadius: theme.radius.full,
-    borderWidth: 1,
-    borderColor: theme.colors.border,
-    backgroundColor: theme.colors.surface,
-  },
-  chipActive: {
-    backgroundColor: theme.colors.secondary,
-    borderColor: theme.colors.secondary,
-  },
-  chipText: {
-    fontSize: 13,
-    fontFamily: FONT_SEMIBOLD,
-    fontWeight: '600',
-    color: theme.colors.textSecondary,
-  },
-  chipTextActive: { color: theme.colors.textInverse },
   resultCount: {
     fontSize: 13,
     fontFamily: FONT_MEDIUM,
     color: theme.colors.textMuted,
+    marginTop: -4,
     marginBottom: theme.spacing.sm,
   },
 });

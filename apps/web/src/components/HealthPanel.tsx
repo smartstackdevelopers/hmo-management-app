@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { StatusChip } from "@/components/ui/primitives";
 
 interface HealthPayload {
   status: string;
@@ -34,29 +35,35 @@ export function HealthPanel() {
 
   if (error) {
     return (
-      <p className="mt-6 rounded-xl border border-red-200 bg-red-50 p-4 text-red-800" role="alert">
+      <p className="mt-6 rounded-2xl border border-red-200 bg-red-50 p-4 text-sm text-red-800" role="alert">
         {error}
       </p>
     );
   }
 
   if (!data) {
-    return <p className="mt-6 text-slate-600">Checking web process…</p>;
+    return (
+      <p className="mt-6 rounded-2xl border border-slate-200 bg-white p-5 text-sm text-slate-500 shadow-card" role="status">
+        Checking service status…
+      </p>
+    );
   }
 
   return (
-    <dl className="mt-6 rounded-xl bg-white p-6 shadow-sm">
-      <div className="flex justify-between py-2">
-        <dt className="text-slate-500">Status</dt>
-        <dd className="font-medium text-emerald-700">{data.status}</dd>
+    <dl className="mt-6 divide-y divide-slate-100 rounded-2xl border border-slate-200 bg-white px-5 shadow-card">
+      <div className="flex items-center justify-between py-3.5">
+        <dt className="text-sm text-slate-500">Status</dt>
+        <dd>
+          <StatusChip status={data.status}>{data.status}</StatusChip>
+        </dd>
       </div>
-      <div className="flex justify-between py-2">
-        <dt className="text-slate-500">Service</dt>
-        <dd>{data.service}</dd>
+      <div className="flex items-center justify-between py-3.5">
+        <dt className="text-sm text-slate-500">Service</dt>
+        <dd className="text-sm font-medium text-slate-900">{data.service}</dd>
       </div>
-      <div className="flex justify-between py-2">
-        <dt className="text-slate-500">Version</dt>
-        <dd>{data.version}</dd>
+      <div className="flex items-center justify-between py-3.5">
+        <dt className="text-sm text-slate-500">Version</dt>
+        <dd className="text-sm font-medium text-slate-900">{data.version}</dd>
       </div>
     </dl>
   );

@@ -1,135 +1,236 @@
-import { FlatList, RefreshControl, StyleSheet, Text, View } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import { useQuery } from '@tanstack/react-query';
+import { useMemo, useState } from 'react';
+import { Alert, Pressable, StyleSheet, Text, View } from 'react-native';
 
+import { FilterChips, InitialsTile, SearchField, useHideTabHeader } from '@/components/dashboard/mobileChrome';
 import { StaffAlertList } from '@/components/staff/StaffAlertList';
-import { HmoreNotifications } from '@/components/tenant/HmoreNotifications';
-import { staffShellActive } from '@/constants/navigation';
-import { Badge } from '@/components/ui/Badge';
-import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
+import { Chip, type Tone } from '@/components/ui/Chip';
+import { ListScreen } from '@/components/ui/ListScreen';
+import { ScreenHeader } from '@/components/ui/Screen';
 import { EmptyState, ErrorState, LoadingScreen } from '@/components/ui/States';
+import { staffShellActive } from '@/constants/navigation';
+import { FONT_MEDIUM, FONT_SEMIBOLD } from '@/constants/fonts';
 import { formatUKDate } from '@/constants/uk';
 import { theme } from '@/constants/theme';
 import { useAuth } from '@/contexts/AuthContext';
+import { useI18n } from '@/hooks/useI18n';
+import { useMarkNotificationRead, useNotifications } from '@/hooks/useApi';
 import { NotificationItem } from '@/lib/api';
-import { useMarkAllNotificationsRead, useMarkNotificationRead, useNotifications, useRunComplianceScan } from '@/hooks/useApi';
+import { HmoreApiError } from '@/lib/hmore/client';
+import { getAnnouncement, listAnnouncements } from '@/lib/hmore/services/communications';
+import type { AnnouncementSummary } from '@/lib/hmore/types';
 import { navigateFromNotification } from '@/lib/notificationNavigation';
+import { router } from 'expo-router';
 
-const TYPE_ICONS: Record<string, keyof typeof Ionicons.glyphMap> = {
-  maintenance: 'construct-outline',
-  application: 'document-text-outline',
-  message: 'chatbubble-outline',
-  compliance: 'shield-checkmark-outline',
-  inspection: 'clipboard-outline',
+type NoticeFilter = 'all' | 'unread' | 'announcements';
+
+type Row = {
+  id: string;
+  name: string;
+  title: string;
+  meta: string;
+  chip?: string;
+  tone?: Tone;
+  day: string;
+  onPress: () => void;
 };
 
-function LegacyNotificationsScreen() {
+async function loadAnnouncements(): Promise<AnnouncementSummary[]> {
+  try {
+    return await listAnnouncements();
+  } catch (error) {
+    if (error instanceof HmoreApiError && (error.status === 400 || error.status === 403 || error.status === 404)) return [];
+    throw error;
+  }
+}
+
+function dayKey(iso: string): string {
+  const date = new Date(iso);
+  if (Number.isNaN(date.getTime())) return '';
+  const today = new Date();
+  return date.toDateString() === today.toDateString() ? 'Today' : formatUKDate(iso);
+}
+
+function notificationRow(item: NotificationItem, onPress: () => void): Row {
+  let chip: string | undefined;
+  let tone: Tone | undefined;
+  if (!item.read) {
+    chip = 'New';
+    tone = 'blue';
+  } else if (item.severity && item.severity !== 'info') {
+    chip = item.severity === 'critical' ? 'Critical' : item.severity === 'high' ? 'High' : 'Medium';
+    tone = item.severity === 'critical' ? 'red' : item.severity === 'high' ? 'amber' : 'indigo';
+  }
+  return {
+    id: item.id,
+    name: item.title,
+    title: item.title,
+    meta: [item.body, formatUKDate(item.createdAt)].filter(Boolean).join(' · '),
+    chip,
+    tone,
+    day: dayKey(item.createdAt),
+    onPress,
+  };
+}
+
+export default function NotificationsScreen() {
+  const { hmore, user } = useAuth();
+  if (staffShellActive(user?.role, !!hmore)) return <StaffAlertList />;
+  return <AlertsScreen />;
+}
+
+function AlertsScreen() {
+  useHideTabHeader();
+  const { hmore } = useAuth();
+  const { t } = useI18n();
   const { data, isLoading, error, refetch, isRefetching } = useNotifications();
+  const announcements = useQuery({
+    queryKey: ['hmore', 'announcements', 'notifications'],
+    queryFn: loadAnnouncements,
+    enabled: !!hmore,
+  });
   const markRead = useMarkNotificationRead();
-  const markAll = useMarkAllNotificationsRead();
-  const runScan = useRunComplianceScan();
+  const [filter, setFilter] = useState<NoticeFilter>('all');
+  const [query, setQuery] = useState('');
+
+  const notifications = data?.notifications ?? [];
+  const notices = announcements.data ?? [];
+
+  const rows = useMemo(() => {
+    const needle = query.trim().toLowerCase();
+    const messageRows = notifications
+      .filter((item) => {
+        if (filter === 'announcements') return false;
+        if (filter === 'unread' && item.read) return false;
+        if (!needle) return true;
+        return `${item.title} ${item.body}`.toLowerCase().includes(needle);
+      })
+      .map((item) =>
+        notificationRow(item, () => {
+          if (!item.read) markRead.mutate(item.id);
+          navigateFromNotification(item);
+        }),
+      );
+    const noticeRows: Row[] =
+      filter === 'unread'
+        ? []
+        : notices
+            .filter((item) => {
+              if (filter === 'all' || filter === 'announcements') {
+                if (!needle) return true;
+                return `${item.title} ${item.reference_number}`.toLowerCase().includes(needle);
+              }
+              return false;
+            })
+            .map((item) => ({
+              id: `announcement-${item.id}`,
+              name: item.title,
+              title: item.title,
+              meta: [item.reference_number, item.published_at ? formatUKDate(item.published_at) : null].filter(Boolean).join(' · '),
+              chip: 'Notice',
+              tone: 'indigo' as Tone,
+              day: item.published_at ? dayKey(item.published_at) : '',
+              onPress: () => {
+                getAnnouncement(item.id)
+                  .then((detail) => Alert.alert(detail.title, detail.body || item.reference_number))
+                  .catch((err: unknown) => Alert.alert('Notice', err instanceof Error ? err.message : 'Could not open this notice'));
+              },
+            }));
+    return [...messageRows, ...noticeRows];
+  }, [notifications, notices, filter, query, markRead]);
 
   if (isLoading) return <LoadingScreen message="Loading notifications..." />;
   if (error) return <ErrorState message="Could not load notifications" onRetry={refetch} />;
 
-  const notifications = data?.notifications ?? [];
-  const unreadCount = data?.unreadCount ?? 0;
+  const chips = [
+    { id: 'all', label: 'All' },
+    { id: 'unread', label: 'Unread' },
+    ...(hmore && announcements.isSuccess ? [{ id: 'announcements', label: 'Announcements' }] : []),
+  ];
+  const sourceEmpty = notifications.length === 0 && notices.length === 0;
 
-  function handlePress(n: NotificationItem) {
-    if (!n.read) markRead.mutate(n.id);
-    navigateFromNotification(n);
+  const sections: { key: string; label?: string; row: Row }[] = [];
+  let lastDay = '';
+  for (const row of rows) {
+    if (row.day && row.day !== lastDay) {
+      lastDay = row.day;
+      sections.push({ key: `day-${row.day}-${row.id}`, label: row.day, row });
+    } else {
+      sections.push({ key: row.id, row });
+    }
   }
 
   return (
-    <View style={styles.container}>
-      {unreadCount > 0 && (
-        <View style={styles.header}>
-          <Text style={styles.unread}>{unreadCount} unread</Text>
-          <View style={styles.headerActions}>
-            <Button title="AI scan" variant="outline" size="sm" onPress={() => runScan.mutate()} loading={runScan.isPending} />
-            <Button title="Mark all read" variant="outline" size="sm" onPress={() => markAll.mutate()} />
+    <View style={styles.screen}>
+      <Pressable onPress={() => router.back()} style={styles.back} accessibilityRole="button" accessibilityLabel="Back">
+        <Ionicons name="chevron-back" size={18} color={theme.colors.secondaryDark} />
+        <Text style={styles.backText}>Back</Text>
+      </Pressable>
+      <ListScreen
+        data={sections}
+        keyExtractor={(item) => item.key}
+        refreshing={isRefetching || announcements.isRefetching}
+        onRefresh={() => {
+          refetch();
+          if (hmore) announcements.refetch();
+        }}
+        padded={false}
+        contentContainerStyle={[styles.list, sections.length === 0 && styles.emptyList]}
+        ListHeaderComponent={
+          <View>
+            <ScreenHeader title={t('nav.alerts')} subtitle={`${notifications.length} alert${notifications.length === 1 ? '' : 's'}`} />
+            <SearchField value={query} onChangeText={setQuery} placeholder="Search notifications" />
+            <FilterChips options={chips} value={filter} onChange={(id) => setFilter(id as NoticeFilter)} />
           </View>
-        </View>
-      )}
-      <FlatList
-        data={notifications}
-        keyExtractor={(item) => item.id}
-        style={styles.list}
-        contentContainerStyle={notifications.length === 0 ? styles.emptyList : styles.listContent}
-        refreshControl={<RefreshControl refreshing={isRefetching} onRefresh={refetch} tintColor={theme.colors.secondary} />}
+        }
         ListEmptyComponent={
           <EmptyState
-            title="No notifications"
-            message="Alerts about repairs, applications and compliance will appear here."
+            title={sourceEmpty ? 'No notifications' : 'Nothing in this filter'}
+            message={sourceEmpty ? 'Alerts about repairs, applications and compliance will appear here.' : 'Try another filter or search.'}
             icon="notifications-outline"
           />
         }
         renderItem={({ item }) => (
-          <NotificationCard item={item} onPress={() => handlePress(item)} />
+          <View>
+            {item.label ? <Text style={styles.day}>{item.label}</Text> : null}
+            <Card style={styles.card} onPress={item.row.onPress}>
+              <View style={styles.row}>
+                <InitialsTile name={item.row.name} size={42} />
+                <View style={styles.copy}>
+                  <Text style={styles.title} numberOfLines={1}>{item.row.title}</Text>
+                  {item.row.meta ? <Text style={styles.meta} numberOfLines={2}>{item.row.meta}</Text> : null}
+                </View>
+                {item.row.chip && item.row.tone ? <Chip label={item.row.chip} tone={item.row.tone} /> : null}
+                <Ionicons name="chevron-forward" size={18} color={theme.colors.textMuted} />
+              </View>
+            </Card>
+          </View>
         )}
       />
     </View>
   );
 }
 
-function NotificationCard({ item, onPress }: { item: NotificationItem; onPress: () => void }) {
-  const icon = TYPE_ICONS[item.type] ?? 'notifications-outline';
-  return (
-    <Card style={!item.read ? [styles.card, styles.unreadCard] : styles.card} onPress={onPress}>
-      <View style={styles.row}>
-        <View style={[styles.iconWrap, !item.read && styles.iconWrapUnread]}>
-          <Ionicons name={icon} size={18} color={theme.colors.secondary} />
-        </View>
-        <View style={styles.copy}>
-          <View style={styles.titleRow}>
-            <Text style={styles.title} numberOfLines={1}>{item.title}</Text>
-            {item.severity && item.severity !== 'info' ? (
-              <Badge
-                label={item.severity === 'critical' ? 'Critical' : item.severity === 'high' ? 'High' : 'Medium'}
-                variant={item.severity === 'critical' ? 'error' : item.severity === 'high' ? 'warning' : 'info'}
-              />
-            ) : null}
-            {!item.read && <Badge label="New" variant="info" />}
-          </View>
-          <Text style={styles.body} numberOfLines={2}>{item.body}</Text>
-          <Text style={styles.date}>{formatUKDate(item.createdAt)}</Text>
-        </View>
-        <Ionicons name="chevron-forward" size={16} color={theme.colors.textMuted} />
-      </View>
-    </Card>
-  );
-}
-
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: theme.colors.background },
-  header: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', padding: theme.spacing.md, paddingBottom: 0 },
-  headerActions: { flexDirection: 'row', gap: 8 },
-  unread: { fontWeight: '600', color: theme.colors.secondary },
-  list: { flex: 1 },
-  listContent: { padding: theme.spacing.md, paddingBottom: theme.spacing.xl },
-  emptyList: { flex: 1 },
-  card: { marginBottom: theme.spacing.sm, paddingVertical: 12 },
-  unreadCard: { borderColor: theme.colors.info, backgroundColor: theme.colors.infoLight },
-  row: { flexDirection: 'row', alignItems: 'center', gap: theme.spacing.md },
-  iconWrap: {
-    width: 40,
-    height: 40,
-    borderRadius: theme.radius.md,
-    backgroundColor: theme.colors.surfaceSecondary,
-    alignItems: 'center',
-    justifyContent: 'center',
+  screen: { flex: 1, backgroundColor: theme.colors.background, paddingTop: theme.spacing.sm },
+  back: { flexDirection: 'row', alignItems: 'center', marginLeft: theme.spacing.md },
+  backText: { fontFamily: FONT_SEMIBOLD, color: theme.colors.secondaryDark, fontSize: 15 },
+  list: { paddingHorizontal: theme.spacing.md },
+  emptyList: { flexGrow: 1 },
+  day: {
+    fontFamily: FONT_SEMIBOLD,
+    fontSize: 12,
+    color: theme.colors.textMuted,
+    textTransform: 'uppercase',
+    letterSpacing: 0.4,
+    marginBottom: 8,
+    marginTop: 4,
   },
-  iconWrapUnread: { backgroundColor: theme.colors.surface },
-  copy: { flex: 1 },
-  titleRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 8 },
-  title: { fontWeight: '600', fontSize: 15, color: theme.colors.text, flex: 1 },
-  body: { color: theme.colors.textSecondary, marginTop: 4, lineHeight: 20, fontSize: 14 },
-  date: { color: theme.colors.textMuted, fontSize: 12, marginTop: 6 },
+  card: { marginBottom: theme.spacing.sm },
+  row: { flexDirection: 'row', alignItems: 'center', gap: 12 },
+  copy: { flex: 1, minWidth: 0 },
+  title: { fontFamily: FONT_SEMIBOLD, fontSize: 15, color: theme.colors.text },
+  meta: { fontFamily: FONT_MEDIUM, fontSize: 13, color: theme.colors.textSecondary, marginTop: 2 },
 });
-
-export default function NotificationsScreen() {
-  const { hmore, user } = useAuth();
-  if (staffShellActive(user?.role, !!hmore)) return <StaffAlertList />;
-  if (hmore) return <HmoreNotifications />;
-  return <LegacyNotificationsScreen />;
-}

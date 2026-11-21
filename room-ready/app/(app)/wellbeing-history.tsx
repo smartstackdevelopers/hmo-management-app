@@ -1,7 +1,9 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useState } from 'react';
-import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, Text, View } from 'react-native';
 
+import { FilterChips } from '@/components/dashboard/mobileChrome';
+import { StatusRow, statusTone } from '@/components/staff/ui';
 import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
 import { Screen } from '@/components/ui/Screen';
@@ -47,14 +49,14 @@ export default function WellbeingHistoryScreen() {
       <Text style={[styles.title, { fontSize: 22 * fontScale }]}>{t('wellbeing.history')}</Text>
       <Text style={styles.disclaimer}>{query.data?.disclaimer}</Text>
       <Text style={styles.chartNote}>{t('wellbeing.chartNote')}</Text>
-      <View style={styles.chips}>
-        <Pressable onPress={() => setRange('week')} style={[styles.chip, range === 'week' && styles.chipOn]}>
-          <Text style={[styles.chipText, range === 'week' && styles.chipTextOn]}>{t('wellbeing.week')}</Text>
-        </Pressable>
-        <Pressable onPress={() => setRange('month')} style={[styles.chip, range === 'month' && styles.chipOn]}>
-          <Text style={[styles.chipText, range === 'month' && styles.chipTextOn]}>{t('wellbeing.month')}</Text>
-        </Pressable>
-      </View>
+      <FilterChips
+        value={range}
+        onChange={(id) => setRange(id as 'week' | 'month')}
+        options={[
+          { id: 'week', label: t('wellbeing.week') },
+          { id: 'month', label: t('wellbeing.month') },
+        ]}
+      />
 
       {bars.length ? (
         <Card style={styles.chartCard}>
@@ -73,22 +75,32 @@ export default function WellbeingHistoryScreen() {
       {items.length === 0 ? (
         <Text style={styles.empty}>{t('wellbeing.noHistory')}</Text>
       ) : (
-        items.map((item) => (
-          <Card key={String(item.id)} style={styles.card}>
-            <Text style={styles.name}>{String(item.checkin_date)}</Text>
-            <Text style={styles.meta}>
-              {item.skipped
-                ? t('wellbeing.skipped')
-                : `${t('wellbeing.mood')}: ${String(item.mood ?? '—')} · ${t('wellbeing.energy')}: ${String(item.energy_level ?? '—')} · ${t('wellbeing.stress')}: ${String(item.stress_level ?? '—')}`}
-            </Text>
-            {item.notes ? <Text style={styles.body}>{String(item.notes)}</Text> : null}
-            <Button
-              title={t('wellbeing.deleteCheckin')}
-              variant="secondary"
-              onPress={() => remove.mutate(String(item.id))}
-            />
-          </Card>
-        ))
+        items.map((item) => {
+          const mood = item.skipped ? t('wellbeing.skipped') : String(item.mood ?? t('wellbeing.none')).replaceAll('_', ' ');
+          const detail = item.skipped
+            ? t('wellbeing.skipped')
+            : [
+                item.energy_level != null ? `${t('wellbeing.energy')} ${String(item.energy_level)}` : null,
+                item.stress_level != null ? `${t('wellbeing.stress')} ${String(item.stress_level)}` : null,
+                item.notes ? String(item.notes) : null,
+              ].filter(Boolean).join(' · ');
+          return (
+            <View key={String(item.id)}>
+              <StatusRow
+                name={String(item.checkin_date)}
+                title={String(item.checkin_date)}
+                subtitle={detail || undefined}
+                chip={mood}
+                tone={item.skipped ? 'gray' : statusTone(String(item.mood ?? ''))}
+              />
+              <Button
+                title={t('wellbeing.deleteCheckin')}
+                variant="ghost"
+                onPress={() => remove.mutate(String(item.id))}
+              />
+            </View>
+          );
+        })
       )}
       {remove.error ? <Text style={styles.error}>{hmoreErrorMessage(remove.error)}</Text> : null}
     </Screen>

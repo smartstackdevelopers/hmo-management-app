@@ -2,6 +2,7 @@ import { redirect } from "next/navigation";
 import { EmptyState } from "@/components/dashboard/EmptyState";
 import { ErrorState } from "@/components/dashboard/ErrorState";
 import { PageHeader } from "@/components/dashboard/PageHeader";
+import { DataTable, StatusChip, Td, Th } from "@/components/ui/primitives";
 import { auth0, isAuth0Configured } from "@/lib/auth0";
 import { listCustomForms } from "@/lib/orgWorkflowsApi";
 import { canAny } from "@/lib/rbac";
@@ -16,10 +17,10 @@ export default async function CustomFormsPage() {
   }
   const orgId = session.authorization?.active_organisation_id;
   if (!orgId || !isAuth0Configured() || !auth0) {
-    return <EmptyState title="Unavailable" description="Organisation and Auth0 required." />;
+    return <EmptyState title="Unavailable" description="Select the organisation you're working in." />;
   }
   const token = (await auth0.getAccessToken())?.token;
-  if (!token) return <ErrorState description="Access token unavailable." />;
+  if (!token) return <ErrorState description="We couldn't confirm your sign-in. Please sign in again." />;
   const manage = session.authorization?.permissions.includes("organisation.forms.manage");
   let items: Array<Record<string, unknown>> = [];
   try {
@@ -31,27 +32,36 @@ export default async function CustomFormsPage() {
         publishedOnly: !manage,
       })
     ).items;
-  } catch (e) {
-    return <ErrorState description={e instanceof Error ? e.message : "Failed to load forms"} />;
+  } catch {
+    return <ErrorState description={"Failed to load forms"} />;
   }
 
   return (
-    <div className="space-y-6">
-      <PageHeader title="Custom forms" description="Organisation-scoped forms with versioned schemas." />
+    <div className="mx-auto max-w-6xl space-y-6">
+      <PageHeader eyebrow="Operations" title="Custom forms" description="Organisation forms with versioned schemas." />
       {items.length === 0 ? (
-        <EmptyState title="No forms" description="Publish forms via the API or add draft forms as an admin." />
+        <EmptyState title="No forms" description="Forms published for this organisation will appear here." />
       ) : (
-        <ul className="divide-y rounded-lg border bg-white">
-          {items.map((f) => (
-            <li key={String(f.id)} className="p-4">
-              <div className="font-medium">{String(f.title)}</div>
-              <div className="text-sm text-slate-600">
-                {String(f.code)} · {String(f.status)}
-              </div>
-            </li>
-          ))}
-        </ul>
+        <DataTable caption="Custom forms">
+          <thead>
+            <tr>
+              <Th>Form</Th>
+              <Th>Status</Th>
+            </tr>
+          </thead>
+          <tbody>
+            {items.map((form) => (
+              <tr key={String(form.id)}>
+                <Td className="font-semibold text-slate-900">{String(form.title)}</Td>
+                <Td>
+                  <StatusChip status={String(form.status)} />
+                </Td>
+              </tr>
+            ))}
+          </tbody>
+        </DataTable>
       )}
+      <p className="text-xs text-slate-500">Showing {items.length === 0 ? "0" : `1–${items.length}`} of {items.length}</p>
     </div>
   );
 }

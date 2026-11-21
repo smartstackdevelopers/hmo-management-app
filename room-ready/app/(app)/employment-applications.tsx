@@ -2,8 +2,8 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useState } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 
+import { StatusRow, statusTone } from '@/components/staff/ui';
 import { Button } from '@/components/ui/Button';
-import { Card } from '@/components/ui/Card';
 import { Input } from '@/components/ui/Input';
 import { Screen } from '@/components/ui/Screen';
 import { ErrorState, LoadingScreen } from '@/components/ui/States';
@@ -53,14 +53,12 @@ export default function EmploymentApplicationsScreen() {
   return (
     <Screen>
       <Text style={[styles.title, { fontSize: 22 * fontScale }]}>{t('employment.applications')}</Text>
-      <Card style={styles.card}>
-        <Text style={styles.meta}>
-          {t('employment.total')}: {String(dash.data?.total ?? 0)} · {t('employment.preparing')}:{' '}
-          {String(dash.data?.preparing ?? 0)} · {t('employment.submitted')}: {String(dash.data?.submitted ?? 0)} ·{' '}
-          {t('employment.interviews')}: {String(dash.data?.interviews_scheduled ?? 0)} · {t('employment.offers')}:{' '}
-          {String(dash.data?.offers ?? 0)}
-        </Text>
-      </Card>
+      <Text style={styles.meta}>
+        {t('employment.total')}: {String(dash.data?.total ?? 0)} · {t('employment.preparing')}:{' '}
+        {String(dash.data?.preparing ?? 0)} · {t('employment.submitted')}: {String(dash.data?.submitted ?? 0)} ·{' '}
+        {t('employment.interviews')}: {String(dash.data?.interviews_scheduled ?? 0)} · {t('employment.offers')}:{' '}
+        {String(dash.data?.offers ?? 0)}
+      </Text>
       <Input label={t('employment.employer')} value={employer} onChangeText={setEmployer} />
       <Input label={t('employment.jobTitle')} value={jobTitle} onChangeText={setJobTitle} />
       <Input label={t('employment.location')} value={location} onChangeText={setLocation} />
@@ -68,19 +66,21 @@ export default function EmploymentApplicationsScreen() {
         title={t('employment.addApplication')}
         onPress={() => create.mutate()}
         disabled={create.isPending || !employer.trim() || !jobTitle.trim()}
+        fullWidth
       />
       {(list.data?.items ?? []).map((item) => (
-        <Card key={String(item.id)} style={styles.card}>
-          <Text style={styles.name}>
-            {String(item.job_title)} · {String(item.employer_name)}
-          </Text>
-          <Text style={styles.meta}>
-            {String(item.status).replaceAll('_', ' ')} · {String(item.job_location || t('community.notProvided'))}
-          </Text>
+        <View key={String(item.id)}>
+          <StatusRow
+            name={String(item.job_title)}
+            title={String(item.job_title)}
+            subtitle={[String(item.employer_name || ''), item.job_location ? String(item.job_location) : null].filter(Boolean).join(' · ')}
+            chip={String(item.status).replaceAll('_', ' ')}
+            tone={statusTone(String(item.status))}
+          />
           <View style={styles.row}>
             <Button
               title={t('employment.markApplied')}
-              variant="secondary"
+              variant="outline"
               onPress={async () => {
                 await updateApplication(String(item.id), { status: 'applied' });
                 await queryClient.invalidateQueries({ queryKey: ['hmore', 'employment-apps'] });
@@ -89,18 +89,15 @@ export default function EmploymentApplicationsScreen() {
             />
             <Button
               title={t('employment.markInterview')}
-              variant="secondary"
+              variant="outline"
               onPress={async () => {
-                await updateApplication(String(item.id), {
-                  status: 'interview_scheduled',
-                  interview_at: new Date(Date.now() + 3 * 86400000).toISOString(),
-                });
+                await updateApplication(String(item.id), { status: 'interview_scheduled' });
                 await queryClient.invalidateQueries({ queryKey: ['hmore', 'employment-apps'] });
                 await queryClient.invalidateQueries({ queryKey: ['hmore', 'employment-dash'] });
               }}
             />
           </View>
-        </Card>
+        </View>
       ))}
     </Screen>
   );
@@ -110,6 +107,7 @@ const styles = StyleSheet.create({
   title: { fontFamily: FONT_BOLD, color: theme.colors.text, marginBottom: 8 },
   card: { marginBottom: 10 },
   name: { fontFamily: FONT_BOLD, color: theme.colors.text },
+  chip: { marginTop: 8 },
   meta: { fontFamily: FONT_MEDIUM, color: theme.colors.textMuted, marginTop: 6, lineHeight: 20 },
   row: { flexDirection: 'row', flexWrap: 'wrap', gap: 8, marginTop: 8 },
 });

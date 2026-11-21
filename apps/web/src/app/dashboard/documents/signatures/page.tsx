@@ -4,6 +4,7 @@ import { SignatureCompleteForm } from "@/components/documents/SignatureCompleteF
 import { EmptyState } from "@/components/dashboard/EmptyState";
 import { ErrorState } from "@/components/dashboard/ErrorState";
 import { PageHeader } from "@/components/dashboard/PageHeader";
+import { Card, CardHeader, DataTable, StatusChip, Td, Th } from "@/components/ui/primitives";
 import { auth0, isAuth0Configured } from "@/lib/auth0";
 import { getDocument, listMyPendingSignatures, listPendingSignatures } from "@/lib/managedDocumentsApi";
 import { canAny } from "@/lib/rbac";
@@ -22,10 +23,10 @@ export default async function DocumentsSignaturesPage() {
     return <EmptyState title="Organisation required" description="Active organisation membership needed." />;
   }
   if (!isAuth0Configured() || !auth0) {
-    return <EmptyState title="Auth0 not configured" description="Configure Auth0 to load signatures." />;
+    return <EmptyState title="Sign-in not configured" description="Sign-in isn't set up in this environment yet." />;
   }
   const maybeToken = (await auth0.getAccessToken())?.token;
-  if (!maybeToken) return <ErrorState description="Access token unavailable." />;
+  if (!maybeToken) return <ErrorState description="We couldn't confirm your sign-in. Please sign in again." />;
   const token: string = maybeToken;
   const role = session.authorization?.active_role;
   const organisationId = orgId;
@@ -63,23 +64,24 @@ export default async function DocumentsSignaturesPage() {
     );
 
     return (
-      <div className="mx-auto max-w-3xl space-y-10">
+      <div className="mx-auto max-w-3xl space-y-8">
         <PageHeader
+          eyebrow="Documents"
           title="Signatures"
           description="Internal acknowledgement workflow — not a qualified trust-service signature. Provider integration is documented for future use."
         />
         {canSign && mineRows.length > 0 ? (
           <section className="space-y-4">
-            <h2 className="text-lg font-semibold">Action required (you are the signer)</h2>
+            <CardHeader title="Action required" description="You are the signer on these requests." />
             {mineRows.map((s) => (
-              <div key={s.id} className="rounded-lg border border-slate-200 bg-white p-4">
-                <p className="font-medium">
-                  <Link href={`/dashboard/documents/${s.document_id}`} className="text-teal-800 underline">
+              <Card key={s.id}>
+                <p className="font-semibold text-slate-900">
+                  <Link href={`/dashboard/documents/${s.document_id}`} className="hover:text-brand-700 hover:underline">
                     {s.docTitle}
                   </Link>
                 </p>
-                <p className="text-xs text-slate-500">Version {s.version_id}</p>
-                <div className="mt-3">
+                <p className="mt-1 text-xs text-slate-500">Version {s.version_id}</p>
+                <div className="mt-4">
                   <SignatureCompleteForm
                     accessToken={token}
                     organisationId={organisationId}
@@ -87,7 +89,7 @@ export default async function DocumentsSignaturesPage() {
                     signatureId={String(s.id)}
                   />
                 </div>
-              </div>
+              </Card>
             ))}
           </section>
         ) : canSign ? (
@@ -98,27 +100,41 @@ export default async function DocumentsSignaturesPage() {
         ) : null}
 
         {canSeeOrg ? (
-          <section>
-            <h2 className="text-lg font-semibold">Organisation pending</h2>
+          <section className="space-y-3">
+            <CardHeader title="Organisation pending" />
             {(orgPending as Record<string, string>[]).length === 0 ? (
-              <EmptyState title="None" description="No pending signature requests in the organisation queue." />
+              <EmptyState title="None pending" description="No pending signature requests in the organisation queue." />
             ) : (
-              <ul className="mt-2 divide-y rounded-lg border bg-white text-sm">
-                {(orgPending as Record<string, string>[]).map((s) => (
-                  <li key={s.id} className="px-3 py-2">
-                    <Link href={`/dashboard/documents/${s.document_id}`} className="text-teal-800 underline">
-                      Document
-                    </Link>{" "}
-                    · signer {String(s.signer_user_id ?? "").slice(0, 8)}… · {s.status}
-                  </li>
-                ))}
-              </ul>
+              <DataTable caption="Organisation pending signatures">
+                <thead>
+                  <tr>
+                    <Th>Document</Th>
+                    <Th>Signer</Th>
+                    <Th>Status</Th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {(orgPending as Record<string, string>[]).map((s) => (
+                    <tr key={s.id} className="hover:bg-slate-50">
+                      <Td>
+                        <Link href={`/dashboard/documents/${s.document_id}`} className="font-semibold text-slate-900 hover:text-brand-700 hover:underline">
+                          Open document
+                        </Link>
+                      </Td>
+                      <Td>Assigned signer</Td>
+                      <Td>
+                        <StatusChip status={s.status} />
+                      </Td>
+                    </tr>
+                  ))}
+                </tbody>
+              </DataTable>
             )}
           </section>
         ) : null}
       </div>
     );
-  } catch (e) {
-    return <ErrorState description={e instanceof Error ? e.message : "Failed to load"} />;
+  } catch {
+    return <ErrorState description={"Failed to load"} />;
   }
 }

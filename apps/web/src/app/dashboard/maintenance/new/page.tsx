@@ -1,7 +1,9 @@
 import { redirect } from "next/navigation";
+import Link from "next/link";
 import { EmptyState } from "@/components/dashboard/EmptyState";
 import { PageHeader } from "@/components/dashboard/PageHeader";
 import { MaintenanceForm } from "@/components/maintenance/MaintenanceForm";
+import { linkClass } from "@/components/ui/primitives";
 import { auth0, isAuth0Configured } from "@/lib/auth0";
 import { canAny } from "@/lib/rbac";
 import { requireAuthenticatedSession } from "@/lib/session";
@@ -20,14 +22,14 @@ export default async function MaintenanceNewPage() {
   }
   const orgId = session.authorization?.active_organisation_id;
   if (!orgId) {
-    return <EmptyState title="Organisation required" description="Active organisation needed." />;
+    return <EmptyState title="Choose an organisation" description="Select an organisation before reporting a repair." />;
   }
   if (!isAuth0Configured() || !auth0) {
-    return <EmptyState title="Auth0 not configured" description="Cannot submit maintenance." />;
+    return <EmptyState title="Sign-in unavailable" description="We can't send repair reports right now. Please try again later." />;
   }
   const token = (await auth0.getAccessToken())?.token;
   if (!token) {
-    return <EmptyState title="Session" description="Access token unavailable." />;
+    return <EmptyState title="Session expired" description="Please sign in again to report a repair." />;
   }
   const role = session.authorization?.active_role;
   const perms = session.authorization?.permissions;
@@ -35,7 +37,14 @@ export default async function MaintenanceNewPage() {
 
   return (
     <div className="mx-auto max-w-2xl space-y-6">
-      <PageHeader eyebrow="Maintenance" title="Submit maintenance request" description="Operational repair request — not an emergency channel." />
+      <Link href="/dashboard/maintenance" className={`text-sm ${linkClass}`}>
+        ← Back to repairs
+      </Link>
+      <PageHeader
+        eyebrow="Maintenance"
+        title="Report a repair"
+        description="Tell us what needs fixing. For gas leaks, fire or anything dangerous, call the emergency services first."
+      />
       <MaintenanceForm accessToken={token} organisationId={orgId} role={role} tenantMode={tenantMode} />
     </div>
   );

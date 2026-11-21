@@ -2,6 +2,21 @@
 
 import Link from "next/link";
 import { useCallback, useEffect, useMemo, useState } from "react";
+import { EmptyState } from "@/components/dashboard/EmptyState";
+import {
+  btnPrimary,
+  btnSecondary,
+  Card,
+  CardHeader,
+  DataTable,
+  inputClass,
+  linkClass,
+  StatCard,
+  StatGrid,
+  StatusChip,
+  Td,
+  Th,
+} from "@/components/ui/primitives";
 import {
   archiveRentRecord,
   createInspection,
@@ -21,15 +36,6 @@ type Props = {
   organisationId: string;
   role?: string | null;
 };
-
-function StatCard({ label, value }: { label: string; value: string | number }) {
-  return (
-    <div className="rounded-lg border border-slate-200 bg-white p-4 shadow-sm">
-      <p className="text-xs font-medium uppercase tracking-wide text-slate-500">{label}</p>
-      <p className="mt-2 text-2xl font-semibold text-forest-900">{value}</p>
-    </div>
-  );
-}
 
 export function LandlordEnterpriseClient({ accessToken, organisationId, role }: Props) {
   // Only landlords receive rent_records.manage / inspections.manage in the RBAC matrix.
@@ -196,92 +202,99 @@ export function LandlordEnterpriseClient({ accessToken, organisationId, role }: 
 
   return (
     <div className="space-y-8">
-      {error ? <p className="text-sm text-red-700">{error}</p> : null}
-      {message ? <p className="text-sm text-teal-800">{message}</p> : null}
+      {error ? <p className="rounded-xl border border-red-200 bg-red-50 p-3 text-sm text-red-800">{error}</p> : null}
+      {message ? <p className="text-sm font-medium text-brand-800">{message}</p> : null}
       <p className="text-sm text-slate-600">{dash.ledger_disclaimer}</p>
 
-      <section className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+      <StatGrid>
         <StatCard label="Properties" value={dash.total_properties} />
         <StatCard label="Rooms" value={dash.total_rooms} />
-        <StatCard label="Occupied" value={dash.occupied_rooms} />
-        <StatCard label="Vacant" value={dash.vacant_rooms} />
+        <StatCard label="Occupied" value={dash.occupied_rooms} tone="green" />
+        <StatCard label="Vacant" value={dash.vacant_rooms} tone={dash.vacant_rooms > 0 ? "amber" : "gray"} />
         <StatCard label="Active tenancies" value={dash.active_tenancies} />
-        <StatCard label="Rent outstanding" value={dash.rent.outstanding + dash.rent.due} />
-        <StatCard label="Inspections overdue" value={dash.inspections.overdue} />
+        <StatCard label="Rent outstanding" value={dash.rent.outstanding + dash.rent.due} tone="amber" />
+        <StatCard
+          label="Inspections overdue"
+          value={dash.inspections.overdue}
+          tone={dash.inspections.overdue > 0 ? "red" : "gray"}
+          hint={dash.inspections.overdue > 0 ? "Overdue" : undefined}
+        />
         <StatCard label="Open repairs" value={dash.repairs.open} />
-      </section>
+      </StatGrid>
 
-      <nav className="flex flex-wrap gap-3 text-sm">
-        <Link className="text-teal-800 underline" href="/dashboard/landlord#portfolio">
+      <nav aria-label="Landlord sections" className="flex flex-wrap gap-2">
+        <Link className={linkClass} href="/dashboard/landlord#portfolio">
           Portfolio
         </Link>
-        <Link className="text-teal-800 underline" href="/dashboard/landlord#rent">
+        <Link className={linkClass} href="/dashboard/landlord#rent">
           Rent ledger
         </Link>
-        <Link className="text-teal-800 underline" href="/dashboard/landlord#inspections">
+        <Link className={linkClass} href="/dashboard/landlord#inspections">
           Inspections
         </Link>
-        <Link className="text-teal-800 underline" href="/dashboard/landlord#repairs">
+        <Link className={linkClass} href="/dashboard/landlord#repairs">
           Repairs
         </Link>
-        <Link className="text-teal-800 underline" href="/properties">
-          Properties API
+        <Link className={linkClass} href="/properties">
+          Properties
         </Link>
       </nav>
 
-      <section id="portfolio" className="space-y-3">
-        <div className="flex flex-wrap items-end gap-3">
-          <h2 className="text-lg font-semibold text-forest-900">Portfolio analytics</h2>
-          <input
-            className="rounded border border-slate-300 px-3 py-2 text-sm"
-            placeholder="Filter by building / city"
-            value={building}
-            onChange={(e) => setBuilding(e.target.value)}
-          />
-          <button
-            type="button"
-            className="rounded bg-teal-800 px-3 py-2 text-sm text-white"
-            onClick={() => void reload()}
-          >
+      <section id="portfolio" className="space-y-4">
+        <CardHeader title="Portfolio analytics" description="Occupancy and repair load for properties you can see." />
+        <div className="flex flex-wrap items-end gap-2">
+          <div className="min-w-[220px] flex-1">
+            <label htmlFor="portfolio-building" className="sr-only">
+              Filter by building or city
+            </label>
+            <input
+              id="portfolio-building"
+              className={inputClass}
+              placeholder="Filter by building or city"
+              value={building}
+              onChange={(e) => setBuilding(e.target.value)}
+            />
+          </div>
+          <button type="button" className={btnPrimary} onClick={() => void reload()}>
             Apply
           </button>
         </div>
         {portfolio.length === 0 ? (
-          <p className="text-sm text-slate-600">No properties match these filters.</p>
+          <EmptyState title="No properties" description="No properties match these filters." />
         ) : (
-          <div className="overflow-x-auto rounded-lg border border-slate-200 bg-white">
-            <table className="min-w-full text-left text-sm">
-              <thead className="bg-slate-50 text-slate-600">
-                <tr>
-                  <th className="px-3 py-2">Property</th>
-                  <th className="px-3 py-2">Rooms</th>
-                  <th className="px-3 py-2">Occupied</th>
-                  <th className="px-3 py-2">Vacant</th>
-                  <th className="px-3 py-2">Occupancy %</th>
-                  <th className="px-3 py-2">Repairs</th>
-                  <th className="px-3 py-2">Status</th>
+          <DataTable caption="Portfolio">
+            <thead>
+              <tr>
+                <Th>Property</Th>
+                <Th>Rooms</Th>
+                <Th>Occupied</Th>
+                <Th>Vacant</Th>
+                <Th>Occupancy %</Th>
+                <Th>Repairs</Th>
+                <Th>Status</Th>
+              </tr>
+            </thead>
+            <tbody>
+              {portfolio.map((row) => (
+                <tr key={String(row.property_id)} className="hover:bg-slate-50">
+                  <Td className="font-semibold text-slate-900">{String(row.property_name)}</Td>
+                  <Td>{String(row.total_rooms)}</Td>
+                  <Td>{String(row.occupied_rooms)}</Td>
+                  <Td>{String(row.vacant_rooms)}</Td>
+                  <Td>{String(row.occupancy_rate)}</Td>
+                  <Td>{String(row.outstanding_repairs)}</Td>
+                  <Td>
+                    <StatusChip status={String(row.maintenance_status)} />
+                  </Td>
                 </tr>
-              </thead>
-              <tbody>
-                {portfolio.map((row) => (
-                  <tr key={String(row.property_id)} className="border-t border-slate-100">
-                    <td className="px-3 py-2">{String(row.property_name)}</td>
-                    <td className="px-3 py-2">{String(row.total_rooms)}</td>
-                    <td className="px-3 py-2">{String(row.occupied_rooms)}</td>
-                    <td className="px-3 py-2">{String(row.vacant_rooms)}</td>
-                    <td className="px-3 py-2">{String(row.occupancy_rate)}</td>
-                    <td className="px-3 py-2">{String(row.outstanding_repairs)}</td>
-                    <td className="px-3 py-2">{String(row.maintenance_status)}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+              ))}
+            </tbody>
+          </DataTable>
         )}
         {vacancyTrend.length > 0 ? (
-          <div className="rounded-lg border border-slate-200 bg-white p-3 text-sm">
-            <h3 className="font-medium text-forest-900">Vacancy trend</h3>
-            <ul className="mt-2 space-y-1 text-slate-600">
+          <Card>
+            <CardHeader title="Vacancy trend" />
+            <ul className="space-y-1 text-sm text-slate-600">
               {vacancyTrend.map((point, idx) => (
                 <li key={`${String(point.period ?? idx)}-${idx}`}>
                   {String(point.period ?? point.label ?? `Point ${idx + 1}`)}: vacant{" "}
@@ -290,18 +303,19 @@ export function LandlordEnterpriseClient({ accessToken, organisationId, role }: 
                 </li>
               ))}
             </ul>
-          </div>
+          </Card>
         ) : null}
       </section>
 
-      <section id="rent" className="space-y-3">
-        <h2 className="text-lg font-semibold text-forest-900">Rent records ledger</h2>
+      <section id="rent" className="space-y-4">
+        <CardHeader title="Rent records ledger" />
         {canManageLedger ? (
-          <div className="flex flex-wrap gap-2">
+          <div className="flex flex-wrap items-end gap-2">
             <select
-              className="rounded border border-slate-300 px-3 py-2 text-sm"
+              className={`max-w-xs ${inputClass}`}
               value={rentPropertyId}
               onChange={(e) => setRentPropertyId(e.target.value)}
+              aria-label="Property"
             >
               {dash.properties.map((p) => (
                 <option key={p.id} value={p.id}>
@@ -310,12 +324,12 @@ export function LandlordEnterpriseClient({ accessToken, organisationId, role }: 
               ))}
             </select>
             <input
-              className="rounded border border-slate-300 px-3 py-2 text-sm"
+              className={`max-w-[140px] ${inputClass}`}
               value={rentAmount}
               onChange={(e) => setRentAmount(e.target.value)}
               aria-label="Rent amount"
             />
-            <button type="button" className="rounded bg-teal-800 px-3 py-2 text-sm text-white" onClick={() => void onCreateRent()}>
+            <button type="button" className={btnPrimary} onClick={() => void onCreateRent()}>
               Add rent record
             </button>
           </div>
@@ -325,144 +339,185 @@ export function LandlordEnterpriseClient({ accessToken, organisationId, role }: 
           </p>
         )}
         {rents.length === 0 ? (
-          <p className="text-sm text-slate-600">No rent records yet.</p>
+          <EmptyState title="No rent records" description="No rent records yet." />
         ) : (
-          <ul className="space-y-2">
-            {rents.map((row) => (
-              <li key={String(row.id)} className="rounded-lg border border-slate-200 bg-white p-3 text-sm">
-                <p className="font-medium text-forest-900">
-                  {String(row.property_name)} · £{String(row.amount)} · {String(row.status)}
-                </p>
-                <p className="text-slate-600">
-                  {String(row.period_start)} → {String(row.period_end)}
-                  {row.tenancy_reference ? ` · ${String(row.tenancy_reference)}` : ""}
-                </p>
-                {canManageLedger ? (
-                  <div className="mt-2 flex flex-wrap gap-3">
-                    {row.status !== "recorded_paid" ? (
-                      <button
-                        type="button"
-                        className="text-teal-800 underline"
-                        onClick={() => void onMarkPaid(String(row.id))}
-                      >
-                        Record as paid (authorised note)
-                      </button>
+          <DataTable caption="Rent records">
+            <thead>
+              <tr>
+                <Th>Property</Th>
+                <Th>Amount</Th>
+                <Th>Period</Th>
+                <Th>Status</Th>
+                {canManageLedger ? <Th>Actions</Th> : null}
+              </tr>
+            </thead>
+            <tbody>
+              {rents.map((row) => (
+                <tr key={String(row.id)} className="hover:bg-slate-50">
+                  <Td className="font-semibold text-slate-900">
+                    {String(row.property_name)}
+                    {row.tenancy_reference ? (
+                      <span className="mt-0.5 block text-xs font-normal text-slate-500">{String(row.tenancy_reference)}</span>
                     ) : null}
-                    <button
-                      type="button"
-                      className="text-slate-700 underline"
-                      onClick={() => void onArchiveRent(String(row.id))}
-                    >
-                      Archive
-                    </button>
-                  </div>
-                ) : null}
-              </li>
-            ))}
-          </ul>
+                  </Td>
+                  <Td>£{String(row.amount)}</Td>
+                  <Td className="whitespace-nowrap">
+                    {String(row.period_start)} → {String(row.period_end)}
+                  </Td>
+                  <Td>
+                    <StatusChip status={String(row.status)} />
+                  </Td>
+                  {canManageLedger ? (
+                    <Td>
+                      <div className="flex flex-wrap gap-2">
+                        {row.status !== "recorded_paid" ? (
+                          <button type="button" className={btnSecondary} onClick={() => void onMarkPaid(String(row.id))}>
+                            Record as paid
+                          </button>
+                        ) : null}
+                        <button type="button" className={btnSecondary} onClick={() => void onArchiveRent(String(row.id))}>
+                          Archive
+                        </button>
+                      </div>
+                    </Td>
+                  ) : null}
+                </tr>
+              ))}
+            </tbody>
+          </DataTable>
         )}
       </section>
 
-      <section id="inspections" className="space-y-3">
-        <h2 className="text-lg font-semibold text-forest-900">Inspections</h2>
+      <section id="inspections" className="space-y-4">
+        <CardHeader title="Inspections" />
         {canManageLedger ? (
-        <div className="flex flex-wrap gap-2">
-          <select
-            className="rounded border border-slate-300 px-3 py-2 text-sm"
-            value={inspectionPropertyId}
-            onChange={(e) => setInspectionPropertyId(e.target.value)}
-          >
-            {dash.properties.map((p) => (
-              <option key={p.id} value={p.id}>
-                {p.name}
-              </option>
-            ))}
-          </select>
-          <input
-            className="rounded border border-slate-300 px-3 py-2 text-sm"
-            value={inspectionTitle}
-            onChange={(e) => setInspectionTitle(e.target.value)}
-          />
-          <input
-            type="date"
-            className="rounded border border-slate-300 px-3 py-2 text-sm"
-            value={inspectionDate}
-            onChange={(e) => setInspectionDate(e.target.value)}
-          />
-          <button
-            type="button"
-            className="rounded bg-teal-800 px-3 py-2 text-sm text-white"
-            onClick={() => void onCreateInspection()}
-          >
-            Schedule inspection
-          </button>
-        </div>
+          <div className="flex flex-wrap items-end gap-2">
+            <select
+              className={`max-w-xs ${inputClass}`}
+              value={inspectionPropertyId}
+              onChange={(e) => setInspectionPropertyId(e.target.value)}
+              aria-label="Inspection property"
+            >
+              {dash.properties.map((p) => (
+                <option key={p.id} value={p.id}>
+                  {p.name}
+                </option>
+              ))}
+            </select>
+            <input
+              className={`min-w-[180px] flex-1 ${inputClass}`}
+              value={inspectionTitle}
+              onChange={(e) => setInspectionTitle(e.target.value)}
+              aria-label="Inspection title"
+            />
+            <input
+              type="date"
+              className={inputClass}
+              value={inspectionDate}
+              onChange={(e) => setInspectionDate(e.target.value)}
+              aria-label="Scheduled date"
+            />
+            <button type="button" className={btnPrimary} onClick={() => void onCreateInspection()}>
+              Schedule inspection
+            </button>
+          </div>
         ) : (
           <p className="text-sm text-slate-600">
             Read-only oversight. Inspection writes require the landlord role (`inspections.manage`).
           </p>
         )}
         <p className="text-sm text-slate-600">
-          Upcoming: {dash.inspections.upcoming} · Overdue: {dash.inspections.overdue} · Completed:{" "}
-          {dash.inspections.completed}
+          Upcoming: {dash.inspections.upcoming} · Overdue: {dash.inspections.overdue} · Completed: {dash.inspections.completed}
         </p>
         {inspections.length === 0 ? (
-          <p className="text-sm text-slate-600">No inspections yet.</p>
+          <EmptyState title="No inspections" description="No inspections yet." />
         ) : (
-          <ul className="space-y-2">
-            {inspections.map((row) => (
-              <li key={String(row.id)} className="rounded-lg border border-slate-200 bg-white p-3 text-sm">
-                <p className="font-medium text-forest-900">
-                  {String(row.title)} · {String(row.effective_status)}
-                </p>
-                <p className="text-slate-600">
-                  {String(row.property_name)} · {String(row.scheduled_date)}
-                </p>
-                {row.findings ? <p className="mt-1 text-slate-700">Findings: {String(row.findings)}</p> : null}
-                {row.follow_up_actions ? (
-                  <p className="text-slate-700">Follow-up: {String(row.follow_up_actions)}</p>
-                ) : null}
-                {canManageLedger && String(row.effective_status ?? row.status) !== "completed" ? (
-                  <button
-                    type="button"
-                    className="mt-2 text-teal-800 underline"
-                    onClick={() => void onCompleteInspection(row)}
-                  >
-                    Mark completed
-                  </button>
-                ) : null}
-              </li>
-            ))}
-          </ul>
+          <DataTable caption="Inspections">
+            <thead>
+              <tr>
+                <Th>Inspection</Th>
+                <Th>Property</Th>
+                <Th>Scheduled</Th>
+                <Th>Status</Th>
+                {canManageLedger ? <Th>Actions</Th> : null}
+              </tr>
+            </thead>
+            <tbody>
+              {inspections.map((row) => (
+                <tr key={String(row.id)} className="hover:bg-slate-50">
+                  <Td className="font-semibold text-slate-900">
+                    {String(row.title)}
+                    {row.findings ? <span className="mt-0.5 block text-xs font-normal text-slate-500">Findings: {String(row.findings)}</span> : null}
+                    {row.follow_up_actions ? (
+                      <span className="block text-xs font-normal text-slate-500">Follow-up: {String(row.follow_up_actions)}</span>
+                    ) : null}
+                  </Td>
+                  <Td>{String(row.property_name)}</Td>
+                  <Td className="whitespace-nowrap">{String(row.scheduled_date)}</Td>
+                  <Td>
+                    <StatusChip status={String(row.effective_status)} />
+                  </Td>
+                  {canManageLedger ? (
+                    <Td>
+                      {String(row.effective_status ?? row.status) !== "completed" ? (
+                        <button type="button" className={btnSecondary} onClick={() => void onCompleteInspection(row)}>
+                          Mark completed
+                        </button>
+                      ) : (
+                        "—"
+                      )}
+                    </Td>
+                  ) : null}
+                </tr>
+              ))}
+            </tbody>
+          </DataTable>
         )}
       </section>
 
-      <section id="repairs" className="space-y-3">
-        <h2 className="text-lg font-semibold text-forest-900">Repair oversight</h2>
+      <section id="repairs" className="space-y-4">
+        <CardHeader title="Repair oversight" />
         <p className="text-sm text-slate-600">
-          Open: {dash.repairs.open} · Completed: {dash.repairs.completed} · Pending maintenance:{" "}
-          {dash.repairs.pending_maintenance}
+          Open: {dash.repairs.open} · Completed: {dash.repairs.completed} · Pending maintenance: {dash.repairs.pending_maintenance}
         </p>
         {repairs.length === 0 ? (
-          <p className="text-sm text-slate-600">No repairs on your properties.</p>
+          <EmptyState title="No repairs" description="No repairs on your properties." />
         ) : (
-          <ul className="space-y-2">
-            {repairs.map((row) => (
-              <li key={String(row.id)} className="rounded-lg border border-slate-200 bg-white p-3 text-sm">
-                <p className="font-medium text-forest-900">
-                  {String(row.title)} · {String(row.priority)} · {String(row.status)}
-                  {row.is_overdue ? " · overdue" : ""}
-                </p>
-                <p className="text-slate-600">
-                  {String(row.property_name)}
-                  {row.scheduled_visit_at ? ` · scheduled ${String(row.scheduled_visit_at)}` : ""}
-                </p>
-                {row.completion_notes ? (
-                  <p className="mt-1 text-slate-700">Completion: {String(row.completion_notes)}</p>
-                ) : null}
-              </li>
-            ))}
-          </ul>
+          <DataTable caption="Repairs">
+            <thead>
+              <tr>
+                <Th>Repair</Th>
+                <Th>Property</Th>
+                <Th>Priority</Th>
+                <Th>Status</Th>
+              </tr>
+            </thead>
+            <tbody>
+              {repairs.map((row) => (
+                <tr key={String(row.id)} className="hover:bg-slate-50">
+                  <Td className="font-semibold text-slate-900">
+                    {String(row.title)}
+                    {row.scheduled_visit_at ? (
+                      <span className="mt-0.5 block text-xs font-normal text-slate-500">Scheduled {String(row.scheduled_visit_at)}</span>
+                    ) : null}
+                    {row.completion_notes ? (
+                      <span className="block text-xs font-normal text-slate-500">Completion: {String(row.completion_notes)}</span>
+                    ) : null}
+                  </Td>
+                  <Td>{String(row.property_name)}</Td>
+                  <Td>
+                    <StatusChip status={String(row.priority)} />
+                  </Td>
+                  <Td>
+                    <div className="flex flex-wrap gap-1.5">
+                      <StatusChip status={String(row.status)} />
+                      {row.is_overdue ? <StatusChip tone="red">Overdue</StatusChip> : null}
+                    </div>
+                  </Td>
+                </tr>
+              ))}
+            </tbody>
+          </DataTable>
         )}
       </section>
     </div>

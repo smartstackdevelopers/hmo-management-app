@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { btnPrimary, inputClass, labelClass } from "@/components/ui/primitives";
 import { createAccessRequest } from "@/lib/managedDocumentsApi";
 
 type Props = {
@@ -28,26 +29,32 @@ export function AccessRequestForm(props: Props) {
       setStatus("ok");
       setMsg("Request submitted. A reviewer must approve before access changes.");
       setReason("");
-    } catch (err) {
+    } catch {
       setStatus("err");
-      setMsg(err instanceof Error ? err.message : "Failed");
+      setMsg("We couldn't submit that request. Please try again.");
     }
   }
 
   return (
-    <form onSubmit={(e) => void submit(e)} className="rounded border border-slate-200 bg-slate-50 p-4 text-sm">
-      <p className="font-medium text-slate-800">Request access</p>
-      <textarea
-        className="mt-2 w-full rounded border border-slate-300 px-2 py-1"
-        rows={3}
-        value={reason}
-        onChange={(e) => setReason(e.target.value)}
-        placeholder="Reason for access"
-      />
+    <form onSubmit={(e) => void submit(e)} className="space-y-3 rounded-2xl border border-slate-200 bg-white p-6 text-sm shadow-card">
+      <p className="text-base font-semibold text-slate-900">Request access</p>
+      <div>
+        <label htmlFor="access-reason" className={labelClass}>
+          Reason for access
+        </label>
+        <textarea
+          id="access-reason"
+          className={`mt-1.5 ${inputClass} h-auto py-2`}
+          rows={3}
+          value={reason}
+          onChange={(e) => setReason(e.target.value)}
+          placeholder="Why you need access"
+        />
+      </div>
       <button
         type="submit"
         disabled={status === "sending"}
-        className="mt-2 rounded bg-slate-800 px-3 py-1 text-white disabled:opacity-50"
+        className={btnPrimary}
       >
         Submit request
       </button>

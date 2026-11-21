@@ -32,9 +32,9 @@ export default async function NewHandoverPage({
   return (
     <div className="mx-auto max-w-2xl space-y-6">
       <PageHeader
-        eyebrow="Support"
+        eyebrow="My work"
         title="New handover"
-        description="Hand a case to another Support Worker in the same organisation."
+        description="Hand a case to another support worker in the same organisation."
       />
       <HandoverForm
         accessToken={token}

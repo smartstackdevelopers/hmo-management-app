@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { btnPrimary, inputClass } from "@/components/ui/primitives";
 import { ASSISTANT_NOTICE, sourceLabel } from "@/lib/tenantAssistantView";
 
 type Props = {
@@ -46,7 +47,7 @@ export function TenantAssistantPanel(props: Props) {
         }),
       });
       if (!response.ok) {
-        setError(await response.text());
+        setError("We couldn't send that question. Please try again.");
         setState("error");
         return;
       }
@@ -64,9 +65,9 @@ export function TenantAssistantPanel(props: Props) {
   }
 
   return (
-    <section className="space-y-4 rounded-lg border border-slate-200 bg-white p-4">
+    <section className="space-y-4 rounded-2xl border border-slate-200 bg-white p-5 shadow-card">
       <div>
-        <h2 className="text-lg font-semibold text-forest-900">Tenant assistant</h2>
+        <h2 className="text-base font-semibold text-slate-900">Tenant assistant</h2>
         <p className="text-sm text-amber-950">{ASSISTANT_NOTICE}</p>
       </div>
       <div className="max-h-80 space-y-3 overflow-y-auto rounded-md border border-slate-100 bg-slate-50 p-3 text-sm">
@@ -78,7 +79,7 @@ export function TenantAssistantPanel(props: Props) {
               <div
                 className={
                   message.role === "user"
-                    ? "inline-block rounded-md bg-teal-700 px-3 py-2 text-white"
+                    ? "inline-block rounded-2xl bg-brand-700 px-3 py-2 text-white"
                     : "inline-block rounded-md bg-white px-3 py-2 text-slate-800 shadow-sm"
                 }
               >
@@ -108,7 +109,7 @@ export function TenantAssistantPanel(props: Props) {
         </label>
         <input
           id="tenant-assistant-question"
-          className="w-full rounded-md border border-slate-300 px-3 py-2 text-sm"
+          className={inputClass}
           value={question}
           maxLength={2000}
           placeholder="Ask a question"
@@ -123,7 +124,7 @@ export function TenantAssistantPanel(props: Props) {
         />
         <button
           type="button"
-          className="rounded-md bg-teal-700 px-4 py-2 text-sm text-white disabled:opacity-60"
+          className={btnPrimary}
           disabled={state === "loading" || question.trim().length < 3}
           onClick={() => void send()}
         >

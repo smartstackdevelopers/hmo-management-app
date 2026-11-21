@@ -1,7 +1,9 @@
+import Link from "next/link";
 import { redirect } from "next/navigation";
 import { ComplaintForm } from "@/components/complaints/ComplaintForm";
 import { EmptyState } from "@/components/dashboard/EmptyState";
 import { PageHeader } from "@/components/dashboard/PageHeader";
+import { linkClass } from "@/components/ui/primitives";
 import { auth0, isAuth0Configured } from "@/lib/auth0";
 import { canAny } from "@/lib/rbac";
 import { requireAuthenticatedSession } from "@/lib/session";
@@ -31,6 +33,9 @@ export default async function NewComplaintPage() {
   }
   return (
     <div className="mx-auto max-w-2xl space-y-6">
+      <Link href="/dashboard/complaints" className={`text-sm ${linkClass}`}>
+        ← Back to complaints
+      </Link>
       <PageHeader
         eyebrow="Complaints"
         title="Submit complaint"

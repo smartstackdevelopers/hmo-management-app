@@ -104,10 +104,10 @@ export function DuplicateDetectionPanel(props: Props) {
   return (
     <section className={analysisLayoutClass()}>
       <div className="flex flex-wrap items-center justify-between gap-2">
-        <h2 className="text-lg font-semibold text-forest-900">Duplicate detection</h2>
+        <h2 className="text-lg font-semibold text-slate-900">Duplicate detection</h2>
         <button
           type="button"
-          className="rounded-md bg-teal-700 px-3 py-2 text-sm text-white disabled:opacity-60"
+          className="inline-flex h-10 items-center justify-center rounded-lg bg-brand-700 px-4 text-sm font-semibold text-white shadow-sm hover:bg-brand-800 disabled:cursor-not-allowed disabled:opacity-60 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-600 focus-visible:ring-offset-2"
           disabled={state === "loading"}
           onClick={() => void startRun()}
         >
@@ -121,10 +121,10 @@ export function DuplicateDetectionPanel(props: Props) {
         </p>
       ) : null}
       {state === "ready" && findings.length === 0 ? (
-        <p className="text-sm text-forest-800">No potential duplicates found in this organisation scope.</p>
+        <p className="text-sm text-slate-700">No potential duplicates found in this organisation scope.</p>
       ) : null}
       {run ? (
-        <p className="text-xs text-forest-700">
+        <p className="text-xs text-slate-600">
           Scanned {String(run.records_scanned)} · compared {String(run.candidates_compared)} · created{" "}
           {String(run.findings_created)} · AI used: {String(run.used_ai)}
         </p>
@@ -136,15 +136,15 @@ export function DuplicateDetectionPanel(props: Props) {
               key={String(item.id)}
               className="flex flex-wrap items-start justify-between gap-2 border-b border-amber-100 pb-2"
             >
-              <div className="space-y-1 text-sm text-forest-900">
+              <div className="space-y-1 text-sm text-slate-900">
                 <p className="font-medium">
                   {String(item.record_type)} · {matchStrengthLabel(String(item.match_strength))}
                 </p>
-                <p className="text-xs text-forest-700">
+                <p className="text-xs text-slate-600">
                   {((item.matching_reasons as string[]) ?? []).join(" · ") || "No reasons listed"}
                 </p>
                 {item.similarity_score != null ? (
-                  <p className="text-xs text-forest-600">
+                  <p className="text-xs text-slate-500">
                     Matching strength score: {String(item.similarity_score)} (not identity proof)
                   </p>
                 ) : null}
@@ -152,7 +152,7 @@ export function DuplicateDetectionPanel(props: Props) {
               </div>
               <button
                 type="button"
-                className="rounded-md border border-forest-300 px-2 py-1 text-xs"
+                className="inline-flex h-8 items-center justify-center rounded-lg border border-slate-200 bg-white px-3 text-xs font-semibold text-slate-700 hover:bg-slate-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-600"
                 onClick={() => void openFinding(String(item.id))}
               >
                 Compare
@@ -163,7 +163,7 @@ export function DuplicateDetectionPanel(props: Props) {
       ) : null}
       {selected ? (
         <div className="space-y-3 border-t border-amber-200 pt-3">
-          <h3 className="text-base font-semibold text-forest-900">Side-by-side comparison</h3>
+          <h3 className="text-base font-semibold text-slate-900">Side-by-side comparison</h3>
           <div className="grid gap-3 md:grid-cols-2">
             <pre className="overflow-auto rounded-md bg-white/70 p-2 text-xs">
               {JSON.stringify(sourceRecord ?? {}, null, 2)}
@@ -174,10 +174,10 @@ export function DuplicateDetectionPanel(props: Props) {
           </div>
           {canReview ? (
             <div className="space-y-2">
-              <label className="block text-sm text-forest-800">
+              <label className="block text-sm text-slate-700">
                 Review comment
                 <textarea
-                  className="mt-1 w-full rounded-md border border-forest-200 p-2 text-sm"
+                  className="mt-1 block w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 placeholder:text-slate-400 focus:border-brand-600 focus:outline-none focus:ring-2 focus:ring-brand-100"
                   rows={2}
                   value={comment}
                   onChange={(event) => setComment(event.target.value)}
@@ -186,33 +186,33 @@ export function DuplicateDetectionPanel(props: Props) {
               <div className="flex flex-wrap gap-2">
                 <button
                   type="button"
-                  className="rounded-md bg-teal-800 px-3 py-1.5 text-sm text-white"
+                  className="inline-flex h-10 items-center justify-center rounded-lg bg-brand-700 px-4 text-sm font-semibold text-white shadow-sm hover:bg-brand-800 disabled:cursor-not-allowed disabled:opacity-60 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-600 focus-visible:ring-offset-2"
                   onClick={() => void review(String(selected.id), "confirm")}
                 >
                   Confirm duplicate
                 </button>
                 <button
                   type="button"
-                  className="rounded-md border border-forest-400 px-3 py-1.5 text-sm"
+                  className="inline-flex h-10 items-center justify-center rounded-lg border border-slate-200 bg-white px-4 text-sm font-semibold text-slate-700 hover:bg-slate-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-600"
                   onClick={() => void review(String(selected.id), "dismiss")}
                 >
                   Mark as not duplicate
                 </button>
                 <button
                   type="button"
-                  className="rounded-md border border-forest-300 px-3 py-1.5 text-sm"
+                  className="inline-flex h-10 items-center justify-center rounded-lg border border-slate-200 bg-white px-4 text-sm font-semibold text-slate-700 hover:bg-slate-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-600"
                   onClick={() => void review(String(selected.id), "defer")}
                 >
                   Defer
                 </button>
               </div>
-              <p className="text-xs text-forest-700">
+              <p className="text-xs text-slate-600">
                 Confirming records a review decision only. Source records are never deleted or merged by
                 this action.
               </p>
             </div>
           ) : (
-            <p className="text-sm text-forest-700">You do not have permission to review findings.</p>
+            <p className="text-sm text-slate-600">You do not have permission to review findings.</p>
           )}
         </div>
       ) : null}

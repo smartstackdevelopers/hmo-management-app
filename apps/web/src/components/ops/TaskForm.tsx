@@ -1,7 +1,9 @@
 "use client";
 
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { btnPrimary, btnSecondary, inputClass, labelClass } from "@/components/ui/primitives";
 import { createTask } from "@/lib/opsApi";
 
 export function TaskForm({
@@ -21,7 +23,7 @@ export function TaskForm({
 
   return (
     <form
-      className="space-y-3 rounded-lg border border-slate-200 bg-white p-5"
+      className="space-y-5 rounded-2xl border border-slate-200 bg-white p-6 shadow-card"
       onSubmit={async (event) => {
         event.preventDefault();
         setPending(true);
@@ -45,49 +47,67 @@ export function TaskForm({
           router.push("/dashboard/tasks");
           router.refresh();
         } catch (err) {
-          setError(err instanceof Error ? err.message : "Failed to create task");
+          setError(err instanceof Error ? err.message : "We couldn't create this task. Please try again.");
           setPending(false);
         }
       }}
     >
-      <label className="block text-sm">
-        Title
-        <input name="title" required className="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 text-sm" />
-      </label>
-      <label className="block text-sm">
-        Description
-        <textarea name="description" rows={3} className="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 text-sm" />
-      </label>
-      <label className="block text-sm">
-        Assigned user ID
-        <input
-          name="assigned_user_id"
-          required
-          defaultValue={defaultAssigneeId}
-          className="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 font-mono text-sm"
-        />
-      </label>
-      <label className="block text-sm">
-        Tenant ID (optional)
-        <input name="tenant_id" className="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 font-mono text-sm" />
-      </label>
-      <label className="block text-sm">
-        Priority
-        <select name="priority" defaultValue="normal" className="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 text-sm">
-          <option value="low">low</option>
-          <option value="normal">normal</option>
-          <option value="high">high</option>
-          <option value="urgent">urgent</option>
-        </select>
-      </label>
-      <label className="block text-sm">
-        Due at
-        <input name="due_at" type="datetime-local" className="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 text-sm" />
-      </label>
-      {error ? <p className="text-sm text-red-700">{error}</p> : null}
-      <button type="submit" disabled={pending} className="rounded-md bg-teal-700 px-3 py-2 text-sm text-white disabled:opacity-60">
-        {pending ? "Saving…" : "Create task"}
-      </button>
+      <div className="space-y-1.5">
+        <label htmlFor="task-title" className={labelClass}>
+          Title
+        </label>
+        <input id="task-title" name="title" required className={inputClass} />
+      </div>
+      <div className="space-y-1.5">
+        <label htmlFor="task-description" className={labelClass}>
+          Description
+        </label>
+        <textarea id="task-description" name="description" rows={3} className={`${inputClass} h-auto py-2`} />
+      </div>
+      <div className="grid gap-4 sm:grid-cols-2">
+        <div className="space-y-1.5">
+          <label htmlFor="task-assignee" className={labelClass}>
+            Assigned staff reference
+          </label>
+          <input id="task-assignee" name="assigned_user_id" required defaultValue={defaultAssigneeId} className={`${inputClass} font-mono`} />
+        </div>
+        <div className="space-y-1.5">
+          <label htmlFor="task-tenant" className={labelClass}>
+            Tenant reference
+          </label>
+          <input id="task-tenant" name="tenant_id" className={`${inputClass} font-mono`} />
+        </div>
+        <div className="space-y-1.5">
+          <label htmlFor="task-priority" className={labelClass}>
+            Priority
+          </label>
+          <select id="task-priority" name="priority" defaultValue="normal" className={inputClass}>
+            <option value="low">Low</option>
+            <option value="normal">Normal</option>
+            <option value="high">High</option>
+            <option value="urgent">Urgent</option>
+          </select>
+        </div>
+        <div className="space-y-1.5">
+          <label htmlFor="task-due" className={labelClass}>
+            Due
+          </label>
+          <input id="task-due" name="due_at" type="datetime-local" className={inputClass} />
+        </div>
+      </div>
+      {error ? (
+        <p role="alert" className="rounded-lg border border-red-100 bg-red-50 px-3 py-2 text-sm text-red-700">
+          {error}
+        </p>
+      ) : null}
+      <div className="flex justify-end gap-2 border-t border-slate-100 pt-4">
+        <Link href="/dashboard/tasks" className={btnSecondary}>
+          Cancel
+        </Link>
+        <button type="submit" disabled={pending} className={btnPrimary}>
+          {pending ? "Saving…" : "Create task"}
+        </button>
+      </div>
     </form>
   );
 }

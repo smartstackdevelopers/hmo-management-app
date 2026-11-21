@@ -47,14 +47,15 @@ export function AlertsPanel({ accessToken, organisationId, role, canManage }: Pr
     <div className="space-y-6">
       <div className="flex flex-wrap items-end justify-between gap-3">
         <div>
-          <h1 className="text-2xl font-semibold text-slate-900">Early-warning alerts</h1>
+          <p className="text-xs font-semibold uppercase tracking-[0.16em] text-brand-700">Insights</p>
+          <h1 className="mt-1.5 text-2xl font-bold tracking-tight text-slate-900">Early-warning alerts</h1>
           <p className="mt-1 text-sm text-slate-600">
             Threshold-based operational warnings from live records. Does not automate housing or tenancy decisions.
           </p>
         </div>
         <div className="flex gap-2">
           <select
-            className="rounded border px-2 py-1.5 text-sm"
+            className="block h-10 rounded-lg border border-slate-300 bg-white px-3 text-sm text-slate-900 placeholder:text-slate-400 focus:border-brand-600 focus:outline-none focus:ring-2 focus:ring-brand-100"
             value={status}
             onChange={(e) => setStatus(e.target.value)}
           >
@@ -68,7 +69,7 @@ export function AlertsPanel({ accessToken, organisationId, role, canManage }: Pr
             <button
               type="button"
               disabled={pending}
-              className="rounded bg-teal-800 px-3 py-2 text-sm text-white disabled:opacity-60"
+              className="inline-flex h-10 items-center justify-center rounded-lg bg-brand-700 px-4 text-sm font-semibold text-white shadow-sm hover:bg-brand-800 disabled:cursor-not-allowed disabled:opacity-60 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-600 focus-visible:ring-offset-2"
               onClick={() =>
                 startTransition(async () => {
                   await evaluateAlerts(auth);
@@ -84,7 +85,7 @@ export function AlertsPanel({ accessToken, organisationId, role, canManage }: Pr
 
       {error ? <p className="rounded border border-red-200 bg-red-50 p-3 text-sm text-red-800">{error}</p> : null}
 
-      <div className="rounded-lg border border-slate-200 bg-white p-4 shadow-sm space-y-3">
+      <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-card space-y-3">
         <h2 className="text-sm font-medium text-slate-800">Configured thresholds</h2>
         <ul className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
           {thresholds.map((t) => (
@@ -96,7 +97,7 @@ export function AlertsPanel({ accessToken, organisationId, role, canManage }: Pr
               {canManage ? (
                 <button
                   type="button"
-                  className="mt-2 text-xs text-teal-800 underline"
+                  className="mt-2 text-xs text-brand-700 underline"
                   onClick={() => {
                     setEditType(String(t.alert_type));
                     setEditValue(String(t.threshold_value ?? "5"));
@@ -114,7 +115,7 @@ export function AlertsPanel({ accessToken, organisationId, role, canManage }: Pr
             <label className="text-xs">
               Alert type
               <input
-                className="mt-1 block rounded border px-2 py-1.5 text-sm"
+                className="mt-1 block block h-10 rounded-lg border border-slate-300 bg-white px-3 text-sm text-slate-900 placeholder:text-slate-400 focus:border-brand-600 focus:outline-none focus:ring-2 focus:ring-brand-100"
                 value={editType}
                 onChange={(e) => setEditType(e.target.value)}
                 placeholder="e.g. high_vacancy"
@@ -125,7 +126,7 @@ export function AlertsPanel({ accessToken, organisationId, role, canManage }: Pr
               <input
                 type="number"
                 min={0}
-                className="mt-1 block w-24 rounded border px-2 py-1.5 text-sm"
+                className="mt-1 block w-24 block h-10 rounded-lg border border-slate-300 bg-white px-3 text-sm text-slate-900 placeholder:text-slate-400 focus:border-brand-600 focus:outline-none focus:ring-2 focus:ring-brand-100"
                 value={editValue}
                 onChange={(e) => setEditValue(e.target.value)}
               />
@@ -137,7 +138,7 @@ export function AlertsPanel({ accessToken, organisationId, role, canManage }: Pr
             <button
               type="button"
               disabled={pending || !editType.trim()}
-              className="rounded bg-teal-800 px-3 py-2 text-sm text-white disabled:opacity-60"
+              className="inline-flex h-10 items-center justify-center rounded-lg bg-brand-700 px-4 text-sm font-semibold text-white shadow-sm hover:bg-brand-800 disabled:cursor-not-allowed disabled:opacity-60 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-600 focus-visible:ring-offset-2"
               onClick={() =>
                 startTransition(async () => {
                   try {
@@ -166,7 +167,7 @@ export function AlertsPanel({ accessToken, organisationId, role, canManage }: Pr
       ) : (
         <ul className="space-y-3">
           {items.map((alert) => (
-            <li key={String(alert.id)} className="rounded-lg border border-slate-200 bg-white p-4 shadow-sm">
+            <li key={String(alert.id)} className="rounded-2xl border border-slate-200 bg-white p-5 shadow-card">
               <div className="flex flex-wrap items-start justify-between gap-2">
                 <div>
                   <div className="font-medium text-slate-900">{String(alert.title)}</div>
@@ -181,7 +182,7 @@ export function AlertsPanel({ accessToken, organisationId, role, canManage }: Pr
                     <button
                       key={s}
                       type="button"
-                      className="rounded border px-2 py-1 text-xs capitalize"
+                      className="inline-flex h-8 items-center justify-center rounded-lg border border-slate-200 bg-white px-3 text-xs font-semibold text-slate-700 hover:bg-slate-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-600 text-xs capitalize"
                       onClick={() =>
                         startTransition(async () => {
                           await updateAlertStatus(auth, String(alert.id), s);

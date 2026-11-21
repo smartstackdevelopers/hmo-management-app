@@ -33,7 +33,7 @@ export function SuggestionActions(props: Props) {
       body: JSON.stringify({ decision }),
     });
     if (!response.ok) {
-      setError(await response.text());
+      setError("We couldn't save that decision. Please try again.");
       return;
     }
     startTransition(() => router.refresh());
@@ -44,7 +44,7 @@ export function SuggestionActions(props: Props) {
       <button
         type="button"
         disabled={pending}
-        className="border border-slate-300 px-3 py-1 text-sm"
+        className="inline-flex h-8 items-center justify-center rounded-lg border border-slate-200 bg-white px-3 text-xs font-semibold text-slate-700 hover:bg-slate-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-600"
         onClick={() => void decide("approve")}
       >
         Approve suggestion
@@ -52,7 +52,7 @@ export function SuggestionActions(props: Props) {
       <button
         type="button"
         disabled={pending}
-        className="border border-slate-300 px-3 py-1 text-sm"
+        className="inline-flex h-8 items-center justify-center rounded-lg border border-slate-200 bg-white px-3 text-xs font-semibold text-slate-700 hover:bg-slate-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-600"
         onClick={() => void decide("reject")}
       >
         Reject
@@ -60,7 +60,7 @@ export function SuggestionActions(props: Props) {
       <button
         type="button"
         disabled={pending}
-        className="border border-slate-300 px-3 py-1 text-sm"
+        className="inline-flex h-8 items-center justify-center rounded-lg border border-slate-200 bg-white px-3 text-xs font-semibold text-slate-700 hover:bg-slate-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-600"
         onClick={() => void decide("dismiss")}
       >
         Dismiss
@@ -95,7 +95,7 @@ export function AnalysisReviewActions(props: {
       body: JSON.stringify({ decision }),
     });
     if (!response.ok) {
-      setError(await response.text());
+      setError("We couldn't save that decision. Please try again.");
       return;
     }
     startTransition(() => router.refresh());
@@ -103,18 +103,18 @@ export function AnalysisReviewActions(props: {
 
   return (
     <div className="flex flex-wrap gap-2">
-      <button type="button" disabled={pending} className="border border-slate-300 px-3 py-1 text-sm" onClick={() => void review("approve")}>
+      <button type="button" disabled={pending} className="inline-flex h-8 items-center justify-center rounded-lg border border-slate-200 bg-white px-3 text-xs font-semibold text-slate-700 hover:bg-slate-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-600" onClick={() => void review("approve")}>
         Mark analysis approved
       </button>
       <button
         type="button"
         disabled={pending}
-        className="border border-slate-300 px-3 py-1 text-sm"
+        className="inline-flex h-8 items-center justify-center rounded-lg border border-slate-200 bg-white px-3 text-xs font-semibold text-slate-700 hover:bg-slate-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-600"
         onClick={() => void review("partially_approve")}
       >
         Partially approved
       </button>
-      <button type="button" disabled={pending} className="border border-slate-300 px-3 py-1 text-sm" onClick={() => void review("reject")}>
+      <button type="button" disabled={pending} className="inline-flex h-8 items-center justify-center rounded-lg border border-slate-200 bg-white px-3 text-xs font-semibold text-slate-700 hover:bg-slate-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-600" onClick={() => void review("reject")}>
         Reject analysis
       </button>
       {error ? <p className="w-full text-sm text-red-700">{error}</p> : null}

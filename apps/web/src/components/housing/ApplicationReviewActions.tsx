@@ -2,12 +2,16 @@
 
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { btnPrimary, btnSecondary, inputClass, labelClass } from "@/components/ui/primitives";
 import {
   addToWaitingList,
   decideApplication,
   requestApplicationInformation,
   submitApplication,
 } from "@/lib/housingApi";
+
+const field = `mt-1.5 ${inputClass}`;
+const area = `mt-1.5 ${inputClass} h-auto py-2`;
 
 export function ApplicationReviewActions({
   applicationId,
@@ -44,12 +48,12 @@ export function ApplicationReviewActions({
   }
 
   return (
-    <div className="space-y-4 rounded-lg border border-slate-200 bg-white p-4">
+    <div className="space-y-5 rounded-2xl border border-slate-200 bg-white p-6 shadow-card">
       {status === "draft" ? (
         <button
           type="button"
           disabled={pending}
-          className="rounded bg-teal-700 px-3 py-1.5 text-sm text-white"
+          className={btnPrimary}
           onClick={() =>
             void run(() =>
               submitApplication({ accessToken, organisationId, role, applicationId }),
@@ -82,8 +86,8 @@ export function ApplicationReviewActions({
               );
             }}
           >
-            <p className="text-sm font-medium text-forest-900">Record decision</p>
-            <select name="decision" defaultValue="approved" className="w-full rounded border px-3 py-2 text-sm">
+            <p className={labelClass}>Record decision</p>
+            <select name="decision" defaultValue="approved" className={field}>
               <option value="approved">Approve</option>
               <option value="rejected">Reject</option>
             </select>
@@ -92,13 +96,13 @@ export function ApplicationReviewActions({
               required
               rows={3}
               placeholder="Decision notes / reason"
-              className="w-full rounded border px-3 py-2 text-sm"
+              className={area}
             />
             <label className="flex items-center gap-2 text-sm">
               <input name="add_to_waiting_list" type="checkbox" />
               Add to waiting list on approval
             </label>
-            <button type="submit" disabled={pending} className="rounded bg-slate-800 px-3 py-1.5 text-sm text-white">
+            <button type="submit" disabled={pending} className={btnPrimary}>
               Save decision
             </button>
           </form>
@@ -118,9 +122,9 @@ export function ApplicationReviewActions({
               );
             }}
           >
-            <p className="text-sm font-medium text-forest-900">Request information</p>
-            <textarea name="notes" required rows={2} className="w-full rounded border px-3 py-2 text-sm" />
-            <button type="submit" disabled={pending} className="rounded border border-slate-300 px-3 py-1.5 text-sm">
+            <p className={labelClass}>Request information</p>
+            <textarea name="notes" required rows={2} className={area} />
+            <button type="submit" disabled={pending} className={btnSecondary}>
               Request more information
             </button>
           </form>
@@ -131,7 +135,7 @@ export function ApplicationReviewActions({
         <button
           type="button"
           disabled={pending}
-          className="rounded border border-slate-300 px-3 py-1.5 text-sm"
+          className={btnSecondary}
           onClick={() =>
             void run(() =>
               addToWaitingList({

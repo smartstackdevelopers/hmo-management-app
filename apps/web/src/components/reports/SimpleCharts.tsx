@@ -3,7 +3,7 @@
 type BarItem = { label: string; value: number };
 type Slice = { label: string; value: number; color: string };
 
-const COLORS = ["#0f766e", "#1d4ed8", "#b45309", "#be123c", "#4338ca", "#047857", "#7c2d12"];
+const COLORS = ["#1d4ed8", "#1d4ed8", "#b45309", "#be123c", "#4338ca", "#2563eb", "#7c2d12"];
 
 export function SummaryCards({ items }: { items: { label: string; value: string | number }[] }) {
   if (!items.length) {
@@ -12,9 +12,9 @@ export function SummaryCards({ items }: { items: { label: string; value: string 
   return (
     <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
       {items.map((item) => (
-        <div key={item.label} className="rounded-lg border border-slate-200 bg-white p-4 shadow-sm">
+        <div key={item.label} className="rounded-2xl border border-slate-200 bg-white p-5 shadow-card">
           <div className="text-xs uppercase tracking-wide text-slate-500">{item.label}</div>
-          <div className="mt-1 text-2xl font-semibold text-slate-900">{item.value}</div>
+          <div className="mt-1 text-2xl font-bold tracking-tight text-slate-900">{item.value}</div>
         </div>
       ))}
     </div>
@@ -31,7 +31,7 @@ export function BarChart({ title, items }: { title: string; items: BarItem[] }) 
     );
   }
   return (
-    <div className="rounded-lg border border-slate-200 bg-white p-4 shadow-sm">
+    <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-card">
       <h3 className="mb-3 text-sm font-medium text-slate-800">{title}</h3>
       <div className="space-y-2">
         {items.map((item) => (
@@ -41,7 +41,7 @@ export function BarChart({ title, items }: { title: string; items: BarItem[] }) 
             </span>
             <div className="h-3 overflow-hidden rounded bg-slate-100">
               <div
-                className="h-full rounded bg-teal-700 transition-all duration-500"
+                className="h-full rounded bg-brand-600 transition-all duration-500"
                 style={{ width: `${(item.value / max) * 100}%` }}
               />
             </div>
@@ -77,12 +77,12 @@ export function LineChart({
     return `${x},${y}`;
   });
   return (
-    <div className="rounded-lg border border-slate-200 bg-white p-4 shadow-sm">
+    <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-card">
       <h3 className="mb-3 text-sm font-medium text-slate-800">{title}</h3>
       <svg viewBox={`0 0 ${w} ${h}`} className="h-40 w-full" role="img" aria-label={title}>
         <polyline
           fill="none"
-          stroke="#0f766e"
+          stroke="#1d4ed8"
           strokeWidth="2.5"
           points={coords.join(" ")}
           className="transition-all duration-500"
@@ -90,7 +90,7 @@ export function LineChart({
         {points.map((p, i) => {
           const pair = coords[i] ?? "0,0";
           const [x, y] = pair.split(",").map(Number);
-          return <circle key={p.label + i} cx={x} cy={y} r="3" fill="#0f766e" />;
+          return <circle key={p.label + i} cx={x} cy={y} r="3" fill="#1d4ed8" />;
         })}
       </svg>
       <div className="mt-1 flex justify-between text-xs text-slate-500">
@@ -127,7 +127,7 @@ export function PieChart({ title, items }: { title: string; items: BarItem[] }) 
     return [50 + r * Math.cos(rad), 50 + r * Math.sin(rad)];
   };
   return (
-    <div className="rounded-lg border border-slate-200 bg-white p-4 shadow-sm">
+    <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-card">
       <h3 className="mb-3 text-sm font-medium text-slate-800">{title}</h3>
       <div className="flex flex-wrap items-center gap-4">
         <svg viewBox="0 0 100 100" className="h-36 w-36" role="img" aria-label={title}>
@@ -173,7 +173,7 @@ export function DataTable({
   }
   const headers = Object.keys(first);
   return (
-    <div className="overflow-x-auto rounded-lg border border-slate-200 bg-white shadow-sm">
+    <div className="overflow-x-auto rounded-2xl border border-slate-200 bg-white shadow-card">
       <table className="min-w-full text-left text-sm">
         <caption className="sr-only">{caption}</caption>
         <thead className="bg-slate-50 text-xs uppercase text-slate-500">

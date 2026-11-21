@@ -33,7 +33,7 @@ export function DashboardShell({
 
   return (
     <div className="min-h-screen bg-cream text-slate-900">
-      <MobileNav items={navItems} brand={title} />
+      <MobileNav items={navItems} brand={title} role={role} />
       <div className="md:grid md:grid-cols-[17rem_1fr]">
         <aside
           className="hidden border-r border-slate-200 bg-white md:sticky md:top-0 md:flex md:h-screen md:flex-col"
@@ -54,7 +54,7 @@ export function DashboardShell({
           </div>
           <div className="flex-1 overflow-y-auto px-3 pb-4">
             {session.authenticated ? (
-              <PathAwareSidebar items={navItems} />
+              <PathAwareSidebar items={navItems} role={role} />
             ) : (
               <p className="px-3 text-sm text-slate-500">Sign in to see navigation.</p>
             )}
@@ -74,12 +74,15 @@ export function DashboardShell({
             className="sticky top-0 z-20 hidden h-16 items-center justify-between gap-4 border-b border-slate-200 bg-white/90 px-8 backdrop-blur md:flex"
             aria-label="Dashboard header"
           >
-            {canSearch ? (
-            <form action="/dashboard/operational-search" role="search" className="w-full max-w-md">
+            <form
+              action={canSearch ? "/dashboard/operational-search" : "/properties"}
+              role="search"
+              className="w-full max-w-xl"
+            >
               <label className="sr-only" htmlFor="dashboard-search">
                 Search
               </label>
-              <div className="flex h-10 items-center gap-2 rounded-xl border border-slate-200 bg-slate-50 px-3 focus-within:border-brand-600 focus-within:bg-white focus-within:ring-2 focus-within:ring-brand-100">
+              <div className="flex h-10 items-center gap-2 rounded-full border border-slate-200 bg-slate-50 px-3 focus-within:border-brand-600 focus-within:bg-white focus-within:ring-2 focus-within:ring-brand-100">
                 <svg aria-hidden="true" viewBox="0 0 20 20" className="h-4 w-4 text-slate-400" fill="none" stroke="currentColor" strokeWidth="2">
                   <circle cx="9" cy="9" r="6" />
                   <path d="m14 14 4 4" strokeLinecap="round" />
@@ -91,12 +94,22 @@ export function DashboardShell({
                   placeholder="Search tenants, properties, jobs…"
                   className="h-full w-full bg-transparent text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none"
                 />
+                <span className="hidden rounded-md border border-slate-200 bg-white px-1.5 py-0.5 text-[10px] font-semibold text-slate-400 sm:inline">
+                  Ctrl K
+                </span>
               </div>
             </form>
-            ) : (
-              <p className="text-sm font-medium text-slate-500">{title} dashboard</p>
-            )}
             <div className="flex items-center gap-3 text-sm">
+              <Link
+                href="/dashboard/communications/inbox"
+                aria-label="Messages"
+                className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-slate-200 text-slate-500 hover:bg-slate-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-600"
+              >
+                <svg aria-hidden="true" viewBox="0 0 24 24" className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth="1.8">
+                  <path d="M6 8a6 6 0 1 1 12 0c0 7 3 7 3 9H3c0-2 3-2 3-9" strokeLinejoin="round" />
+                  <path d="M10 20a2 2 0 0 0 4 0" strokeLinecap="round" />
+                </svg>
+              </Link>
               <span className="rounded-full bg-brand-50 px-3 py-1 text-xs font-semibold text-brand-700">
                 {roleLabel}
               </span>

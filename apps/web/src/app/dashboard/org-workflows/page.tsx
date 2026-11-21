@@ -3,6 +3,7 @@ import Link from "next/link";
 import { EmptyState } from "@/components/dashboard/EmptyState";
 import { ErrorState } from "@/components/dashboard/ErrorState";
 import { PageHeader } from "@/components/dashboard/PageHeader";
+import { ActionTile, StatCard, StatGrid, btnPrimary, btnSecondary } from "@/components/ui/primitives";
 import { auth0, isAuth0Configured } from "@/lib/auth0";
 import { fetchOrgWorkflowsDashboard } from "@/lib/orgWorkflowsApi";
 import { canAny } from "@/lib/rbac";
@@ -20,61 +21,58 @@ export default async function OrgWorkflowsDashboardPage() {
     return <EmptyState title="Organisation required" description="Active organisation membership needed." />;
   }
   if (!isAuth0Configured() || !auth0) {
-    return <EmptyState title="Auth0 not configured" description="Cannot load workflows." />;
+    return <EmptyState title="Sign-in not configured" description="Sign-in isn't set up in this environment yet, so this page can't load." />;
   }
   const token = (await auth0.getAccessToken())?.token;
   if (!token) {
-    return <ErrorState description="Access token unavailable." />;
+    return <ErrorState description="We couldn't confirm your sign-in. Please sign in again." />;
   }
   const role = session.authorization?.active_role;
   let dashboard: Record<string, unknown> | null = null;
   try {
     dashboard = await fetchOrgWorkflowsDashboard({ accessToken: token, organisationId: orgId, role });
-  } catch (e) {
-    return <ErrorState description={e instanceof Error ? e.message : "Failed to load dashboard"} />;
+  } catch {
+    return <ErrorState description={"Failed to load dashboard"} />;
   }
   const n = (k: string) => (typeof dashboard?.[k] === "number" ? (dashboard[k] as number) : "—");
 
+  const stats = [
+    ["Pending approvals", "pending_approvals", "amber"],
+    ["Awaiting review", "awaiting_review", "amber"],
+    ["Additional information", "additional_information_requests", "blue"],
+    ["Overdue", "overdue_approvals", "red"],
+    ["Active sharing grants", "active_secure_sharing_grants", "green"],
+    ["Pending form submissions", "pending_form_submissions", "gray"],
+  ] as const;
+
   return (
-    <div className="space-y-8">
+    <div className="mx-auto max-w-6xl space-y-6">
       <PageHeader
-        eyebrow="F2.13"
-        title="Organisation workflows"
-        description="Approvals inbox, custom forms, secure sharing, and audit access."
+        eyebrow="Operations"
+        title="Approvals & workflows"
+        description="Move requests from submitted to done."
+        actions={
+          <>
+            <Link href="/dashboard/org-workflows/forms" className={btnSecondary}>
+              Forms
+            </Link>
+            <Link href="/dashboard/org-workflows/workflows" className={btnPrimary}>
+              Workflows
+            </Link>
+          </>
+        }
       />
-      <div className="flex flex-wrap gap-3 text-sm">
-        <Link className="text-blue-700 underline" href="/dashboard/org-workflows/approvals">
-          Approvals inbox
-        </Link>
-        <Link className="text-blue-700 underline" href="/dashboard/org-workflows/workflows">
-          Workflow configuration
-        </Link>
-        <Link className="text-blue-700 underline" href="/dashboard/org-workflows/forms">
-          Custom forms
-        </Link>
-        <Link className="text-blue-700 underline" href="/dashboard/org-workflows/sharing">
-          Secure sharing
-        </Link>
-        <Link className="text-blue-700 underline" href="/dashboard/audit">
-          Audit logs
-        </Link>
-      </div>
-      <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-        {(
-          [
-            ["Pending approvals", "pending_approvals"],
-            ["Awaiting review", "awaiting_review"],
-            ["Additional information", "additional_information_requests"],
-            ["Overdue", "overdue_approvals"],
-            ["Active sharing grants", "active_secure_sharing_grants"],
-            ["Pending form submissions", "pending_form_submissions"],
-          ] as const
-        ).map(([label, key]) => (
-          <div key={key} className="rounded-lg border border-slate-200 bg-white p-4 shadow-sm">
-            <div className="text-sm text-slate-600">{label}</div>
-            <div className="text-2xl font-semibold text-slate-900">{n(key)}</div>
-          </div>
+      <StatGrid>
+        {stats.map(([label, key, tone]) => (
+          <StatCard key={key} label={label} value={n(key)} tone={tone} />
         ))}
+      </StatGrid>
+      <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
+        <ActionTile href="/dashboard/org-workflows/approvals" title="Approvals inbox" description="Pending items you can review." initials="AP" />
+        <ActionTile href="/dashboard/org-workflows/workflows" title="Workflow configuration" description="Versioned approval workflows." initials="WF" />
+        <ActionTile href="/dashboard/org-workflows/forms" title="Custom forms" description="Organisation forms and submissions." initials="FM" />
+        <ActionTile href="/dashboard/org-workflows/sharing" title="Secure sharing" description="Active grants. Tokens are shown once." initials="SH" />
+        <ActionTile href="/dashboard/audit" title="Audit logs" description="Read-only record of sensitive actions." initials="AU" />
       </div>
     </div>
   );

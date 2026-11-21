@@ -2,10 +2,14 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { router, useLocalSearchParams } from 'expo-router';
 import { useMemo, useState } from 'react';
 
-import { ChoiceRow, Feedback, RecordCard, StaffPage } from '@/components/staff/ui';
+import { Text } from 'react-native';
+
+import { ChoiceRow, Feedback, StaffPage, StatusRow, staffLabel, statusTone } from '@/components/staff/ui';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 import { ErrorState, LoadingScreen } from '@/components/ui/States';
+import { FONT_SEMIBOLD } from '@/constants/fonts';
+import { theme } from '@/constants/theme';
 import { formatUKDate } from '@/constants/uk';
 import { useAuth } from '@/contexts/AuthContext';
 import { hmoreErrorMessage } from '@/lib/hmore/client';
@@ -98,19 +102,21 @@ export function HandoverBoard() {
       refreshing={listQuery.isRefetching}
     >
       {handovers.length === 0 ? (
-        <RecordCard title="No handovers" detail={paramTenantId ? 'None for this tenant yet.' : 'No pending handovers returned.'} />
+        <Feedback text={paramTenantId ? 'None for this tenant yet.' : 'No pending handovers returned.'} />
       ) : (
         handovers.map((handover) => (
-          <RecordCard
+          <StatusRow
             key={handover.id}
+            name={handover.tenant_preferred_name || handover.summary}
             title={handover.summary}
-            status={handover.status}
-            detail={`${handover.tenant_preferred_name ?? handover.tenant_id} · ${formatUKDate(handover.handover_at)} · ${handover.priority}`}
+            subtitle={[handover.tenant_preferred_name, formatUKDate(handover.handover_at)].filter(Boolean).join(' · ')}
+            chip={staffLabel(handover.status)}
+            tone={statusTone(handover.status)}
           />
         ))
       )}
 
-      <RecordCard title="New handover" detail="Recipient must be another support worker on the caseload." />
+      <Text style={{ fontFamily: FONT_SEMIBOLD, color: theme.colors.text, marginTop: 8, marginBottom: 8 }}>New handover</Text>
       {tenants.length > 0 ? (
         <ChoiceRow
           value={tenantId}

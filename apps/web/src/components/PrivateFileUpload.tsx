@@ -2,6 +2,7 @@
 
 import { useState, type ChangeEvent } from "react";
 
+import { labelClass } from "@/components/ui/primitives";
 import { uploadPrivateFile, type FileMeta } from "@/lib/filesApi";
 
 type Props = {
@@ -51,12 +52,12 @@ export function PrivateFileUpload({
   }
 
   return (
-    <div className="space-y-2 text-sm text-slate-700">
-      <label className="block font-medium text-slate-900">
+    <div className="space-y-3 rounded-2xl border border-slate-200 bg-white p-5 text-sm text-slate-700 shadow-card">
+      <label className={labelClass}>
         Private file upload
         <input
           type="file"
-          className="mt-1 block w-full text-sm"
+          className="mt-1.5 block w-full text-sm text-slate-700 file:mr-3 file:h-9 file:rounded-lg file:border-0 file:bg-brand-50 file:px-3 file:text-sm file:font-semibold file:text-brand-700"
           onChange={onChange}
           disabled={progress !== null}
         />

@@ -140,7 +140,8 @@ export function AutomationDashboard({ accessToken, organisationId, role, canMana
   return (
     <div className="space-y-8">
       <div>
-        <h1 className="text-2xl font-semibold text-slate-900">Automation rules</h1>
+        <p className="text-xs font-semibold uppercase tracking-[0.16em] text-brand-700">Insights</p>
+        <h1 className="mt-1.5 text-2xl font-bold tracking-tight text-slate-900">Automation rules</h1>
         <p className="mt-1 text-sm text-slate-600">
           Reminders, escalations and compliance sweeps from live records. Sensitive housing, tenancy and
           employment decisions always require human approval.
@@ -152,25 +153,25 @@ export function AutomationDashboard({ accessToken, organisationId, role, canMana
 
       <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
         {cards.map((c) => (
-          <div key={c.label} className="rounded-lg border border-slate-200 bg-white p-4 shadow-sm">
+          <div key={c.label} className="rounded-2xl border border-slate-200 bg-white p-5 shadow-card">
             <div className="text-xs uppercase tracking-wide text-slate-500">{c.label}</div>
-            <div className="mt-1 text-2xl font-semibold text-slate-900">{String(c.value ?? "—")}</div>
+            <div className="mt-1 text-2xl font-bold tracking-tight text-slate-900">{String(c.value ?? "—")}</div>
           </div>
         ))}
       </div>
 
       {canManage ? (
-        <div className="space-y-3 rounded-lg border border-slate-200 bg-white p-4 shadow-sm">
+        <div className="space-y-3 rounded-2xl border border-slate-200 bg-white p-5 shadow-card">
           <h2 className="text-sm font-medium text-slate-800">Create rule</h2>
           <div className="grid gap-3 md:grid-cols-2">
             <label className="text-sm">
               Name
-              <input className="mt-1 w-full rounded border px-2 py-1.5" value={name} onChange={(e) => setName(e.target.value)} />
+              <input className="mt-1 block h-10 w-full rounded-lg border border-slate-300 bg-white px-3 text-sm text-slate-900 placeholder:text-slate-400 focus:border-brand-600 focus:outline-none focus:ring-2 focus:ring-brand-100" value={name} onChange={(e) => setName(e.target.value)} />
             </label>
             <label className="text-sm">
               Description
               <input
-                className="mt-1 w-full rounded border px-2 py-1.5"
+                className="mt-1 block h-10 w-full rounded-lg border border-slate-300 bg-white px-3 text-sm text-slate-900 placeholder:text-slate-400 focus:border-brand-600 focus:outline-none focus:ring-2 focus:ring-brand-100"
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
               />
@@ -178,7 +179,7 @@ export function AutomationDashboard({ accessToken, organisationId, role, canMana
             <label className="text-sm">
               Category
               <select
-                className="mt-1 w-full rounded border px-2 py-1.5"
+                className="mt-1 block h-10 w-full rounded-lg border border-slate-300 bg-white px-3 text-sm text-slate-900 placeholder:text-slate-400 focus:border-brand-600 focus:outline-none focus:ring-2 focus:ring-brand-100"
                 value={ruleCategory}
                 onChange={(e) => {
                   const v = e.target.value;
@@ -198,7 +199,7 @@ export function AutomationDashboard({ accessToken, organisationId, role, canMana
             </label>
             <label className="text-sm">
               Trigger
-              <select className="mt-1 w-full rounded border px-2 py-1.5" value={trigger} onChange={(e) => setTrigger(e.target.value)}>
+              <select className="mt-1 block h-10 w-full rounded-lg border border-slate-300 bg-white px-3 text-sm text-slate-900 placeholder:text-slate-400 focus:border-brand-600 focus:outline-none focus:ring-2 focus:ring-brand-100" value={trigger} onChange={(e) => setTrigger(e.target.value)}>
                 {TRIGGER_OPTIONS.map((t) => (
                   <option key={t} value={t}>
                     {t}
@@ -209,7 +210,7 @@ export function AutomationDashboard({ accessToken, organisationId, role, canMana
             <label className="text-sm">
               Action
               <select
-                className="mt-1 w-full rounded border px-2 py-1.5"
+                className="mt-1 block h-10 w-full rounded-lg border border-slate-300 bg-white px-3 text-sm text-slate-900 placeholder:text-slate-400 focus:border-brand-600 focus:outline-none focus:ring-2 focus:ring-brand-100"
                 value={actionType}
                 onChange={(e) => setActionType(e.target.value)}
               >
@@ -222,7 +223,7 @@ export function AutomationDashboard({ accessToken, organisationId, role, canMana
             <label className="text-sm">
               Frequency
               <select
-                className="mt-1 w-full rounded border px-2 py-1.5"
+                className="mt-1 block h-10 w-full rounded-lg border border-slate-300 bg-white px-3 text-sm text-slate-900 placeholder:text-slate-400 focus:border-brand-600 focus:outline-none focus:ring-2 focus:ring-brand-100"
                 value={frequency}
                 onChange={(e) => setFrequency(e.target.value)}
               >
@@ -238,7 +239,7 @@ export function AutomationDashboard({ accessToken, organisationId, role, canMana
                 type="number"
                 min={0}
                 max={90}
-                className="mt-1 w-full rounded border px-2 py-1.5"
+                className="mt-1 block h-10 w-full rounded-lg border border-slate-300 bg-white px-3 text-sm text-slate-900 placeholder:text-slate-400 focus:border-brand-600 focus:outline-none focus:ring-2 focus:ring-brand-100"
                 value={leadDays}
                 onChange={(e) => setLeadDays(Number(e.target.value))}
               />
@@ -248,7 +249,7 @@ export function AutomationDashboard({ accessToken, organisationId, role, canMana
             type="button"
             disabled={pending}
             onClick={onCreate}
-            className="rounded bg-teal-800 px-3 py-2 text-sm font-medium text-white disabled:opacity-60"
+            className="inline-flex h-10 items-center justify-center rounded-lg bg-brand-700 px-4 text-sm font-semibold text-white shadow-sm hover:bg-brand-800 disabled:cursor-not-allowed disabled:opacity-60 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-600 focus-visible:ring-offset-2"
           >
             Create rule
           </button>
@@ -257,18 +258,18 @@ export function AutomationDashboard({ accessToken, organisationId, role, canMana
 
       <div className="flex flex-wrap gap-2">
         <input
-          className="rounded border px-2 py-1.5 text-sm"
+          className="block h-10 rounded-lg border border-slate-300 bg-white px-3 text-sm text-slate-900 placeholder:text-slate-400 focus:border-brand-600 focus:outline-none focus:ring-2 focus:ring-brand-100"
           placeholder="Search rules"
           value={search}
           onChange={(e) => setSearch(e.target.value)}
         />
-        <select className="rounded border px-2 py-1.5 text-sm" value={category} onChange={(e) => setCategory(e.target.value)}>
+        <select className="block h-10 rounded-lg border border-slate-300 bg-white px-3 text-sm text-slate-900 placeholder:text-slate-400 focus:border-brand-600 focus:outline-none focus:ring-2 focus:ring-brand-100" value={category} onChange={(e) => setCategory(e.target.value)}>
           <option value="">All categories</option>
           <option value="reminder">reminder</option>
           <option value="escalation">escalation</option>
           <option value="compliance_sweep">compliance_sweep</option>
         </select>
-        <button type="button" className="rounded border px-3 py-1.5 text-sm" onClick={refresh}>
+        <button type="button" className="inline-flex h-10 items-center justify-center rounded-lg border border-slate-200 bg-white px-4 text-sm font-semibold text-slate-700 hover:bg-slate-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-600" onClick={refresh}>
           Apply
         </button>
       </div>
@@ -280,7 +281,7 @@ export function AutomationDashboard({ accessToken, organisationId, role, canMana
         ) : (
           <ul className="space-y-2">
             {rules.map((rule) => (
-              <li key={String(rule.id)} className="rounded-lg border border-slate-200 bg-white p-3 text-sm shadow-sm">
+              <li key={String(rule.id)} className="rounded-2xl border border-slate-200 bg-white p-4 text-sm shadow-card">
                 <div className="flex flex-wrap items-start justify-between gap-2">
                   <div>
                     <div className="font-medium text-slate-900">{String(rule.name)}</div>
@@ -296,7 +297,7 @@ export function AutomationDashboard({ accessToken, organisationId, role, canMana
                     <div className="flex flex-wrap gap-2">
                       <button
                         type="button"
-                        className="rounded border px-2 py-1"
+                        className="inline-flex h-8 items-center justify-center rounded-lg border border-slate-200 bg-white px-3 text-xs font-semibold text-slate-700 hover:bg-slate-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-600"
                         onClick={() =>
                           startTransition(async () => {
                             await updateAutomationRule(auth, String(rule.id), {
@@ -310,7 +311,7 @@ export function AutomationDashboard({ accessToken, organisationId, role, canMana
                       </button>
                       <button
                         type="button"
-                        className="rounded border px-2 py-1"
+                        className="inline-flex h-8 items-center justify-center rounded-lg border border-slate-200 bg-white px-3 text-xs font-semibold text-slate-700 hover:bg-slate-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-600"
                         onClick={() =>
                           startTransition(async () => {
                             await runAutomationRule(auth, String(rule.id));
@@ -345,7 +346,7 @@ export function AutomationDashboard({ accessToken, organisationId, role, canMana
         <div className="flex items-center justify-between gap-2">
           <h2 className="text-sm font-medium text-slate-800">Execution history</h2>
           <select
-            className="rounded border px-2 py-1 text-sm"
+            className="inline-flex h-8 items-center justify-center rounded-lg border border-slate-200 bg-white px-3 text-xs font-semibold text-slate-700 hover:bg-slate-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-600 text-sm"
             value={statusFilter}
             onChange={(e) => setStatusFilter(e.target.value)}
           >
@@ -360,7 +361,7 @@ export function AutomationDashboard({ accessToken, organisationId, role, canMana
         ) : (
           <ul className="space-y-2">
             {runs.map((run) => (
-              <li key={String(run.id)} className="flex flex-wrap items-center justify-between gap-2 rounded border bg-white p-3 text-sm">
+              <li key={String(run.id)} className="flex flex-wrap items-center justify-between gap-2 rounded-2xl border border-slate-200 bg-white p-4 text-sm shadow-card">
                 <div>
                   <div>
                     {String(run.status)} · attempts {String(run.attempt_count)}
@@ -371,7 +372,7 @@ export function AutomationDashboard({ accessToken, organisationId, role, canMana
                 {canManage && run.status === "failed" ? (
                   <button
                     type="button"
-                    className="rounded border px-2 py-1"
+                    className="inline-flex h-8 items-center justify-center rounded-lg border border-slate-200 bg-white px-3 text-xs font-semibold text-slate-700 hover:bg-slate-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-600"
                     onClick={() =>
                       startTransition(async () => {
                         await retryAutomationRun(auth, String(run.id));
@@ -395,7 +396,7 @@ export function AutomationDashboard({ accessToken, organisationId, role, canMana
         ) : (
           <ul className="space-y-2">
             {escalations.map((esc) => (
-              <li key={String(esc.id)} className="rounded border bg-white p-3 text-sm">
+              <li key={String(esc.id)} className="rounded-2xl border border-slate-200 bg-white p-4 text-sm shadow-card">
                 <div className="font-medium">{String(esc.reason)}</div>
                 <div className="text-slate-600">
                   {String(esc.resource_type)} {String(esc.resource_id)} · level {String(esc.escalation_level)} ·{" "}
@@ -406,7 +407,7 @@ export function AutomationDashboard({ accessToken, organisationId, role, canMana
                     <button
                       key={s}
                       type="button"
-                      className="rounded border px-2 py-1 text-xs capitalize"
+                      className="inline-flex h-8 items-center justify-center rounded-lg border border-slate-200 bg-white px-3 text-xs font-semibold text-slate-700 hover:bg-slate-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-600 text-xs capitalize"
                       onClick={() =>
                         startTransition(async () => {
                           await updateAutomationEscalation(auth, String(esc.id), s);
@@ -431,7 +432,7 @@ export function AutomationDashboard({ accessToken, organisationId, role, canMana
         ) : (
           <ul className="space-y-2">
             {issues.map((issue) => (
-              <li key={String(issue.id)} className="rounded border bg-white p-3 text-sm">
+              <li key={String(issue.id)} className="rounded-2xl border border-slate-200 bg-white p-4 text-sm shadow-card">
                 <div className="font-medium">{String(issue.title)}</div>
                 <div className="text-slate-600">
                   {String(issue.issue_type)} · {String(issue.severity)} · {String(issue.detected_at)}

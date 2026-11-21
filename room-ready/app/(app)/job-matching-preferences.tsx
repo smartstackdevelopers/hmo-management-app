@@ -59,10 +59,10 @@ export default function JobMatchingPreferencesScreen() {
       <Input label={t('employment.location')} value={locations} onChangeText={setLocations} />
       <Input label={t('jobMatching.employmentTypes')} value={types} onChangeText={setTypes} />
       <Input label={t('employment.interests')} value={interests} onChangeText={setInterests} />
-      <Button title={t('employment.save')} onPress={() => save.mutate()} />
+      <Button title={t('employment.save')} onPress={() => save.mutate()} fullWidth />
       <Button
         title={t('jobMatching.resetPreferences')}
-        variant="secondary"
+        variant="outline"
         onPress={() =>
           updateJobMatchPreferences({ reset: true }).then(async () => {
             setMessage(t('employment.saved'));

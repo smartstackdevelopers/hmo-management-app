@@ -2,7 +2,7 @@ import { useQuery } from '@tanstack/react-query';
 import { useLocalSearchParams } from 'expo-router';
 import { useState } from 'react';
 
-import { ChoiceRow, DraftBadge, Feedback, RecordCard, StaffPage } from '@/components/staff/ui';
+import { ChoiceRow, DraftBadge, Feedback, StaffPage, StatusRow, staffLabel, statusTone } from '@/components/staff/ui';
 import { Button } from '@/components/ui/Button';
 import { ErrorState, LoadingScreen } from '@/components/ui/States';
 import { useAuth } from '@/contexts/AuthContext';
@@ -69,13 +69,15 @@ export function TaskBoard() {
       {current ? drafts.drafts.filter((draft) => draft.payload.task_id === current.id && draft.lastError).map((draft) => (
         <Feedback key={draft.id} text={draft.lastError || ''} tone="warn" />
       )) : null}
-      {tasks.length === 0 ? <RecordCard title="No tasks" detail="No assigned tasks were returned." /> : null}
+      {tasks.length === 0 ? <Feedback text="No assigned tasks were returned." /> : null}
       {tasks.map((task) => (
-        <RecordCard
+        <StatusRow
           key={task.id}
+          name={task.title}
           title={task.title}
-          status={task.overdue ? `${task.status} · overdue` : task.status}
-          detail={task.description}
+          subtitle={task.description}
+          chip={task.overdue ? 'Overdue' : staffLabel(task.status)}
+          tone={task.overdue ? 'red' : statusTone(task.status)}
           onPress={() => setSelected(task.id)}
         />
       ))}

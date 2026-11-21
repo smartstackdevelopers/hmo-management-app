@@ -3,13 +3,28 @@ import { redirect } from "next/navigation";
 import { EmptyState } from "@/components/dashboard/EmptyState";
 import { ErrorState } from "@/components/dashboard/ErrorState";
 import { PageHeader } from "@/components/dashboard/PageHeader";
+import { btnPrimary, btnSecondary, DataTable, FilterTabs, humanize, inputClass, StatusChip, Td, Th } from "@/components/ui/primitives";
 import { auth0, isAuth0Configured } from "@/lib/auth0";
 import { fetchTasks } from "@/lib/opsApi";
 import { canAny } from "@/lib/rbac";
 import { requireAuthenticatedSession } from "@/lib/session";
 
-export default async function TasksPage() {
+function tasksHref(next: { view?: string; status?: string; q?: string }) {
+  const search = new URLSearchParams();
+  if (next.view) search.set("view", next.view);
+  if (next.status) search.set("status", next.status);
+  if (next.q) search.set("q", next.q);
+  const query = search.toString();
+  return query ? `/dashboard/tasks?${query}` : "/dashboard/tasks";
+}
+
+export default async function TasksPage({
+  searchParams,
+}: {
+  searchParams?: Promise<{ view?: string; status?: string; q?: string }>;
+}) {
   const session = await requireAuthenticatedSession("/dashboard/tasks");
+  const params = searchParams ? await searchParams : {};
   if (
     session.authorization &&
     !canAny(session.authorization.permissions, ["tasks.manage.assigned", "tenants.manage"])
@@ -18,48 +33,107 @@ export default async function TasksPage() {
   }
   const orgId = session.authorization?.active_organisation_id;
   if (!orgId) {
-    return <EmptyState title="Organisation required" description="Active organisation needed." />;
+    return <EmptyState title="Choose an organisation" description="Select the organisation you're working in to see tasks." />;
   }
   if (!isAuth0Configured() || !auth0) {
-    return <EmptyState title="Auth0 not configured" description="Cannot load tasks." />;
+    return <EmptyState title="Sign-in isn't set up yet" description="Tasks will be available once sign-in is configured." />;
   }
   try {
     const token = (await auth0.getAccessToken())?.token;
-    if (!token) return <ErrorState description="Access token unavailable." />;
+    if (!token) return <ErrorState description="We couldn't confirm your sign-in. Please sign in again." retryHref="/dashboard/tasks" />;
+    const overdueOnly = params.view === "overdue";
+    const q = (params.q ?? "").trim();
     const page = await fetchTasks({
       accessToken: token,
       organisationId: orgId,
       role: session.authorization?.active_role,
+      overdueOnly,
+    });
+    const statuses = [...new Set(page.items.map((task) => task.status).filter(Boolean))].sort();
+    const status = statuses.includes(params.status ?? "") ? params.status ?? "" : "";
+    const needle = q.toLowerCase();
+    const visible = page.items.filter((task) => {
+      if (status && task.status !== status) return false;
+      if (!needle) return true;
+      return task.title.toLowerCase().includes(needle);
     });
     return (
-      <div className="mx-auto max-w-4xl space-y-6">
-        <PageHeader eyebrow="F2.2" title="Tasks" description="Operational tasks with priority and overdue highlighting." />
-        <Link href="/dashboard/tasks/new" className="inline-flex rounded-md bg-teal-700 px-3 py-2 text-sm text-white">
-          New task
-        </Link>
-        {page.items.length === 0 ? (
-          <EmptyState title="No tasks" description="Create a task for assigned operational work." />
+      <div className="mx-auto max-w-6xl space-y-6">
+        <PageHeader
+          eyebrow="My work"
+          title="Tasks"
+          description="Work assigned to you, with anything overdue called out."
+          actions={
+            <Link href="/dashboard/tasks/new" className={btnPrimary}>
+              + New task
+            </Link>
+          }
+        />
+        <div className="flex flex-wrap items-center gap-3">
+          <form method="get" className="flex min-w-[16rem] flex-1 items-center gap-2">
+            {overdueOnly ? <input type="hidden" name="view" value="overdue" /> : null}
+            {status ? <input type="hidden" name="status" value={status} /> : null}
+            <label className="sr-only" htmlFor="task-search">
+              Search tasks
+            </label>
+            <input id="task-search" name="q" defaultValue={q} placeholder="Search tasks" className={inputClass} />
+            <button type="submit" className={btnSecondary}>
+              Search
+            </button>
+          </form>
+          <FilterTabs
+            tabs={[
+              { label: "All", href: tasksHref({ q }), active: !overdueOnly && !status },
+              { label: "Overdue", href: tasksHref({ view: "overdue", q }), active: overdueOnly && !status },
+              ...statuses.map((item) => ({
+                label: humanize(item),
+                href: tasksHref({ view: overdueOnly ? "overdue" : undefined, q, status: item }),
+                active: status === item,
+              })),
+            ]}
+          />
+        </div>
+        {visible.length === 0 ? (
+          <EmptyState
+            title={overdueOnly ? "Nothing overdue" : "No tasks"}
+            description={q || status ? "Nothing matches this search or status." : overdueOnly ? "Overdue tasks will show up here." : "Create a task when there is work to track."}
+            action={q || status || overdueOnly ? { label: "Show all tasks", href: "/dashboard/tasks" } : undefined}
+          />
         ) : (
-          <ul className="divide-y divide-slate-200 rounded-lg border border-slate-200 bg-white">
-            {page.items.map((task) => (
-              <li key={task.id} className="flex items-start justify-between gap-3 p-4 text-sm">
-                <div>
-                  <p className="font-medium text-forest-900">{task.title}</p>
-                  <p className="text-slate-600">
-                    {task.status} · {task.priority}
-                    {task.due_at ? ` · due ${new Date(task.due_at).toLocaleString()}` : ""}
-                  </p>
-                </div>
-                {task.overdue ? (
-                  <span className="rounded bg-red-100 px-2 py-1 text-xs font-medium text-red-800">Overdue</span>
-                ) : null}
-              </li>
-            ))}
-          </ul>
+          <DataTable caption="Tasks">
+            <thead>
+              <tr>
+                <Th>Task</Th>
+                <Th>Priority</Th>
+                <Th>Due</Th>
+                <Th>Status</Th>
+              </tr>
+            </thead>
+            <tbody>
+              {visible.map((task) => (
+                <tr key={task.id} className="hover:bg-slate-50/60">
+                  <Td className="font-semibold text-slate-900">{task.title}</Td>
+                  <Td>
+                    <StatusChip status={task.priority} />
+                  </Td>
+                  <Td>{task.due_at ? new Date(task.due_at).toLocaleString("en-GB", { dateStyle: "medium", timeStyle: "short" }) : "—"}</Td>
+                  <Td>
+                    <div className="flex flex-wrap gap-1.5">
+                      <StatusChip status={task.status} />
+                      {task.overdue ? <StatusChip status="overdue" /> : null}
+                    </div>
+                  </Td>
+                </tr>
+              ))}
+            </tbody>
+          </DataTable>
         )}
+        <p className="text-sm text-slate-500">
+          {visible.length === 0 ? `Showing 0 of ${page.total}` : `Showing 1–${visible.length} of ${page.total}`}
+        </p>
       </div>
     );
   } catch (error) {
-    return <ErrorState description={error instanceof Error ? error.message : "Failed to load tasks."} />;
+    return <ErrorState description={error instanceof Error ? error.message : "We couldn't load tasks. Please try again."} retryHref="/dashboard/tasks" />;
   }
 }

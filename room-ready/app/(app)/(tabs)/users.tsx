@@ -1,71 +1,86 @@
-import { StyleSheet, Text, View } from 'react-native';
+import { useMemo, useState } from 'react';
+import { RefreshControl, Text } from 'react-native';
 
-import { Badge } from '@/components/ui/Badge';
-import { Button } from '@/components/ui/Button';
-import { Card } from '@/components/ui/Card';
-import { ListScreen } from '@/components/ui/ListScreen';
+import { FilterChips, SearchField, useHideTabHeader } from '@/components/dashboard/mobileChrome';
+import { StatusRow, staffLabel, statusTone } from '@/components/staff/ui';
+import { Screen, ScreenHeader } from '@/components/ui/Screen';
 import { EmptyState, ErrorState, LoadingScreen } from '@/components/ui/States';
+import { FONT_MEDIUM } from '@/constants/fonts';
 import { theme } from '@/constants/theme';
 import { TAB_ROLES } from '@/constants/permissions';
 import { AdminUser } from '@/lib/api';
-import { useAdminUsers, useVerifyUser } from '@/hooks/useApi';
+import { useAdminUsers } from '@/hooks/useApi';
 import { useRoleGuard } from '@/hooks/useRoleGuard';
 import { ROLE_LABELS } from '@/types';
+import type { UserRole } from '@/types';
+
+type Filter = 'all' | 'pending' | 'staff' | 'tenants';
+
+function roleLabel(role: string): string {
+  if (role in ROLE_LABELS) return ROLE_LABELS[role as UserRole];
+  return staffLabel(role);
+}
+
+function isTenant(role: string): boolean {
+  return role === 'tenant';
+}
 
 export default function UsersScreen() {
+  useHideTabHeader();
   const guard = useRoleGuard(TAB_ROLES.users);
-  if (guard) return guard;
-
   const { data, isLoading, error, refetch, isRefetching } = useAdminUsers();
-  const verify = useVerifyUser();
+  const [queryText, setQueryText] = useState('');
+  const [filter, setFilter] = useState<Filter>('all');
 
+  const users = data?.users ?? [];
+  const visible = useMemo(() => {
+    const needle = queryText.trim().toLowerCase();
+    return users.filter((user) => {
+      if (filter === 'pending' && user.verified) return false;
+      if (filter === 'staff' && isTenant(user.role)) return false;
+      if (filter === 'tenants' && !isTenant(user.role)) return false;
+      if (!needle) return true;
+      return `${user.firstName} ${user.lastName} ${user.email} ${user.role}`.toLowerCase().includes(needle);
+    });
+  }, [users, filter, queryText]);
+
+  if (guard) return guard;
   if (isLoading) return <LoadingScreen />;
   if (error) return <ErrorState message="Could not load users" />;
 
-  const users = data?.users ?? [];
-
   return (
-    <ListScreen
-      data={users}
-      keyExtractor={(item) => item.id}
-      refreshing={isRefetching}
-      onRefresh={refetch}
-      contentContainerStyle={users.length === 0 ? styles.emptyList : undefined}
-      ListEmptyComponent={<EmptyState title="No users" />}
-      renderItem={({ item }) => (
-        <UserCard user={item} onVerify={() => verify.mutate({ id: item.id, verified: true })} />
+    <Screen refreshControl={<RefreshControl refreshing={isRefetching} onRefresh={refetch} tintColor={theme.colors.secondary} />}>
+      <ScreenHeader title="Users" subtitle={`${users.length} users`} />
+      <SearchField value={queryText} onChangeText={setQueryText} placeholder="Search name or email" />
+      <FilterChips
+        value={filter}
+        onChange={(id) => setFilter(id as Filter)}
+        options={[
+          { id: 'all', label: 'All' },
+          { id: 'pending', label: 'Pending' },
+          { id: 'staff', label: 'Staff' },
+          { id: 'tenants', label: 'Tenants' },
+        ]}
+      />
+      {visible.length === 0 ? (
+        users.length === 0 ? <EmptyState title="No users" /> : <Text style={{ fontFamily: FONT_MEDIUM, color: theme.colors.textSecondary }}>No users match this search.</Text>
+      ) : (
+        visible.map((user) => <UserRow key={user.id} user={user} />)
       )}
+    </Screen>
+  );
+}
+
+function UserRow({ user }: { user: AdminUser }) {
+  const name = `${user.firstName} ${user.lastName}`.trim() || user.email;
+  const chip = !user.active ? 'Suspended' : !user.verified ? 'Pending' : 'Active';
+  return (
+    <StatusRow
+      name={name}
+      title={name}
+      subtitle={`${roleLabel(user.role)} · ${user.email}`}
+      chip={chip}
+      tone={statusTone(chip)}
     />
   );
 }
-
-function UserCard({ user, onVerify }: { user: AdminUser; onVerify: () => void }) {
-  return (
-    <Card style={styles.card}>
-      <View style={styles.row}>
-        <Text style={styles.name} numberOfLines={1}>
-          {user.firstName} {user.lastName}
-        </Text>
-        <Badge label={ROLE_LABELS[user.role as keyof typeof ROLE_LABELS] ?? user.role} variant="info" />
-      </View>
-      <Text style={styles.email} numberOfLines={1}>{user.email}</Text>
-      <View style={styles.tags}>
-        <Badge label={user.verified ? 'Verified' : 'Unverified'} variant={user.verified ? 'success' : 'warning'} />
-        <Badge label={user.active ? 'Active' : 'Suspended'} variant={user.active ? 'default' : 'error'} />
-      </View>
-      {!user.verified && (
-        <Button title="Verify User" size="sm" onPress={onVerify} style={styles.verifyBtn} />
-      )}
-    </Card>
-  );
-}
-
-const styles = StyleSheet.create({
-  emptyList: { flexGrow: 1 },
-  card: { marginBottom: theme.spacing.sm },
-  row: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', gap: 8 },
-  name: { fontWeight: '600', fontSize: 16, color: theme.colors.text, flex: 1, minWidth: 0 },
-  email: { color: theme.colors.textSecondary, marginTop: 4 },
-  tags: { flexDirection: 'row', gap: 8, marginTop: 8, flexWrap: 'wrap' },
-  verifyBtn: { marginTop: 12, alignSelf: 'flex-start' },
-});

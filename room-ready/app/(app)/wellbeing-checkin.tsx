@@ -1,8 +1,9 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useState } from 'react';
-import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, Text, View } from 'react-native';
 
 import { Button } from '@/components/ui/Button';
+import { Chip } from '@/components/ui/Chip';
 import { Input } from '@/components/ui/Input';
 import { Screen } from '@/components/ui/Screen';
 import { FONT_BOLD, FONT_MEDIUM } from '@/constants/fonts';
@@ -51,20 +52,19 @@ export default function WellbeingCheckinScreen() {
       <Text style={styles.label}>{t('wellbeing.moodOptional')}</Text>
       <View style={styles.moods}>
         {MOODS.map((item) => (
-          <Pressable
+          <Chip
             key={item.id}
+            label={t(item.labelKey)}
+            selected={mood === item.id}
             onPress={() => setMood(item.id)}
-            style={[styles.chip, mood === item.id && styles.chipOn]}
-          >
-            <Text style={[styles.chipText, mood === item.id && styles.chipTextOn]}>{t(item.labelKey)}</Text>
-          </Pressable>
+          />
         ))}
       </View>
       <Input label={t('wellbeing.energyOptional')} value={energy} onChangeText={setEnergy} keyboardType="number-pad" />
       <Input label={t('wellbeing.stressOptional')} value={stress} onChangeText={setStress} keyboardType="number-pad" />
       <Input label={t('wellbeing.notesOptional')} value={notes} onChangeText={setNotes} />
-      <Button title={t('wellbeing.saveCheckin')} onPress={() => save.mutate(false)} />
-      <Button title={t('wellbeing.skipCheckin')} variant="secondary" onPress={() => save.mutate(true)} />
+      <Button title={t('wellbeing.saveCheckin')} onPress={() => save.mutate(false)} fullWidth />
+      <Button title={t('wellbeing.skipCheckin')} variant="outline" onPress={() => save.mutate(true)} fullWidth />
       {message ? <Text style={styles.meta}>{message}</Text> : null}
       {save.error ? <Text style={styles.error}>{hmoreErrorMessage(save.error)}</Text> : null}
     </Screen>
@@ -72,14 +72,10 @@ export default function WellbeingCheckinScreen() {
 }
 
 const styles = StyleSheet.create({
-  title: { fontFamily: FONT_BOLD, color: theme.colors.text, marginBottom: theme.spacing.xs },
+  title: { fontFamily: FONT_BOLD, color: theme.colors.text, letterSpacing: -0.4, marginBottom: theme.spacing.xs },
   disclaimer: { fontFamily: FONT_MEDIUM, color: theme.colors.textSecondary, fontSize: 12, marginBottom: theme.spacing.md },
   label: { fontFamily: FONT_MEDIUM, color: theme.colors.text, marginBottom: 8 },
   moods: { flexDirection: 'row', flexWrap: 'wrap', gap: 8, marginBottom: theme.spacing.md },
-  chip: { borderWidth: 1, borderColor: theme.colors.border, borderRadius: 8, paddingHorizontal: 10, paddingVertical: 8 },
-  chipOn: { backgroundColor: theme.colors.text, borderColor: theme.colors.text },
-  chipText: { fontFamily: FONT_MEDIUM, color: theme.colors.text },
-  chipTextOn: { color: theme.colors.background },
   meta: { fontFamily: FONT_MEDIUM, color: theme.colors.textSecondary, marginTop: 8 },
   error: { fontFamily: FONT_MEDIUM, color: theme.colors.danger, marginTop: 8 },
 });

@@ -1,13 +1,16 @@
 import { RefreshControl } from 'react-native';
 
 import { ActivityFeed } from '@/components/dashboard/ActivityFeed';
+import { DASHBOARD_ACTIONS } from '@/components/dashboard/dashboardActions';
 import { ComplianceOverviewCard } from '@/components/dashboard/ComplianceOverviewCard';
 import { DashboardOverview } from '@/components/dashboard/DashboardOverview';
 import { PortfolioHomeCard } from '@/components/dashboard/PortfolioHomeCard';
 import { PropertySnapshotRow } from '@/components/dashboard/PropertySnapshotRow';
 import { TenantHomeCard } from '@/components/dashboard/TenantHomeCard';
 import { NextSteps, buildDashboardTodos } from '@/components/ui/NextSteps';
+import { QuickActions } from '@/components/ui/QuickActions';
 import { Screen } from '@/components/ui/Screen';
+import { Section } from '@/components/ui/Section';
 import { ErrorState, LoadingScreen } from '@/components/ui/States';
 import { theme } from '@/constants/theme';
 import { useAuth } from '@/contexts/AuthContext';
@@ -99,6 +102,7 @@ export default function DashboardScreen() {
           portfolioScore={portfolioScore}
           openRepairs={Number(stats.openMaintenance ?? 0)}
           expiringDocs={Number(stats.expiringDocs ?? 0)}
+          role={role}
         />
       ) : null}
 
@@ -112,9 +116,24 @@ export default function DashboardScreen() {
 
       {isPortfolioRole && properties.length > 0 ? <PropertySnapshotRow properties={properties} /> : null}
 
+      {!isPortfolioRole ? (
+        <Section title="Quick actions">
+          <QuickActions
+            actions={DASHBOARD_ACTIONS[role].map((action) => ({
+              key: action.label,
+              label: action.label,
+              icon: action.icon,
+              tone: action.primary ? 'blue' : 'indigo',
+              onPress: () => router.push(action.route as never),
+            }))}
+          />
+        </Section>
+      ) : null}
+
       <NextSteps items={todos} />
 
       <ActivityFeed
+        title={isPortfolioRole ? 'Needs attention' : undefined}
         notifications={notifications}
         onSeeAllNotifications={() => router.push('/(app)/notifications')}
         onNotificationPress={handleNotificationPress}

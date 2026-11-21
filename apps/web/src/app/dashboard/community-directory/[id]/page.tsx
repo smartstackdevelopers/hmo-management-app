@@ -5,6 +5,7 @@ import { GeocodeServiceButton } from "@/components/community/GeocodeServiceButto
 import { EmptyState } from "@/components/dashboard/EmptyState";
 import { ErrorState } from "@/components/dashboard/ErrorState";
 import { PageHeader } from "@/components/dashboard/PageHeader";
+import { btnPrimary, btnSecondary, Card, humanize, StatusChip } from "@/components/ui/primitives";
 import { auth0, isAuth0Configured } from "@/lib/auth0";
 import {
   getAdminCommunityService,
@@ -17,7 +18,7 @@ function Field({ label, value }: { label: string; value: string | null | undefin
   return (
     <div>
       <dt className="text-xs font-semibold uppercase tracking-wide text-slate-500">{label}</dt>
-      <dd className="mt-1 text-sm text-forest-900">{value?.trim() ? value : "Not provided"}</dd>
+      <dd className="mt-1 text-sm font-semibold text-slate-900">{value?.trim() ? value : "Not provided"}</dd>
     </div>
   );
 }
@@ -44,12 +45,12 @@ export default async function CommunityServiceDetailPage({
     return <EmptyState title="Organisation required" description="Active organisation needed." />;
   }
   if (!isAuth0Configured() || !auth0) {
-    return <EmptyState title="Auth0 not configured" description="Cannot load listing." />;
+    return <EmptyState title="Sign-in not configured" description="Sign-in isn't set up in this environment yet, so this page can't load." />;
   }
   const { id } = await params;
   try {
     const token = (await auth0.getAccessToken())?.token;
-    if (!token) return <ErrorState description="Access token unavailable." />;
+    if (!token) return <ErrorState description="We couldn't confirm your sign-in. Please sign in again." />;
     const [service, history] = await Promise.all([
       getAdminCommunityService({
         accessToken: token,
@@ -67,22 +68,25 @@ export default async function CommunityServiceDetailPage({
     return (
       <div className="mx-auto max-w-3xl space-y-6">
         <PageHeader
-          eyebrow="F5.1"
+          eyebrow="Community"
           title={service.name}
-          description={`${service.category.replaceAll("_", " ")} · ${service.verification_status.replaceAll("_", " ")}`}
+          description={humanize(service.category)}
+          actions={
+            <>
+              <Link href="/dashboard/community-directory" className={btnSecondary}>
+                Directory
+              </Link>
+              <Link href={`/dashboard/community-directory/${service.id}/edit`} className={btnPrimary}>
+                Edit listing
+              </Link>
+            </>
+          }
         />
-        <div className="flex flex-wrap gap-3 text-sm">
-          <Link href="/dashboard/community-directory" className="rounded-md border border-slate-300 px-3 py-2">
-            Back to directory
-          </Link>
-          <Link
-            href={`/dashboard/community-directory/${service.id}/edit`}
-            className="rounded-md bg-teal-700 px-3 py-2 text-white"
-          >
-            Edit listing
-          </Link>
+        <div className="flex flex-wrap gap-2">
+          <StatusChip status={service.verification_status} />
+          <StatusChip status={service.is_published ? "published" : "draft"} />
         </div>
-        <dl className="grid gap-4 rounded-lg border border-slate-200 bg-white p-5 sm:grid-cols-2">
+        <dl className="grid gap-4 rounded-2xl border border-slate-200 bg-white p-5 shadow-card sm:grid-cols-2">
           <Field label="Description" value={service.description} />
           <Field label="Address" value={service.address_line} />
           <Field label="Opening days" value={service.opening_days} />
@@ -126,16 +130,16 @@ export default async function CommunityServiceDetailPage({
           serviceId={service.id}
           status={service.verification_status}
         />
-        <section className="rounded-lg border border-slate-200 bg-white p-5">
-          <h2 className="mb-3 text-sm font-semibold text-forest-900">Verification history</h2>
+        <Card>
+          <h2 className="mb-3 text-base font-semibold text-slate-900">Verification history</h2>
           {history.items.length === 0 ? (
             <p className="text-sm text-slate-600">No history events yet.</p>
           ) : (
             <ul className="space-y-3 text-sm">
               {history.items.map((event) => (
                 <li key={event.id} className="border-b border-slate-100 pb-2 last:border-0">
-                  <p className="font-medium text-forest-900">
-                    {event.action.replaceAll("_", " ")} → {event.to_status.replaceAll("_", " ")}
+                  <p className="font-semibold text-slate-900">
+                    {humanize(event.action)} → {humanize(event.to_status)}
                   </p>
                   <p className="text-slate-600">
                     {new Date(event.created_at).toLocaleString()}
@@ -145,12 +149,12 @@ export default async function CommunityServiceDetailPage({
               ))}
             </ul>
           )}
-        </section>
+        </Card>
       </div>
     );
-  } catch (error) {
+  } catch {
     return (
-      <ErrorState description={error instanceof Error ? error.message : "Failed to load listing."} />
+      <ErrorState description={"Failed to load listing."} />
     );
   }
 }

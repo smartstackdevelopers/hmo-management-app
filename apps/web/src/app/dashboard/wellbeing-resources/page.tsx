@@ -19,16 +19,16 @@ export default async function WellbeingResourcesPage() {
     return <EmptyState title="Organisation required" description="Active organisation needed." />;
   }
   if (!isAuth0Configured() || !auth0) {
-    return <EmptyState title="Auth0 not configured" description="Cannot manage wellbeing resources." />;
+    return <EmptyState title="Sign-in not configured" description="Sign-in isn't set up in this environment yet, so this page can't load." />;
   }
   const token = (await auth0.getAccessToken())?.token;
   if (!token) {
-    return <EmptyState title="Access token unavailable" description="Sign in again." />;
+    return <EmptyState title="Sign in again" description="Sign in again." />;
   }
   return (
     <div className="mx-auto max-w-3xl space-y-6">
       <PageHeader
-        eyebrow="F5.5"
+        eyebrow="Community"
         title="Wellbeing resources"
         description="Manage exercise, mindfulness and local wellbeing directory listings. Private tenant mood check-ins are not shown here."
       />

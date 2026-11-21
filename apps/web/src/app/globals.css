@@ -22,6 +22,17 @@ body {
     outline-offset: 2px;
   }
 
+  /* Baseline for legacy pages that render bare elements; utilities still override. */
+  main table th {
+    @apply text-xs font-semibold uppercase tracking-wide text-slate-500;
+  }
+
+  main input:not([type="checkbox"]):not([type="radio"]):not([type="file"]):not([type="range"]),
+  main select,
+  main textarea {
+    @apply rounded-lg border-slate-300 focus:border-brand-600 focus:outline-none focus:ring-2 focus:ring-brand-100;
+  }
+
   @media (prefers-reduced-motion: reduce) {
     *,
     *::before,

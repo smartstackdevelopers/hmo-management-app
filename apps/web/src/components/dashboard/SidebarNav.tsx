@@ -8,8 +8,8 @@ type SidebarNavProps = {
 
 const ALWAYS_OPEN = new Set(["overview"]);
 
-export function SidebarNav({ items, currentPath = "" }: SidebarNavProps) {
-  const areas = groupNavItemsByArea(items);
+export function SidebarNav({ items, currentPath = "", role = null }: SidebarNavProps & { role?: string | null }) {
+  const areas = groupNavItemsByArea(items, role);
 
   return (
     <nav aria-label="Dashboard" className="space-y-1">

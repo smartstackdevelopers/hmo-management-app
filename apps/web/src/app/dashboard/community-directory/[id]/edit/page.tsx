@@ -30,12 +30,12 @@ export default async function EditCommunityServicePage({
     return <EmptyState title="Organisation required" description="Active organisation needed." />;
   }
   if (!isAuth0Configured() || !auth0) {
-    return <EmptyState title="Auth0 not configured" description="Cannot edit listing." />;
+    return <EmptyState title="Sign-in not configured" description="Sign-in isn't set up in this environment yet, so this page can't load." />;
   }
   const { id } = await params;
   try {
     const token = (await auth0.getAccessToken())?.token;
-    if (!token) return <ErrorState description="Access token unavailable." />;
+    if (!token) return <ErrorState description="We couldn't confirm your sign-in. Please sign in again." />;
     const service = await getAdminCommunityService({
       accessToken: token,
       organisationId: orgId,
@@ -45,7 +45,7 @@ export default async function EditCommunityServicePage({
     return (
       <div className="mx-auto max-w-xl space-y-6">
         <PageHeader
-          eyebrow="F5.1"
+          eyebrow="Community"
           title={`Edit ${service.name}`}
           description="Editing verified content moves the listing to needs review."
         />
@@ -57,9 +57,9 @@ export default async function EditCommunityServicePage({
         />
       </div>
     );
-  } catch (error) {
+  } catch {
     return (
-      <ErrorState description={error instanceof Error ? error.message : "Failed to load listing."} />
+      <ErrorState description={"Failed to load listing."} />
     );
   }
 }

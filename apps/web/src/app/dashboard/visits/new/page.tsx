@@ -7,7 +7,12 @@ import { auth0, isAuth0Configured } from "@/lib/auth0";
 import { canAny } from "@/lib/rbac";
 import { requireAuthenticatedSession } from "@/lib/session";
 
-export default async function NewVisitPage() {
+export default async function NewVisitPage({
+  searchParams,
+}: {
+  searchParams?: Promise<{ tenantId?: string }>;
+}) {
+  const params = searchParams ? await searchParams : {};
   const session = await requireAuthenticatedSession("/dashboard/visits/new");
   if (
     session.authorization &&
@@ -27,12 +32,13 @@ export default async function NewVisitPage() {
 
   return (
     <div className="mx-auto max-w-xl space-y-6">
-      <PageHeader eyebrow="Visits" title="Schedule visit" description="Support Workers may only assign visits to themselves for caseload tenants." />
+      <PageHeader eyebrow="My work" title="Book visit" description="Support workers can only book visits for people on their caseload, assigned to themselves." />
       <VisitForm
         accessToken={token}
         organisationId={orgId}
         role={session.authorization?.active_role}
         defaultStaffUserId={session.authorization?.user_id}
+        defaultTenantId={params.tenantId}
       />
     </div>
   );

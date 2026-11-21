@@ -1,12 +1,17 @@
+import { EmptyState } from "@/components/dashboard/EmptyState";
 import { PageHeader } from "@/components/dashboard/PageHeader";
 
 export default function TemplatesPlaceholderPage() {
   return (
-    <div className="space-y-4">
+    <div className="space-y-6">
       <PageHeader
-        eyebrow="F2.12"
+        eyebrow="Communications"
         title="Templates"
-        description="GET/POST/PATCH /api/v1/communications/templates — placeholders are allow-listed server-side."
+        description="Reusable message wording for this organisation."
+      />
+      <EmptyState
+        title="No templates to show"
+        description="Message templates will appear here once they are saved for this organisation."
       />
     </div>
   );

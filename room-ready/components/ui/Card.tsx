@@ -8,8 +8,9 @@ interface CardProps {
   style?: StyleProp<ViewStyle>;
   onPress?: () => void;
   elevated?: boolean;
-  variant?: 'default' | 'outlined' | 'filled' | 'glass';
+  variant?: 'default' | 'outlined' | 'filled' | 'glass' | 'tinted';
   padded?: boolean;
+  accessibilityLabel?: string;
 }
 
 export function Card({
@@ -19,6 +20,7 @@ export function Card({
   elevated = true,
   variant = 'default',
   padded = true,
+  accessibilityLabel,
 }: CardProps) {
   const shadow = elevated
     ? Platform.OS === 'web'
@@ -33,6 +35,7 @@ export function Card({
         !padded && styles.unpadded,
         variant === 'filled' && styles.filled,
         variant === 'outlined' && styles.outlined,
+        variant === 'tinted' && styles.tinted,
         shadow,
         style,
       ]}
@@ -45,6 +48,8 @@ export function Card({
     return (
       <Pressable
         onPress={onPress}
+        accessibilityRole="button"
+        accessibilityLabel={accessibilityLabel}
         style={({ pressed }) => [styles.pressable, pressed && styles.pressed]}
       >
         {content}
@@ -64,7 +69,7 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: theme.colors.border,
   },
-  unpadded: { padding: 0 },
+  unpadded: { padding: 0, overflow: 'hidden' },
   filled: {
     backgroundColor: theme.colors.surfaceSecondary,
     borderColor: theme.colors.borderLight,
@@ -72,7 +77,10 @@ const styles = StyleSheet.create({
   outlined: {
     backgroundColor: theme.colors.surface,
     borderColor: theme.colors.border,
-    borderWidth: 1.5,
+  },
+  tinted: {
+    backgroundColor: theme.colors.accentLight,
+    borderColor: theme.colors.accentSoft,
   },
   pressed: { opacity: 0.94, transform: [{ scale: 0.995 }] },
 });

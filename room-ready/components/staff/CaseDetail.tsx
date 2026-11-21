@@ -1,14 +1,20 @@
 import { useQuery } from '@tanstack/react-query';
 import { router, useLocalSearchParams } from 'expo-router';
+import { useLayoutEffect } from 'react';
+import { useNavigation } from 'expo-router';
 
-import { RecordCard, StaffPage } from '@/components/staff/ui';
+import { FactGrid } from '@/components/dashboard/mobileChrome';
+import { BackLink, StaffPage, Timeline, staffLabel, statusTone } from '@/components/staff/ui';
 import { Button } from '@/components/ui/Button';
+import { Chip } from '@/components/ui/Chip';
 import { ErrorState, LoadingScreen } from '@/components/ui/States';
+import { formatUKDate } from '@/constants/uk';
 import { useAuth } from '@/contexts/AuthContext';
 import { hmoreErrorMessage } from '@/lib/hmore/client';
 import { getCaseDetail } from '@/lib/hmore/services/staff/caseload';
 
 export function CaseDetail() {
+  const navigation = useNavigation();
   const { tenantId } = useLocalSearchParams<{ tenantId: string }>();
   const { user } = useAuth();
   const query = useQuery({
@@ -17,29 +23,42 @@ export function CaseDetail() {
     enabled: !!tenantId,
   });
 
+  useLayoutEffect(() => {
+    navigation.setOptions({ headerShown: false });
+  }, [navigation]);
+
   if (query.isLoading) return <LoadingScreen message="Loading tenant..." />;
   if (query.isError) return <ErrorState message={hmoreErrorMessage(query.error, 'Could not load this tenant')} onRetry={query.refetch} />;
 
   const detail = query.data;
   const tenant = detail?.tenant;
+  const name = tenant?.preferred_name || tenant?.full_name || 'Tenant';
+  const facts = [
+    tenant?.tenancy_reference ? { label: 'Reference', value: tenant.tenancy_reference } : null,
+    tenant?.status ? { label: 'Status', value: staffLabel(tenant.status) } : null,
+    { label: 'Recent logs', value: String(detail?.recent_logs.length ?? 0) },
+    { label: 'Handovers', value: String(detail?.recent_handovers.length ?? 0) },
+  ].filter((item): item is { label: string; value: string } => !!item);
+
+  const timeline = [
+    ...(detail?.recent_logs ?? []).map((log) => ({
+      key: `log-${log.id}`,
+      title: log.summary,
+      meta: [log.log_date ? formatUKDate(log.log_date) : null, staffLabel(log.activity_category)].filter(Boolean).join(' · '),
+    })),
+    ...(detail?.recent_handovers ?? []).map((handover) => ({
+      key: `handover-${handover.id}`,
+      title: handover.summary,
+      meta: staffLabel(handover.status),
+    })),
+  ];
+
   return (
-    <StaffPage title={tenant?.preferred_name || tenant?.full_name || 'Tenant'} subtitle={tenant?.tenancy_reference || tenant?.status || ''} onRefresh={query.refetch} refreshing={query.isRefetching}>
-      <RecordCard title="Status" status={tenant?.status} detail="Staff-only notes stay on the server." />
-      {tenantId ? (
-        <Button
-          title="Handovers"
-          variant="outline"
-          onPress={() => router.push(`/(app)/staff/handovers?tenantId=${tenantId}`)}
-          fullWidth
-        />
-      ) : null}
-      {(detail?.recent_logs ?? []).map((log) => (
-        <RecordCard key={log.id} title={log.summary} status={log.status} detail={log.log_date} />
-      ))}
-      {(detail?.recent_logs ?? []).length === 0 ? <RecordCard title="No recent notes" detail="The server did not return recent logs." /> : null}
-      {(detail?.recent_handovers ?? []).map((handover) => (
-        <RecordCard key={handover.id} title={handover.summary} status={handover.status} />
-      ))}
+    <StaffPage title={name} subtitle={tenant?.tenancy_reference || undefined} leading={<BackLink />} onRefresh={query.refetch} refreshing={query.isRefetching}>
+      {tenant?.status ? <Chip label={staffLabel(tenant.status)} tone={statusTone(tenant.status)} /> : null}
+      <FactGrid items={facts} />
+      <Timeline items={timeline} />
+      <Button title="Add daily log" onPress={() => router.push('/(app)/(tabs)/notes')} fullWidth />
     </StaffPage>
   );
 }

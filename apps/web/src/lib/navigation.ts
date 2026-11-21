@@ -736,23 +736,60 @@ const NAV_AREAS: { id: string; label: string; itemIds: string[] }[] = [
   { id: "account", label: "Account", itemIds: ["account", "health"] },
 ];
 
-/** Groups visible items into the role-agnostic sidebar areas from the design spec (§4). */
-export function groupNavItemsByArea(items: NavItem[]): NavArea[] {
+/** Sidebar groups from the Blue PDF, per role. Other modules stay underneath. */
+const ROLE_AREAS: Record<string, { id: string; label: string; itemIds: string[] }[]> = {
+  landlord: [
+    { id: "overview", label: "Overview", itemIds: ["home", "landlord-enterprise"] },
+    { id: "portfolio", label: "Portfolio", itemIds: ["properties", "rooms", "room-occupancy", "rent-payments"] },
+    { id: "operations", label: "Operations", itemIds: ["maintenance", "complaints"] },
+    { id: "compliance", label: "Compliance", itemIds: ["documents", "council-portal"] },
+    { id: "insights", label: "Insights", itemIds: ["reports"] },
+  ],
+  organisation_admin: [
+    { id: "overview", label: "Overview", itemIds: ["home"] },
+    { id: "operations", label: "Operations", itemIds: ["org-workflows", "case-assignments", "rota"] },
+    { id: "insights", label: "Insights", itemIds: ["reports"] },
+  ],
+  support_worker: [
+    { id: "overview", label: "Overview", itemIds: ["home", "caseload"] },
+    { id: "people", label: "Caseload", itemIds: ["visits", "tasks", "handovers", "support-plans-dashboard"] },
+    { id: "safety", label: "Safety", itemIds: ["safeguarding", "safeguarding-alerts", "incidents"] },
+  ],
+  super_admin: [
+    { id: "overview", label: "Overview", itemIds: ["home"] },
+    { id: "platform", label: "Platform", itemIds: ["organisations", "platform-admin", "audit", "ai-feature-flags"] },
+  ],
+};
+
+function pushArea(
+  areas: NavArea[],
+  placed: Set<string>,
+  byId: Map<string, NavItem>,
+  area: { id: string; label: string; itemIds: string[] },
+) {
+  const areaItems: NavItem[] = [];
+  for (const id of area.itemIds) {
+    const item = byId.get(id);
+    if (item && !placed.has(item.href)) {
+      areaItems.push(item);
+      placed.add(item.href);
+    }
+  }
+  if (areaItems.length > 0) {
+    areas.push({ id: area.id, label: area.label, items: areaItems });
+  }
+}
+
+/** Groups visible items into the sidebar areas from the Blue PDF. */
+export function groupNavItemsByArea(items: NavItem[], role?: string | null): NavArea[] {
   const byId = new Map(items.map((item) => [item.id, item]));
   const placed = new Set<string>();
   const areas: NavArea[] = [];
+  for (const area of ROLE_AREAS[role ?? ""] ?? []) {
+    pushArea(areas, placed, byId, area);
+  }
   for (const area of NAV_AREAS) {
-    const areaItems: NavItem[] = [];
-    for (const id of area.itemIds) {
-      const item = byId.get(id);
-      if (item && !placed.has(item.href)) {
-        areaItems.push(item);
-        placed.add(item.href);
-      }
-    }
-    if (areaItems.length > 0) {
-      areas.push({ id: area.id, label: area.label, items: areaItems });
-    }
+    pushArea(areas, placed, byId, area);
   }
   const leftovers = items.filter((item) => !placed.has(item.href));
   if (leftovers.length > 0) {

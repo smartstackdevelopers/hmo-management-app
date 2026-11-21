@@ -1,20 +1,23 @@
 import Link from "next/link";
+import { PageHeader } from "@/components/dashboard/PageHeader";
+import { Card, linkClass } from "@/components/ui/primitives";
 
 export default function NewPropertyPage() {
   return (
-    <div className="mx-auto max-w-xl space-y-6">
-      <h1 className="text-3xl font-semibold text-forest-900">Create property</h1>
-      <p className="text-slate-700">
-        API: <code className="rounded bg-slate-100 px-1">POST /api/v1/properties</code>. Required:
-        name, address line 1, city, postcode.
-      </p>
-      <div className="rounded-lg border border-slate-200 bg-white p-5 text-sm text-slate-600">
-        Authenticated create form lands with F1.9 role dashboards. Validation and organisation
-        stamping are enforced by FastAPI.
-      </div>
-      <Link className="text-sm text-teal-800 hover:underline" href="/properties">
-        Back to properties
+    <div className="mx-auto max-w-2xl space-y-6">
+      <Link className={`text-sm ${linkClass}`} href="/properties">
+        ← Back to properties
       </Link>
+      <PageHeader
+        eyebrow="Portfolio / Properties"
+        title="Create property"
+        description="Name, address line 1, city and postcode are required."
+      />
+      <Card>
+        <p className="text-sm leading-6 text-slate-600">
+          The create form is not on this page yet. When it is submitted, the API checks those fields and records the property against your organisation.
+        </p>
+      </Card>
     </div>
   );
 }

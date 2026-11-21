@@ -23,14 +23,14 @@ export default async function CaseSummaryDetailPage({ params }: { params: Promis
     return <EmptyState title="Unavailable" description="Organisation context required." />;
   }
   const token = (await auth0.getAccessToken())?.token;
-  if (!token) return <ErrorState description="Access token unavailable." />;
+  if (!token) return <ErrorState description="We couldn't confirm your sign-in. Please sign in again." />;
   const role = session.authorization?.active_role;
 
   let data: Record<string, unknown>;
   try {
     data = await fetchCaseSummary(id, { accessToken: token, organisationId: orgId, role });
-  } catch (e) {
-    return <ErrorState description={e instanceof Error ? e.message : "Failed to load case summary"} />;
+  } catch {
+    return <ErrorState description={"Failed to load case summary"} />;
   }
 
   const sections = sectionEntries(data.sections as Record<string, unknown> | undefined);
@@ -43,7 +43,7 @@ export default async function CaseSummaryDetailPage({ params }: { params: Promis
   return (
     <div className={summaryLayoutClass()}>
       <PageHeader
-        eyebrow="F3.5"
+        eyebrow="AI"
         title={`Case summary v${String(data.version_number)}`}
         description="AI-generated assistance for human review. Approving this summary does not edit case records."
       />
@@ -146,7 +146,7 @@ export default async function CaseSummaryDetailPage({ params }: { params: Promis
         </p>
       )}
 
-      <Link className="text-sm text-teal-800 underline" href={`/dashboard/caseload/${String(data.tenant_id)}`}>
+      <Link className="text-sm font-semibold text-brand-700 hover:underline" href={`/dashboard/caseload/${String(data.tenant_id)}`}>
         Back to case
       </Link>
     </div>

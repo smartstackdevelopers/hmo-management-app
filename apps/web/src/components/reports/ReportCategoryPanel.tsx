@@ -146,11 +146,12 @@ export function ReportCategoryPanel({
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-semibold text-slate-900">{title}</h1>
+        <p className="text-xs font-semibold uppercase tracking-[0.16em] text-brand-700">Insights</p>
+        <h1 className="mt-1.5 text-2xl font-bold tracking-tight text-slate-900">{title}</h1>
         <p className="mt-1 text-sm text-slate-600">{description}</p>
       </div>
 
-      <div className="flex flex-wrap items-end gap-3 rounded-lg border border-slate-200 bg-white p-4 shadow-sm">
+      <div className="flex flex-wrap items-end gap-3 rounded-2xl border border-slate-200 bg-white p-5 shadow-card">
         <label className="text-sm">
           <span className="mb-1 block text-slate-600">From</span>
           <input
@@ -195,7 +196,7 @@ export function ReportCategoryPanel({
           type="button"
           onClick={() => load(1)}
           disabled={pending}
-          className="rounded bg-teal-800 px-3 py-2 text-sm font-medium text-white disabled:opacity-60"
+          className="inline-flex h-10 items-center justify-center rounded-lg bg-brand-700 px-4 text-sm font-semibold text-white shadow-sm hover:bg-brand-800 disabled:cursor-not-allowed disabled:opacity-60 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-600 focus-visible:ring-offset-2"
         >
           {pending ? "Loading…" : "Apply filters"}
         </button>
@@ -236,7 +237,7 @@ export function ReportCategoryPanel({
               type="button"
               disabled={page <= 1 || pending}
               onClick={() => load(page - 1)}
-              className="rounded border px-2 py-1 text-sm disabled:opacity-40"
+              className="inline-flex h-8 items-center justify-center rounded-lg border border-slate-200 bg-white px-3 text-xs font-semibold text-slate-700 hover:bg-slate-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-600 text-sm disabled:opacity-40"
             >
               Previous
             </button>
@@ -245,7 +246,7 @@ export function ReportCategoryPanel({
               type="button"
               disabled={page * 25 >= total || pending}
               onClick={() => load(page + 1)}
-              className="rounded border px-2 py-1 text-sm disabled:opacity-40"
+              className="inline-flex h-8 items-center justify-center rounded-lg border border-slate-200 bg-white px-3 text-xs font-semibold text-slate-700 hover:bg-slate-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-600 text-sm disabled:opacity-40"
             >
               Next
             </button>

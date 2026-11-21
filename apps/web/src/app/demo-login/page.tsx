@@ -43,42 +43,70 @@ async function demoLoginAction(formData: FormData) {
 export default async function DemoLoginPage() {
   if (!isWebDemoAuthEnabled()) {
     return (
-      <main className="mx-auto max-w-lg p-8">
-        <h1 className="text-2xl font-semibold">Demo login disabled</h1>
-        <p className="mt-2 text-slate-600">
-          Set <code>NEXT_PUBLIC_DEMO_AUTH=1</code> in <code>apps/web/.env.local</code> and{" "}
-          <code>HMORE_DEMO_AUTH=true</code> on the API (development only).
-        </p>
+      <main className="min-h-screen bg-cream px-6 py-16">
+        <div className="mx-auto max-w-lg rounded-2xl border border-slate-200 bg-white p-8 shadow-card">
+          <p className="text-xs font-semibold uppercase tracking-[0.16em] text-amber-700">Local development only</p>
+          <h1 className="mt-1.5 text-2xl font-bold tracking-tight text-navy-900">Demo login disabled</h1>
+          <p className="mt-2 text-sm leading-6 text-slate-600">
+            Set <code className="rounded bg-slate-100 px-1 py-0.5 text-xs">NEXT_PUBLIC_DEMO_AUTH=1</code> in{" "}
+            <code className="rounded bg-slate-100 px-1 py-0.5 text-xs">apps/web/.env.local</code> and{" "}
+            <code className="rounded bg-slate-100 px-1 py-0.5 text-xs">HMORE_DEMO_AUTH=true</code> on the API
+            (development only).
+          </p>
+        </div>
       </main>
     );
   }
 
   return (
-    <main className="mx-auto max-w-lg space-y-6 p-8">
-      <header>
-        <p className="text-sm font-medium uppercase tracking-wide text-amber-700">Local meeting only</p>
-        <h1 className="mt-1 text-3xl font-semibold text-slate-900">Dummy role login</h1>
-        <p className="mt-2 text-slate-600">
-          Pick a role to sign in without Auth0. Uses FastAPI demo tokens against PostgreSQL. Do not enable in
-          production.
-        </p>
-      </header>
-      <div className="grid gap-3">
-        {ROLES.map((item) => (
-          <form key={item.role} action={demoLoginAction}>
-            <input type="hidden" name="role" value={item.role} />
-            <button
-              type="submit"
-              className="w-full rounded-lg border border-slate-300 bg-white px-4 py-3 text-left text-base font-semibold text-slate-900 shadow-sm hover:border-teal-600 hover:bg-teal-50"
-            >
-              {item.label}
-            </button>
-          </form>
-        ))}
+    <main className="min-h-screen bg-cream px-6 py-16">
+      <div className="mx-auto max-w-lg space-y-6">
+        <div
+          className="rounded-2xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm font-semibold text-amber-800"
+          role="note"
+        >
+          Local development only — never enable demo login in production.
+        </div>
+        <div className="rounded-2xl border border-slate-200 bg-white p-8 shadow-card">
+          <header>
+            <p className="text-xs font-semibold uppercase tracking-[0.16em] text-brand-700">Demo sign-in</p>
+            <h1 className="mt-1.5 text-2xl font-bold tracking-tight text-navy-900">Choose a role</h1>
+            <p className="mt-2 text-sm leading-6 text-slate-600">
+              Sign in as a sample user for local testing. This uses demo accounts on your local database.
+            </p>
+          </header>
+          <div className="mt-6 grid gap-3">
+            {ROLES.map((item) => (
+              <form key={item.role} action={demoLoginAction}>
+                <input type="hidden" name="role" value={item.role} />
+                <button
+                  type="submit"
+                  className="flex w-full items-center gap-3 rounded-xl border border-slate-200 bg-white px-4 py-3 text-left text-sm font-semibold text-slate-900 transition hover:border-brand-200 hover:bg-brand-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-600"
+                >
+                  <span
+                    aria-hidden="true"
+                    className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-brand-100 text-xs font-bold text-brand-700"
+                  >
+                    {item.label
+                      .split(" ")
+                      .map((word) => word[0])
+                      .join("")
+                      .slice(0, 2)}
+                  </span>
+                  {item.label}
+                </button>
+              </form>
+            ))}
+          </div>
+          <p className="mt-6 text-sm text-slate-500">
+            Use the{" "}
+            <a className="font-semibold text-brand-700 hover:underline" href="/auth/login">
+              normal sign-in page
+            </a>{" "}
+            for real accounts.
+          </p>
+        </div>
       </div>
-      <p className="text-sm text-slate-500">
-        Real Auth0 login remains at <a className="underline" href="/auth/login">/auth/login</a>.
-      </p>
     </main>
   );
 }

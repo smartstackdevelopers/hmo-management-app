@@ -2,6 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { btnPrimary, inputClass, labelClass } from "@/components/ui/primitives";
 import { createOrganisation } from "@/lib/organisationsApi";
 import type { GovAuth } from "@/lib/platformGovernanceApi";
 
@@ -59,21 +60,20 @@ export function CreateOrganisationForm({ auth }: Props) {
 
   return (
     <form
+      id="create-organisation"
       onSubmit={onSubmit}
-      className="rounded-lg border border-slate-200 bg-white p-4 shadow-sm"
+      className="rounded-2xl border border-slate-200 bg-white p-5 shadow-card"
       aria-labelledby="create-org-heading"
     >
-      <h2 id="create-org-heading" className="text-sm font-semibold text-slate-900">
-        Create organisation
+      <h2 id="create-org-heading" className="text-base font-semibold text-slate-900">
+        New organisation
       </h2>
-      <p className="mt-1 text-xs text-slate-600">
-        Super Admin only — persisted via POST <code className="text-[11px]">/api/v1/organisations</code>.
-      </p>
+      <p className="mt-1 text-sm text-slate-500">The organisation is saved to your platform directory.</p>
       <div className="mt-4 grid gap-3 sm:grid-cols-2">
         <label className="block text-sm">
-          <span className="text-slate-700">Name</span>
+          <span className={labelClass}>Name</span>
           <input
-            className="mt-1 w-full rounded border border-slate-300 px-3 py-2 text-sm"
+            className={`mt-1 ${inputClass}`}
             value={name}
             onChange={(e) => onNameChange(e.target.value)}
             required
@@ -82,9 +82,9 @@ export function CreateOrganisationForm({ auth }: Props) {
           />
         </label>
         <label className="block text-sm">
-          <span className="text-slate-700">Slug</span>
+          <span className={labelClass}>Slug</span>
           <input
-            className="mt-1 w-full rounded border border-slate-300 px-3 py-2 font-mono text-sm"
+            className={`mt-1 font-mono ${inputClass}`}
             value={slug}
             onChange={(e) => {
               setSlugTouched(true);
@@ -105,7 +105,7 @@ export function CreateOrganisationForm({ auth }: Props) {
       <button
         type="submit"
         disabled={status === "saving"}
-        className="mt-4 rounded bg-teal-800 px-4 py-2 text-sm font-medium text-white hover:bg-teal-900 disabled:opacity-60"
+        className={`${btnPrimary} mt-4`}
       >
         {status === "saving" ? "Creating…" : "Create organisation"}
       </button>

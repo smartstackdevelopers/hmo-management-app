@@ -68,7 +68,7 @@ export default function EmploymentRoadmapScreen() {
         ))}
       </Card>
       <Input label={t('employment.newGoal')} value={goal} onChangeText={setGoal} />
-      <Button title={t('employment.saveGoal')} onPress={() => create.mutate()} disabled={!goal.trim() || create.isPending} />
+      <Button title={t('employment.saveGoal')} onPress={() => create.mutate()} disabled={!goal.trim() || create.isPending} fullWidth />
       {goals.map((item) => (
         <Card key={String(item.id)} style={styles.card}>
           <Text style={styles.name}>{String(item.title)}</Text>

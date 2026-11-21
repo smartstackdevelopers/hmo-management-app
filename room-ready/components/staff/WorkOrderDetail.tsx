@@ -1,9 +1,11 @@
 import { useQuery, useQueryClient } from '@tanstack/react-query';
-import { useLocalSearchParams } from 'expo-router';
-import { useState } from 'react';
+import { useLocalSearchParams, useNavigation } from 'expo-router';
+import { useLayoutEffect, useState } from 'react';
 
-import { DraftBadge, Feedback, RecordCard, StaffPage } from '@/components/staff/ui';
+import { FactGrid } from '@/components/dashboard/mobileChrome';
+import { BackLink, DraftBadge, Feedback, StaffPage, Timeline, staffLabel, statusTone } from '@/components/staff/ui';
 import { Button } from '@/components/ui/Button';
+import { Chip } from '@/components/ui/Chip';
 import { Input } from '@/components/ui/Input';
 import { ErrorState, LoadingScreen } from '@/components/ui/States';
 import { formatUKDate } from '@/constants/uk';
@@ -33,6 +35,10 @@ export function WorkOrderDetail() {
   const [photos, setPhotos] = useState<{ uri: string; name: string; mimeType: string }[]>([]);
   const [feedback, setFeedback] = useState('');
   const [busy, setBusy] = useState(false);
+  const navigation = useNavigation();
+  useLayoutEffect(() => {
+    navigation.setOptions({ headerShown: false });
+  }, [navigation]);
 
   if (order.isLoading) return <LoadingScreen message="Loading work order..." />;
   if (order.isError || !order.data) {
@@ -101,26 +107,52 @@ export function WorkOrderDetail() {
     }
   }
 
+  const closed = ['completed', 'closed', 'cancelled', 'done'].includes(row.status);
+  const started = row.status === 'in_progress' || row.status === 'on_hold';
+  const facts = [
+    { label: 'Reference', value: row.reference_number },
+    { label: 'Status', value: staffLabel(row.status) },
+    row.priority ? { label: 'Priority', value: staffLabel(row.priority) } : null,
+    row.scheduled_visit_at ? { label: 'Scheduled', value: formatUKDate(row.scheduled_visit_at) } : null,
+    row.approval_status ? { label: 'Approval', value: staffLabel(row.approval_status) } : null,
+    row.category_code ? { label: 'Category', value: staffLabel(row.category_code) } : null,
+  ].filter((item): item is { label: string; value: string } => !!item);
+  const timeline = [
+    row.reported_at ? { key: 'reported', title: 'Reported', meta: formatUKDate(row.reported_at) } : null,
+    ...(visits.data ?? []).map((visit) => ({
+      key: visit.id,
+      title: 'Visit',
+      meta: [formatUKDate(visit.scheduled_at), staffLabel(visit.status)].filter(Boolean).join(' · '),
+    })),
+    row.completed_at ? { key: 'completed', title: 'Completed', meta: formatUKDate(row.completed_at) } : null,
+  ].filter((item): item is { key: string; title: string; meta: string } => !!item);
+
   return (
-    <StaffPage title={row.reference_number} subtitle={row.title} onRefresh={order.refetch} refreshing={order.isRefetching}>
+    <StaffPage title={row.title} subtitle={row.reference_number} leading={<BackLink />} onRefresh={order.refetch} refreshing={order.isRefetching}>
       <DraftBadge count={drafts.drafts.filter((draft) => draft.payload.request_id === row.id).length} />
       {drafts.drafts.filter((draft) => draft.payload.request_id === row.id && draft.lastError).map((draft) => (
         <Feedback key={draft.id} text={draft.lastError || ''} tone="warn" />
       ))}
-      <RecordCard title="Status" status={row.status} detail={`Approval: ${row.approval_status ?? 'none'}`} />
-      <RecordCard title="Priority" detail={row.priority} />
-      {row.scheduled_visit_at ? <RecordCard title="Scheduled" detail={formatUKDate(row.scheduled_visit_at)} /> : null}
-      {(visits.data ?? []).map((visit) => (
-        <RecordCard key={visit.id} title="Visit" status={visit.status} detail={formatUKDate(visit.scheduled_at)} />
-      ))}
-      <Input label="Work notes" value={notes} onChangeText={setNotes} multiline />
-      <Button title="Add photo" variant="outline" onPress={() => void addPhoto()} fullWidth />
-      {photos.map((photo) => (
-        <RecordCard key={photo.uri} title={photo.name} detail="Photo stays on this device until the upload is confirmed." />
-      ))}
-      <Button title="Mark in progress" onPress={() => run('in_progress')} loading={busy} fullWidth />
-      <Button title="Put on hold" variant="outline" onPress={() => run('on_hold')} fullWidth />
-      <Button title="Complete" variant="outline" onPress={() => run('complete')} disabled={!notes.trim()} fullWidth />
+      <Chip label={staffLabel(row.status)} tone={statusTone(row.status)} />
+      <FactGrid items={facts} />
+      <Timeline items={timeline} />
+      {closed ? null : (
+        <>
+          <Input label="Work notes" value={notes} onChangeText={setNotes} multiline />
+          {photos.map((photo) => (
+            <Feedback key={photo.uri} text={`${photo.name} stays on this device until the upload is confirmed.`} />
+          ))}
+          <Button title="Add photo" variant="outline" onPress={() => void addPhoto()} fullWidth />
+          <Button
+            title={started ? 'Complete' : 'Start job'}
+            onPress={() => run(started ? 'complete' : 'in_progress')}
+            loading={busy}
+            disabled={started && !notes.trim()}
+            fullWidth
+          />
+          {started ? <Button title="Put on hold" variant="outline" onPress={() => run('on_hold')} fullWidth /> : null}
+        </>
+      )}
       {feedback ? <Feedback text={feedback} tone={feedback.startsWith('Server status') ? 'ok' : 'warn'} /> : null}
     </StaffPage>
   );

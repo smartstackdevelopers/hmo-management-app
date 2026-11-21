@@ -1,14 +1,18 @@
+import { EmptyState } from "@/components/dashboard/EmptyState";
 import { PageHeader } from "@/components/dashboard/PageHeader";
 
 export default function RemindersPlaceholderPage() {
   return (
-    <div className="space-y-4">
+    <div className="space-y-6">
       <PageHeader
-        eyebrow="F2.12"
+        eyebrow="Communications"
         title="Reminder management"
-        description="Create and list reminders via POST/GET /api/v1/communications/reminders. Compose UI can be added when product flows are finalised."
+        description="Reminders that are due are sent on the organisation schedule."
       />
-      <p className="text-sm text-slate-600">Celery task hmore.communication.dispatch_scheduled_reminders processes due rows.</p>
+      <EmptyState
+        title="No reminders to show"
+        description="Scheduled reminders will appear here once they are recorded for this organisation."
+      />
     </div>
   );
 }

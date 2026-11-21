@@ -11,10 +11,10 @@ type MobileNavProps = {
   brand: string;
 };
 
-export function MobileNav({ items, brand }: MobileNavProps) {
+export function MobileNav({ items, brand, role = null }: MobileNavProps & { role?: string | null }) {
   const [open, setOpen] = useState(false);
   const pathname = usePathname() ?? "";
-  const areas = groupNavItemsByArea(items);
+  const areas = groupNavItemsByArea(items, role);
 
   return (
     <div className="sticky top-0 z-30 md:hidden">

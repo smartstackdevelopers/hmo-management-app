@@ -1,10 +1,11 @@
 import { useQueries } from '@tanstack/react-query';
-import { router } from 'expo-router';
+import { router, type Href } from 'expo-router';
 import { StyleSheet, Text, View } from 'react-native';
 
+import { TileGrid } from '@/components/staff/ui';
 import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
-import { ListRow } from '@/components/ui/ListRow';
+import { HeroCard } from '@/components/ui/HeroCard';
 import { Screen } from '@/components/ui/Screen';
 import { FONT_BOLD, FONT_MEDIUM, FONT_SEMIBOLD } from '@/constants/fonts';
 import { theme } from '@/constants/theme';
@@ -155,10 +156,19 @@ export default function CommunityHubScreen() {
 
   return (
     <Screen style={contrast ? styles.contrast : undefined}>
-      <Text style={[styles.title, contrast && styles.contrastText, { fontSize: 26 * fontScale }]}>
+      <Text style={[styles.title, contrast && styles.contrastText, { fontSize: 28 * fontScale }]}>
         {t('communityHub.title')}
       </Text>
       <Text style={[styles.lead, contrast && styles.contrastMuted]}>{t('communityHub.lead')}</Text>
+
+      <HeroCard
+        kicker={t('communityHub.helpNearMe')}
+        title={t('helpNearMe.title')}
+        subtitle={t('communityHub.helpNearMeLead')}
+        icon="map"
+        ctaLabel={t('helpNearMe.search')}
+        onCta={() => router.push('/(app)/help-near-me')}
+      />
 
       {offlineNote ? (
         <Card style={styles.banner}>
@@ -171,55 +181,13 @@ export default function CommunityHubScreen() {
         </Card>
       ) : null}
 
-      <Card padded={false} style={styles.group}>
-        {HUB_PRIMARY_LINKS.map((link, index) => (
-          <View key={link.section}>
-            {index > 0 ? <View style={styles.divider} /> : null}
-            <ListRow
-              title={t(SECTION_TITLE_KEYS[link.section])}
-              subtitle={sectionSubtitle[link.section] ?? undefined}
-              icon={link.icon}
-              onPress={() => router.push(link.href)}
-              accessibilityLabel={t(SECTION_TITLE_KEYS[link.section])}
-            />
-          </View>
-        ))}
-      </Card>
-
-      <Text style={styles.section}>{t('communityHub.quickActions')}</Text>
-      <View style={styles.row}>
-        <Button
-          title={t('wellbeing.checkin')}
-          variant="outline"
-          style={styles.half}
-          onPress={() => router.push('/(app)/wellbeing-checkin')}
-        />
-        <Button
-          title={t('jobMatching.search')}
-          variant="outline"
-          style={styles.half}
-          onPress={() => router.push('/(app)/job-matching-search')}
-        />
-      </View>
-      <View style={styles.row}>
-        <Button
-          title={t('nav.helpNearMe')}
-          variant="outline"
-          style={styles.half}
-          onPress={() => router.push('/(app)/help-near-me')}
-        />
-        <Button
-          title={t('employment.cvs')}
-          variant="outline"
-          style={styles.half}
-          onPress={() => router.push('/(app)/employment-cvs')}
-        />
-      </View>
-      <Button
-        title={t('communityHub.openDirectory')}
-        onPress={() => router.push('/(app)/community')}
-        fullWidth
-        style={styles.primary}
+      <TileGrid
+        tiles={HUB_PRIMARY_LINKS.map((link) => ({
+          key: link.section,
+          title: t(SECTION_TITLE_KEYS[link.section]),
+          subtitle: sectionSubtitle[link.section],
+          onPress: () => router.push(link.href as Href),
+        }))}
       />
       <Text style={styles.privacy}>{t('communityHub.privacy')}</Text>
     </Screen>
@@ -241,16 +209,16 @@ const styles = StyleSheet.create({
   },
   banner: { marginBottom: theme.spacing.md, gap: 10 },
   bannerText: { fontFamily: FONT_MEDIUM, color: theme.colors.textSecondary, fontSize: 13, lineHeight: 18 },
-  group: { marginBottom: theme.spacing.md },
-  divider: { height: 1, backgroundColor: theme.colors.borderLight, marginLeft: 60 },
+  grid: { flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'space-between', rowGap: 10, marginBottom: theme.spacing.md },
+  tile: { width: '48%', minHeight: 132 },
+  tileTitle: { fontFamily: FONT_SEMIBOLD, fontSize: 15, color: theme.colors.text, marginTop: 10 },
+  tileDetail: { fontFamily: FONT_MEDIUM, fontSize: 12, lineHeight: 16, color: theme.colors.textSecondary, marginTop: 4 },
   section: {
     fontFamily: FONT_SEMIBOLD,
-    fontSize: 15,
+    fontSize: 17,
     color: theme.colors.text,
     marginBottom: theme.spacing.sm,
   },
-  row: { flexDirection: 'row', gap: theme.spacing.sm, marginBottom: theme.spacing.sm },
-  half: { flex: 1 },
   primary: { marginTop: theme.spacing.xs },
   privacy: {
     fontFamily: FONT_MEDIUM,

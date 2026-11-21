@@ -1,14 +1,16 @@
 import { Link, router } from 'expo-router';
 import { useState } from 'react';
-import { KeyboardAvoidingView, Platform, Pressable, StyleSheet, Text, View } from 'react-native';
+import { KeyboardAvoidingView, Linking, Platform, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 
-import { RoomReadyLogo } from '@/components/RoomReadyLogo';
+import { BrandHeader } from '@/components/ui/BrandHeader';
 import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
+import { FocusStatusBar } from '@/components/ui/FocusStatusBar';
 import { Input } from '@/components/ui/Input';
 import { BIRMINGHAM_COUNCIL } from '@/constants/birmingham';
+import { FONT_BOLD, FONT_MEDIUM, FONT_SEMIBOLD } from '@/constants/fonts';
 import { theme } from '@/constants/theme';
 import { useAuth } from '@/contexts/AuthContext';
 
@@ -30,30 +32,37 @@ export default function ForgotPasswordScreen() {
 
   return (
     <KeyboardAvoidingView style={styles.flex} behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
-      <View style={[styles.container, { paddingTop: insets.top + theme.spacing.md, paddingBottom: insets.bottom + 24 }]}>
-        <Pressable style={styles.back} onPress={() => router.back()} accessibilityLabel="Go back">
-          <Ionicons name="chevron-back" size={22} color={theme.colors.secondary} />
+      <ScrollView
+        contentContainerStyle={[
+          styles.container,
+          { paddingTop: insets.top + 12, paddingBottom: insets.bottom + 24 },
+        ]}
+        keyboardShouldPersistTaps="handled"
+        showsVerticalScrollIndicator={false}
+      >
+        <FocusStatusBar style="dark" />
+        <Pressable style={styles.back} onPress={() => router.back()} accessibilityRole="button" accessibilityLabel="Go back">
           <Text style={styles.backText}>Back</Text>
         </Pressable>
 
-        <RoomReadyLogo size="sm" />
-        <Text style={styles.title}>Reset password</Text>
-        <Text style={styles.subtitle}>
-          Enter your email and we&apos;ll send reset instructions when email recovery is enabled for your account.
-        </Text>
+        <BrandHeader
+          size="sm"
+          title="Reset password"
+          subtitle="Enter your email and we'll send you a secure reset link."
+        />
 
         {isAuthenticated && (
-          <Card style={styles.tipCard}>
+          <Card style={styles.tipCard} variant="tinted">
             <Text style={styles.tipTitle}>Already signed in?</Text>
-            <Text style={styles.tipBody}>Change your password instantly from Account → Privacy & Security.</Text>
-            <Button title="Change Password Now" variant="secondary" size="sm" onPress={() => router.push('/(app)/security')} />
+            <Text style={styles.tipBody}>Change your password from Account → Privacy & Security.</Text>
+            <Button title="Change password" variant="secondary" size="sm" onPress={() => router.push('/(app)/security')} />
           </Card>
         )}
 
         {!submitted ? (
-          <Card style={styles.formCard}>
+          <View>
             <Input
-              label="Email address"
+              label="Email"
               value={email}
               onChangeText={setEmail}
               keyboardType="email-address"
@@ -62,51 +71,98 @@ export default function ForgotPasswordScreen() {
               placeholder="you@example.com"
               error={error || undefined}
             />
-            <Button title="Send Reset Link" onPress={handleSubmit} fullWidth size="lg" />
-          </Card>
+            <Button title="Send reset link" onPress={handleSubmit} fullWidth size="lg" />
+            <Link href="/(auth)/login" asChild>
+              <Pressable style={styles.linkBtn} accessibilityRole="link">
+                <Text style={styles.link}>Back to sign in</Text>
+              </Pressable>
+            </Link>
+          </View>
         ) : (
-          <Card style={styles.successCard}>
-            <Ionicons name="mail-outline" size={32} color={theme.colors.secondary} />
+          <View style={styles.success}>
+            <View style={styles.successIcon}>
+              <Ionicons name="mail-outline" size={32} color={theme.colors.secondaryDark} />
+            </View>
             <Text style={styles.successTitle}>Check your inbox</Text>
             <Text style={styles.successBody}>
-              If an account exists for {email}, you&apos;ll receive password reset instructions shortly.
+              If an account exists for {email}, you'll receive password reset instructions shortly.
             </Text>
-            <Text style={styles.successNote}>
-              Email reset is being rolled out. Demo accounts use password: Password123
-            </Text>
-          </Card>
+            <Text style={styles.successNote}>Demo accounts use the password Password123.</Text>
+            <Link href="/(auth)/login" asChild>
+              <Button title="Back to sign in" size="lg" fullWidth style={styles.successAction} />
+            </Link>
+          </View>
         )}
 
-        <Card style={styles.supportCard}>
-          <Text style={styles.supportTitle}>Need help?</Text>
+        <Pressable
+          style={styles.support}
+          onPress={() => Linking.openURL(`mailto:${BIRMINGHAM_COUNCIL.licensingEmail}`)}
+          accessibilityRole="link"
+        >
           <Text style={styles.supportBody}>
-            Contact {BIRMINGHAM_COUNCIL.licensingEmail} or call {BIRMINGHAM_COUNCIL.licensingPhone}.
+            Need help? Email {BIRMINGHAM_COUNCIL.licensingEmail} or call {BIRMINGHAM_COUNCIL.licensingPhone}.
           </Text>
-        </Card>
-
-        <Link href="/(auth)/login" style={styles.link}>Return to sign in</Link>
-      </View>
+        </Pressable>
+      </ScrollView>
     </KeyboardAvoidingView>
   );
 }
 
 const styles = StyleSheet.create({
   flex: { flex: 1, backgroundColor: theme.colors.background },
-  container: { flex: 1, paddingHorizontal: theme.spacing.lg },
-  back: { flexDirection: 'row', alignItems: 'center', gap: 2, marginBottom: theme.spacing.lg },
-  backText: { color: theme.colors.secondary, fontSize: 15, fontWeight: '600' },
-  title: { ...theme.typography.h2, color: theme.colors.text, marginTop: theme.spacing.sm },
-  subtitle: { color: theme.colors.textSecondary, marginTop: theme.spacing.sm, lineHeight: 22, marginBottom: theme.spacing.lg },
-  tipCard: { marginBottom: theme.spacing.md, backgroundColor: theme.colors.infoLight, borderColor: theme.colors.info, gap: 8 },
-  tipTitle: { fontWeight: '700', color: theme.colors.text },
-  tipBody: { color: theme.colors.textSecondary, fontSize: 14, lineHeight: 20 },
-  formCard: { marginBottom: theme.spacing.md },
-  successCard: { alignItems: 'center', marginBottom: theme.spacing.md, gap: 8, paddingVertical: theme.spacing.lg },
-  successTitle: { fontWeight: '700', fontSize: 18, color: theme.colors.text, marginTop: 4 },
-  successBody: { color: theme.colors.textSecondary, textAlign: 'center', lineHeight: 22, fontSize: 14 },
-  successNote: { color: theme.colors.textMuted, fontSize: 12, textAlign: 'center', marginTop: 4 },
-  supportCard: { marginBottom: theme.spacing.md },
-  supportTitle: { fontWeight: '700', color: theme.colors.text, marginBottom: 6 },
-  supportBody: { color: theme.colors.textSecondary, lineHeight: 22, fontSize: 14 },
-  link: { textAlign: 'center', color: theme.colors.secondary, fontWeight: '600' },
+  container: {
+    flexGrow: 1,
+    paddingHorizontal: theme.spacing.lg,
+    maxWidth: theme.layout.phoneMaxWidth,
+    width: '100%',
+    alignSelf: 'center',
+  },
+  back: { minHeight: 44, justifyContent: 'center', alignSelf: 'flex-start', marginBottom: theme.spacing.sm },
+  backText: { color: theme.colors.secondaryDark, fontSize: 15, fontFamily: FONT_SEMIBOLD, fontWeight: '600' },
+  tipCard: { marginBottom: theme.spacing.md, gap: 8 },
+  tipTitle: { fontFamily: FONT_BOLD, fontWeight: '700', color: theme.colors.text },
+  tipBody: { color: theme.colors.textSecondary, fontSize: 14, lineHeight: 20, fontFamily: FONT_MEDIUM },
+  linkBtn: { minHeight: 44, alignItems: 'center', justifyContent: 'center', marginTop: 4 },
+  link: { color: theme.colors.secondaryDark, fontFamily: FONT_SEMIBOLD, fontWeight: '600', fontSize: 15 },
+  success: { alignItems: 'center' },
+  successIcon: {
+    width: 88,
+    height: 88,
+    borderRadius: 44,
+    backgroundColor: theme.colors.accentLight,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: theme.spacing.md,
+  },
+  successTitle: {
+    fontFamily: FONT_BOLD,
+    fontWeight: '700',
+    fontSize: 20,
+    color: theme.colors.text,
+    textAlign: 'center',
+  },
+  successBody: {
+    color: theme.colors.textSecondary,
+    textAlign: 'center',
+    lineHeight: 22,
+    fontSize: 15,
+    fontFamily: FONT_MEDIUM,
+    marginTop: 8,
+  },
+  successNote: {
+    color: theme.colors.textMuted,
+    fontSize: 13,
+    fontFamily: FONT_MEDIUM,
+    textAlign: 'center',
+    marginTop: 8,
+  },
+  successAction: { marginTop: theme.spacing.lg },
+  support: { minHeight: 44, justifyContent: 'center', marginTop: theme.spacing.lg },
+  supportBody: {
+    color: theme.colors.textMuted,
+    lineHeight: 20,
+    fontSize: 13,
+    fontFamily: FONT_MEDIUM,
+    textAlign: 'center',
+  },
 });

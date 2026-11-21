@@ -1,8 +1,10 @@
+import Link from "next/link";
 import { redirect } from "next/navigation";
 import { DocumentUploadForm } from "@/components/documents/DocumentUploadForm";
 import { EmptyState } from "@/components/dashboard/EmptyState";
 import { ErrorState } from "@/components/dashboard/ErrorState";
 import { PageHeader } from "@/components/dashboard/PageHeader";
+import { linkClass } from "@/components/ui/primitives";
 import { auth0, isAuth0Configured } from "@/lib/auth0";
 import { listDocumentCategories, seedDocumentCategories } from "@/lib/managedDocumentsApi";
 import { canAny } from "@/lib/rbac";
@@ -18,10 +20,10 @@ export default async function DocumentUploadPage() {
     return <EmptyState title="Organisation required" description="Select or join an organisation with an active membership." />;
   }
   if (!isAuth0Configured() || !auth0) {
-    return <EmptyState title="Auth0 not configured" description="Configure Auth0 for the web app." />;
+    return <EmptyState title="Sign-in not configured" description="Sign-in isn't set up in this environment yet." />;
   }
   const token = (await auth0.getAccessToken())?.token;
-  if (!token) return <ErrorState description="Access token unavailable." />;
+  if (!token) return <ErrorState description="We couldn't confirm your sign-in. Please sign in again." />;
 
   try {
     await seedDocumentCategories({
@@ -40,8 +42,8 @@ export default async function DocumentUploadPage() {
       organisationId: orgId,
       role: session.authorization?.active_role,
     });
-  } catch (e) {
-    return <ErrorState description={e instanceof Error ? e.message : "Failed to load categories"} />;
+  } catch {
+    return <ErrorState description={"Failed to load categories"} />;
   }
 
   if (categories.length === 0) {
@@ -49,8 +51,15 @@ export default async function DocumentUploadPage() {
   }
 
   return (
-    <div className="mx-auto max-w-xl space-y-6">
-      <PageHeader title="Upload document" description="Files go to private storage via the API; the browser never sees bucket URLs." />
+    <div className="mx-auto max-w-2xl space-y-6">
+      <Link href="/dashboard/documents" className={`text-sm ${linkClass}`}>
+        ← Back to documents
+      </Link>
+      <PageHeader
+        eyebrow="Documents"
+        title="Upload document"
+        description="Files go to private storage via the API; the browser never sees bucket URLs."
+      />
       <DocumentUploadForm
         accessToken={token}
         organisationId={orgId}

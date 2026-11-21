@@ -3,8 +3,10 @@ import Link from "next/link";
 import { EmptyState } from "@/components/dashboard/EmptyState";
 import { ErrorState } from "@/components/dashboard/ErrorState";
 import { PageHeader } from "@/components/dashboard/PageHeader";
+import { PriorityChip } from "@/components/maintenance/PriorityChip";
+import { DataTable, StatusChip, Td, Th, btnSecondary } from "@/components/ui/primitives";
 import { auth0, isAuth0Configured } from "@/lib/auth0";
-import { listMaintenanceRequests, maintenancePriorityBadgeClass } from "@/lib/maintenanceApi";
+import { listMaintenanceRequests } from "@/lib/maintenanceApi";
 import { canAny } from "@/lib/rbac";
 import { requireAuthenticatedSession } from "@/lib/session";
 
@@ -18,14 +20,14 @@ export default async function MaintenancePendingPage() {
   }
   const orgId = session.authorization?.active_organisation_id;
   if (!orgId) {
-    return <EmptyState title="Organisation required" description="Active organisation needed." />;
+    return <EmptyState title="Choose an organisation" description="Select an organisation to see repairs awaiting approval." />;
   }
   if (!isAuth0Configured() || !auth0) {
-    return <EmptyState title="Auth0 not configured" description="Cannot load approvals." />;
+    return <EmptyState title="Sign-in unavailable" description="We can't load approvals right now. Please try again later." />;
   }
   try {
     const token = (await auth0.getAccessToken())?.token;
-    if (!token) return <ErrorState description="Access token unavailable." />;
+    if (!token) return <ErrorState title="Session expired" description="Please sign in again to see approvals." />;
     const role = session.authorization?.active_role;
     const page = await listMaintenanceRequests({
       accessToken: token,
@@ -34,32 +36,61 @@ export default async function MaintenancePendingPage() {
       pendingApproval: true,
     });
     return (
-      <div className="mx-auto max-w-3xl space-y-6">
-        <PageHeader eyebrow="Maintenance" title="Pending approvals" description="Requests awaiting organiser approval." />
+      <div className="mx-auto max-w-5xl space-y-6">
+        <PageHeader
+          eyebrow="Maintenance"
+          title="Pending approvals"
+          description="Repairs waiting for your approval before work can go ahead."
+          actions={
+            <Link href="/dashboard/maintenance" className={btnSecondary}>
+              All repairs
+            </Link>
+          }
+        />
         {page.items.length === 0 ? (
-          <EmptyState title="None pending" description="No maintenance requests are awaiting approval." />
+          <EmptyState
+            title="Nothing waiting"
+            description="No repairs are awaiting approval right now."
+            action={{ label: "Back to repairs", href: "/dashboard/maintenance" }}
+          />
         ) : (
-          <ul className="divide-y divide-slate-200 rounded-lg border border-slate-200 bg-white">
-            {page.items.map((row) => (
-              <li key={row.id} className="flex flex-wrap items-center justify-between gap-2 p-3">
-                <div>
-                  <Link href={`/dashboard/maintenance/${row.id}`} className="font-medium text-teal-900 hover:underline">
-                    {row.reference_number} · {row.title}
-                  </Link>
-                  <p className="text-sm text-slate-600">{row.status.replaceAll("_", " ")}</p>
-                </div>
-                <span className={`rounded border px-2 py-0.5 text-xs uppercase ${maintenancePriorityBadgeClass(row.priority)}`}>
-                  {row.priority}
-                </span>
-              </li>
-            ))}
-          </ul>
+          <DataTable caption="Repairs awaiting approval">
+            <thead>
+              <tr>
+                <Th>Repair</Th>
+                <Th>Reference</Th>
+                <Th>Priority</Th>
+                <Th>Status</Th>
+              </tr>
+            </thead>
+            <tbody>
+              {page.items.map((row) => (
+                <tr key={row.id} className="hover:bg-slate-50">
+                  <Td>
+                    <Link href={`/dashboard/maintenance/${row.id}`} className="font-semibold text-slate-900 hover:text-brand-700 hover:underline">
+                      {row.title}
+                    </Link>
+                  </Td>
+                  <Td className="text-slate-500">{row.reference_number}</Td>
+                  <Td>
+                    <PriorityChip priority={row.priority} />
+                  </Td>
+                  <Td>
+                    <StatusChip status={row.status} />
+                  </Td>
+                </tr>
+              ))}
+            </tbody>
+          </DataTable>
         )}
       </div>
     );
   } catch (error) {
     return (
-      <ErrorState description={error instanceof Error ? error.message : "Failed to load pending approvals."} />
+      <ErrorState
+        description={error instanceof Error ? error.message : "We couldn't load pending approvals."}
+        retryHref="/dashboard/maintenance/pending"
+      />
     );
   }
 }

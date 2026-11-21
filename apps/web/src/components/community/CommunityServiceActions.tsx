@@ -2,6 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { btnDanger, btnSecondary, humanize, inputClass, labelClass, StatusChip } from "@/components/ui/primitives";
 import {
   deactivateCommunityService,
   flagOutdatedCommunityService,
@@ -65,42 +66,27 @@ export function CommunityServiceActions({
   }
 
   return (
-    <div className="space-y-3 rounded-lg border border-slate-200 bg-white p-5">
-      <h2 className="text-sm font-semibold text-forest-900">Verification actions</h2>
-      <p className="text-sm text-slate-600">Current status: {status.replaceAll("_", " ")}</p>
-      <label className="block text-sm">
-        Internal notes (not shown to tenants)
-        <textarea
-          value={notes}
-          onChange={(event) => setNotes(event.target.value)}
-          className="mt-1 w-full rounded border px-3 py-2"
-          rows={2}
-        />
-      </label>
-      {error ? <p className="text-sm text-red-700">{error}</p> : null}
+    <div className="space-y-4 rounded-2xl border border-slate-200 bg-white p-5 shadow-card">
+      <div className="flex items-center justify-between gap-3">
+        <h2 className="text-base font-semibold text-slate-900">Verification</h2>
+        <StatusChip status={status} />
+      </div>
+      <p className="text-sm text-slate-500">Current status: {humanize(status)}. Notes stay internal.</p>
+      <div className="space-y-1.5">
+        <label htmlFor="verify-notes" className={labelClass}>
+          Internal notes
+        </label>
+        <textarea id="verify-notes" value={notes} onChange={(event) => setNotes(event.target.value)} className={`${inputClass} h-auto py-2`} rows={2} />
+      </div>
+      {error ? <p role="alert" className="text-sm text-red-700">{error}</p> : null}
       <div className="flex flex-wrap gap-2">
-        <button
-          type="button"
-          disabled={pending || status === "inactive"}
-          onClick={() => run("verify")}
-          className="rounded-md bg-teal-700 px-3 py-2 text-sm text-white disabled:opacity-60"
-        >
+        <button type="button" disabled={pending || status === "inactive"} onClick={() => void run("verify")} className={btnSecondary}>
           Verify listing
         </button>
-        <button
-          type="button"
-          disabled={pending}
-          onClick={() => run("outdated")}
-          className="rounded-md border border-amber-600 px-3 py-2 text-sm text-amber-800 disabled:opacity-60"
-        >
+        <button type="button" disabled={pending} onClick={() => void run("outdated")} className={btnSecondary}>
           Flag outdated
         </button>
-        <button
-          type="button"
-          disabled={pending || status === "inactive"}
-          onClick={() => run("deactivate")}
-          className="rounded-md border border-red-600 px-3 py-2 text-sm text-red-700 disabled:opacity-60"
-        >
+        <button type="button" disabled={pending || status === "inactive"} onClick={() => void run("deactivate")} className={btnDanger}>
           Deactivate
         </button>
       </div>

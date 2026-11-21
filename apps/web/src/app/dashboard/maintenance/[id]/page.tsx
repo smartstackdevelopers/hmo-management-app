@@ -3,9 +3,11 @@ import { redirect } from "next/navigation";
 import { MaintenanceActions } from "@/components/maintenance/MaintenanceActions";
 import { EmergencyInstructionsPanel } from "@/components/maintenance/EmergencyInstructionsPanel";
 import { MaintenancePhotoGallery } from "@/components/maintenance/MaintenancePhotoGallery";
+import { PriorityChip } from "@/components/maintenance/PriorityChip";
 import { EmptyState } from "@/components/dashboard/EmptyState";
 import { ErrorState } from "@/components/dashboard/ErrorState";
 import { PageHeader } from "@/components/dashboard/PageHeader";
+import { Card, CardHeader, StatusChip, humanize, linkClass } from "@/components/ui/primitives";
 import { auth0, isAuth0Configured } from "@/lib/auth0";
 import {
   fetchEmergencyContent,
@@ -15,7 +17,6 @@ import {
   listMaintenanceHistory,
   listMaintenanceNotes,
   listMaintenanceVisits,
-  maintenancePriorityBadgeClass,
 } from "@/lib/maintenanceApi";
 import { can, canAny, isApprovedRole } from "@/lib/rbac";
 import { requireAuthenticatedSession } from "@/lib/session";
@@ -40,14 +41,14 @@ export default async function MaintenanceDetailPage({
   }
   const orgId = session.authorization?.active_organisation_id;
   if (!orgId) {
-    return <EmptyState title="Organisation required" description="Active organisation needed." />;
+    return <EmptyState title="Choose an organisation" description="Select an organisation to see this repair." />;
   }
   if (!isAuth0Configured() || !auth0) {
-    return <EmptyState title="Auth0 not configured" description="Cannot load maintenance request." />;
+    return <EmptyState title="Sign-in unavailable" description="We can't load this repair right now. Please try again later." />;
   }
   try {
     const token = (await auth0.getAccessToken())?.token;
-    if (!token) return <ErrorState description="Access token unavailable." />;
+    if (!token) return <ErrorState title="Session expired" description="Please sign in again to see this repair." />;
     const role = session.authorization?.active_role;
     const permissions = session.authorization?.permissions ?? [];
     const activeRole = role && isApprovedRole(role) ? role : null;
@@ -73,141 +74,157 @@ export default async function MaintenanceDetailPage({
     }
 
     return (
-      <div className="mx-auto max-w-3xl space-y-6">
+      <div className="mx-auto max-w-6xl space-y-6">
+        <Link href="/dashboard/maintenance" className={`text-sm ${linkClass}`}>
+          ← Back to repairs
+        </Link>
         <PageHeader
-          eyebrow={request.reference_number}
+          eyebrow={`Operations / Maintenance / ${request.reference_number}`}
           title={request.title}
-          description={`${request.status.replaceAll("_", " ")} · category ${request.category_code}`}
+          description={[humanize(request.category_code), request.reference_number].filter(Boolean).join(" · ")}
         />
-        <div className="flex flex-wrap gap-2">
-          <span className={`rounded border px-2 py-0.5 text-xs uppercase ${maintenancePriorityBadgeClass(request.priority)}`}>
-            {request.priority}
-          </span>
-          {isEmergencyRequest(request) ? (
-            <span className="rounded border border-red-500 bg-red-50 px-2 py-0.5 text-xs font-semibold uppercase text-red-950">
-              Emergency priority
-            </span>
-          ) : null}
+        <div className="-mt-4 flex flex-wrap gap-2">
+          <StatusChip status={request.status} />
+          <PriorityChip priority={request.priority} />
+          {isEmergencyRequest(request) ? <StatusChip tone="red">Emergency</StatusChip> : null}
           {request.requires_approval ? (
-            <span className="rounded border border-amber-300 bg-amber-50 px-2 py-0.5 text-xs text-amber-950">
-              Approval: {request.approval_status ?? "n/a"}
-            </span>
+            <StatusChip tone="amber">Approval: {request.approval_status ? humanize(request.approval_status) : "Not yet decided"}</StatusChip>
           ) : null}
         </div>
-        <p className="whitespace-pre-wrap text-sm text-slate-700">{request.description}</p>
 
         {showEmergency ? (
-          <div className="grid gap-3 md:grid-cols-2">
+          <div className="grid gap-4 md:grid-cols-2">
             {gasContent ? <EmergencyInstructionsPanel kind="gas" content={gasContent} /> : null}
             {fireContent ? <EmergencyInstructionsPanel kind="fire" content={fireContent} /> : null}
           </div>
         ) : null}
 
-        <dl className="grid gap-2 text-sm sm:grid-cols-2">
-          <div>
-            <dt className="text-slate-500">Reported</dt>
-            <dd>{new Date(request.reported_at).toLocaleString()}</dd>
+        <div className="grid gap-6 lg:grid-cols-3">
+          <div className="space-y-6 lg:col-span-2">
+            <Card>
+              <CardHeader title="Details" />
+              <dl className="grid gap-4 text-sm sm:grid-cols-2">
+                <div>
+                  <dt className="text-slate-500">Reported</dt>
+                  <dd className="mt-0.5 font-semibold text-slate-900">{new Date(request.reported_at).toLocaleString("en-GB")}</dd>
+                </div>
+                <div>
+                  <dt className="text-slate-500">Scheduled visit</dt>
+                  <dd className="mt-0.5 font-semibold text-slate-900">
+                    {request.scheduled_visit_at
+                      ? new Date(request.scheduled_visit_at).toLocaleString("en-GB", { timeZone: request.visit_timezone })
+                      : "Not booked yet"}
+                  </dd>
+                </div>
+              </dl>
+              <div className="mt-5 border-t border-slate-100 pt-4">
+                <p className="text-sm font-medium text-slate-500">Description</p>
+                <p className="mt-1 whitespace-pre-wrap text-sm leading-6 text-slate-700">{request.description}</p>
+              </div>
+            </Card>
+
+            <Card>
+              <CardHeader title="Photos" />
+              <MaintenancePhotoGallery
+                requestId={request.id}
+                files={files}
+                accessToken={token}
+                organisationId={orgId}
+                role={role}
+              />
+            </Card>
+
+            <Card>
+              <CardHeader title="Activity" />
+              {history.length === 0 ? (
+                <p className="text-sm text-slate-500">No activity yet.</p>
+              ) : (
+                <ol className="space-y-4">
+                  {history.map((event, index) => (
+                    <li key={event.id} className="relative flex gap-3">
+                      <span className="flex flex-col items-center">
+                        <span aria-hidden="true" className={`mt-1 h-2.5 w-2.5 rounded-full ${index === 0 ? "bg-brand-600" : "bg-slate-300"}`} />
+                        {index < history.length - 1 ? <span aria-hidden="true" className="mt-1 w-px flex-1 bg-slate-200" /> : null}
+                      </span>
+                      <div className="min-w-0 flex-1 pb-1">
+                        <div className="flex flex-wrap items-baseline justify-between gap-2">
+                          <p className="text-sm font-semibold text-slate-900">{event.summary}</p>
+                          <p className="text-xs text-slate-500">{new Date(event.created_at).toLocaleString("en-GB")}</p>
+                        </div>
+                        {event.detail ? <p className="mt-0.5 text-sm text-slate-600">{event.detail}</p> : null}
+                      </div>
+                    </li>
+                  ))}
+                </ol>
+              )}
+            </Card>
           </div>
-          <div>
-            <dt className="text-slate-500">Scheduled visit</dt>
-            <dd>
-              {request.scheduled_visit_at
-                ? new Date(request.scheduled_visit_at).toLocaleString(undefined, { timeZone: request.visit_timezone })
-                : "—"}
-            </dd>
+
+          <div className="space-y-6">
+            <Card>
+              <CardHeader title="Actions" />
+              <MaintenanceActions
+                requestId={request.id}
+                status={request.status}
+                accessToken={token}
+                organisationId={orgId}
+                role={role}
+                canManage={can(permissions, "maintenance.manage")}
+                canAssign={can(permissions, "maintenance.assign")}
+                canPriority={can(permissions, "maintenance.priority.manage")}
+                canSchedule={can(permissions, "maintenance.schedule")}
+                canApprove={can(permissions, "maintenance.approve")}
+                canNotes={canAny(permissions, ["maintenance.notes.add", "maintenance.manage"])}
+                canComplete={can(permissions, "maintenance.complete")}
+                canUploadPhoto={can(permissions, "maintenance.photo.upload")}
+                isTenant={isTenant}
+                isContractor={isContractor}
+              />
+            </Card>
+
+            <Card>
+              <CardHeader title="Visits" />
+              {visits.length === 0 ? (
+                <p className="text-sm text-slate-500">No visits booked yet.</p>
+              ) : (
+                <ul className="space-y-3 text-sm">
+                  {visits.map((v) => (
+                    <li key={v.id} className="rounded-xl border border-slate-100 bg-slate-50/60 p-3">
+                      <div className="flex flex-wrap items-center justify-between gap-2">
+                        <p className="font-semibold text-slate-900">{new Date(v.scheduled_at).toLocaleString("en-GB")}</p>
+                        <StatusChip status={v.status} />
+                      </div>
+                      {v.work_notes ? <p className="mt-1 text-slate-600">{v.work_notes}</p> : null}
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </Card>
+
+            <Card>
+              <CardHeader title="Notes" />
+              {notes.length === 0 ? (
+                <p className="text-sm text-slate-500">No notes yet.</p>
+              ) : (
+                <ul className="space-y-3 text-sm">
+                  {notes.map((note) => (
+                    <li key={note.id} className="rounded-xl border border-slate-100 bg-slate-50/60 p-3">
+                      <p className="text-xs font-semibold text-slate-500">{humanize(note.visibility)}</p>
+                      <p className="mt-1 whitespace-pre-wrap text-slate-700">{note.body}</p>
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </Card>
           </div>
-        </dl>
-
-        <MaintenanceActions
-          requestId={request.id}
-          status={request.status}
-          accessToken={token}
-          organisationId={orgId}
-          role={role}
-          canManage={can(permissions, "maintenance.manage")}
-          canAssign={can(permissions, "maintenance.assign")}
-          canPriority={can(permissions, "maintenance.priority.manage")}
-          canSchedule={can(permissions, "maintenance.schedule")}
-          canApprove={can(permissions, "maintenance.approve")}
-          canNotes={canAny(permissions, ["maintenance.notes.add", "maintenance.manage"])}
-          canComplete={can(permissions, "maintenance.complete")}
-          canUploadPhoto={can(permissions, "maintenance.photo.upload")}
-          isTenant={isTenant}
-          isContractor={isContractor}
-        />
-
-        <section className="space-y-2">
-          <h2 className="text-lg font-semibold">Visits</h2>
-          {visits.length === 0 ? (
-            <p className="text-sm text-slate-500">No visits recorded.</p>
-          ) : (
-            <ul className="space-y-2 text-sm">
-              {visits.map((v) => (
-                <li key={v.id} className="rounded border border-slate-200 p-3">
-                  <p className="font-mono text-xs text-slate-500">{v.id}</p>
-                  <p>
-                    {new Date(v.scheduled_at).toLocaleString()} · {v.status}
-                  </p>
-                  {v.work_notes ? <p className="text-slate-700">{v.work_notes}</p> : null}
-                </li>
-              ))}
-            </ul>
-          )}
-        </section>
-
-        <section className="space-y-2">
-          <h2 className="text-lg font-semibold">Photographs</h2>
-          <MaintenancePhotoGallery
-            requestId={request.id}
-            files={files}
-            accessToken={token}
-            organisationId={orgId}
-            role={role}
-          />
-        </section>
-
-        <section className="space-y-2">
-          <h2 className="text-lg font-semibold">Notes</h2>
-          {notes.length === 0 ? (
-            <p className="text-sm text-slate-500">No visible notes.</p>
-          ) : (
-            <ul className="space-y-2 text-sm">
-              {notes.map((note) => (
-                <li key={note.id} className="rounded border border-slate-200 p-3">
-                  <p className="text-xs uppercase text-slate-500">{note.visibility.replaceAll("_", " ")}</p>
-                  <p className="whitespace-pre-wrap">{note.body}</p>
-                </li>
-              ))}
-            </ul>
-          )}
-        </section>
-
-        <section className="space-y-2">
-          <h2 className="text-lg font-semibold">History</h2>
-          {history.length === 0 ? (
-            <p className="text-sm text-slate-500">No history yet.</p>
-          ) : (
-            <ol className="relative space-y-3 border-l border-slate-200 pl-4 text-sm">
-              {history.map((event) => (
-                <li key={event.id} className="ml-1">
-                  <p className="text-xs text-slate-500">{new Date(event.created_at).toLocaleString()}</p>
-                  <p className="font-medium">{event.summary}</p>
-                  {event.detail ? <p className="text-slate-700">{event.detail}</p> : null}
-                </li>
-              ))}
-            </ol>
-          )}
-        </section>
-
-        <Link href="/dashboard/maintenance" className="text-sm text-teal-800 hover:underline">
-          ← Back to maintenance
-        </Link>
+        </div>
       </div>
     );
   } catch (error) {
     return (
       <ErrorState
-        description={error instanceof Error ? error.message : "Failed to load maintenance request."}
+        description={error instanceof Error ? error.message : "We couldn't load this repair."}
+        retryHref={`/dashboard/maintenance/${id}`}
       />
     );
   }

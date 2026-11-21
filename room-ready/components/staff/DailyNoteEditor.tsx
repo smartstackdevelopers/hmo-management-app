@@ -1,12 +1,15 @@
 import { useQuery } from '@tanstack/react-query';
 import { useCallback, useRef, useState } from 'react';
-import { Alert, Text } from 'react-native';
+import { Alert, Switch, Text, View } from 'react-native';
 
+import { useHideTabHeader } from '@/components/dashboard/mobileChrome';
 import { RewriteComparison } from '@/components/staff/voice/RewriteComparison';
-import { ChoiceRow, DraftBadge, Feedback, RecordCard, StaffPage, staffLabel } from '@/components/staff/ui';
+import { ChoiceRow, DraftBadge, Feedback, StaffPage, StatusRow, staffLabel, statusTone } from '@/components/staff/ui';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 import { ErrorState, LoadingScreen } from '@/components/ui/States';
+import { FONT_MEDIUM, FONT_SEMIBOLD } from '@/constants/fonts';
+import { theme } from '@/constants/theme';
 import { useAuth } from '@/contexts/AuthContext';
 import { useDeviceSpeechToText } from '@/hooks/useDeviceSpeechToText';
 import { useStaffDrafts } from '@/hooks/useStaffDrafts';
@@ -23,9 +26,10 @@ import {
 } from '@/lib/hmore/staff/voiceNotes';
 import { listCaseload } from '@/lib/hmore/services/staff/caseload';
 import { reportIncorrectRewrite, rewriteDailyLogNote } from '@/lib/hmore/services/staff/dailyLogRewrite';
-import { ACTIVITY_CATEGORIES, listDailyLogs, type DailyLogInput } from '@/lib/hmore/services/staff/dailyLogs';
+import { ACTIVITY_CATEGORIES, INTERACTION_TYPES, listDailyLogs, type DailyLogInput } from '@/lib/hmore/services/staff/dailyLogs';
 
 export function DailyNoteEditor() {
+  useHideTabHeader();
   const { user } = useAuth();
   const drafts = useStaffDrafts();
   const caseload = useQuery({
@@ -38,6 +42,8 @@ export function DailyNoteEditor() {
   });
   const [tenantId, setTenantId] = useState('');
   const [category, setCategory] = useState<string>(ACTIVITY_CATEGORIES[0]);
+  const [interaction, setInteraction] = useState<string>(INTERACTION_TYPES[0]);
+  const [followUp, setFollowUp] = useState(false);
   const [summary, setSummary] = useState('');
   const [notes, setNotes] = useState('');
   const [busy, setBusy] = useState(false);
@@ -66,9 +72,10 @@ export function DailyNoteEditor() {
     return {
       tenant_id: selectedTenant,
       activity_category: category,
+      interaction_type: interaction,
       summary: summary.trim(),
       notes: notes.trim(),
-      follow_up_required: false,
+      follow_up_required: followUp,
     };
   }
 
@@ -224,8 +231,8 @@ export function DailyNoteEditor() {
 
   return (
     <StaffPage
-      title="Notes"
-      subtitle="Daily logs for your caseload. Dictation uses this device. AI rewrite is optional and does not save the note."
+      title="New daily log"
+      subtitle="Saved only after you confirm. Dictation stays on this device."
       onRefresh={() => { logs.refetch(); caseload.refetch(); }}
       refreshing={logs.isRefetching}
     >
@@ -233,20 +240,38 @@ export function DailyNoteEditor() {
       {drafts.drafts.filter((draft) => draft.type === 'daily_log' && draft.payload.tenant_id === selectedTenant && draft.lastError).map((draft) => (
         <Feedback key={draft.id} text={draft.lastError || ''} tone="warn" />
       ))}
-      {tenants.length === 0 ? <RecordCard title="No tenants" detail="A note needs someone on your caseload." /> : (
-        <ChoiceRow
-          value={selectedTenant}
-          onChange={setTenantId}
-          options={tenants.map((item) => ({ id: item.tenant_id, label: item.tenant_preferred_name || item.tenant_full_name || 'Tenant' }))}
-        />
+      {tenants.length === 0 ? <Feedback text="A note needs someone on your caseload." tone="warn" /> : (
+        <>
+          <Text style={fieldLabel}>Tenant</Text>
+          <ChoiceRow
+            value={selectedTenant}
+            onChange={setTenantId}
+            options={tenants.map((item) => ({ id: item.tenant_id, label: item.tenant_preferred_name || item.tenant_full_name || 'Tenant' }))}
+          />
+        </>
       )}
+      <Text style={fieldLabel}>Contact type</Text>
+      <ChoiceRow
+        value={interaction}
+        onChange={setInteraction}
+        options={INTERACTION_TYPES.map((item) => ({ id: item, label: staffLabel(item) }))}
+      />
+      <Text style={fieldLabel}>Category</Text>
       <ChoiceRow
         value={category}
         onChange={setCategory}
         options={ACTIVITY_CATEGORIES.map((item) => ({ id: item, label: staffLabel(item) }))}
       />
-      <Input label="Summary" value={summary} onChangeText={setSummary} />
+      <Input label="Summary" value={summary} onChangeText={setSummary} multiline />
       <Input label="Note" value={notes} onChangeText={onNotesChange} multiline />
+      <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16, minHeight: 44 }}>
+        <Text style={{ fontFamily: FONT_MEDIUM, color: theme.colors.text }}>Follow-up needed</Text>
+        <Switch
+          accessibilityLabel="Follow-up needed"
+          value={followUp}
+          onValueChange={setFollowUp}
+        />
+      </View>
       {speech.listening ? <Text accessibilityLiveRegion="polite">Listening…</Text> : null}
       {speech.interim ? <Feedback text={`Hearing: ${speech.interim}`} /> : null}
       {speech.message ? <Feedback text={speech.message} /> : null}
@@ -260,7 +285,7 @@ export function DailyNoteEditor() {
       <Button title="Retry" variant="outline" onPress={() => void retryDictation()} fullWidth />
       <Button title="Clear" variant="ghost" onPress={clearNote} fullWidth />
       <Button title="Save draft" variant="outline" onPress={() => void saveDraft()} loading={busy} disabled={busy || tenants.length === 0} fullWidth />
-      <Button title="Save original note" onPress={requestSave} loading={busy} disabled={busy || tenants.length === 0} fullWidth />
+      <Button title="Save log" onPress={requestSave} loading={busy} disabled={busy || tenants.length === 0} fullWidth />
       <Button title="AI Professional Rewrite" variant="outline" onPress={() => void rewrite()} loading={busy} disabled={busy || tenants.length === 0} fullWidth />
       {feedback ? <Feedback text={feedback} tone={savedOnServer ? 'ok' : 'warn'} /> : null}
       {comparison ? (
@@ -276,9 +301,18 @@ export function DailyNoteEditor() {
         />
       ) : null}
       {(logs.data?.items ?? []).map((log) => (
-        <RecordCard key={log.id} title={log.summary} status={log.status} detail={`${log.log_date} · ${staffLabel(log.activity_category)}`} />
+        <StatusRow
+          key={log.id}
+          name={log.summary}
+          title={log.summary}
+          subtitle={[log.log_date, staffLabel(log.activity_category)].filter(Boolean).join(' · ')}
+          chip={staffLabel(log.status)}
+          tone={statusTone(log.status)}
+        />
       ))}
       {logs.isError ? <Feedback text={hmoreErrorMessage(logs.error, 'Could not list notes.')} /> : null}
     </StaffPage>
   );
 }
+
+const fieldLabel = { fontFamily: FONT_SEMIBOLD, color: theme.colors.text, marginBottom: 8, marginTop: 4 };

@@ -2,6 +2,7 @@ import { redirect } from "next/navigation";
 import { EmptyState } from "@/components/dashboard/EmptyState";
 import { ErrorState } from "@/components/dashboard/ErrorState";
 import { PageHeader } from "@/components/dashboard/PageHeader";
+import { DataTable, StatusChip, Td, Th } from "@/components/ui/primitives";
 import { auth0, isAuth0Configured } from "@/lib/auth0";
 import { listAnnouncements } from "@/lib/communicationsApi";
 import { canAny } from "@/lib/rbac";
@@ -17,11 +18,11 @@ export default async function AnnouncementsPage() {
     return <EmptyState title="Organisation required" description="Active organisation membership needed." />;
   }
   if (!isAuth0Configured() || !auth0) {
-    return <EmptyState title="Auth0 not configured" description="Configure Auth0 for the web app." />;
+    return <EmptyState title="Sign-in not configured" description="Sign-in isn't set up in this environment yet." />;
   }
   const token = (await auth0.getAccessToken())?.token;
   if (!token) {
-    return <ErrorState description="Access token unavailable." />;
+    return <ErrorState description="We couldn't confirm your sign-in. Please sign in again." />;
   }
   let rows: Array<Record<string, unknown>> = [];
   let err: string | null = null;
@@ -31,32 +32,39 @@ export default async function AnnouncementsPage() {
       organisationId: orgId,
       role: session.authorization.active_role,
     });
-  } catch (e) {
-    err = e instanceof Error ? e.message : "Failed";
+  } catch {
+    err = "We could not load this page. Please try again.";
   }
   if (err) {
     return <ErrorState description={err} />;
   }
 
   return (
-    <div className="space-y-4">
-      <PageHeader eyebrow="F2.12" title="Announcements" description="Published announcements visible to your role" />
+    <div className="space-y-6">
+      <PageHeader eyebrow="Communications" title="Announcements" description="Published announcements visible to your role." />
       {rows.length === 0 ? (
-        <p className="text-slate-600">No announcements.</p>
+        <EmptyState title="No announcements" description="Nothing has been published for your role." />
       ) : (
-        <ul className="divide-y rounded border border-slate-200 bg-white">
-          {rows.map((a) => (
-            <li key={String(a.id)} className="px-4 py-3">
-              <div className="flex flex-wrap items-baseline gap-2">
-                <span className="font-medium">{String(a.title)}</span>
-                {a.priority === "emergency" ? (
-                  <span className="rounded bg-red-100 px-2 text-xs text-red-900">Emergency</span>
-                ) : null}
-              </div>
-              <div className="text-xs text-slate-500">{String(a.reference_number || "")}</div>
-            </li>
-          ))}
-        </ul>
+        <DataTable caption="Announcements">
+          <thead>
+            <tr>
+              <Th>Title</Th>
+              <Th>Reference</Th>
+              <Th>Priority</Th>
+            </tr>
+          </thead>
+          <tbody>
+            {rows.map((a) => (
+              <tr key={String(a.id)} className="hover:bg-slate-50">
+                <Td className="font-semibold text-slate-900">{String(a.title)}</Td>
+                <Td className="text-slate-500">{String(a.reference_number || "—")}</Td>
+                <Td>
+                  {a.priority ? <StatusChip status={String(a.priority)} /> : "—"}
+                </Td>
+              </tr>
+            ))}
+          </tbody>
+        </DataTable>
       )}
     </div>
   );

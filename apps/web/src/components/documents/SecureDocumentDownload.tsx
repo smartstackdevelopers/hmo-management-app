@@ -1,5 +1,6 @@
 "use client";
 
+import { btnPrimary } from "@/components/ui/primitives";
 import { organisationRequestHeaders } from "@/lib/organisation";
 
 const API_BASE = process.env.NEXT_PUBLIC_API_BASE_URL ?? "http://localhost:8000";
@@ -30,8 +31,7 @@ export function SecureDocumentDownload({
       cache: "no-store",
     });
     if (!res.ok) {
-      const text = await res.text();
-      alert(text || `Download failed (${res.status})`);
+      alert("We couldn't download this file. Please try again.");
       return;
     }
     const blob = await res.blob();
@@ -53,7 +53,7 @@ export function SecureDocumentDownload({
     <button
       type="button"
       onClick={() => void onClick()}
-      className="rounded-md bg-teal-700 px-3 py-2 text-sm font-medium text-white hover:bg-teal-800"
+      className={btnPrimary}
     >
       {label}
     </button>

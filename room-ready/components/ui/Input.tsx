@@ -9,16 +9,20 @@ interface InputProps extends TextInputProps {
   label?: string;
   error?: string;
   hint?: string;
+  leftIcon?: keyof typeof Ionicons.glyphMap;
 }
 
 export function Input({
   label,
   error,
   hint,
+  leftIcon,
   style,
   secureTextEntry,
   editable = true,
   accessibilityLabel,
+  onFocus,
+  onBlur,
   ...props
 }: InputProps) {
   const [focused, setFocused] = useState(false);
@@ -33,9 +37,20 @@ export function Input({
         </Text>
       ) : null}
       <View style={styles.inputWrap}>
+        {leftIcon && (
+          <View style={styles.leftIcon} pointerEvents="none">
+            <Ionicons
+              name={leftIcon}
+              size={18}
+              color={error ? theme.colors.error : focused ? theme.colors.secondaryDark : theme.colors.textMuted}
+            />
+          </View>
+        )}
         <TextInput
           style={[
             styles.input,
+            props.multiline && styles.inputMultiline,
+            leftIcon && styles.inputWithLeftIcon,
             isPassword && styles.inputWithIcon,
             focused && styles.inputFocused,
             error && styles.inputError,
@@ -47,11 +62,11 @@ export function Input({
           editable={editable}
           onFocus={(e) => {
             setFocused(true);
-            props.onFocus?.(e);
+            onFocus?.(e);
           }}
           onBlur={(e) => {
             setFocused(false);
-            props.onBlur?.(e);
+            onBlur?.(e);
           }}
           {...props}
           accessibilityLabel={accessibilityLabel ?? label}
@@ -70,9 +85,12 @@ export function Input({
         )}
       </View>
       {error ? (
-        <Text style={styles.error} accessibilityRole="alert" accessibilityLiveRegion="polite">
-          {error}
-        </Text>
+        <View style={styles.errorRow}>
+          <Ionicons name="alert-circle" size={14} color={theme.colors.error} />
+          <Text style={styles.error} accessibilityRole="alert" accessibilityLiveRegion="polite">
+            {error}
+          </Text>
+        </View>
       ) : null}
       {hint && !error && <Text style={styles.hint}>{hint}</Text>}
     </View>
@@ -86,28 +104,41 @@ const styles = StyleSheet.create({
     fontFamily: FONT_SEMIBOLD,
     fontWeight: '600',
     color: theme.colors.text,
-    marginBottom: 7,
+    marginBottom: 6,
   },
-  inputWrap: { position: 'relative' },
+  inputWrap: { position: 'relative', justifyContent: 'center' },
   input: {
+    minHeight: 46,
     backgroundColor: theme.colors.surface,
-    borderWidth: 1.5,
+    borderWidth: 1,
     borderColor: theme.colors.border,
     borderRadius: theme.radius.md,
-    paddingHorizontal: theme.spacing.md,
-    paddingVertical: 14,
-    fontSize: 16,
+    paddingHorizontal: 14,
+    paddingVertical: 11,
+    fontSize: 15,
     fontFamily: FONT_MEDIUM,
     color: theme.colors.text,
   },
+  inputMultiline: { minHeight: 96, textAlignVertical: 'top' },
+  inputWithLeftIcon: { paddingLeft: 42 },
   inputWithIcon: { paddingRight: 48 },
   inputFocused: {
     borderColor: theme.colors.secondary,
-    backgroundColor: theme.colors.accentLight,
+    borderWidth: 1.5,
   },
-  inputError: { borderColor: theme.colors.error, backgroundColor: theme.colors.errorLight },
+  inputError: { borderColor: theme.colors.error, borderWidth: 1.5 },
   inputDisabled: { backgroundColor: theme.colors.surfaceMuted, color: theme.colors.textMuted },
-  eyeBtn: { position: 'absolute', right: 12, top: 0, bottom: 0, justifyContent: 'center' },
-  error: { color: theme.colors.error, fontSize: 13, marginTop: 6, fontFamily: FONT_MEDIUM },
-  hint: { color: theme.colors.textMuted, fontSize: 13, marginTop: 6 },
+  leftIcon: { position: 'absolute', left: 14, top: 0, bottom: 0, justifyContent: 'center', zIndex: 1 },
+  eyeBtn: {
+    position: 'absolute',
+    right: 4,
+    top: 0,
+    bottom: 0,
+    width: 44,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  errorRow: { flexDirection: 'row', alignItems: 'center', gap: 5, marginTop: 6 },
+  error: { color: theme.colors.error, fontSize: 13, fontFamily: FONT_MEDIUM, flexShrink: 1 },
+  hint: { color: theme.colors.textMuted, fontSize: 12, marginTop: 6, fontFamily: FONT_MEDIUM },
 });

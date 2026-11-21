@@ -1,10 +1,10 @@
 import { redirect } from "next/navigation";
 import { EmptyState } from "@/components/dashboard/EmptyState";
 import { ErrorState } from "@/components/dashboard/ErrorState";
-import { FinanceDashboard } from "@/components/finance/FinanceDashboard";
 import { auth0, isAuth0Configured } from "@/lib/auth0";
 import { canAny } from "@/lib/rbac";
 import { requireAuthenticatedSession } from "@/lib/session";
+import { FinanceBoard } from "./FinanceBoard";
 
 const READ = ["finance.records.read", "finance.reports.view", "finance.records.manage"];
 
@@ -14,14 +14,22 @@ export default async function FinancePage() {
     redirect("/unauthorized");
   }
   const orgId = session.authorization?.active_organisation_id;
-  if (!orgId || !isAuth0Configured() || !auth0) {
-    return <EmptyState title="Unavailable" description="Organisation context required." />;
+  if (!orgId) {
+    return <EmptyState title="Choose an organisation" description="Select the organisation you're working in to see finance." />;
+  }
+  if (!isAuth0Configured() || !auth0) {
+    return (
+      <EmptyState
+        title="Sign-in not configured"
+        description="Sign-in isn't set up in this environment yet, so finance can't load."
+      />
+    );
   }
   const token = (await auth0.getAccessToken())?.token;
-  if (!token) return <ErrorState description="Access token unavailable." />;
+  if (!token) return <ErrorState description="We couldn't confirm your sign-in. Please sign in again." retryHref="/dashboard/finance" />;
   const perms = session.authorization?.permissions ?? [];
   return (
-    <FinanceDashboard
+    <FinanceBoard
       accessToken={token}
       organisationId={orgId}
       role={session.authorization?.active_role}

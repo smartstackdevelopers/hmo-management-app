@@ -3,144 +3,180 @@ import { redirect } from "next/navigation";
 import { EmptyState } from "@/components/dashboard/EmptyState";
 import { ErrorState } from "@/components/dashboard/ErrorState";
 import { PageHeader } from "@/components/dashboard/PageHeader";
+import {
+  Avatar,
+  DataTable,
+  FilterTabs,
+  StatCard,
+  StatGrid,
+  StatusChip,
+  Td,
+  Th,
+  btnPrimary,
+  btnSecondary,
+  humanize,
+  inputClass,
+} from "@/components/ui/primitives";
 import { auth0, isAuth0Configured } from "@/lib/auth0";
 import { fetchDocumentsDashboard, listDocuments } from "@/lib/managedDocumentsApi";
 import { canAny } from "@/lib/rbac";
 import { requireAuthenticatedSession } from "@/lib/session";
 
-export default async function DocumentsDashboardPage() {
+const UK_TIME_ZONE = "Europe/London";
+
+function shortDate(value: unknown): string {
+  if (typeof value !== "string" || !value) return "—";
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return "—";
+  return new Intl.DateTimeFormat("en-GB", { day: "numeric", month: "short", year: "numeric", timeZone: UK_TIME_ZONE }).format(date);
+}
+
+function linkedLabel(row: Record<string, unknown>): string {
+  if (!Array.isArray(row.links)) return "—";
+  const label = row.links
+    .map((link) => (link && typeof link === "object" && "label" in link ? String((link as { label?: string }).label ?? "") : ""))
+    .find((item) => item.trim().length > 0);
+  return label || "—";
+}
+
+function countOf(dashboard: Record<string, unknown> | null, key: string): number | "—" {
+  return typeof dashboard?.[key] === "number" ? (dashboard[key] as number) : "—";
+}
+
+export default async function DocumentsDashboardPage({
+  searchParams,
+}: {
+  searchParams?: Promise<{ q?: string }>;
+}) {
   const session = await requireAuthenticatedSession("/dashboard/documents");
-  if (
-    session.authorization &&
-    !canAny(session.authorization.permissions, ["documents.read.meta"])
-  ) {
+  if (session.authorization && !canAny(session.authorization.permissions, ["documents.read.meta"])) {
     redirect("/unauthorized");
   }
   const orgId = session.authorization?.active_organisation_id;
   if (!orgId) {
-    return <EmptyState title="Organisation required" description="Active organisation membership needed." />;
+    return <EmptyState title="Choose an organisation" description="Select the organisation you're working in to see documents." />;
   }
   if (!isAuth0Configured() || !auth0) {
-    return <EmptyState title="Auth0 not configured" description="Cannot load documents." />;
+    return (
+      <EmptyState
+        title="Sign-in not configured"
+        description="Sign-in isn't set up in this environment yet, so documents can't load."
+      />
+    );
   }
-
   const token = (await auth0.getAccessToken())?.token;
   if (!token) {
-    return <ErrorState description="Access token unavailable." />;
+    return <ErrorState description="We couldn't confirm your sign-in. Please sign in again." retryHref="/dashboard/documents" />;
   }
 
+  const params = searchParams ? await searchParams : {};
+  const q = params.q?.trim() || undefined;
   const role = session.authorization?.active_role;
   let dashboard: Record<string, unknown> | null = null;
-  let recentList: unknown[] = [];
-  let loadError: string | null = null;
+  let items: Record<string, unknown>[] = [];
+  let total = 0;
   try {
-    const dash = await fetchDocumentsDashboard({ accessToken: token, organisationId: orgId, role });
-    dashboard = dash;
-    const fromDash = dash.recently_updated;
-    if (Array.isArray(fromDash) && fromDash.length > 0) {
-      recentList = fromDash;
-    } else {
-      const list = await listDocuments({ accessToken: token, organisationId: orgId, role, page: 1, pageSize: 8 });
-      recentList = list.items;
-    }
-  } catch (e) {
-    loadError = e instanceof Error ? e.message : "Unable to load documents";
+    dashboard = await fetchDocumentsDashboard({ accessToken: token, organisationId: orgId, role });
+    const list = await listDocuments({ accessToken: token, organisationId: orgId, role, page: 1, pageSize: 20, q });
+    items = list.items as Record<string, unknown>[];
+    total = list.total;
+  } catch {
+    return (
+      <ErrorState
+        title="Couldn't load documents"
+        description="Something went wrong on our side. Your files are safe — please try again."
+        retryHref="/dashboard/documents"
+      />
+    );
   }
 
-  if (loadError) {
-    return <ErrorState description={loadError} />;
-  }
-
-  const num = (k: string) => (typeof dashboard?.[k] === "number" ? (dashboard[k] as number) : "—");
-  const byCat = dashboard?.by_category;
-  const catRows =
-    byCat && typeof byCat === "object" && byCat !== null
-      ? Object.entries(byCat as Record<string, number>)
-      : [];
+  const from = items.length === 0 ? 0 : 1;
+  const to = items.length;
 
   return (
-    <div className="mx-auto max-w-5xl space-y-8">
+    <div className="mx-auto max-w-6xl space-y-6">
       <PageHeader
-        eyebrow="F2.11"
-        title="Document management"
-        description="Dashboard figures come from /api/v1/documents/dashboard. Downloads use authenticated API routes only."
+        eyebrow="Documents"
+        title="Documents"
+        description="Certificates, tenancy files and signatures."
+        actions={
+          <>
+            <Link className={btnPrimary} href="/dashboard/documents/new">
+              + Upload
+            </Link>
+            <Link className={btnSecondary} href="/dashboard/documents/retention">
+              Retention
+            </Link>
+          </>
+        }
       />
-
-      <div className="flex flex-wrap gap-2 text-sm">
-        <Link className="rounded border border-slate-300 px-3 py-2" href="/dashboard/documents/browse">
-          All documents
-        </Link>
-        <Link className="rounded border border-slate-300 px-3 py-2" href="/dashboard/documents/new">
-          Upload
-        </Link>
-        <Link className="rounded border border-slate-300 px-3 py-2" href="/dashboard/documents/expiring">
-          Expiring soon
-        </Link>
-        <Link className="rounded border border-slate-300 px-3 py-2" href="/dashboard/documents/expired">
-          Expired
-        </Link>
-        <Link className="rounded border border-slate-300 px-3 py-2" href="/dashboard/documents/retention">
-          Retention review
-        </Link>
-        <Link className="rounded border border-slate-300 px-3 py-2" href="/dashboard/documents/access">
-          Access requests
-        </Link>
-        <Link className="rounded border border-slate-300 px-3 py-2" href="/dashboard/documents/signatures">
-          Signatures
-        </Link>
+      <StatGrid>
+        <StatCard label="Expiring soon" value={countOf(dashboard, "expiring_soon")} tone="amber" href="/dashboard/documents/expiring" />
+        <StatCard label="Expired" value={countOf(dashboard, "expired")} tone="red" href="/dashboard/documents/expired" />
+        <StatCard label="Awaiting signature" value={countOf(dashboard, "pending_signatures")} tone="amber" href="/dashboard/documents/signatures" />
+        <StatCard label="Total" value={countOf(dashboard, "total_documents")} />
+      </StatGrid>
+      <div className="flex flex-wrap items-center gap-3">
+        <form method="get" className="flex min-w-[16rem] flex-1 items-center gap-2">
+          <label className="sr-only" htmlFor="document-search">
+            Search documents
+          </label>
+          <input id="document-search" name="q" defaultValue={params.q ?? ""} placeholder="Search documents" className={inputClass} />
+          <button type="submit" className={btnSecondary}>
+            Search
+          </button>
+        </form>
+        <FilterTabs
+          tabs={[
+            { label: "All", href: "/dashboard/documents", active: true },
+            { label: "Expiring", href: "/dashboard/documents/expiring" },
+            { label: "Expired", href: "/dashboard/documents/expired" },
+            { label: "Signatures", href: "/dashboard/documents/signatures" },
+          ]}
+        />
       </div>
-
-      <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-        {(
-          [
-            ["Total (visible)", "total_documents"],
-            ["Expiring soon", "expiring_soon"],
-            ["Expired", "expired"],
-            ["Retention review", "pending_retention_review"],
-            ["Pending access", "pending_access_requests"],
-            ["Pending signatures", "pending_signatures"],
-          ] as const
-        ).map(([label, key]) => (
-          <div key={key} className="rounded-lg border border-slate-200 bg-white p-4 shadow-sm">
-            <p className="text-xs font-medium uppercase tracking-wide text-slate-500">{label}</p>
-            <p className="mt-2 text-2xl font-semibold text-forest-900">{num(key)}</p>
-          </div>
-        ))}
-      </div>
-
-      {catRows.length > 0 ? (
-        <div className="rounded-lg border border-slate-200 bg-white p-4 shadow-sm">
-          <p className="text-sm font-medium text-slate-700">Documents by category</p>
-          <ul className="mt-2 divide-y divide-slate-100 text-sm">
-            {catRows.map(([code, count]) => (
-              <li key={code} className="flex justify-between py-2">
-                <span className="text-slate-600">{code}</span>
-                <span className="font-medium text-forest-900">{count}</span>
-              </li>
+      {items.length === 0 ? (
+        <EmptyState
+          title={q ? "No matching documents" : "No documents yet"}
+          description={q ? "Try a different title or reference." : "Upload a certificate or tenancy file to see it here."}
+          action={q ? { label: "Clear search", href: "/dashboard/documents" } : { label: "Upload", href: "/dashboard/documents/new" }}
+        />
+      ) : (
+        <DataTable caption="Documents">
+          <thead>
+            <tr>
+              <Th>Document</Th>
+              <Th>Linked to</Th>
+              <Th>Type</Th>
+              <Th>Expires</Th>
+              <Th>Status</Th>
+            </tr>
+          </thead>
+          <tbody>
+            {items.map((row) => (
+              <tr key={String(row.id)} className="hover:bg-slate-50">
+                <Td>
+                  <div className="flex items-center gap-3">
+                    <Avatar name={String(row.title || "Document")} size="sm" />
+                    <Link href={`/dashboard/documents/${row.id}`} className="font-semibold text-slate-900 hover:text-brand-700 hover:underline">
+                      {String(row.title || "Untitled")}
+                    </Link>
+                  </div>
+                </Td>
+                <Td>{linkedLabel(row)}</Td>
+                <Td>{row.category_code ? humanize(String(row.category_code)) : "—"}</Td>
+                <Td className="whitespace-nowrap">{shortDate(row.expiry_date)}</Td>
+                <Td>
+                  <StatusChip status={String(row.status || row.expiry_tracking || "")} />
+                </Td>
+              </tr>
             ))}
-          </ul>
-        </div>
-      ) : null}
-
-      <div>
-        <h2 className="text-lg font-semibold text-forest-900">Recently updated</h2>
-        {recentList.length === 0 ? (
-          <EmptyState title="No documents" description="Upload a document to see it listed here." />
-        ) : (
-          <ul className="mt-2 divide-y divide-slate-200 rounded-lg border border-slate-200 bg-white">
-            {(recentList as Record<string, string>[]).map((row) => (
-              <li key={row.id} className="px-4 py-3">
-                <Link href={`/dashboard/documents/${row.id}`} className="font-medium text-teal-800 underline">
-                  {row.title}
-                </Link>
-                <p className="text-xs text-slate-500">
-                  {row.reference_number} · {row.expiry_tracking}
-                </p>
-              </li>
-            ))}
-          </ul>
-        )}
-      </div>
+          </tbody>
+        </DataTable>
+      )}
+      <p className="text-xs text-slate-500">
+        Showing {from}–{to} of {total}
+      </p>
     </div>
   );
 }

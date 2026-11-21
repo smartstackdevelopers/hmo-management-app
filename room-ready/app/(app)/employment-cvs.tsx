@@ -1,10 +1,12 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useRouter } from 'expo-router';
 import { useState } from 'react';
-import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, Text, View } from 'react-native';
 
+import { StatusRow } from '@/components/staff/ui';
 import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
+import { Chip } from '@/components/ui/Chip';
 import { Input } from '@/components/ui/Input';
 import { Screen } from '@/components/ui/Screen';
 import { ErrorState, LoadingScreen } from '@/components/ui/States';
@@ -72,9 +74,12 @@ export default function EmploymentCvsScreen() {
       <Text style={styles.label}>{t('employment.template')}</Text>
       <View style={styles.row}>
         {TEMPLATES.map((item) => (
-          <Pressable key={item} onPress={() => setTemplate(item)} style={[styles.chip, template === item && styles.chipOn]}>
-            <Text style={styles.chipText}>{item.replaceAll('_', ' ')}</Text>
-          </Pressable>
+          <Chip
+            key={item}
+            label={item.replaceAll('_', ' ')}
+            selected={template === item}
+            onPress={() => setTemplate(item)}
+          />
         ))}
       </View>
       <Input label={t('employment.profile')} value={profile} onChangeText={setProfile} />
@@ -95,46 +100,50 @@ export default function EmploymentCvsScreen() {
         <Card style={styles.card}>
           <Text style={styles.label}>{t('employment.aiSuggestion')}</Text>
           <Text style={styles.body}>{assistOut}</Text>
-          <Button title={t('employment.useSuggestion')} onPress={() => setProfile(assistOut)} />
+          <Button title={t('employment.useSuggestion')} variant="outline" onPress={() => setProfile(assistOut)} />
         </Card>
       ) : null}
-      <Button title={t('employment.createCv')} onPress={() => create.mutate()} disabled={create.isPending} />
+      <Button title={t('employment.createCv')} onPress={() => create.mutate()} disabled={create.isPending} fullWidth />
       {items.map((cv) => {
         const id = String(cv.id);
-        const completion = (cv.completion as { percent?: number } | undefined)?.percent ?? 0;
+        const completion = (cv.completion as { percent?: number } | undefined)?.percent;
         return (
-          <Card key={id} style={styles.card}>
-            <Text style={styles.name}>{String(cv.title)}</Text>
-            <Text style={styles.meta}>
-              {String(cv.template_id).replaceAll('_', ' ')} · {completion}% · v{String(cv.version)}
-            </Text>
-            <View style={styles.row}>
+          <View key={id} style={styles.card}>
+            <StatusRow
+              name={String(cv.title)}
+              title={String(cv.title)}
+              subtitle={[String(cv.template_id).replaceAll('_', ' '), completion != null ? `${completion}%` : null, `v${String(cv.version)}`].filter(Boolean).join(' · ')}
+              chip={cv.is_default ? t('employment.setDefault') : undefined}
+              tone="blue"
+              onPress={() => router.push(`/(app)/employment-cv/${id}`)}
+            />
+            <View style={styles.actions}>
               <Button
                 title={t('employment.preview')}
-                variant="secondary"
+                variant="outline"
                 onPress={() => router.push(`/(app)/employment-cv/${id}`)}
               />
               <Button
                 title={t('employment.pdf')}
-                variant="secondary"
+                variant="outline"
                 onPress={async () => {
                   await generateCvPdf(id);
                   setMessage(t('employment.pdfReady'));
                   await refresh();
                 }}
               />
-              <Button title={t('employment.duplicate')} variant="secondary" onPress={async () => { await duplicateCv(id); await refresh(); }} />
-              <Button title={t('employment.delete')} variant="secondary" onPress={async () => { await deleteCv(id); await refresh(); }} />
+              <Button title={t('employment.duplicate')} variant="outline" onPress={async () => { await duplicateCv(id); await refresh(); }} />
+              <Button title={t('employment.delete')} variant="outline" onPress={async () => { await deleteCv(id); await refresh(); }} />
             </View>
             <Button
               title={t('employment.setDefault')}
-              variant="secondary"
+              variant="ghost"
               onPress={async () => {
                 await updateCv(id, { is_default: true });
                 await refresh();
               }}
             />
-          </Card>
+          </View>
         );
       })}
       {message ? <Text style={styles.ok}>{message}</Text> : null}
@@ -146,9 +155,7 @@ const styles = StyleSheet.create({
   title: { fontFamily: FONT_BOLD, color: theme.colors.text, marginBottom: 8 },
   label: { fontFamily: FONT_BOLD, color: theme.colors.textMuted, marginBottom: 6, marginTop: 8 },
   row: { flexDirection: 'row', flexWrap: 'wrap', gap: 8, marginBottom: 10 },
-  chip: { borderWidth: 1, borderColor: theme.colors.border, borderRadius: 999, paddingHorizontal: 10, paddingVertical: 6 },
-  chipOn: { backgroundColor: theme.colors.secondary, borderColor: theme.colors.secondary },
-  chipText: { fontFamily: FONT_MEDIUM, fontSize: 12, color: theme.colors.text },
+  actions: { flexDirection: 'row', flexWrap: 'wrap', gap: 8, marginBottom: 4 },
   card: { marginBottom: 10 },
   name: { fontFamily: FONT_BOLD, color: theme.colors.text },
   meta: { fontFamily: FONT_MEDIUM, color: theme.colors.textMuted, marginVertical: 6 },

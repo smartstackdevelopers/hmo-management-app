@@ -10,12 +10,13 @@ import {
   View,
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { Ionicons } from '@expo/vector-icons';
 
-import { RoomReadyLogo } from '@/components/RoomReadyLogo';
+import { BrandHeader } from '@/components/ui/BrandHeader';
 import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
+import { FocusStatusBar } from '@/components/ui/FocusStatusBar';
 import { Input } from '@/components/ui/Input';
+import { FONT_MEDIUM, FONT_SEMIBOLD } from '@/constants/fonts';
 import { theme } from '@/constants/theme';
 import { useAuth } from '@/contexts/AuthContext';
 import {
@@ -41,6 +42,15 @@ export default function LoginScreen() {
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+
+  const subtitle =
+    authMode === 'demo'
+      ? 'Local demo — choose a role to continue.'
+      : authMode === 'native'
+        ? 'Sign in with your approved HMore account.'
+        : authMode === 'auth0'
+          ? 'Use your organisation account.'
+          : 'Sign in with your approved HMore account.';
 
   async function handleDemo(role: (typeof DEMO_ROLES)[number]['role']) {
     setError('');
@@ -91,36 +101,27 @@ export default function LoginScreen() {
   return (
     <KeyboardAvoidingView style={styles.flex} behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
       <ScrollView
-        contentContainerStyle={[styles.page, { paddingTop: insets.top + 16, paddingBottom: insets.bottom + 24 }]}
+        contentContainerStyle={[styles.page, { paddingTop: insets.top + 8, paddingBottom: insets.bottom + 24 }]}
         keyboardShouldPersistTaps="handled"
         showsVerticalScrollIndicator={false}
       >
+        <FocusStatusBar style="dark" />
         <Link href="/(auth)/welcome" asChild>
-          <Pressable style={styles.back}>
-            <Ionicons name="arrow-back" size={20} color={theme.colors.text} />
+          <Pressable style={styles.back} accessibilityRole="button" accessibilityLabel="Back">
             <Text style={styles.backText}>Back</Text>
           </Pressable>
         </Link>
 
-        <RoomReadyLogo size="sm" />
-        <Text style={styles.title}>Sign in</Text>
-        <Text style={styles.subtitle}>
-          {authMode === 'demo'
-            ? 'Local demo login — pick a role for the boss meeting'
-            : authMode === 'native'
-              ? 'Sign in with your approved HMore email and password'
-              : authMode === 'auth0'
-                ? 'Use your organisation account'
-                : 'Welcome back to Room Ready'}
-        </Text>
+        <BrandHeader size="sm" title="Welcome back" subtitle={subtitle} />
+
+        {error ? (
+          <View style={styles.banner} accessibilityRole="alert" accessibilityLiveRegion="polite">
+            <Text style={styles.bannerText}>{error}</Text>
+          </View>
+        ) : null}
 
         {authMode === 'native' ? (
-          <Card style={styles.formCard}>
-            <Text style={styles.auth0Copy}>
-              Sign in with your approved HMore email and password. Create an account first if you are new — Super Admin
-              must approve your role before login works.
-            </Text>
-            {error ? <Text style={styles.auth0Error}>{error}</Text> : null}
+          <View>
             <Input
               label="Email"
               value={email}
@@ -128,7 +129,7 @@ export default function LoginScreen() {
               keyboardType="email-address"
               autoCapitalize="none"
               autoComplete="email"
-              placeholder="you@example.com"
+              placeholder="sara@example.co.uk"
               editable={!loading}
             />
             <Input
@@ -139,23 +140,22 @@ export default function LoginScreen() {
               autoComplete="password"
               placeholder="Your password"
               editable={!loading}
+              error={error ? 'Please check this field' : undefined}
             />
             <Button title="Sign in" onPress={() => handleSignIn()} loading={loading} fullWidth size="lg" />
-            <Text style={styles.footer}>
-              No account?{' '}
-              <Link href="/(auth)/register" style={styles.link}>
-                Create account
-              </Link>
-            </Text>
-          </Card>
+            <Link href="/(auth)/forgot-password" asChild>
+              <Pressable style={styles.linkBtn} accessibilityRole="link">
+                <Text style={styles.link}>Forgot password?</Text>
+              </Pressable>
+            </Link>
+          </View>
         ) : authMode === 'demo' ? (
-          <Card style={styles.formCard}>
-            <Text style={styles.auth0Copy}>
-              Dummy authentication for local demos only. Each button signs in as that HMore role against FastAPI +
-              PostgreSQL (not Auth0).
+          <Card style={styles.formCard} variant="outlined">
+            <Text style={styles.copy}>
+              Dummy authentication for local demos only. Each button signs in as that HMore role against FastAPI and
+              PostgreSQL, not Auth0.
             </Text>
-            {error ? <Text style={styles.auth0Error}>{error}</Text> : null}
-            <View style={{ gap: 8 }}>
+            <View style={styles.stack}>
               {DEMO_ROLES.map((item) => (
                 <Button
                   key={item.role}
@@ -164,15 +164,15 @@ export default function LoginScreen() {
                   loading={loading}
                   fullWidth
                   size="lg"
-                  variant="secondary"
                 />
               ))}
             </View>
           </Card>
         ) : authMode === 'auth0' ? (
-          <Card style={styles.formCard}>
-            <Text style={styles.auth0Copy}>
-              Sign in with Auth0. The app stores the session on this device and talks to the HMore API. Password sign-in is turned off while organisation login is configured.
+          <Card style={styles.formCard} variant="outlined">
+            <Text style={styles.copy}>
+              Sign in with Auth0. The app stores the session on this device and talks to the HMore API. Password sign-in
+              is turned off while organisation login is configured.
             </Text>
             {isAuth0MobileConfigured() ? (
               <Text style={styles.callbackHint} selectable>
@@ -181,57 +181,54 @@ export default function LoginScreen() {
                 {'\n'}Also add: roomready://auth/callback
               </Text>
             ) : null}
-            {error ? <Text style={styles.auth0Error}>{error}</Text> : null}
             <Button title="Continue with organisation login" onPress={handleAuth0} loading={loading} fullWidth size="lg" />
           </Card>
         ) : !legacyPasswordApiConfigured() ? (
-          <Card style={styles.formCard}>
-            <Text style={styles.auth0Copy}>
-              HMore uses Auth0 (port 8000), not email/password on this build. Run scripts\sync-mobile-env-from-web.py, set
-              EXPO_PUBLIC_AUTH0_CLIENT_ID (Native app in Auth0), restart Expo, then tap organisation login above after Auth0
-              is configured.
+          <Card style={styles.formCard} variant="outlined">
+            <Text style={styles.copy}>
+              HMore uses Auth0 (port 8000), not email and password on this build. Run scripts\sync-mobile-env-from-web.py,
+              set EXPO_PUBLIC_AUTH0_CLIENT_ID (Native app in Auth0), restart Expo, then use organisation login.
             </Text>
-            <Text style={styles.auth0Copy}>
+            <Text style={styles.copy}>
               Do not use Try demo (Password123) — that needs the old EXPO_PUBLIC_API_URL on port 3001.
             </Text>
           </Card>
         ) : (
-          <>
-            <Card style={styles.formCard}>
-              <Input
-                label="Email"
-                value={email}
-                onChangeText={setEmail}
-                keyboardType="email-address"
-                autoCapitalize="none"
-                autoComplete="email"
-                placeholder="you@example.com"
-                editable={!loading}
-              />
-              <Input
-                label="Password"
-                value={password}
-                onChangeText={setPassword}
-                secureTextEntry
-                autoComplete="password"
-                placeholder="Your password"
-                editable={!loading}
-                error={error || undefined}
-              />
-              <Link href="/(auth)/forgot-password" asChild>
-                <Pressable style={styles.forgot}>
-                  <Text style={styles.forgotText}>Forgot password?</Text>
-                </Pressable>
-              </Link>
-              <Button title="Sign in" onPress={() => handleSignIn()} loading={loading} fullWidth size="lg" variant="secondary" />
-            </Card>
-
+          <View>
+            <Input
+              label="Email"
+              value={email}
+              onChangeText={setEmail}
+              keyboardType="email-address"
+              autoCapitalize="none"
+              autoComplete="email"
+              placeholder="sara@example.co.uk"
+              editable={!loading}
+            />
+            <Input
+              label="Password"
+              value={password}
+              onChangeText={setPassword}
+              secureTextEntry
+              autoComplete="password"
+              placeholder="Your password"
+              editable={!loading}
+              error={error ? 'Please check this field' : undefined}
+            />
+            <Button title="Sign in" onPress={() => handleSignIn()} loading={loading} fullWidth size="lg" />
+            <Link href="/(auth)/forgot-password" asChild>
+              <Pressable style={styles.linkBtn} accessibilityRole="link">
+                <Text style={styles.link}>Forgot password?</Text>
+              </Pressable>
+            </Link>
             <Text style={styles.demoLabel}>Try demo</Text>
             <View style={styles.demoRow}>
               {DEMO_ACCOUNTS.map((demo) => (
                 <Pressable
                   key={demo.email}
                   style={styles.demoChip}
+                  accessibilityRole="button"
+                  accessibilityLabel={`Try demo as ${demo.label}`}
                   onPress={() => {
                     setEmail(demo.email);
                     setPassword('Password123');
@@ -242,12 +239,15 @@ export default function LoginScreen() {
                 </Pressable>
               ))}
             </View>
-
-            <Text style={styles.footer}>
-              No account? <Link href="/(auth)/register" style={styles.link}>Sign up</Link>
-            </Text>
-          </>
+          </View>
         )}
+
+        <Text style={styles.footer}>
+          New here?{' '}
+          <Link href="/(auth)/register" style={styles.link}>
+            Create account
+          </Link>
+        </Text>
       </ScrollView>
     </KeyboardAvoidingView>
   );
@@ -266,40 +266,63 @@ const styles = StyleSheet.create({
     width: '100%',
     alignSelf: 'center',
   },
-  back: { flexDirection: 'row', alignItems: 'center', gap: 4, marginBottom: theme.spacing.lg },
-  backText: { fontSize: 15, fontWeight: '500', color: theme.colors.text },
-  title: { ...theme.typography.h1, color: theme.colors.text, marginTop: theme.spacing.md },
-  subtitle: { fontSize: 15, color: theme.colors.textSecondary, marginTop: 4, marginBottom: theme.spacing.lg },
-  formCard: { marginBottom: theme.spacing.lg },
-  forgot: { alignSelf: 'flex-end', marginBottom: theme.spacing.md, marginTop: -4 },
-  forgotText: { color: theme.colors.secondary, fontSize: 14, fontWeight: '600' },
-  demoLabel: { fontSize: 13, color: theme.colors.textMuted, marginBottom: theme.spacing.sm },
+  back: { minHeight: 44, justifyContent: 'center', alignSelf: 'flex-start', marginBottom: theme.spacing.xs },
+  backText: { fontSize: 15, fontFamily: FONT_SEMIBOLD, fontWeight: '600', color: theme.colors.secondaryDark },
+  banner: {
+    backgroundColor: theme.colors.errorLight,
+    borderRadius: theme.radius.md,
+    borderWidth: 1,
+    borderColor: '#FECACA',
+    paddingHorizontal: 14,
+    paddingVertical: 12,
+    marginBottom: theme.spacing.md,
+  },
+  bannerText: {
+    color: theme.colors.error,
+    fontSize: 14,
+    lineHeight: 20,
+    fontFamily: FONT_MEDIUM,
+    textAlign: 'center',
+  },
+  formCard: { marginBottom: theme.spacing.md },
+  copy: {
+    fontSize: 15,
+    lineHeight: 22,
+    fontFamily: FONT_MEDIUM,
+    color: theme.colors.textSecondary,
+    marginBottom: theme.spacing.md,
+  },
+  stack: { gap: 8 },
+  linkBtn: { minHeight: 44, alignItems: 'center', justifyContent: 'center' },
+  link: { color: theme.colors.secondaryDark, fontFamily: FONT_SEMIBOLD, fontWeight: '600', fontSize: 15 },
+  demoLabel: {
+    fontSize: 13,
+    fontFamily: FONT_MEDIUM,
+    color: theme.colors.textMuted,
+    marginTop: theme.spacing.lg,
+    marginBottom: theme.spacing.sm,
+  },
   demoRow: { flexDirection: 'row', gap: theme.spacing.sm },
   demoChip: {
     flex: 1,
     backgroundColor: theme.colors.surface,
     borderRadius: theme.radius.md,
-    paddingVertical: 12,
+    minHeight: 44,
     alignItems: 'center',
+    justifyContent: 'center',
     borderWidth: 1,
     borderColor: theme.colors.border,
+    paddingHorizontal: 8,
   },
-  demoChipText: { fontWeight: '600', color: theme.colors.text, fontSize: 14 },
+  demoChipText: { fontFamily: FONT_SEMIBOLD, fontWeight: '600', color: theme.colors.text, fontSize: 14 },
   footer: {
     textAlign: 'center',
     color: theme.colors.textSecondary,
     fontSize: 14,
-    marginTop: theme.spacing.xl,
-    paddingTop: theme.spacing.lg,
+    fontFamily: FONT_MEDIUM,
+    marginTop: 'auto',
+    paddingTop: theme.spacing.xl,
   },
-  link: { color: theme.colors.secondary, fontWeight: '600' },
-  auth0Copy: {
-    fontSize: 15,
-    lineHeight: 22,
-    color: theme.colors.textSecondary,
-    marginBottom: theme.spacing.md,
-  },
-  auth0Error: { color: theme.colors.error, marginBottom: theme.spacing.sm, fontSize: 14 },
   callbackHint: {
     fontSize: 12,
     lineHeight: 18,

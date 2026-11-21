@@ -50,7 +50,7 @@ export default function EmploymentInterviewScreen() {
       </Card>
       <Input label={t('employment.interviewNotes')} value={notes} onChangeText={setNotes} />
       <Input label={t('employment.questionsToAsk')} value={questions} onChangeText={setQuestions} />
-      <Button title={t('employment.save')} onPress={() => save.mutate()} disabled={save.isPending} />
+      <Button title={t('employment.save')} onPress={() => save.mutate()} disabled={save.isPending} fullWidth />
     </Screen>
   );
 }

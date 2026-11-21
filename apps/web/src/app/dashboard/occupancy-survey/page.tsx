@@ -22,21 +22,20 @@ export default async function OccupancySurveyShellPage() {
   return (
     <div className="mx-auto max-w-3xl space-y-6">
       <PageHeader
-        eyebrow="F1.10"
+        eyebrow="Housing"
         title="Occupancy site survey"
         description="Feasibility and site-survey foundation only. Camera capture, live video, and occupancy detection are not part of this release."
       />
       <EmptyState
-        title="Use the checklist pack and API"
-        description="Create and update surveys via POST/PATCH /api/v1/occupancy-surveys. Full interactive survey forms are a later enhancement."
-        hint="Client checklist: docs/operations/OCCUPANCY_SITE_SURVEY_CHECKLIST.md"
+        title="No survey form on this page"
+        description="Site surveys are recorded for feasibility only. This page does not capture video or count people."
       />
       <ul className="list-disc space-y-2 pl-5 text-sm text-slate-700">
-        <li>No cameras, CV, or people-counting software in F1.10.</li>
+        <li>No cameras or people-counting software.</li>
         <li>Feasibility status is operational only — not a legal certification.</li>
         <li>
           Evidence attachments use private files (
-          <Link className="text-teal-800 underline" href="/dashboard/files">
+          <Link className="text-brand-700 underline" href="/dashboard/files">
             files shell
           </Link>
           ).

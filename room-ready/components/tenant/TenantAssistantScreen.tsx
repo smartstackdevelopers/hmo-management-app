@@ -118,9 +118,10 @@ export function TenantAssistantScreen() {
       )}
 
       {messages.map((message) => (
-        <Card key={message.id} style={styles.bubble}>
-          <Text style={styles.role}>{message.role === 'user' ? t('assistant.you') : t('assistant.bot')}</Text>
-          <Text style={[styles.body, { fontSize: 15 * fontScale }]}>{message.body}</Text>
+        <View key={message.id} style={[styles.bubbleWrap, message.role === 'user' ? styles.userWrap : styles.botWrap]}>
+          <View style={[styles.bubble, message.role === 'user' ? styles.userBubble : styles.botBubble]}>
+          <Text style={[styles.role, message.role === 'user' && styles.roleUser]}>{message.role === 'user' ? t('assistant.you') : t('assistant.bot')}</Text>
+          <Text style={[styles.body, message.role === 'user' && styles.bodyUser, { fontSize: 15 * fontScale }]}>{message.body}</Text>
           {message.source_refs?.length ? (
             <Text style={styles.meta}>
               {t('assistant.sources')}:{' '}
@@ -143,7 +144,8 @@ export function TenantAssistantScreen() {
               {feedbackError[message.activityId] ? <Text style={styles.error}>{feedbackError[message.activityId]}</Text> : null}
             </View>
           ) : null}
-        </Card>
+          </View>
+        </View>
       ))}
     </ScrollView>
   );
@@ -158,7 +160,14 @@ const styles = StyleSheet.create({
   body: { fontFamily: FONT_MEDIUM, lineHeight: 22, color: theme.colors.text },
   error: { color: theme.colors.error, fontFamily: FONT_MEDIUM, marginTop: 8, marginBottom: 8 },
   saved: { color: theme.colors.success, fontFamily: FONT_MEDIUM, marginTop: 8 },
-  bubble: { marginTop: theme.spacing.sm },
+  bubbleWrap: { marginTop: theme.spacing.sm, maxWidth: '86%' },
+  userWrap: { alignSelf: 'flex-end' },
+  botWrap: { alignSelf: 'flex-start' },
+  bubble: { borderRadius: 18, padding: 12 },
+  userBubble: { backgroundColor: theme.colors.secondaryDark, borderBottomRightRadius: 6 },
+  botBubble: { backgroundColor: theme.colors.surface, borderWidth: 1, borderColor: theme.colors.border, borderBottomLeftRadius: 6 },
   role: { fontFamily: FONT_BOLD, fontSize: 12, color: theme.colors.secondaryDark, marginBottom: 4 },
+  roleUser: { color: 'rgba(255,255,255,0.75)' },
+  bodyUser: { color: theme.colors.textInverse },
   feedback: { marginTop: theme.spacing.sm },
 });

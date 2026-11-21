@@ -2,7 +2,7 @@ import { useQuery } from '@tanstack/react-query';
 import { useLocalSearchParams } from 'expo-router';
 import { useState } from 'react';
 
-import { ChoiceRow, DraftBadge, Feedback, RecordCard, StaffPage } from '@/components/staff/ui';
+import { ChoiceRow, DraftBadge, Feedback, StaffPage, StatusRow, staffLabel, statusTone } from '@/components/staff/ui';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 import { ErrorState, LoadingScreen } from '@/components/ui/States';
@@ -76,13 +76,15 @@ export function VisitBoard() {
       {current ? drafts.drafts.filter((draft) => draft.payload.visit_id === current.id && draft.lastError).map((draft) => (
         <Feedback key={draft.id} text={draft.lastError || ''} tone="warn" />
       )) : null}
-      {visits.length === 0 ? <RecordCard title="No visits" detail="No assigned visits were returned." /> : null}
+      {visits.length === 0 ? <Feedback text="No assigned visits were returned." /> : null}
       {visits.map((visit) => (
-        <RecordCard
+        <StatusRow
           key={visit.id}
-          title={visit.purpose}
-          status={visit.status}
-          detail={`${formatUKDate(visit.scheduled_at)}${visit.location ? ` · ${visit.location}` : ''}`}
+          name={visit.purpose || staffLabel(visit.visit_type)}
+          title={visit.purpose || staffLabel(visit.visit_type)}
+          subtitle={[formatUKDate(visit.scheduled_at), visit.location].filter(Boolean).join(' · ')}
+          chip={staffLabel(visit.status)}
+          tone={statusTone(visit.status)}
           onPress={() => setSelected(visit.id)}
         />
       ))}

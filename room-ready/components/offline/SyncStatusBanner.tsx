@@ -26,7 +26,10 @@ export function SyncStatusBanner() {
       accessibilityRole="button"
       accessibilityLabel={label(connectivity, drafts.count)}
       onPress={() => router.push('/(app)/offline-drafts')}
-      style={styles.bar}
+      style={[
+        styles.bar,
+        connectivity === 'offline' || connectivity === 'unstable' ? styles.offline : styles.online,
+      ]}
     >
       <Text style={styles.text}>{label(connectivity, drafts.count)}</Text>
     </Pressable>
@@ -35,11 +38,11 @@ export function SyncStatusBanner() {
 
 const styles = StyleSheet.create({
   bar: {
-    backgroundColor: theme.colors.surfaceMuted,
     borderBottomWidth: 1,
-    borderBottomColor: theme.colors.border,
     paddingHorizontal: 16,
     paddingVertical: 8,
   },
-  text: { fontFamily: FONT_SEMIBOLD, fontSize: 13, color: theme.colors.text },
+  online: { backgroundColor: theme.colors.accentLight, borderBottomColor: theme.colors.accentSoft },
+  offline: { backgroundColor: theme.colors.warningLight, borderBottomColor: '#FDE68A' },
+  text: { fontFamily: FONT_SEMIBOLD, fontSize: 13, color: theme.colors.secondaryDark },
 });

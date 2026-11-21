@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { btnPrimary, inputClass, labelClass } from "@/components/ui/primitives";
 import { createCaseAssignment } from "@/lib/supportApi";
 
 export function AssignmentForm({
@@ -18,7 +19,7 @@ export function AssignmentForm({
 
   return (
     <form
-      className="space-y-3 rounded-lg border border-slate-200 bg-white p-5"
+      className="space-y-5 rounded-2xl border border-slate-200 bg-white p-6 shadow-card"
       onSubmit={async (event) => {
         event.preventDefault();
         setPending(true);
@@ -26,7 +27,7 @@ export function AssignmentForm({
         setMessage(null);
         const form = new FormData(event.currentTarget);
         try {
-          const row = await createCaseAssignment({
+          await createCaseAssignment({
             accessToken,
             organisationId,
             role,
@@ -36,37 +37,58 @@ export function AssignmentForm({
               assignment_notes: String(form.get("assignment_notes") || "") || undefined,
             },
           });
-          setMessage(`Assignment ${row.id} created for tenant ${row.tenant_id}.`);
+          setMessage("Assignment saved. The support worker can now see this case in their caseload.");
           event.currentTarget.reset();
         } catch (err) {
-          setError(err instanceof Error ? err.message : "Assignment failed");
+          setError(err instanceof Error ? err.message : "We couldn't save this assignment. Please try again.");
         } finally {
           setPending(false);
         }
       }}
     >
-      <h3 className="font-semibold text-forest-900">Assign support worker</h3>
-      <label className="block text-sm">
-        Tenant ID
-        <input name="tenant_id" required className="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 font-mono text-sm" />
-      </label>
-      <label className="block text-sm">
-        Support worker user ID
-        <input
-          name="support_worker_user_id"
-          required
-          className="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 font-mono text-sm"
+      <div>
+        <h2 className="text-base font-semibold text-slate-900">Assign a support worker</h2>
+        <p className="mt-0.5 text-sm text-slate-500">Both references are shown on the tenant and team member profiles.</p>
+      </div>
+      <div className="space-y-1.5">
+        <label htmlFor="assignment-tenant" className={labelClass}>
+          Tenant reference
+        </label>
+        <input id="assignment-tenant" name="tenant_id" required className={`${inputClass} font-mono`} />
+      </div>
+      <div className="space-y-1.5">
+        <label htmlFor="assignment-worker" className={labelClass}>
+          Support worker reference
+        </label>
+        <input id="assignment-worker" name="support_worker_user_id" required className={`${inputClass} font-mono`} />
+      </div>
+      <div className="space-y-1.5">
+        <label htmlFor="assignment-notes" className={labelClass}>
+          Notes <span className="font-normal text-slate-500">(optional)</span>
+        </label>
+        <textarea
+          id="assignment-notes"
+          name="assignment_notes"
+          rows={3}
+          className={`${inputClass} h-auto py-2`}
+          placeholder="Anything the support worker should know before their first visit"
         />
-      </label>
-      <label className="block text-sm">
-        Notes
-        <textarea name="assignment_notes" rows={2} className="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 text-sm" />
-      </label>
-      {error ? <p className="text-sm text-red-700">{error}</p> : null}
-      {message ? <p className="text-sm text-teal-800">{message}</p> : null}
-      <button type="submit" disabled={pending} className="rounded-md bg-teal-700 px-3 py-2 text-sm text-white disabled:opacity-60">
-        {pending ? "Saving…" : "Create assignment"}
-      </button>
+      </div>
+      {error ? (
+        <p role="alert" className="rounded-lg border border-red-100 bg-red-50 px-3 py-2 text-sm text-red-700">
+          {error}
+        </p>
+      ) : null}
+      {message ? (
+        <p role="status" className="rounded-lg border border-emerald-100 bg-emerald-50 px-3 py-2 text-sm text-emerald-800">
+          {message}
+        </p>
+      ) : null}
+      <div className="flex justify-end border-t border-slate-100 pt-4">
+        <button type="submit" disabled={pending} className={btnPrimary}>
+          {pending ? "Saving…" : "Assign tenant"}
+        </button>
+      </div>
     </form>
   );
 }

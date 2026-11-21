@@ -2,6 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { btnPrimary, btnSecondary, inputClass, labelClass } from "@/components/ui/primitives";
 import { createFollowUp, patchIncident, submitIncident } from "@/lib/incidentsApi";
 
 export function IncidentActions({
@@ -30,25 +31,21 @@ export function IncidentActions({
       await action();
       router.refresh();
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Action failed");
+      setError(err instanceof Error ? err.message : "We couldn't update this incident. Please try again.");
     } finally {
       setPending(false);
     }
   }
 
   return (
-    <div className="space-y-3 rounded-lg border border-slate-200 bg-white p-4">
+    <div className="space-y-4 rounded-2xl border border-slate-200 bg-white p-5 shadow-card">
       <div className="flex flex-wrap gap-2">
         {status === "draft" ? (
           <button
             type="button"
             disabled={pending}
-            className="rounded bg-teal-700 px-3 py-1.5 text-sm text-white"
-            onClick={() =>
-              void run(() =>
-                submitIncident({ accessToken, organisationId, role, incidentId }),
-              )
-            }
+            className={btnPrimary}
+            onClick={() => void run(() => submitIncident({ accessToken, organisationId, role, incidentId }))}
           >
             Submit
           </button>
@@ -57,7 +54,7 @@ export function IncidentActions({
           <button
             type="button"
             disabled={pending}
-            className="rounded border border-slate-300 px-3 py-1.5 text-sm"
+            className={btnPrimary}
             onClick={() =>
               void run(() =>
                 patchIncident({
@@ -76,7 +73,7 @@ export function IncidentActions({
       </div>
       {canManage || status !== "draft" ? (
         <form
-          className="space-y-2 border-t border-slate-100 pt-3"
+          className="space-y-3 border-t border-slate-100 pt-4"
           onSubmit={(event) => {
             event.preventDefault();
             const form = new FormData(event.currentTarget);
@@ -90,41 +87,57 @@ export function IncidentActions({
                   description: String(form.get("description") || ""),
                   assigned_user_id: String(form.get("assigned_user_id") || ""),
                   priority: String(form.get("priority") || "normal"),
-                  due_at: form.get("due_at")
-                    ? new Date(String(form.get("due_at"))).toISOString()
-                    : null,
+                  due_at: form.get("due_at") ? new Date(String(form.get("due_at"))).toISOString() : null,
                 },
               }),
             );
             event.currentTarget.reset();
           }}
         >
-          <p className="text-sm font-medium text-forest-900">Add follow-up</p>
-          <input
-            name="description"
-            required
-            placeholder="Action description"
-            className="w-full rounded border px-3 py-2 text-sm"
-          />
-          <input
-            name="assigned_user_id"
-            required
-            placeholder="Assigned staff user ID"
-            className="w-full rounded border px-3 py-2 text-sm"
-          />
-          <input name="due_at" type="datetime-local" className="w-full rounded border px-3 py-2 text-sm" />
-          <select name="priority" defaultValue="normal" className="w-full rounded border px-3 py-2 text-sm">
-            <option value="low">Low</option>
-            <option value="normal">Normal</option>
-            <option value="high">High</option>
-            <option value="urgent">Urgent</option>
-          </select>
-          <button type="submit" disabled={pending} className="rounded bg-slate-800 px-3 py-1.5 text-sm text-white">
-            Create follow-up
-          </button>
+          <h2 className="text-sm font-semibold text-slate-900">Add follow-up</h2>
+          <div className="space-y-1.5">
+            <label htmlFor="follow-description" className={labelClass}>
+              Action
+            </label>
+            <input id="follow-description" name="description" required className={inputClass} />
+          </div>
+          <div className="grid gap-3 sm:grid-cols-2">
+            <div className="space-y-1.5">
+              <label htmlFor="follow-assignee" className={labelClass}>
+                Assigned staff reference
+              </label>
+              <input id="follow-assignee" name="assigned_user_id" required className={`${inputClass} font-mono`} />
+            </div>
+            <div className="space-y-1.5">
+              <label htmlFor="follow-due" className={labelClass}>
+                Due
+              </label>
+              <input id="follow-due" name="due_at" type="datetime-local" className={inputClass} />
+            </div>
+          </div>
+          <div className="space-y-1.5">
+            <label htmlFor="follow-priority" className={labelClass}>
+              Priority
+            </label>
+            <select id="follow-priority" name="priority" defaultValue="normal" className={inputClass}>
+              <option value="low">Low</option>
+              <option value="normal">Normal</option>
+              <option value="high">High</option>
+              <option value="urgent">Urgent</option>
+            </select>
+          </div>
+          <div className="flex justify-end">
+            <button type="submit" disabled={pending} className={status === "draft" || (canManage && status === "submitted") ? btnSecondary : btnPrimary}>
+              Create follow-up
+            </button>
+          </div>
         </form>
       ) : null}
-      {error ? <p className="text-sm text-red-700">{error}</p> : null}
+      {error ? (
+        <p role="alert" className="rounded-lg border border-red-100 bg-red-50 px-3 py-2 text-sm text-red-700">
+          {error}
+        </p>
+      ) : null}
     </div>
   );
 }

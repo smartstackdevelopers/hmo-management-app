@@ -12,10 +12,11 @@ import {
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 
-import { RoomReadyLogo } from '@/components/RoomReadyLogo';
+import { BrandHeader } from '@/components/ui/BrandHeader';
 import { Button } from '@/components/ui/Button';
-import { Card } from '@/components/ui/Card';
+import { FocusStatusBar } from '@/components/ui/FocusStatusBar';
 import { Input } from '@/components/ui/Input';
+import { FONT_BOLD, FONT_MEDIUM, FONT_SEMIBOLD } from '@/constants/fonts';
 import { theme } from '@/constants/theme';
 import { type PublicRegisterRole, useAuth } from '@/contexts/AuthContext';
 import { LegacyApiConfigurationError } from '@/lib/legacyApiConfig';
@@ -114,16 +115,15 @@ export default function RegisterScreen() {
 
   if (authMode === 'auth0') {
     return (
-      <View style={[styles.flex, { padding: 24, paddingTop: insets.top + 32 }]}>
-        <RoomReadyLogo size="sm" />
-        <Text style={styles.title}>Organisation sign-in</Text>
-        <Text style={styles.subtitle}>
-          New accounts are created by your organisation. Use the sign-in screen to continue with Auth0.
-        </Text>
+      <View style={[styles.flex, styles.gate, { paddingTop: insets.top + 24, paddingBottom: insets.bottom + 24 }]}>
+        <FocusStatusBar style="dark" />
+        <BrandHeader
+          size="sm"
+          title="Organisation sign-in"
+          subtitle="New accounts are created by your organisation. Use the sign-in screen to continue with Auth0."
+        />
         <Link href="/(auth)/login" asChild>
-          <Pressable>
-            <Text style={styles.link}>Go to sign in</Text>
-          </Pressable>
+          <Button title="Go to sign in" size="lg" fullWidth />
         </Link>
       </View>
     );
@@ -131,17 +131,15 @@ export default function RegisterScreen() {
 
   if (authMode !== 'native' && authMode !== 'demo') {
     return (
-      <View style={[styles.flex, { padding: 24, paddingTop: insets.top + 32 }]}>
-        <RoomReadyLogo size="sm" />
-        <Text style={styles.title}>No self-registration</Text>
-        <Text style={styles.subtitle}>
-          Turn on native auth in room-ready/.env (`EXPO_PUBLIC_NATIVE_AUTH=1`, `EXPO_PUBLIC_DEMO_AUTH=0`), restart Expo,
-          then create your account here.
-        </Text>
+      <View style={[styles.flex, styles.gate, { paddingTop: insets.top + 24, paddingBottom: insets.bottom + 24 }]}>
+        <FocusStatusBar style="dark" />
+        <BrandHeader
+          size="sm"
+          title="No self-registration"
+          subtitle="Turn on native auth in room-ready/.env (EXPO_PUBLIC_NATIVE_AUTH=1, EXPO_PUBLIC_DEMO_AUTH=0), restart Expo, then create your account here."
+        />
         <Link href="/(auth)/login" asChild>
-          <Pressable style={{ marginTop: 16 }}>
-            <Text style={styles.link}>Go to sign in</Text>
-          </Pressable>
+          <Button title="Go to sign in" size="lg" fullWidth />
         </Link>
       </View>
     );
@@ -160,20 +158,20 @@ export default function RegisterScreen() {
         keyboardShouldPersistTaps="handled"
         showsVerticalScrollIndicator={false}
       >
+        <FocusStatusBar style="dark" />
         <Link href="/(auth)/welcome" asChild>
-          <Pressable style={styles.back} accessibilityLabel="Go back">
-            <Ionicons name="chevron-back" size={22} color={theme.colors.secondary} />
+          <Pressable style={styles.back} accessibilityRole="button" accessibilityLabel="Go back">
             <Text style={styles.backText}>Back</Text>
           </Pressable>
         </Link>
 
-        <RoomReadyLogo size="sm" />
-        <Text style={styles.title}>Create account</Text>
-        <Text style={styles.subtitle}>
-          Choose your role. A Super Admin must approve you before you can sign in.
-        </Text>
+        <BrandHeader
+          size="sm"
+          title="Create your account"
+          subtitle="Choose your role. An admin approves every new account."
+        />
 
-        <Card style={styles.formCard}>
+        <View>
           <View style={styles.nameRow}>
             <View style={styles.nameField}>
               <Input
@@ -234,7 +232,7 @@ export default function RegisterScreen() {
             editable={!loading}
           />
 
-          <Text style={styles.roleLabel}>I am a...</Text>
+          <Text style={styles.roleLabel}>I am a…</Text>
           <View style={styles.roleGrid}>
             {ROLES.map((r) => {
               const selected = role === r.value;
@@ -250,7 +248,7 @@ export default function RegisterScreen() {
                     <Ionicons
                       name={r.icon}
                       size={20}
-                      color={selected ? theme.colors.textInverse : theme.colors.secondary}
+                      color={selected ? theme.colors.textInverse : theme.colors.secondaryDark}
                     />
                   </View>
                   <Text style={[styles.roleTitle, selected && styles.roleTitleSelected]}>{r.label}</Text>
@@ -289,12 +287,16 @@ export default function RegisterScreen() {
             <Text style={styles.checkText}>I accept the Privacy Policy</Text>
           </Pressable>
 
-          {error ? <Text style={styles.error}>{error}</Text> : null}
-          <Button title="Create Account" onPress={handleRegister} loading={loading} fullWidth size="lg" />
-        </Card>
+          {error ? (
+            <View style={styles.banner} accessibilityRole="alert">
+              <Text style={styles.error}>{error}</Text>
+            </View>
+          ) : null}
+          <Button title="Request access" onPress={handleRegister} loading={loading} fullWidth size="lg" />
+        </View>
 
         <Text style={styles.footer}>
-          Already have an account?{' '}
+          Already registered?{' '}
           <Link href="/(auth)/login" style={styles.link}>
             Sign in
           </Link>
@@ -306,15 +308,25 @@ export default function RegisterScreen() {
 
 const styles = StyleSheet.create({
   flex: { flex: 1, backgroundColor: theme.colors.background },
-  container: { flexGrow: 1, paddingHorizontal: theme.spacing.lg },
-  back: { flexDirection: 'row', alignItems: 'center', gap: 2, marginBottom: theme.spacing.md },
-  backText: { color: theme.colors.secondary, fontSize: 15, fontWeight: '600' },
-  title: { ...theme.typography.h2, color: theme.colors.text, marginTop: theme.spacing.sm },
-  subtitle: { fontSize: 14, color: theme.colors.textSecondary, marginTop: 4, marginBottom: theme.spacing.md },
-  formCard: { marginBottom: theme.spacing.md },
+  gate: { paddingHorizontal: theme.spacing.lg },
+  container: {
+    flexGrow: 1,
+    paddingHorizontal: theme.spacing.lg,
+    maxWidth: theme.layout.phoneMaxWidth,
+    width: '100%',
+    alignSelf: 'center',
+  },
+  back: { minHeight: 44, justifyContent: 'center', alignSelf: 'flex-start', marginBottom: theme.spacing.xs },
+  backText: { color: theme.colors.secondaryDark, fontSize: 15, fontFamily: FONT_SEMIBOLD, fontWeight: '600' },
   nameRow: { flexDirection: 'row', gap: theme.spacing.sm },
   nameField: { flex: 1 },
-  roleLabel: { ...theme.typography.label, color: theme.colors.text, marginBottom: theme.spacing.sm },
+  roleLabel: {
+    fontSize: 13,
+    fontFamily: FONT_SEMIBOLD,
+    fontWeight: '600',
+    color: theme.colors.text,
+    marginBottom: theme.spacing.sm,
+  },
   roleGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: theme.spacing.sm, marginBottom: theme.spacing.md },
   roleCard: {
     width: '48%',
@@ -328,23 +340,39 @@ const styles = StyleSheet.create({
     gap: 6,
     minHeight: 118,
   },
-  roleCardSelected: { borderColor: theme.colors.secondary, backgroundColor: theme.colors.infoLight },
+  roleCardSelected: { borderColor: theme.colors.secondaryDark, backgroundColor: theme.colors.accentLight },
   roleIcon: {
-    width: 40,
-    height: 40,
-    borderRadius: theme.radius.md,
-    backgroundColor: theme.colors.infoLight,
+    width: 44,
+    height: 44,
+    borderRadius: 14,
+    backgroundColor: theme.colors.accentLight,
     alignItems: 'center',
     justifyContent: 'center',
   },
-  roleIconSelected: { backgroundColor: theme.colors.secondary },
-  roleTitle: { fontWeight: '700', fontSize: 13, color: theme.colors.text, textAlign: 'center' },
-  roleTitleSelected: { color: theme.colors.secondary },
-  roleDesc: { fontSize: 11, color: theme.colors.textMuted, textAlign: 'center', lineHeight: 15 },
+  roleIconSelected: { backgroundColor: theme.colors.secondaryDark },
+  roleTitle: { fontFamily: FONT_BOLD, fontWeight: '700', fontSize: 13, color: theme.colors.text, textAlign: 'center' },
+  roleTitleSelected: { color: theme.colors.secondaryDark },
+  roleDesc: { fontSize: 12, fontFamily: FONT_MEDIUM, color: theme.colors.textMuted, textAlign: 'center', lineHeight: 16 },
   roleDescSelected: { color: theme.colors.textSecondary },
-  checkRow: { flexDirection: 'row', alignItems: 'center', gap: 10, marginBottom: theme.spacing.sm },
-  checkText: { flex: 1, fontSize: 14, color: theme.colors.text, lineHeight: 20 },
-  error: { color: theme.colors.error, marginBottom: theme.spacing.md, fontSize: 14 },
-  footer: { textAlign: 'center', color: theme.colors.textSecondary, marginTop: theme.spacing.lg },
-  link: { color: theme.colors.secondary, fontWeight: '600' },
+  checkRow: { flexDirection: 'row', alignItems: 'center', gap: 10, minHeight: 44, marginBottom: 4 },
+  checkText: { flex: 1, fontSize: 15, fontFamily: FONT_MEDIUM, color: theme.colors.text, lineHeight: 20 },
+  banner: {
+    backgroundColor: theme.colors.errorLight,
+    borderRadius: theme.radius.md,
+    borderWidth: 1,
+    borderColor: '#FECACA',
+    paddingHorizontal: 14,
+    paddingVertical: 12,
+    marginBottom: theme.spacing.md,
+  },
+  error: { color: theme.colors.error, fontSize: 14, lineHeight: 20, fontFamily: FONT_MEDIUM, textAlign: 'center' },
+  footer: {
+    textAlign: 'center',
+    color: theme.colors.textSecondary,
+    fontFamily: FONT_MEDIUM,
+    fontSize: 14,
+    marginTop: theme.spacing.lg,
+    marginBottom: theme.spacing.md,
+  },
+  link: { color: theme.colors.secondaryDark, fontFamily: FONT_SEMIBOLD, fontWeight: '600' },
 });

@@ -3,6 +3,7 @@ import { redirect } from "next/navigation";
 import { EmptyState } from "@/components/dashboard/EmptyState";
 import { ErrorState } from "@/components/dashboard/ErrorState";
 import { PageHeader } from "@/components/dashboard/PageHeader";
+import { DataTable, StatusChip, Td, Th } from "@/components/ui/primitives";
 import { auth0, isAuth0Configured } from "@/lib/auth0";
 import { listExpiredDocuments } from "@/lib/managedDocumentsApi";
 import { canAny } from "@/lib/rbac";
@@ -18,10 +19,10 @@ export default async function DocumentsExpiredPage() {
     return <EmptyState title="Organisation required" description="Active organisation membership needed." />;
   }
   if (!isAuth0Configured() || !auth0) {
-    return <EmptyState title="Auth0 not configured" description="Configure Auth0 to load documents." />;
+    return <EmptyState title="Sign-in not configured" description="Sign-in isn't set up in this environment yet." />;
   }
   const token = (await auth0.getAccessToken())?.token;
-  if (!token) return <ErrorState description="Access token unavailable." />;
+  if (!token) return <ErrorState description="We couldn't confirm your sign-in. Please sign in again." />;
 
   try {
     const page = await listExpiredDocuments({
@@ -30,30 +31,48 @@ export default async function DocumentsExpiredPage() {
       role: session.authorization?.active_role,
     });
     return (
-      <div className="mx-auto max-w-4xl space-y-4">
-        <PageHeader title="Expired documents" description="Past expiry date — follow your organisation renewal process." />
+      <div className="mx-auto max-w-6xl space-y-6">
+        <PageHeader
+          eyebrow="Documents"
+          title="Expired documents"
+          description="Past expiry date — follow your organisation renewal process."
+        />
         {page.items.length === 0 ? (
           <EmptyState title="No expired documents" description="No visible documents are past their expiry date." />
         ) : (
-          <ul className="divide-y divide-slate-200 rounded-lg border border-slate-200 bg-white">
-            {page.items.map((row) => {
-              const r = row as Record<string, string>;
-              return (
-                <li key={r.id} className="px-4 py-3">
-                  <Link href={`/dashboard/documents/${r.id}`} className="font-medium text-teal-800 underline">
-                    {r.title}
-                  </Link>
-                  <p className="text-xs text-slate-500">
-                    {r.reference_number} · expired {r.expiry_date ?? "—"}
-                  </p>
-                </li>
-              );
-            })}
-          </ul>
+          <DataTable caption="Expired documents">
+            <thead>
+              <tr>
+                <Th>Document</Th>
+                <Th>Reference</Th>
+                <Th>Expired</Th>
+                <Th>Tracking</Th>
+              </tr>
+            </thead>
+            <tbody>
+              {page.items.map((row) => {
+                const r = row as Record<string, string>;
+                return (
+                  <tr key={r.id} className="hover:bg-slate-50">
+                    <Td>
+                      <Link href={`/dashboard/documents/${r.id}`} className="font-semibold text-slate-900 hover:text-brand-700 hover:underline">
+                        {r.title}
+                      </Link>
+                    </Td>
+                    <Td className="text-slate-500">{r.reference_number}</Td>
+                    <Td className="whitespace-nowrap">{r.expiry_date ?? "—"}</Td>
+                    <Td>
+                      <StatusChip status={r.expiry_tracking || "expired"} tone="red" />
+                    </Td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </DataTable>
         )}
       </div>
     );
-  } catch (e) {
-    return <ErrorState description={e instanceof Error ? e.message : "Failed to load"} />;
+  } catch {
+    return <ErrorState description={"Failed to load"} />;
   }
 }

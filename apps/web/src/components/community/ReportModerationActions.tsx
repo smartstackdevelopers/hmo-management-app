@@ -2,6 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { btnPrimary, humanize, inputClass, labelClass } from "@/components/ui/primitives";
 import { updateAdminReport } from "@/lib/helpNearMeApi";
 
 const STATUSES = [
@@ -35,7 +36,7 @@ export function ReportModerationActions({
 
   return (
     <form
-      className="space-y-3 rounded-lg border border-slate-200 bg-white p-5"
+      className="space-y-4 rounded-2xl border border-slate-200 bg-white p-5 shadow-card"
       onSubmit={async (event) => {
         event.preventDefault();
         setPending(true);
@@ -57,38 +58,31 @@ export function ReportModerationActions({
         }
       }}
     >
-      <h2 className="text-sm font-semibold text-forest-900">Update moderation status</h2>
-      <label className="block text-sm">
-        Status
-        <select
-          value={status}
-          onChange={(event) => setStatus(event.target.value)}
-          className="mt-1 w-full rounded border px-3 py-2"
-        >
+      <h2 className="text-base font-semibold text-slate-900">Update moderation</h2>
+      <div className="space-y-1.5">
+        <label htmlFor="report-status" className={labelClass}>
+          Status
+        </label>
+        <select id="report-status" value={status} onChange={(event) => setStatus(event.target.value)} className={inputClass}>
           {STATUSES.map((value) => (
             <option key={value} value={value}>
-              {value.replaceAll("_", " ")}
+              {humanize(value)}
             </option>
           ))}
         </select>
-      </label>
-      <label className="block text-sm">
-        Resolution notes
-        <textarea
-          value={notes}
-          onChange={(event) => setNotes(event.target.value)}
-          className="mt-1 w-full rounded border px-3 py-2"
-          rows={3}
-        />
-      </label>
-      {error ? <p className="text-sm text-red-700">{error}</p> : null}
-      <button
-        type="submit"
-        disabled={pending}
-        className="rounded-md bg-teal-700 px-3 py-2 text-sm text-white disabled:opacity-60"
-      >
-        {pending ? "Saving…" : "Save moderation"}
-      </button>
+      </div>
+      <div className="space-y-1.5">
+        <label htmlFor="report-notes" className={labelClass}>
+          Resolution notes
+        </label>
+        <textarea id="report-notes" value={notes} onChange={(event) => setNotes(event.target.value)} className={`${inputClass} h-auto py-2`} rows={3} />
+      </div>
+      {error ? <p role="alert" className="text-sm text-red-700">{error}</p> : null}
+      <div className="flex justify-end">
+        <button type="submit" disabled={pending} className={btnPrimary}>
+          {pending ? "Saving…" : "Save moderation"}
+        </button>
+      </div>
     </form>
   );
 }

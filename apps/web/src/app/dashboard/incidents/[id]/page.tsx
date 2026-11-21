@@ -5,6 +5,7 @@ import { IncidentActions } from "@/components/incidents/IncidentActions";
 import { EmptyState } from "@/components/dashboard/EmptyState";
 import { ErrorState } from "@/components/dashboard/ErrorState";
 import { PageHeader } from "@/components/dashboard/PageHeader";
+import { Card, CardHeader, linkClass, StatusChip } from "@/components/ui/primitives";
 import { auth0, isAuth0Configured } from "@/lib/auth0";
 import { fetchIncident, fetchIncidentFollowUps } from "@/lib/incidentsApi";
 import { can, canAny } from "@/lib/rbac";
@@ -55,11 +56,20 @@ export default async function IncidentDetailPage({
     return (
       <div className="mx-auto max-w-3xl space-y-6">
         <PageHeader
-          eyebrow={incident.reference_number}
+          eyebrow="Operations"
           title={incident.title}
-          description={`${incident.status} · ${incident.severity} · ${incident.category}`}
+          description={incident.reference_number}
+          actions={
+            <div className="flex flex-wrap gap-2">
+              <StatusChip status={incident.status} />
+              <StatusChip status={incident.severity} />
+            </div>
+          }
         />
-        <p className="text-sm text-slate-700 whitespace-pre-wrap">{incident.description}</p>
+        <Card>
+          <CardHeader title="What happened" description={incident.category} />
+          <p className="whitespace-pre-wrap text-sm text-slate-700">{incident.description}</p>
+        </Card>
         <IncidentActions
           incidentId={incident.id}
           status={incident.status}
@@ -69,19 +79,24 @@ export default async function IncidentDetailPage({
           canManage={canManage}
         />
         <section className="space-y-3">
-          <h2 className="text-base font-medium text-forest-900">Follow-ups</h2>
+          <h2 className="text-base font-semibold text-slate-900">Follow-ups</h2>
           {followUps.items.length === 0 ? (
-            <EmptyState title="No follow-ups" description="Add actions to track resolution work." />
+            <EmptyState title="No follow-ups" description="Add an action when there is resolution work to track." />
           ) : (
-            <ul className="divide-y divide-slate-200 rounded-lg border border-slate-200 bg-white">
+            <ul className="divide-y divide-slate-100 overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-card">
               {followUps.items.map((row) => (
                 <li key={row.id} className="flex items-start justify-between gap-3 p-4 text-sm">
                   <div>
-                    <p className="font-medium text-forest-900">{row.description}</p>
-                    <p className="text-slate-600">
-                      {row.status} · {row.priority}
-                      {row.due_at ? ` · due ${new Date(row.due_at).toLocaleString()}` : ""}
-                    </p>
+                    <p className="font-semibold text-slate-900">{row.description}</p>
+                    <div className="mt-2 flex flex-wrap gap-1.5">
+                      <StatusChip status={row.status} />
+                      <StatusChip status={row.priority} />
+                    </div>
+                    {row.due_at ? (
+                      <p className="mt-1 text-xs text-slate-500">
+                        Due {new Date(row.due_at).toLocaleString("en-GB", { dateStyle: "medium", timeStyle: "short" })}
+                      </p>
+                    ) : null}
                   </div>
                   <FollowUpCompleteButton
                     followUpId={row.id}
@@ -95,7 +110,7 @@ export default async function IncidentDetailPage({
             </ul>
           )}
         </section>
-        <Link href="/dashboard/incidents" className="text-sm text-teal-800 hover:underline">
+        <Link href="/dashboard/incidents" className={linkClass}>
           Back to incidents
         </Link>
       </div>

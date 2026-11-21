@@ -1,9 +1,9 @@
 "use client";
 
 import { useState } from "react";
+import { btnPrimary, btnSecondary, inputClass, labelClass, linkClass, StatusChip } from "@/components/ui/primitives";
 import {
   canReviewDocumentCheck,
-  checkLayoutClass,
   findingLabel,
   observationLabel,
 } from "@/lib/documentCheckView";
@@ -44,14 +44,14 @@ export function DocumentCheckPanel(props: Props) {
         body: JSON.stringify({ document_id: props.documentId, force }),
       });
       if (!response.ok) {
-        setError(await response.text());
+        setError("We couldn't run that document check. Please try again.");
         setState("error");
         return;
       }
       setResult((await response.json()) as Record<string, unknown>);
       setState("ready");
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "Document check failed");
+    } catch {
+      setError("We couldn't run that document check. Please try again.");
       setState("error");
     }
   }
@@ -64,7 +64,7 @@ export function DocumentCheckPanel(props: Props) {
       body: JSON.stringify({ decision, review_comment: comment || null }),
     });
     if (!response.ok) {
-      setError(await response.text());
+      setError("We couldn't save that decision. Please try again.");
       setState("error");
       return;
     }
@@ -80,7 +80,7 @@ export function DocumentCheckPanel(props: Props) {
       body: JSON.stringify({ review_comment: comment || null }),
     });
     if (!response.ok) {
-      setError(await response.text());
+      setError("We couldn't mark this check as reviewed. Please try again.");
       setState("error");
       return;
     }
@@ -91,13 +91,13 @@ export function DocumentCheckPanel(props: Props) {
   const observations = (result?.observations as Array<Record<string, unknown>> | undefined) ?? [];
 
   return (
-    <section className={checkLayoutClass()}>
-      <div className="flex flex-wrap items-center justify-between gap-2">
-        <h2 className="text-lg font-semibold text-forest-900">Document check</h2>
+    <section className="space-y-4 rounded-2xl border border-slate-200 bg-white p-6 shadow-card">
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <h2 className="text-base font-semibold text-slate-900">Document check</h2>
         <div className="flex flex-wrap gap-2">
           <button
             type="button"
-            className="rounded-md bg-teal-700 px-3 py-2 text-sm text-white disabled:opacity-60"
+            className={btnPrimary}
             disabled={state === "loading"}
             onClick={() => void run(false)}
           >
@@ -105,7 +105,7 @@ export function DocumentCheckPanel(props: Props) {
           </button>
           <button
             type="button"
-            className="rounded-md border border-slate-300 px-3 py-2 text-sm disabled:opacity-60"
+            className={btnSecondary}
             disabled={state === "loading"}
             onClick={() => void run(true)}
           >
@@ -130,17 +130,17 @@ export function DocumentCheckPanel(props: Props) {
           </p>
           {canReview ? (
             <div className="space-y-2">
-              <label className="block text-xs text-slate-600" htmlFor="document-check-comment">
+              <label className={labelClass} htmlFor="document-check-comment">
                 Review comment
               </label>
               <textarea
                 id="document-check-comment"
-                className="w-full rounded-md border border-slate-300 p-2 text-sm"
+                className={`mt-1.5 ${inputClass} h-auto py-2`}
                 maxLength={2000}
                 value={comment}
                 onChange={(event) => setComment(event.target.value)}
               />
-              <button type="button" className="rounded-md border border-slate-300 px-3 py-2 text-sm" onClick={() => void markReviewed()}>
+              <button type="button" className={btnSecondary} onClick={() => void markReviewed()}>
                 Mark reviewed
               </button>
             </div>
@@ -148,19 +148,21 @@ export function DocumentCheckPanel(props: Props) {
           <p className="text-slate-600">{String(result.summary ?? "")}</p>
           <ul className="space-y-2">
             {findings.map((item) => (
-              <li key={String(item.id)} className="border-l-2 border-slate-300 pl-3">
-                <div className="text-xs uppercase text-slate-500">
-                  {findingLabel(String(item.source))} · {String(item.outcome)} · {String(item.review_status)}
-                  {item.page_number ? ` · page ${String(item.page_number)}` : ""}
+              <li key={String(item.id)} className="rounded-xl border border-slate-100 bg-slate-50 px-4 py-3">
+                <div className="flex flex-wrap gap-1.5">
+                  <StatusChip tone="gray">{findingLabel(String(item.source))}</StatusChip>
+                  <StatusChip status={String(item.outcome)} />
+                  <StatusChip status={String(item.review_status)} />
+                  {item.page_number ? <StatusChip tone="gray">Page {String(item.page_number)}</StatusChip> : null}
                 </div>
                 <div className="font-medium">{String(item.title)}</div>
                 <p className="text-slate-700">{String(item.detail)}</p>
                 {canReview && item.review_status === "pending" ? (
                   <div className="mt-1 flex gap-2">
-                    <button type="button" className="underline" onClick={() => void decide(String(item.id), "confirm")}>
+                    <button type="button" className={linkClass} onClick={() => void decide(String(item.id), "confirm")}>
                       Confirm
                     </button>
-                    <button type="button" className="underline" onClick={() => void decide(String(item.id), "dismiss")}>
+                    <button type="button" className={linkClass} onClick={() => void decide(String(item.id), "dismiss")}>
                       Dismiss
                     </button>
                   </div>
@@ -172,7 +174,7 @@ export function DocumentCheckPanel(props: Props) {
             <div className="space-y-2">
               <h3 className="font-medium">Observations</h3>
               {observations.map((item) => (
-                <p key={String(item.id)} className="border border-amber-200 bg-amber-50 p-2">
+                <p key={String(item.id)} className="rounded-xl border border-amber-200 bg-amber-50 p-3">
                   <span className="block text-xs uppercase text-amber-900">
                     {observationLabel(String(item.origin), Boolean(item.ai_generated))}
                   </span>

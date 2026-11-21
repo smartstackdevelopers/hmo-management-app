@@ -3,6 +3,7 @@ import { redirect } from "next/navigation";
 import { EmptyState } from "@/components/dashboard/EmptyState";
 import { ErrorState } from "@/components/dashboard/ErrorState";
 import { PageHeader } from "@/components/dashboard/PageHeader";
+import { DataTable, StatusChip, Td, Th, linkClass } from "@/components/ui/primitives";
 import { auth0, isAuth0Configured } from "@/lib/auth0";
 import { fetchNotesAnalysisInbox } from "@/lib/notesAnalysisApi";
 import { canAny } from "@/lib/rbac";
@@ -25,7 +26,7 @@ export default async function NotesAnalysisInboxPage() {
     return <EmptyState title="Unavailable" description="Organisation context required." />;
   }
   const token = (await auth0.getAccessToken())?.token;
-  if (!token) return <ErrorState description="Access token unavailable." />;
+  if (!token) return <ErrorState description="We couldn't confirm your sign-in. Please sign in again." />;
 
   let items: Array<Record<string, unknown>> = [];
   try {
@@ -35,15 +36,15 @@ export default async function NotesAnalysisInboxPage() {
       role: session.authorization?.active_role,
     });
     items = res.items;
-  } catch (e) {
-    return <ErrorState description={e instanceof Error ? e.message : "Failed to load inbox"} />;
+  } catch {
+    return <ErrorState description={"Failed to load inbox"} />;
   }
 
   return (
     <div className="space-y-6">
       <PageHeader
-        eyebrow="F3.4"
-        title="Notes analysis inbox"
+        eyebrow="AI"
+        title="Notes analysis"
         description="AI-generated note summaries and suggestions awaiting human review. AI content is never a verified staff statement."
       />
       {items.length === 0 ? (
@@ -52,23 +53,32 @@ export default async function NotesAnalysisInboxPage() {
           description="Run analysis from an authorised daily note, or wait for the configured overnight batch."
         />
       ) : (
-        <ul className="divide-y border-t border-slate-200">
-          {items.map((item) => (
-            <li key={String(item.source_id)} className="py-4">
-              <div className="flex flex-wrap items-center justify-between gap-2">
-                <div>
-                  <div className="font-medium text-slate-900">{String(item.title)}</div>
-                  <div className="text-sm text-slate-600">
-                    {String(item.reference)} · {String(item.status)} · AI-generated
-                  </div>
-                </div>
-                <Link className="text-sm text-blue-700 underline" href={`/dashboard/notes-analysis/${item.source_id}`}>
-                  Review
-                </Link>
-              </div>
-            </li>
-          ))}
-        </ul>
+        <DataTable caption="Notes analysis inbox">
+          <thead>
+            <tr>
+              <Th>Note</Th>
+              <Th>Reference</Th>
+              <Th>Status</Th>
+              <Th>Review</Th>
+            </tr>
+          </thead>
+          <tbody>
+            {items.map((item) => (
+              <tr key={String(item.source_id)}>
+                <Td className="font-semibold text-slate-900">{String(item.title)}</Td>
+                <Td>{String(item.reference)}</Td>
+                <Td>
+                  <StatusChip status={String(item.status)} />
+                </Td>
+                <Td>
+                  <Link className={linkClass} href={`/dashboard/notes-analysis/${item.source_id}`}>
+                    Review
+                  </Link>
+                </Td>
+              </tr>
+            ))}
+          </tbody>
+        </DataTable>
       )}
     </div>
   );

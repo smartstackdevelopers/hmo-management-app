@@ -6,6 +6,7 @@ import { HousingApplicationAnalysisPanel } from "@/components/housing/HousingApp
 import { EmptyState } from "@/components/dashboard/EmptyState";
 import { ErrorState } from "@/components/dashboard/ErrorState";
 import { PageHeader } from "@/components/dashboard/PageHeader";
+import { Card, StatusChip, linkClass } from "@/components/ui/primitives";
 import { auth0, isAuth0Configured } from "@/lib/auth0";
 import { fetchApplication } from "@/lib/housingApi";
 import { canRunHousingApplicationAnalysis } from "@/lib/housingApplicationAnalysisView";
@@ -35,11 +36,11 @@ export default async function HousingApplicationDetailPage({
     return <EmptyState title="Organisation required" description="Active organisation needed." />;
   }
   if (!isAuth0Configured() || !auth0) {
-    return <EmptyState title="Auth0 not configured" description="Cannot load application." />;
+    return <EmptyState title="Sign-in not configured" description="Sign-in isn't set up in this environment yet, so this page can't load." />;
   }
   try {
     const token = (await auth0.getAccessToken())?.token;
-    if (!token) return <ErrorState description="Access token unavailable." />;
+    if (!token) return <ErrorState description="We couldn't confirm your sign-in. Please sign in again." />;
     const app = await fetchApplication({
       accessToken: token,
       organisationId: orgId,
@@ -64,16 +65,28 @@ export default async function HousingApplicationDetailPage({
     ]);
     return (
       <div className="mx-auto max-w-3xl space-y-6">
+        <Link href="/dashboard/housing-applications" className={`text-sm ${linkClass}`}>
+          ← Back to applications
+        </Link>
         <PageHeader
           eyebrow={app.reference_number}
-          title={`Application · ${app.status}`}
-          description={`Priority ${app.priority}${
-            app.on_waiting_list ? ` · waiting list position ${app.waiting_list_position}` : ""
-          }`}
+          title="Housing application"
+          description={
+            app.on_waiting_list
+              ? `Waiting list position ${app.waiting_list_position}. Position does not guarantee allocation.`
+              : "Review the housing requirements and record a decision."
+          }
         />
-        <p className="whitespace-pre-wrap text-sm text-slate-700">{app.housing_requirements}</p>
+        <div className="flex flex-wrap gap-2">
+          <StatusChip status={app.status} />
+          <StatusChip status={app.priority} />
+          {app.on_waiting_list ? <StatusChip tone="blue">Waiting list #{app.waiting_list_position}</StatusChip> : null}
+        </div>
+        <Card>
+          <p className="whitespace-pre-wrap text-sm leading-6 text-slate-700">{app.housing_requirements}</p>
+        </Card>
         {app.information_required_notes ? (
-          <p className="rounded border border-amber-200 bg-amber-50 p-3 text-sm text-amber-900">
+          <p className="rounded-2xl border border-amber-200 bg-amber-50 p-4 text-sm text-amber-900">
             Information required: {app.information_required_notes}
           </p>
         ) : null}
@@ -106,15 +119,12 @@ export default async function HousingApplicationDetailPage({
             canGeneratePack={Boolean(canGeneratePack)}
           />
         ) : null}
-        <Link href="/dashboard/housing-applications" className="text-sm text-teal-800 hover:underline">
-          Back to applications
-        </Link>
       </div>
     );
-  } catch (error) {
+  } catch {
     return (
       <ErrorState
-        description={error instanceof Error ? error.message : "Failed to load application."}
+        description={"Failed to load application."}
       />
     );
   }

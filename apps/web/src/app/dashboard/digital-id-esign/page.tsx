@@ -1,6 +1,8 @@
 import { redirect } from "next/navigation";
 import { EmptyState } from "@/components/dashboard/EmptyState";
 import { ErrorState } from "@/components/dashboard/ErrorState";
+import { PageHeader } from "@/components/dashboard/PageHeader";
+import { CardHeader, DataTable, StatCard, StatGrid, StatusChip, Td, Th } from "@/components/ui/primitives";
 import { auth0, isAuth0Configured } from "@/lib/auth0";
 import { canAny } from "@/lib/rbac";
 import { requireAuthenticatedSession } from "@/lib/session";
@@ -27,7 +29,7 @@ export default async function DigitalIdEsignPage() {
     return <EmptyState title="Unavailable" description="Organisation context required." />;
   }
   const token = (await auth0.getAccessToken())?.token;
-  if (!token) return <ErrorState description="Access token unavailable." />;
+  if (!token) return <ErrorState description="We couldn't confirm your sign-in. Please sign in again." />;
 
   const perms = session.authorization?.permissions ?? [];
   const admin = perms.includes("digital_id_esign.manage") || perms.includes("digital_id_esign.reports");
@@ -44,68 +46,84 @@ export default async function DigitalIdEsignPage() {
     pending = await listMyPendingSignatures(token, orgId);
   } catch {
     return (
-      <ErrorState description="Digital ID / e-sign add-on is disabled until DIGITAL_ID_ESIGN_GLOBAL_ENABLED and organisation settings are approved." />
+      <ErrorState
+        title="Signing unavailable"
+        description="Digital signing isn't switched on for this organisation yet."
+        retryHref="/dashboard/digital-id-esign"
+      />
     );
   }
 
   return (
-    <div className="mx-auto max-w-5xl space-y-6 p-6">
-      <header>
-        <h1 className="text-2xl font-semibold text-slate-900">Digital ID &amp; e-signatures (add-on)</h1>
-        <p className="mt-1 text-sm text-slate-600">
-          Identity is verified only after authorised review. Signatures record consent — advanced trust services require
-          separate provider and legal approval.
-        </p>
-      </header>
+    <div className="mx-auto max-w-6xl space-y-6">
+      <PageHeader
+        eyebrow="Compliance / Signatures"
+        title="Digital ID and e-signatures"
+        description="Identity is verified only after authorised review. Signatures record consent — advanced trust services require separate provider and legal approval."
+      />
       {admin ? (
-        <section className="grid gap-4 sm:grid-cols-4">
-          <Stat label="Identity records" value={String(stats.identity_records ?? "0")} />
-          <Stat label="Verified identities" value={String(stats.identity_verified ?? "0")} />
-          <Stat label="Pending signing" value={String(stats.signing_pending ?? "0")} />
-          <Stat label="Completed signing" value={String(stats.signing_completed ?? "0")} />
-        </section>
+        <StatGrid>
+          <StatCard label="Identity records" value={String(stats.identity_records ?? "0")} />
+          <StatCard label="Verified identities" value={String(stats.identity_verified ?? "0")} tone="green" />
+          <StatCard
+            label="Pending signing"
+            value={String(stats.signing_pending ?? "0")}
+            tone="amber"
+            hint={Number(stats.signing_pending ?? 0) > 0 ? "Pending" : undefined}
+          />
+          <StatCard label="Completed signing" value={String(stats.signing_completed ?? "0")} />
+        </StatGrid>
       ) : null}
-      <section className="rounded-lg border border-slate-200 bg-white p-4">
-        <h2 className="font-medium text-slate-800">My pending signatures</h2>
-        <ul className="mt-3 divide-y divide-slate-100 text-sm">
-          {pending.length === 0 ? (
-            <li className="py-2 text-slate-500">Nothing awaiting your signature.</li>
+      <div className="space-y-3">
+        <CardHeader title="My pending signatures" description="Requests waiting for your acknowledgement." />
+        {pending.length === 0 ? (
+          <EmptyState title="Nothing to sign" description="Nothing is awaiting your signature." />
+        ) : (
+          <DataTable caption="Pending signatures">
+            <thead>
+              <tr>
+                <Th>Title</Th>
+                <Th>Reference</Th>
+              </tr>
+            </thead>
+            <tbody>
+              {pending.map((p) => (
+                <tr key={String(p.signer_id)} className="hover:bg-slate-50">
+                  <Td className="font-semibold text-slate-900">{String(p.title)}</Td>
+                  <Td className="text-slate-500">{String(p.reference)}</Td>
+                </tr>
+              ))}
+            </tbody>
+          </DataTable>
+        )}
+      </div>
+      {admin ? (
+        <div className="space-y-3">
+          <CardHeader title="Signing requests" />
+          {requests.length === 0 ? (
+            <EmptyState title="No requests" description="No signing requests have been created yet." />
           ) : (
-            pending.map((p) => (
-              <li key={String(p.signer_id)} className="flex justify-between py-2">
-                <span>{String(p.title)}</span>
-                <span className="text-slate-500">{String(p.reference)}</span>
-              </li>
-            ))
+            <DataTable caption="Signing requests">
+              <thead>
+                <tr>
+                  <Th>Title</Th>
+                  <Th>Status</Th>
+                </tr>
+              </thead>
+              <tbody>
+                {requests.map((r) => (
+                  <tr key={String(r.id)} className="hover:bg-slate-50">
+                    <Td className="font-semibold text-slate-900">{String(r.title)}</Td>
+                    <Td>
+                      <StatusChip status={String(r.status)} />
+                    </Td>
+                  </tr>
+                ))}
+              </tbody>
+            </DataTable>
           )}
-        </ul>
-      </section>
-      {admin ? (
-        <section className="rounded-lg border border-slate-200 bg-white p-4">
-          <h2 className="font-medium text-slate-800">Signing requests</h2>
-          <ul className="mt-3 divide-y divide-slate-100 text-sm">
-            {requests.length === 0 ? (
-              <li className="py-2 text-slate-500">No requests yet.</li>
-            ) : (
-              requests.map((r) => (
-                <li key={String(r.id)} className="flex justify-between py-2">
-                  <span>{String(r.title)}</span>
-                  <span className="text-slate-500">{String(r.status)}</span>
-                </li>
-              ))
-            )}
-          </ul>
-        </section>
+        </div>
       ) : null}
-    </div>
-  );
-}
-
-function Stat({ label, value }: { label: string; value: string }) {
-  return (
-    <div className="rounded-lg border border-slate-200 bg-white p-4">
-      <div className="text-xs uppercase tracking-wide text-slate-500">{label}</div>
-      <div className="mt-1 text-2xl font-semibold text-slate-900">{value}</div>
     </div>
   );
 }

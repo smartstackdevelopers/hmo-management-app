@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
+import { humanize } from "@/components/ui/primitives";
 import { organisationRequestHeaders } from "@/lib/organisation";
 import type { RequestFileLink } from "@/lib/maintenanceApi";
 
@@ -78,24 +79,25 @@ export function MaintenancePhotoGallery({
   }, [requestId, accessToken, organisationId, role, fileIdKey, files]);
 
   if (files.length === 0) {
-    return <p className="text-sm text-slate-500">No photographs yet.</p>;
+    return <p className="text-sm text-slate-500">No photos yet.</p>;
   }
 
   return (
-    <ul className="grid gap-3 sm:grid-cols-2">
+    <ul className="grid gap-4 sm:grid-cols-2">
       {files.map((f) => (
-        <li key={f.file_id} className="rounded border border-slate-200 p-2">
+        <li key={f.file_id} className="overflow-hidden rounded-xl border border-slate-200 bg-white">
           {urls[f.file_id] ? (
             // eslint-disable-next-line @next/next/no-img-element -- private blob from authorised API
-            <img src={urls[f.file_id]} alt={f.caption || "Maintenance photo"} className="h-40 w-full rounded object-cover" />
+            <img src={urls[f.file_id]} alt={f.caption || "Repair photo"} className="h-40 w-full object-cover" />
           ) : errors[f.file_id] ? (
-            <p className="text-xs text-red-700">{errors[f.file_id]}</p>
+            <p className="flex h-40 items-center justify-center bg-red-50 px-3 text-center text-xs text-red-700">{errors[f.file_id]}</p>
           ) : (
-            <p className="text-xs text-slate-500">Loading…</p>
+            <p className="flex h-40 items-center justify-center bg-slate-50 text-xs text-slate-500">Loading…</p>
           )}
-          <p className="mt-1 text-xs uppercase text-slate-500">{f.photo_kind}</p>
-          {f.caption ? <p className="text-sm text-slate-800">{f.caption}</p> : null}
-          <p className="mt-1 font-mono text-[10px] text-slate-400">{f.file_id}</p>
+          <div className="p-3">
+            <p className="text-xs font-semibold text-slate-500">{humanize(f.photo_kind)}</p>
+            {f.caption ? <p className="mt-0.5 text-sm text-slate-800">{f.caption}</p> : null}
+          </div>
         </li>
       ))}
     </ul>
