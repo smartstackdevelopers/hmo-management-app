@@ -5,6 +5,7 @@ import {
   AuthShell,
   authInputClass,
   authLabelClass,
+  authLinkClass,
   authPrimaryButtonClass,
 } from "@/components/auth/AuthShell";
 import { friendlyAuthError } from "@/lib/authErrors";
@@ -12,10 +13,10 @@ import { friendlyAuthError } from "@/lib/authErrors";
 const API_BASE = process.env.NEXT_PUBLIC_API_BASE_URL ?? "http://localhost:8000";
 
 const PUBLIC_ROLES = [
-  { value: "tenant", label: "Tenant", hint: "I live in a home managed on HMore" },
-  { value: "landlord", label: "Landlord", hint: "I own or manage properties" },
-  { value: "support_worker", label: "Support Worker", hint: "I support tenants" },
-  { value: "maintenance_contractor", label: "Maintenance Contractor", hint: "I carry out repairs" },
+  { value: "tenant", label: "Tenant" },
+  { value: "landlord", label: "Landlord" },
+  { value: "support_worker", label: "Support Worker" },
+  { value: "maintenance_contractor", label: "Maintenance Contractor" },
 ] as const;
 
 async function registerAction(formData: FormData) {
@@ -46,6 +47,8 @@ async function registerAction(formData: FormData) {
   redirect("/register/pending");
 }
 
+const checkboxClass = "h-4 w-4 rounded accent-brand-700";
+
 export default async function RegisterPage({
   searchParams,
 }: {
@@ -54,60 +57,35 @@ export default async function RegisterPage({
   const params = await searchParams;
   return (
     <AuthShell
-      headline="Request access to HMore."
-      subline="Tell us who you are. Your housing provider reviews every request before access is granted."
+      headline="Join your organisation on HMore."
+      subline="Every account is reviewed by an administrator before access is granted."
+      points={["Choose your role", "Admin approval", "Secure from day one"]}
     >
-      <header>
+      <header className="-mt-8">
         <h1 className="text-3xl font-bold tracking-tight text-slate-900">Request access</h1>
-        <p className="mt-2 text-sm leading-6 text-slate-600">
-          Your account stays pending until an administrator approves it. Admin roles are assigned by your organisation.
-        </p>
+        <p className="mt-1.5 text-sm text-slate-600">Tell us who you are. Admin roles cannot be self-requested.</p>
       </header>
       {params.error ? (
-        <div className="mt-6">
+        <div className="mt-5">
           <AuthAlert message={params.error.slice(0, 200)} />
         </div>
       ) : null}
-      <form action={registerAction} className="mt-6 space-y-5">
-        <fieldset>
-          <legend className={authLabelClass}>I am a…</legend>
-          <div className="mt-2 grid grid-cols-1 gap-2 sm:grid-cols-2">
-            {PUBLIC_ROLES.map((role, index) => (
-              <label
-                key={role.value}
-                className="flex cursor-pointer gap-3 rounded-xl border border-slate-200 bg-white p-3 text-sm hover:border-brand-300 has-[:checked]:border-brand-600 has-[:checked]:bg-brand-50 has-[:focus-visible]:ring-2 has-[:focus-visible]:ring-brand-600"
-              >
-                <input
-                  type="radio"
-                  name="requested_role"
-                  value={role.value}
-                  required
-                  defaultChecked={index === 0}
-                  className="mt-0.5 h-4 w-4 accent-brand-700"
-                />
-                <span>
-                  <span className="block font-semibold text-slate-900">{role.label}</span>
-                  <span className="block text-xs text-slate-500">{role.hint}</span>
-                </span>
-              </label>
-            ))}
-          </div>
-        </fieldset>
+      <form action={registerAction} className="mt-5 space-y-4">
         <label className={authLabelClass}>
           Full name
           <input name="full_name" required autoComplete="name" className={authInputClass} />
         </label>
-        <div className="grid gap-5 sm:grid-cols-2">
+        <div className="grid gap-4 sm:grid-cols-2">
           <label className={authLabelClass}>
             Email
             <input name="email" type="email" required autoComplete="email" className={authInputClass} />
           </label>
           <label className={authLabelClass}>
-            Phone <span className="font-normal text-slate-400">(optional)</span>
-            <input name="phone" type="tel" autoComplete="tel" className={authInputClass} />
+            Phone (optional)
+            <input name="phone" type="tel" autoComplete="tel" placeholder="07700 900456" className={authInputClass} />
           </label>
         </div>
-        <div className="grid gap-5 sm:grid-cols-2">
+        <div className="grid gap-4 sm:grid-cols-2">
           <label className={authLabelClass}>
             Password
             <input
@@ -116,7 +94,7 @@ export default async function RegisterPage({
               required
               minLength={8}
               autoComplete="new-password"
-              aria-describedby="password-hint"
+              title="At least 8 characters"
               className={authInputClass}
             />
           </label>
@@ -132,40 +110,42 @@ export default async function RegisterPage({
             />
           </label>
         </div>
-        <p id="password-hint" className="-mt-3 text-xs text-slate-500">
-          At least 8 characters.
-        </p>
-        <details className="rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm">
-          <summary className="cursor-pointer font-medium text-slate-700">I have an organisation or invitation code</summary>
-          <div className="mt-4 space-y-4">
-            <label className={authLabelClass}>
-              Organisation code
-              <input name="organisation_slug" placeholder="e.g. demo-housing" className={authInputClass} />
-            </label>
-            <label className={authLabelClass}>
-              Invitation code
-              <input name="invitation_code" className={authInputClass} />
-            </label>
-          </div>
-        </details>
-        <div className="space-y-2 text-sm text-slate-700">
-          <label className="flex items-start gap-2.5">
-            <input name="terms_accepted" type="checkbox" required className="mt-0.5 h-4 w-4 accent-brand-700" />
+        <div className="grid gap-4 sm:grid-cols-2">
+          <label className={authLabelClass}>
+            Role
+            <select name="requested_role" required defaultValue="tenant" className={authInputClass}>
+              {PUBLIC_ROLES.map((role) => (
+                <option key={role.value} value={role.value}>
+                  {role.label}
+                </option>
+              ))}
+            </select>
+          </label>
+          <label className={authLabelClass}>
+            Organisation code
+            <input name="organisation_slug" placeholder="e.g. demo-housing" className={authInputClass} />
+          </label>
+        </div>
+        <input type="hidden" name="invitation_code" value="" />
+        <div className="space-y-2.5 pt-1 text-xs text-slate-600">
+          <label className="flex items-center gap-2.5">
+            <input name="terms_accepted" type="checkbox" required className={checkboxClass} />
             I accept the terms of use
           </label>
-          <label className="flex items-start gap-2.5">
-            <input name="privacy_accepted" type="checkbox" required className="mt-0.5 h-4 w-4 accent-brand-700" />
+          <label className="flex items-center gap-2.5">
+            <input name="privacy_accepted" type="checkbox" required className={checkboxClass} />
             I accept the privacy notice
           </label>
         </div>
-        <button type="submit" className={authPrimaryButtonClass}>
-          Send request
-        </button>
+        <div className="pt-1">
+          <button type="submit" className={authPrimaryButtonClass}>
+            Submit request
+          </button>
+        </div>
       </form>
-      <p className="mt-6 text-center text-sm text-slate-600">
-        Already approved?{" "}
-        <Link className="font-semibold text-brand-700 hover:underline" href="/login">
-          Sign in
+      <p className="mt-5 text-center text-xs">
+        <Link className={authLinkClass} href="/login">
+          Already registered? Sign in
         </Link>
       </p>
     </AuthShell>
