@@ -7,8 +7,10 @@
  * Tokens come from native HttpOnly cookies (or demo cookie via session.ts).
  */
 
+import { cookies } from "next/headers";
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
+import { DEMO_LOGIN_COOKIE, isWebDemoAuthEnabled } from "@/lib/demoAuth";
 import { isNativeAuthEnabled, readNativeAccessToken } from "@/lib/nativeAuth";
 
 function hasLegacyAuth0Env(): boolean {
@@ -24,15 +26,20 @@ function hasLegacyAuth0Env(): boolean {
 
 /** True when the app can obtain a server-side API access token. */
 export function isAuth0Configured(): boolean {
-  return isNativeAuthEnabled() || hasLegacyAuth0Env();
+  return isNativeAuthEnabled() || isWebDemoAuthEnabled() || hasLegacyAuth0Env();
 }
 
 type TokenResult = { token: string };
 
 async function getAccessToken(): Promise<TokenResult | undefined> {
   const token = await readNativeAccessToken();
-  if (!token) return undefined;
-  return { token };
+  if (token) return { token };
+  if (isWebDemoAuthEnabled()) {
+    const jar = await cookies();
+    const demoToken = jar.get(DEMO_LOGIN_COOKIE)?.value;
+    if (demoToken) return { token: demoToken };
+  }
+  return undefined;
 }
 
 async function getSession(): Promise<{

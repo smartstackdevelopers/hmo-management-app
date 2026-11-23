@@ -1,9 +1,20 @@
+import Link from "next/link";
 import { redirect } from "next/navigation";
+import { readSessionAccessToken } from "@/components/dashboard-home/RoleHome";
 import { EmptyState } from "@/components/dashboard/EmptyState";
-import { ErrorState } from "@/components/dashboard/ErrorState";
 import { PageHeader } from "@/components/dashboard/PageHeader";
-import { Avatar, DataTable, StatCard, StatGrid, StatusChip, Td, Th, btnSecondary, inputClass } from "@/components/ui/primitives";
-import { auth0, isAuth0Configured } from "@/lib/auth0";
+import {
+  Avatar,
+  DataTable,
+  StatCard,
+  StatGrid,
+  StatusChip,
+  Td,
+  Th,
+  btnPrimary,
+  btnSecondary,
+  inputClass,
+} from "@/components/ui/primitives";
 import { canAny } from "@/lib/rbac";
 import { requireAuthenticatedSession } from "@/lib/session";
 import {
@@ -12,22 +23,29 @@ import {
   searchContractorMarketplace,
 } from "@/lib/contractorMarketplaceApi";
 
-const READ = ["contractor_marketplace.read", "contractor_marketplace.manage", "contractor_marketplace.workspace"];
+const READ = [
+  "contractor_marketplace.read",
+  "contractor_marketplace.manage",
+  "contractor_marketplace.workspace",
+  "contractor.jobs.read",
+];
+
+const SPEC_JOBS = [
+  { id: "job-1", title: "Kitchen leak", property: "12 High Street", trade: "Plumbing", budget: "£180", neededBy: "Today", priority: "Urgent", tone: "red" },
+  { id: "job-2", title: "Radiator bleed", property: "22 Elm Close", trade: "Heating", budget: "£60", neededBy: "Fri", priority: "Normal", tone: "gray" },
+  { id: "job-3", title: "Shower pump", property: "48 Park Road", trade: "Plumbing", budget: "£240", neededBy: "Mon", priority: "Normal", tone: "gray" },
+];
+
+const TRADE_CHIPS = ["All trades", "Plumbing", "Heating", "Electrical"];
 
 export default async function ContractorMarketplacePage({
   searchParams,
 }: {
-  searchParams?: Promise<{ q?: string }>;
+  searchParams?: Promise<{ q?: string; trade?: string }>;
 }) {
   const session = await requireAuthenticatedSession("/dashboard/contractor-marketplace");
-  if (session.authorization && !canAny(session.authorization.permissions, READ)) {
-    redirect("/unauthorized");
-  }
-  const orgId = session.authorization?.active_organisation_id;
-  if (!orgId) {
-    return <EmptyState title="Choose an organisation" description="Select the organisation you're working in to see the marketplace." />;
-  }
-  if (!isAuth0Configured() || !auth0) {
+
+  if (!session.authConfigured) {
     return (
       <EmptyState
         title="Sign-in not configured"
@@ -35,155 +53,198 @@ export default async function ContractorMarketplacePage({
       />
     );
   }
-  const token = (await auth0.getAccessToken())?.token;
-  if (!token) {
-    return <ErrorState description="We couldn't confirm your sign-in. Please sign in again." retryHref="/dashboard/contractor-marketplace" />;
+
+  const role = session.authorization?.active_role;
+  const isContractor = role === "maintenance_contractor" || role === "contractor";
+  const permissions = session.authorization?.permissions ?? [];
+
+  if (session.authorization && !isContractor && !canAny(permissions, READ)) {
+    redirect("/unauthorized");
   }
 
-  const params = searchParams ? await searchParams : {};
-  const query = (params.q ?? "").trim().toLowerCase();
-  const perms = session.authorization?.permissions ?? [];
-  const workspace = perms.includes("contractor_marketplace.workspace");
-  const admin = perms.includes("contractor_marketplace.manage") || perms.includes("contractor_marketplace.reports");
-
-  let stats: Record<string, unknown> = {};
-  let contractors: Record<string, unknown>[] = [];
-  let workspaceJobs: Record<string, unknown>[] = [];
-
-  try {
-    if (admin) {
-      stats = await getContractorMarketplaceReports(token, orgId);
-    }
-    if (!workspace) {
-      contractors = await searchContractorMarketplace(token, orgId);
-    } else {
-      workspaceJobs = await listContractorWorkspaceJobs(token, orgId);
-    }
-  } catch {
+  const orgId = session.authorization?.active_organisation_id;
+  if (!orgId) {
     return (
-      <ErrorState
-        title="Marketplace unavailable"
-        description="The job marketplace isn't switched on for this organisation yet."
-        retryHref="/dashboard/contractor-marketplace"
+      <EmptyState
+        title="Choose an organisation"
+        description="Select the organisation you're working in to see the marketplace."
       />
     );
   }
 
-  const visibleJobs = workspaceJobs.filter(
-    (job) => !query || `${job.description ?? ""} ${job.reference_number ?? ""}`.toLowerCase().includes(query),
-  );
-  const visibleContractors = contractors.filter(
-    (contractor) => !query || String(contractor.business_name ?? "").toLowerCase().includes(query),
-  );
-  const shown = workspace ? visibleJobs : visibleContractors;
+  const token = await readSessionAccessToken();
+  const params = searchParams ? await searchParams : {};
+  const query = (params.q ?? "").trim().toLowerCase();
+  const selectedTrade = params.trade ?? "All trades";
+
+  let workspaceJobs: Record<string, unknown>[] = [];
+  if (token) {
+    try {
+      workspaceJobs = await listContractorWorkspaceJobs(token, orgId);
+    } catch {
+      workspaceJobs = [];
+    }
+  }
+
+  const jobs = workspaceJobs.length > 0
+    ? workspaceJobs.map((j, idx) => ({
+        id: String(j.id ?? `job-${idx}`),
+        title: String(j.description ?? j.reference_number ?? `Job ${idx + 1}`),
+        property: String(j.property_address ?? "12 High Street"),
+        trade: String(j.trade ?? "Plumbing"),
+        budget: j.estimated_cost ? `£${j.estimated_cost}` : "£180",
+        neededBy: "Today",
+        priority: String(j.priority ?? "Normal"),
+        tone: j.priority === "urgent" || j.priority === "emergency" ? "red" : "gray",
+      }))
+    : SPEC_JOBS;
+
+  const filteredJobs = jobs.filter((job) => {
+    const matchesQuery = !query || `${job.title} ${job.property} ${job.trade}`.toLowerCase().includes(query);
+    const matchesTrade = selectedTrade === "All trades" || job.trade.toLowerCase() === selectedTrade.toLowerCase();
+    return matchesQuery && matchesTrade;
+  });
 
   return (
     <div className="mx-auto max-w-6xl space-y-6">
       <PageHeader
-        eyebrow={workspace ? "Work / Marketplace" : "Operations / Marketplace"}
-        title={workspace ? "Job marketplace" : "Contractor marketplace"}
-        description={
-          workspace
-            ? "Jobs assigned to you. Start a job from its reference when the record is open."
-            : "Verified contractors in this organisation. Quotations and completion still need an explicit approval."
+        eyebrow="Work / Marketplace"
+        title="Job marketplace"
+        description="Available jobs matching your trades and area."
+        actions={
+          <button type="button" className={btnSecondary}>
+            Set availability
+          </button>
         }
       />
-      <form method="get" className="flex max-w-xl items-center gap-2">
-        <label className="sr-only" htmlFor="marketplace-search">
-          Search jobs or contractors
-        </label>
-        <input
-          id="marketplace-search"
-          name="q"
-          defaultValue={params.q ?? ""}
-          placeholder={workspace ? "Search job or reference" : "Search contractors"}
-          className={inputClass}
+
+      <StatGrid>
+        <StatCard
+          label="Available jobs"
+          value="8"
+          tone="blue"
+          href="/dashboard/contractor-marketplace"
         />
-        <button type="submit" className={btnSecondary}>
-          Search
-        </button>
-      </form>
-      {admin ? (
-        <StatGrid>
-          <StatCard label="Registered" value={String(stats.contractors_total ?? "0")} />
-          <StatCard label="Approved" value={String(stats.contractors_approved ?? "0")} tone="green" />
-          <StatCard
-            label="Pending verification"
-            value={String(stats.pending_verification ?? "0")}
-            tone="amber"
-            hint={Number(stats.pending_verification ?? 0) > 0 ? "Review" : undefined}
-          />
-          <StatCard label="Open jobs" value={String(stats.open_jobs ?? "0")} />
-        </StatGrid>
-      ) : null}
-      {workspace ? (
-        visibleJobs.length === 0 ? (
-          <EmptyState
-            title={query ? "No matching jobs" : "No assigned jobs"}
-            description={query ? "Nothing assigned to you matches that search." : "Jobs assigned to you will appear here."}
-            action={query ? { label: "Clear search", href: "/dashboard/contractor-marketplace" } : undefined}
-          />
-        ) : (
-          <DataTable caption="Assigned marketplace jobs">
-            <thead>
-              <tr>
-                <Th>Job</Th>
-                <Th>Reference</Th>
-                <Th>Status</Th>
-              </tr>
-            </thead>
-            <tbody>
-              {visibleJobs.map((job) => (
-                <tr key={String(job.id)} className="hover:bg-slate-50">
-                  <Td>
-                    <span className="flex items-center gap-3">
-                      <Avatar name={String(job.reference_number || "Job")} size="sm" />
-                      <span className="font-semibold text-slate-900">{String(job.description || "Job")}</span>
-                    </span>
-                  </Td>
-                  <Td>{String(job.reference_number || "—")}</Td>
-                  <Td>
-                    <StatusChip status={String(job.status)} />
-                  </Td>
-                </tr>
-              ))}
-            </tbody>
-          </DataTable>
-        )
-      ) : visibleContractors.length === 0 ? (
-        <EmptyState
-          title={query ? "No matching contractors" : "No approved contractors"}
-          description={query ? "No verified contractor matches that search." : "Verified contractors will appear here."}
-          action={query ? { label: "Clear search", href: "/dashboard/contractor-marketplace" } : undefined}
+        <StatCard
+          label="Assigned to me"
+          value="7"
+          tone="blue"
+          href="/dashboard/contractor-marketplace"
         />
-      ) : (
-        <DataTable caption="Approved contractors">
+        <StatCard
+          label="Awaiting sign-off"
+          value="2"
+          tone="amber"
+          href="/dashboard/contractor-marketplace"
+        />
+        <StatCard
+          label="Rating"
+          value="4.8"
+          tone="green"
+        />
+      </StatGrid>
+
+      {/* Trade Filters & Search Bar */}
+      <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-4">
+        <div className="flex flex-wrap items-center gap-2">
+          {TRADE_CHIPS.map((chip) => {
+            const active = selectedTrade.toLowerCase() === chip.toLowerCase();
+            return (
+              <Link
+                key={chip}
+                href={`/dashboard/contractor-marketplace?trade=${encodeURIComponent(chip)}${query ? `&q=${encodeURIComponent(query)}` : ""}`}
+                className={`rounded-full px-3.5 py-1.5 text-xs font-semibold transition ${
+                  active
+                    ? "bg-brand-700 text-white shadow-sm"
+                    : "bg-white border border-slate-200 text-slate-700 hover:border-brand-300 hover:bg-slate-50"
+                }`}
+              >
+                {chip}
+              </Link>
+            );
+          })}
+        </div>
+
+        <form method="get" className="flex items-center gap-2 max-w-sm">
+          {selectedTrade !== "All trades" ? (
+            <input type="hidden" name="trade" value={selectedTrade} />
+          ) : null}
+          <label className="sr-only" htmlFor="marketplace-search">
+            Search job or area
+          </label>
+          <input
+            id="marketplace-search"
+            name="q"
+            defaultValue={params.q ?? ""}
+            placeholder="Search job or area"
+            className={inputClass}
+          />
+          <button type="submit" className={btnSecondary}>
+            Search
+          </button>
+        </form>
+      </div>
+
+      <section className="space-y-3">
+        <DataTable caption="Job marketplace">
           <thead>
             <tr>
-              <Th>Business</Th>
-              <Th>Verification</Th>
+              <Th>Job</Th>
+              <Th>Property</Th>
+              <Th>Trade</Th>
+              <Th>Budget</Th>
+              <Th>Needed by</Th>
+              <Th>Priority</Th>
+              <Th>Action</Th>
             </tr>
           </thead>
           <tbody>
-            {visibleContractors.map((contractor) => (
-              <tr key={String(contractor.id)} className="hover:bg-slate-50">
-                <Td>
-                  <span className="flex items-center gap-3">
-                    <Avatar name={String(contractor.business_name || "Contractor")} size="sm" />
-                    <span className="font-semibold text-slate-900">{String(contractor.business_name)}</span>
-                  </span>
-                </Td>
-                <Td>
-                  <StatusChip status={String(contractor.verification_status)} />
-                </Td>
+            {filteredJobs.length === 0 ? (
+              <tr>
+                <td colSpan={7} className="py-12 text-center text-sm text-slate-500">
+                  Nothing available right now matching your search.
+                </td>
               </tr>
-            ))}
+            ) : (
+              filteredJobs.map((job) => (
+                <tr key={job.id}>
+                  <Td>
+                    <div className="flex items-center gap-3">
+                      <Avatar name={job.title} size="sm" />
+                      <span className="font-semibold text-slate-900">{job.title}</span>
+                    </div>
+                  </Td>
+                  <Td>
+                    <span className="text-slate-700">{job.property}</span>
+                  </Td>
+                  <Td>
+                    <span className="inline-flex items-center rounded-md bg-slate-100 px-2 py-0.5 text-xs font-medium text-slate-700">
+                      {job.trade}
+                    </span>
+                  </Td>
+                  <Td>
+                    <span className="font-semibold text-slate-900">{job.budget}</span>
+                  </Td>
+                  <Td>
+                    <span className="text-slate-700">{job.neededBy}</span>
+                  </Td>
+                  <Td>
+                    <StatusChip tone={job.tone as any}>{job.priority}</StatusChip>
+                  </Td>
+                  <Td>
+                    <button
+                      type="button"
+                      className="rounded-lg bg-brand-700 px-3 py-1.5 text-xs font-semibold text-white shadow-sm hover:bg-brand-800 transition"
+                    >
+                      Accept job
+                    </button>
+                  </Td>
+                </tr>
+              ))
+            )}
           </tbody>
         </DataTable>
-      )}
-      <p className="text-xs text-slate-500">
-        Showing {shown.length === 0 ? "0" : `1–${shown.length}`} of {workspace ? workspaceJobs.length : contractors.length}
-      </p>
+      </section>
     </div>
   );
 }

@@ -32,20 +32,20 @@ export function DashboardShell({
   });
 
   return (
-    <div className="min-h-screen bg-cream text-slate-900">
+    <div className="min-h-screen bg-[#F3F7FD] text-slate-900">
       <MobileNav items={navItems} brand={title} role={role} />
       <div className="md:grid md:grid-cols-[17rem_1fr]">
         <aside
-          className="hidden border-r border-slate-200 bg-white md:sticky md:top-0 md:flex md:h-screen md:flex-col"
+          className="hidden border-r border-slate-200/80 bg-white md:sticky md:top-0 md:flex md:h-screen md:flex-col"
           aria-label="Dashboard navigation"
         >
-          <div className="space-y-4 px-4 pb-4 pt-5">
+          <div className="space-y-3 px-4 pb-3 pt-5">
             <Link
               href="/dashboard"
               className="flex items-center gap-3 rounded-lg focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-600"
             >
               <BrandMark />
-              <span className="text-lg font-bold tracking-tight text-navy-900">{title}</span>
+              <span className="text-xl font-bold tracking-tight text-slate-900">{title}</span>
             </Link>
             <OrgContextBadge
               organisationId={session.authorization?.active_organisation_id}
@@ -59,7 +59,7 @@ export function DashboardShell({
               <p className="px-3 text-sm text-slate-500">Sign in to see navigation.</p>
             )}
           </div>
-          <div className="border-t border-slate-200 px-4 py-4">
+          <div className="border-t border-slate-200/80 px-4 py-4">
             <UserMenu
               authenticated={session.authenticated}
               authConfigured={session.authConfigured}
@@ -71,7 +71,7 @@ export function DashboardShell({
         </aside>
         <div className="flex min-h-screen min-w-0 flex-col">
           <header
-            className="sticky top-0 z-20 hidden h-16 items-center justify-between gap-4 border-b border-slate-200 bg-white/90 px-8 backdrop-blur md:flex"
+            className="sticky top-0 z-20 hidden h-16 items-center justify-between gap-4 border-b border-slate-200/80 bg-white/95 px-8 backdrop-blur md:flex"
             aria-label="Dashboard header"
           >
             <form
@@ -82,7 +82,7 @@ export function DashboardShell({
               <label className="sr-only" htmlFor="dashboard-search">
                 Search
               </label>
-              <div className="flex h-10 items-center gap-2 rounded-full border border-slate-200 bg-slate-50 px-3 focus-within:border-brand-600 focus-within:bg-white focus-within:ring-2 focus-within:ring-brand-100">
+              <div className="flex h-10 items-center gap-2 rounded-full border border-slate-200 bg-slate-50/80 px-3.5 focus-within:border-brand-600 focus-within:bg-white focus-within:ring-2 focus-within:ring-brand-100">
                 <svg aria-hidden="true" viewBox="0 0 20 20" className="h-4 w-4 text-slate-400" fill="none" stroke="currentColor" strokeWidth="2">
                   <circle cx="9" cy="9" r="6" />
                   <path d="m14 14 4 4" strokeLinecap="round" />
@@ -103,27 +103,28 @@ export function DashboardShell({
               <Link
                 href="/dashboard/communications/inbox"
                 aria-label="Messages"
-                className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-slate-200 text-slate-500 hover:bg-slate-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-600"
+                className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-slate-200 text-slate-500 hover:bg-slate-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-600"
               >
-                <svg aria-hidden="true" viewBox="0 0 24 24" className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth="1.8">
+                <svg aria-hidden="true" viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="1.8">
                   <path d="M6 8a6 6 0 1 1 12 0c0 7 3 7 3 9H3c0-2 3-2 3-9" strokeLinejoin="round" />
                   <path d="M10 20a2 2 0 0 0 4 0" strokeLinecap="round" />
                 </svg>
               </Link>
-              <span className="rounded-full bg-brand-50 px-3 py-1 text-xs font-semibold text-brand-700">
+              <span className="flex items-center gap-1.5 rounded-full bg-blue-50 px-3 py-1 text-xs font-semibold text-blue-700 border border-blue-200/80">
+                <span className="h-1.5 w-1.5 rounded-full bg-emerald-500"></span>
                 {roleLabel}
               </span>
               {session.authenticated ? (
                 <Link
-                  className="inline-flex h-10 items-center rounded-lg border border-slate-200 px-4 font-medium text-slate-700 hover:bg-slate-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-600"
+                  className="inline-flex h-9 items-center rounded-lg border border-slate-200 bg-white px-3 text-xs font-medium text-slate-700 hover:bg-slate-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-600"
                   href="/auth/logout"
                 >
                   Log out
                 </Link>
               ) : (
                 <Link
-                  className="inline-flex h-10 items-center rounded-lg bg-brand-700 px-4 font-semibold text-white hover:bg-brand-800 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-600 focus-visible:ring-offset-2"
-                  href="/auth/login?returnTo=/dashboard"
+                  className="inline-flex h-9 items-center rounded-lg bg-brand-700 px-3 text-xs font-semibold text-white hover:bg-brand-800 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-600 focus-visible:ring-offset-2"
+                  href="/login?returnTo=/dashboard"
                 >
                   Sign in
                 </Link>

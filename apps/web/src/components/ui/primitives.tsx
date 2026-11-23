@@ -306,3 +306,55 @@ export function FilterTabs({ tabs }: { tabs: { label: string; href: string; acti
     </nav>
   );
 }
+
+
+/** Vertical bar chart matching Blue & White design spec (§3, W-SA-01, W-OA-01, W-SW-01, W-TN-01). */
+export function VerticalBarChart({
+  title,
+  caption,
+  bars,
+  yMax,
+  highlightLast = true,
+}: {
+  title: string;
+  caption?: string;
+  bars: { label: string; value: number }[];
+  yMax?: number;
+  highlightLast?: boolean;
+}) {
+  const max = yMax ?? Math.max(...bars.map((b) => b.value), 1);
+  return (
+    <Card className="flex h-full flex-col justify-between">
+      <CardHeader
+        title={title}
+        action={caption ? <span className="text-xs font-medium text-slate-400">{caption}</span> : undefined}
+      />
+      <div className="mt-2 flex flex-1 flex-col justify-end">
+        <div className="flex h-44 items-end justify-between gap-2 px-2 pt-4">
+          {bars.map((bar, idx) => {
+            const heightPercent = Math.min(100, Math.max(8, (bar.value / max) * 100));
+            const isLast = highlightLast && idx === bars.length - 1;
+            return (
+              <div key={bar.label + idx} className="group flex h-full flex-1 flex-col items-center justify-end gap-2">
+                <div
+                  className={`w-full rounded-t transition-all ${
+                    isLast ? "bg-brand-700" : "bg-blue-100 hover:bg-blue-200"
+                  }`}
+                  style={{ height: `${heightPercent}%` }}
+                  title={`${bar.label}: ${bar.value}`}
+                />
+              </div>
+            );
+          })}
+        </div>
+        <div className="mt-2 flex justify-between gap-1 border-t border-slate-100 px-1 pt-2 text-[10px] font-medium text-slate-400">
+          {bars.map((bar, idx) => (
+            <span key={bar.label + idx} className="flex-1 truncate text-center">
+              {bar.label}
+            </span>
+          ))}
+        </div>
+      </div>
+    </Card>
+  );
+}
