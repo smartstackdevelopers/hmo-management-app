@@ -21,6 +21,7 @@ import {
   btnPrimary,
   btnSecondary,
   linkClass,
+  type Tone,
 } from "@/components/ui/primitives";
 import { fetchLandlordDashboard, fetchPortfolio, type LandlordDashboard } from "@/lib/landlordEnterpriseApi";
 import { LOGIN_PATH, canAny, type ApprovedRole } from "@/lib/rbac";
@@ -79,7 +80,7 @@ const SPEC_ATTENTION: AttentionEntry[] = [
   },
 ];
 
-const FALLBACK_PROPERTIES = [
+const FALLBACK_PROPERTIES: Array<{ id: string; name: string; rooms: string; occupancy: string; rent: string; compliance: string; tone: Tone }> = [
   { id: "prop-1", name: "12 High Street", rooms: "6", occupancy: "6 / 6", rent: "£2,460", compliance: "Valid", tone: "green" },
   { id: "prop-2", name: "48 Park Road", rooms: "5", occupancy: "4 / 5", rent: "£2,050", compliance: "Valid", tone: "green" },
   { id: "prop-3", name: "7 Mill Lane", rooms: "8", occupancy: "8 / 8", rent: "£3,120", compliance: "Gas due", tone: "amber" },
@@ -167,7 +168,15 @@ export default async function LandlordDashboardPage() {
     rawPortfolio = [];
   }
 
-  const properties = rawPortfolio.length > 0
+  const properties: Array<{
+    id: string;
+    name: string;
+    rooms: string;
+    occupancy: string;
+    rent: string;
+    compliance: string;
+    tone: Tone;
+  }> = rawPortfolio.length > 0
     ? rawPortfolio.map((row, idx) => ({
         id: text(row.property_id || `prop-${idx}`),
         name: text(row.property_name || `Property ${idx + 1}`),
@@ -175,7 +184,7 @@ export default async function LandlordDashboardPage() {
         occupancy: `${text(row.occupied_rooms || "4")} / ${text(row.total_rooms || "4")}`,
         rent: idx === 0 ? "£2,460" : idx === 1 ? "£2,050" : "£3,120",
         compliance: idx === 2 ? "Gas due" : "Valid",
-        tone: idx === 2 ? "amber" : "green",
+        tone: (idx === 2 ? "amber" : "green") as Tone,
       }))
     : FALLBACK_PROPERTIES;
 
@@ -294,7 +303,7 @@ export default async function LandlordDashboardPage() {
                   <span className="font-medium text-slate-900">{prop.rent}</span>
                 </Td>
                 <Td>
-                  <StatusChip tone={prop.tone as any}>{prop.compliance}</StatusChip>
+                  <StatusChip tone={prop.tone}>{prop.compliance}</StatusChip>
                 </Td>
               </tr>
             ))}

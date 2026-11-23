@@ -2,7 +2,7 @@ import { redirect } from "next/navigation";
 import { EmptyState } from "@/components/dashboard/EmptyState";
 import { ErrorState } from "@/components/dashboard/ErrorState";
 import { PageHeader } from "@/components/dashboard/PageHeader";
-import { DataTable, StatCard, StatGrid, StatusChip, Td, Th, humanize } from "@/components/ui/primitives";
+import { DataTable, StatCard, StatGrid, Td, Th, humanize } from "@/components/ui/primitives";
 import { auth0, isAuth0Configured } from "@/lib/auth0";
 import { fetchPerformanceDashboard } from "@/lib/performanceApi";
 import { canAny } from "@/lib/rbac";

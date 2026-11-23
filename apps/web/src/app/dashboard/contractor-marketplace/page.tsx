@@ -11,17 +11,13 @@ import {
   StatusChip,
   Td,
   Th,
-  btnPrimary,
   btnSecondary,
   inputClass,
+  type Tone,
 } from "@/components/ui/primitives";
 import { canAny } from "@/lib/rbac";
 import { requireAuthenticatedSession } from "@/lib/session";
-import {
-  getContractorMarketplaceReports,
-  listContractorWorkspaceJobs,
-  searchContractorMarketplace,
-} from "@/lib/contractorMarketplaceApi";
+import { listContractorWorkspaceJobs } from "@/lib/contractorMarketplaceApi";
 
 const READ = [
   "contractor_marketplace.read",
@@ -30,7 +26,7 @@ const READ = [
   "contractor.jobs.read",
 ];
 
-const SPEC_JOBS = [
+const SPEC_JOBS: Array<{ id: string; title: string; property: string; trade: string; budget: string; neededBy: string; priority: string; tone: Tone }> = [
   { id: "job-1", title: "Kitchen leak", property: "12 High Street", trade: "Plumbing", budget: "£180", neededBy: "Today", priority: "Urgent", tone: "red" },
   { id: "job-2", title: "Radiator bleed", property: "22 Elm Close", trade: "Heating", budget: "£60", neededBy: "Fri", priority: "Normal", tone: "gray" },
   { id: "job-3", title: "Shower pump", property: "48 Park Road", trade: "Plumbing", budget: "£240", neededBy: "Mon", priority: "Normal", tone: "gray" },
@@ -95,7 +91,7 @@ export default async function ContractorMarketplacePage({
         budget: j.estimated_cost ? `£${j.estimated_cost}` : "£180",
         neededBy: "Today",
         priority: String(j.priority ?? "Normal"),
-        tone: j.priority === "urgent" || j.priority === "emergency" ? "red" : "gray",
+        tone: (j.priority === "urgent" || j.priority === "emergency" ? "red" : "gray") as Tone,
       }))
     : SPEC_JOBS;
 
@@ -229,7 +225,7 @@ export default async function ContractorMarketplacePage({
                     <span className="text-slate-700">{job.neededBy}</span>
                   </Td>
                   <Td>
-                    <StatusChip tone={job.tone as any}>{job.priority}</StatusChip>
+                    <StatusChip tone={job.tone}>{job.priority}</StatusChip>
                   </Td>
                   <Td>
                     <button

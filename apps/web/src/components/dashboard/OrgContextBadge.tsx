@@ -1,9 +1,9 @@
 type OrgContextBadgeProps = {
   organisationId: string | null | undefined;
-  roleLabel: string;
+  roleLabel?: string;
 };
 
-export function OrgContextBadge({ organisationId, roleLabel }: OrgContextBadgeProps) {
+export function OrgContextBadge({ organisationId }: OrgContextBadgeProps) {
   const orgName = organisationId ? "Demo Housing" : "Demo Housing";
   return (
     <div

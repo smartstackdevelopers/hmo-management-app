@@ -22,6 +22,7 @@ import {
   btnPrimary,
   btnSecondary,
   linkClass,
+  type Tone,
 } from "@/components/ui/primitives";
 import { fetchMaintenanceDashboard, type MaintenanceDashboard } from "@/lib/maintenanceApi";
 import { fetchOrgWorkflowsDashboard } from "@/lib/orgWorkflowsApi";
@@ -86,7 +87,7 @@ const SPEC_ATTENTION: AttentionEntry[] = [
   },
 ];
 
-const STAFF_WORKLOAD = [
+const STAFF_WORKLOAD: Array<{ name: string; role: string; caseload: string; visits: string; status: string; tone: Tone }> = [
   { name: "Amir Hassan", role: "Support worker", caseload: "12", visits: "14", status: "On track", tone: "green" },
   { name: "Lisa Grant", role: "Support worker", caseload: "15", visits: "9", status: "Overloaded", tone: "red" },
   { name: "Kevin Brooks", role: "Contractor", caseload: "7 jobs", visits: "—", status: "On track", tone: "green" },
@@ -270,7 +271,7 @@ export default async function OrganisationAdminDashboardPage() {
                   <span className="font-medium text-slate-800">{staff.visits}</span>
                 </Td>
                 <Td>
-                  <StatusChip tone={staff.tone as any}>{staff.status}</StatusChip>
+                  <StatusChip tone={staff.tone}>{staff.status}</StatusChip>
                 </Td>
               </tr>
             ))}

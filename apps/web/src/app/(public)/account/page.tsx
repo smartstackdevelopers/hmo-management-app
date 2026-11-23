@@ -10,7 +10,6 @@ import {
 } from "@/components/dashboard-home/RoleHome";
 import { PageHeader } from "@/components/dashboard/PageHeader";
 import {
-  Avatar,
   Card,
   DataTable,
   StatCard,
@@ -24,11 +23,11 @@ import {
   humanize,
   linkClass,
   toneForStatus,
+  type Tone,
 } from "@/components/ui/primitives";
-import { auth0, isAuth0Configured } from "@/lib/auth0";
-import { fetchCommunicationsDashboard, listAnnouncements, listInbox } from "@/lib/communicationsApi";
+import { fetchCommunicationsDashboard, listInbox } from "@/lib/communicationsApi";
 import { homePathForRole, roleDisplayName } from "@/lib/dashboardAccess";
-import { listMaintenanceRequests, type MaintenanceRequest } from "@/lib/maintenanceApi";
+import { listMaintenanceRequests } from "@/lib/maintenanceApi";
 import { organisationRequestHeaders } from "@/lib/organisation";
 import { canAny, type AuthorizationSnapshot } from "@/lib/rbac";
 import { getDashboardSession, type DashboardSession } from "@/lib/session";
@@ -77,7 +76,7 @@ const SPEC_UPDATES: AttentionEntry[] = [
   },
 ];
 
-const SPEC_RECENT_REPAIRS = [
+const SPEC_RECENT_REPAIRS: Array<{ id: string; title: string; room: string; reported: string; status: string; tone: Tone }> = [
   { id: "rep-1", title: "Boiler pressure low", room: "Kitchen", reported: "18 Nov", status: "In progress", tone: "amber" },
   { id: "rep-2", title: "Shower leak", room: "Bathroom", reported: "28 Oct", status: "Done", tone: "green" },
 ];
@@ -234,7 +233,7 @@ async function AccountHome({ session, token }: { session: DashboardSession; toke
   const canMessages = canAny(permissions, ["communication.messages.read"]);
   const canMeetings = canAny(permissions, ["timeline.meeting.read"]);
 
-  const [profile, housing, obligations, repairs, comms, inbox, announcements] = await Promise.all([
+  const [profile, housing, obligations, repairs, comms, inbox] = await Promise.all([
     orgGet<TenantProfile>("/api/v1/tenant/me", token, orgId, role).catch(() => null),
     orgGet<TenantHousing>("/api/v1/tenant/me/housing", token, orgId, role).catch(() => null),
     canRent
@@ -243,9 +242,6 @@ async function AccountHome({ session, token }: { session: DashboardSession; toke
     canRepairs ? listMaintenanceRequests(opts).catch(() => null) : null,
     canMessages ? fetchCommunicationsDashboard(opts).catch(() => null) : null,
     canMessages ? listInbox(opts).catch(() => null) : null,
-    canAny(permissions, ["communication.announcements.read"])
-      ? listAnnouncements(opts).catch(() => null)
-      : null,
   ]);
 
   const profileId = profile?.id;
@@ -274,8 +270,7 @@ async function AccountHome({ session, token }: { session: DashboardSession; toke
   const upcoming = nextMeeting(meetings);
   const dueHint =
     obligation && typeof obligation.due_date === "string" ? shortDate(obligation.due_date) : null;
-  const notices = Array.isArray(announcements) ? announcements : [];
-
+  
   const liveAttention: AttentionEntry[] = [];
   for (const repair of (openRepairs ?? []).slice(0, 2)) {
     const urgent = repair.priority === "emergency" || repair.priority === "urgent" || repair.is_emergency_priority;
@@ -317,7 +312,7 @@ async function AccountHome({ session, token }: { session: DashboardSession; toke
         room: "Room",
         reported: shortDate(r.reported_at) ?? "—",
         status: humanize(r.status),
-        tone: r.status === "completed" ? "green" : "amber",
+        tone: (r.status === "completed" ? "green" : "amber") as Tone,
       }))
     : SPEC_RECENT_REPAIRS;
 
@@ -414,7 +409,7 @@ async function AccountHome({ session, token }: { session: DashboardSession; toke
                   <span className="text-slate-600">{repair.reported}</span>
                 </Td>
                 <Td>
-                  <StatusChip tone={repair.tone as any}>{repair.status}</StatusChip>
+                  <StatusChip tone={repair.tone}>{repair.status}</StatusChip>
                 </Td>
               </tr>
             ))}

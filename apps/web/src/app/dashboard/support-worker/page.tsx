@@ -20,12 +20,9 @@ import {
   btnPrimary,
   btnSecondary,
   linkClass,
+  type Tone,
 } from "@/components/ui/primitives";
-import { fetchWorkload, type WorkloadResponse } from "@/lib/incidentsApi";
-import { fetchTasks, fetchVisits, type TaskItem, type Visit } from "@/lib/opsApi";
-import { canAny } from "@/lib/rbac";
-import { fetchSupportPlansDashboard } from "@/lib/supportPlansApi";
-import { fetchCaseload, fetchHandovers, type Handover } from "@/lib/supportApi";
+import { fetchCaseload } from "@/lib/supportApi";
 import { requireDashboardRole } from "@/lib/session";
 import { CaseloadClient } from "@/components/support/CaseloadClient";
 
@@ -68,7 +65,7 @@ const SPEC_PRIORITIES: AttentionEntry[] = [
   },
 ];
 
-const SPEC_TENANTS = [
+const SPEC_TENANTS: Array<{ name: string; property: string; risk: string; riskTone: Tone; nextVisit: string; plan: string; planTone: Tone }> = [
   { name: "Sara Ahmed", property: "12 High Street", risk: "Medium", riskTone: "amber", nextVisit: "Today 10:00", plan: "Active", planTone: "green" },
   { name: "Leah Morris", property: "7 Mill Lane", risk: "High", riskTone: "red", nextVisit: "Overdue", plan: "Review", planTone: "amber" },
   { name: "Daniel Okafor", property: "48 Park Road", risk: "Low", riskTone: "green", nextVisit: "Today 13:30", plan: "Active", planTone: "green" },
@@ -111,7 +108,7 @@ export default async function SupportWorkerDashboardPage({
     );
   }
 
-  const { permissions, active_role: role } = session.authorization;
+  const { active_role: role } = session.authorization;
   const token = await readSessionAccessToken();
 
   let caseloadItems: Awaited<ReturnType<typeof fetchCaseload>>["items"] = [];
@@ -223,7 +220,7 @@ export default async function SupportWorkerDashboardPage({
                   <span className="text-slate-700">{t.property}</span>
                 </Td>
                 <Td>
-                  <StatusChip tone={t.riskTone as any}>{t.risk}</StatusChip>
+                  <StatusChip tone={t.riskTone}>{t.risk}</StatusChip>
                 </Td>
                 <Td>
                   <span className={`font-medium ${t.nextVisit === "Overdue" ? "text-red-600 font-semibold" : "text-slate-800"}`}>
@@ -231,7 +228,7 @@ export default async function SupportWorkerDashboardPage({
                   </span>
                 </Td>
                 <Td>
-                  <StatusChip tone={t.planTone as any}>{t.plan}</StatusChip>
+                  <StatusChip tone={t.planTone}>{t.plan}</StatusChip>
                 </Td>
               </tr>
             ))}
