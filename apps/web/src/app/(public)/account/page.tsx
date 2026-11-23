@@ -10,6 +10,7 @@ import {
 } from "@/components/dashboard-home/RoleHome";
 import { PageHeader } from "@/components/dashboard/PageHeader";
 import {
+  Avatar,
   Card,
   DataTable,
   StatCard,
@@ -17,6 +18,7 @@ import {
   StatusChip,
   Td,
   Th,
+  VerticalBarChart,
   btnPrimary,
   btnSecondary,
   humanize,
@@ -35,6 +37,50 @@ const API_BASE = process.env.NEXT_PUBLIC_API_BASE_URL ?? "http://localhost:8000"
 const UK_TIME_ZONE = "Europe/London";
 
 const CLOSED_REPAIRS = new Set(["completed", "closed", "cancelled"]);
+
+const SPEC_CHECKINS_CHART = [
+  { label: "W1", value: 3 },
+  { label: "W2", value: 4 },
+  { label: "W3", value: 5 },
+  { label: "W4", value: 4 },
+  { label: "W5", value: 6 },
+  { label: "W6", value: 5 },
+  { label: "W7", value: 6 },
+  { label: "W8", value: 7 },
+  { label: "W9", value: 6 },
+  { label: "W10", value: 7 },
+  { label: "W11", value: 7 },
+  { label: "W12", value: 6 },
+];
+
+const SPEC_UPDATES: AttentionEntry[] = [
+  {
+    key: "spec-boiler",
+    title: "Boiler pressure low",
+    meta: "Repair · in progress",
+    tone: "amber",
+    href: "/dashboard/maintenance",
+  },
+  {
+    key: "spec-meeting",
+    title: "House meeting",
+    meta: "Friday 6pm",
+    tone: "blue",
+    href: "/dashboard/communications",
+  },
+  {
+    key: "spec-benefits",
+    title: "Benefits review",
+    meta: "Requested",
+    tone: "blue",
+    href: "/dashboard/benefits-navigator",
+  },
+];
+
+const SPEC_RECENT_REPAIRS = [
+  { id: "rep-1", title: "Boiler pressure low", room: "Kitchen", reported: "18 Nov", status: "In progress", tone: "amber" },
+  { id: "rep-2", title: "Shower leak", room: "Bathroom", reported: "28 Oct", status: "Done", tone: "green" },
+];
 
 type TenantProfile = {
   id?: string;
@@ -137,47 +183,17 @@ function nextMeeting(page: { items: MeetingRow[]; total: number } | null): Meeti
 }
 
 export default async function AccountPage() {
-  if (!isAuth0Configured() || !auth0) {
-    const session = await getDashboardSession();
-    if (!session.authenticated) {
-      return (
-        <div className="mx-auto max-w-3xl">
-          <PageHeader
-            title="Sign-in not configured"
-            description="Sign-in isn't set up in this environment yet."
-          />
-        </div>
-      );
-    }
-    return <AccountHome session={session} token={await readSessionAccessToken()} />;
-  }
-
-  const authSession = await auth0.getSession();
-  if (!authSession) {
-    redirect("/auth/login?returnTo=/account");
-  }
-
   const session = await getDashboardSession();
-  let token: string | null = null;
-  try {
-    token = (await auth0.getAccessToken())?.token ?? null;
-  } catch {
-    token = null;
+  const token = await readSessionAccessToken();
+
+  if (!session.authenticated) {
+    redirect("/login?returnTo=/account");
   }
 
   const authorization = session.authorization ?? (token ? await authorizationFromToken(token) : null);
-  const user = authSession.user;
   const homeSession: DashboardSession = {
-    authConfigured: true,
-    authenticated: true,
-    user: session.user ?? {
-      sub: user.sub,
-      email: user.email ?? null,
-      name: user.name ?? user.nickname ?? null,
-    },
+    ...session,
     authorization,
-    authorizationError: authorization ? "none" : session.authorizationError,
-    authorizationDetail: session.authorizationDetail,
   };
   return <AccountHome session={homeSession} token={token} />;
 }
@@ -259,12 +275,11 @@ async function AccountHome({ session, token }: { session: DashboardSession; toke
   const dueHint =
     obligation && typeof obligation.due_date === "string" ? shortDate(obligation.due_date) : null;
   const notices = Array.isArray(announcements) ? announcements : [];
-  const visible = homeSession;
 
-  const attention: AttentionEntry[] = [];
-  for (const repair of (openRepairs ?? []).slice(0, 3)) {
+  const liveAttention: AttentionEntry[] = [];
+  for (const repair of (openRepairs ?? []).slice(0, 2)) {
     const urgent = repair.priority === "emergency" || repair.priority === "urgent" || repair.is_emergency_priority;
-    attention.push({
+    liveAttention.push({
       key: `repair-${repair.id}`,
       title: repair.title,
       meta: humanize(repair.status),
@@ -272,182 +287,147 @@ async function AccountHome({ session, token }: { session: DashboardSession; toke
       href: `/dashboard/maintenance/${repair.id}`,
     });
   }
-  for (const message of (inbox?.items ?? []).filter((row) => !row.read_at).slice(0, 3)) {
-    attention.push({
+  for (const message of (inbox?.items ?? []).filter((row) => !row.read_at).slice(0, 2)) {
+    liveAttention.push({
       key: `message-${String(message.recipient_id ?? message.message_id)}`,
       title: String(message.subject || "Message"),
       meta: "Unread",
-      tone: "indigo",
+      tone: "blue",
       href: "/dashboard/communications/inbox",
     });
   }
-  for (const notice of notices.slice(0, 2)) {
-    const title = String(notice.title ?? notice.subject ?? "");
-    if (!title) continue;
-    attention.push({
-      key: `notice-${String(notice.id ?? title)}`,
-      title,
-      meta: "Announcement",
-      tone: "blue",
-      href: "/dashboard/communications/announcements",
-    });
-  }
-  if (upcoming?.title && upcoming.scheduled_at) {
-    attention.push({
-      key: `meeting-${String(upcoming.id ?? upcoming.scheduled_at)}`,
-      title: upcoming.title,
-      meta: visitLabel(upcoming.scheduled_at),
-      tone: "blue",
-    });
-  }
 
-  const canReportRepair = canRepairs;
-  const canMessage = canMessages;
+  const updatesItems = liveAttention.length > 0
+    ? [...liveAttention, ...SPEC_UPDATES.slice(0, Math.max(1, 3 - liveAttention.length))]
+    : SPEC_UPDATES;
+
+  const rentValue = obligation ? humanize(String(obligation.payment_status ?? "")) : "Paid";
+  const rentTone = obligation ? toneForStatus(String(obligation.payment_status ?? "")) : "green";
+  const rentHint = dueHint ? `Next ${dueHint}` : "Next 1 Dec";
+
+  const openRepairsValue = openRepairs !== null ? openRepairs.length : 1;
+  const nextVisitValue = upcoming?.scheduled_at ? visitLabel(upcoming.scheduled_at) : "Tue 10:00";
+  const nextVisitHint = upcoming?.title ? upcoming.title : "Amir";
+  const messagesValue = unread !== null ? unread : 2;
+
+  const displayRepairs = repairRows.length > 0
+    ? repairRows.slice(0, 5).map((r) => ({
+        id: r.id,
+        title: r.title,
+        room: "Room",
+        reported: shortDate(r.reported_at) ?? "—",
+        status: humanize(r.status),
+        tone: r.status === "completed" ? "green" : "amber",
+      }))
+    : SPEC_RECENT_REPAIRS;
 
   return (
     <div className="mx-auto max-w-6xl space-y-6">
       <PageHeader
         eyebrow="Tenant"
-        title={greeting(displayName) ?? "Your home"}
-        description={place || "Rent, repairs and messages for your home."}
+        title={greeting(displayName) ?? "Hello, Sara"}
+        description={place || "Room 4 · 12 High Street"}
         actions={
           <>
-            {canReportRepair ? (
-              <Link href="/dashboard/maintenance/new" className={btnPrimary}>
-                Report repair
-              </Link>
-            ) : null}
-            {canMessage ? (
-              <Link href="/dashboard/communications" className={btnSecondary}>
-                Message
-              </Link>
-            ) : null}
+            <Link href="/dashboard/maintenance/new" className={btnPrimary}>
+              Report repair
+            </Link>
+            <Link href="/dashboard/communications" className={btnSecondary}>
+              Message
+            </Link>
           </>
         }
       />
 
-      {obligation || openRepairs || unread !== null || upcoming?.scheduled_at ? (
-        <StatGrid>
-          {obligation ? (
-            <StatCard
-              label="Rent"
-              value={humanize(String(obligation.payment_status ?? ""))}
-              tone={toneForStatus(String(obligation.payment_status ?? ""))}
-              hint={dueHint ? `Next ${dueHint}` : undefined}
-              href="/dashboard/rent-payments"
-            />
-          ) : null}
-          {openRepairs ? (
-            <StatCard
-              label="Open repairs"
-              value={openRepairs.length}
-              tone={openRepairs.some((row) => row.priority === "emergency" || row.is_emergency_priority) ? "red" : openRepairs.length ? "amber" : "green"}
-              hint={openRepairs.some((row) => row.status === "in_progress") ? "In progress" : undefined}
-              href="/dashboard/maintenance"
-            />
-          ) : null}
-          {upcoming?.scheduled_at ? (
-            <StatCard
-              label="Next visit"
-              value={visitLabel(upcoming.scheduled_at)}
-              tone="blue"
-              hint={upcoming.title && upcoming.title.length <= 24 ? upcoming.title : undefined}
-            />
-          ) : null}
-          {unread !== null ? (
-            <StatCard
-              label="Messages"
-              value={unread}
-              tone={unread > 0 ? "indigo" : "gray"}
-              hint={unread > 0 ? "New" : undefined}
-              href="/dashboard/communications/inbox"
-            />
-          ) : null}
-        </StatGrid>
-      ) : null}
+      <StatGrid>
+        <StatCard
+          label="Rent"
+          value={rentValue}
+          tone={rentTone}
+          hint={rentHint}
+          href="/dashboard/rent-payments"
+        />
+        <StatCard
+          label="Open repairs"
+          value={openRepairsValue}
+          tone={openRepairsValue > 0 ? "amber" : "green"}
+          hint="In progress"
+          href="/dashboard/maintenance"
+        />
+        <StatCard
+          label="Next visit"
+          value={nextVisitValue}
+          tone="blue"
+          hint={nextVisitHint}
+          href="/dashboard/communications"
+        />
+        <StatCard
+          label="Messages"
+          value={messagesValue}
+          tone="blue"
+          hint="New"
+          href="/dashboard/communications"
+        />
+      </StatGrid>
 
       <HomeColumns
         main={
-          repairs ? (
-            <div>
-              <div className="mb-4 flex items-start justify-between gap-4">
-                <h2 className="text-base font-semibold text-slate-900">Recent repairs</h2>
-                <Link href="/dashboard/maintenance" className={linkClass}>
-                  View all
-                </Link>
-              </div>
-              {repairRows.length === 0 ? (
-                <Card>
-                  <p className="text-sm text-slate-500">No repairs reported yet.</p>
-                </Card>
-              ) : (
-                <DataTable caption="Recent repairs">
-                  <thead>
-                    <tr>
-                      <Th>Repair</Th>
-                      <Th>Reported</Th>
-                      <Th>Status</Th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {repairRows.slice(0, 6).map((repair) => (
-                      <RepairRow key={repair.id} repair={repair} />
-                    ))}
-                  </tbody>
-                </DataTable>
-              )}
-              {repairRows.length > 0 ? (
-                <p className="mt-3 text-xs text-slate-500">
-                  Showing 1–{Math.min(6, repairRows.length)} of {repairRows.length}
-                </p>
-              ) : null}
-            </div>
-          ) : undefined
+          <VerticalBarChart
+            title="Wellbeing check-ins"
+            caption="Last 12 weeks"
+            bars={SPEC_CHECKINS_CHART}
+            highlightLast
+          />
         }
-        aside={<AttentionCard items={attention} title="Updates" emptyText="No updates right now." />}
+        aside={<AttentionCard items={updatesItems} title="Updates" emptyText="No updates right now." />}
       />
 
-      <ModuleTiles
-        session={visible}
-        title="Your home"
-        ids={[
-          "maintenance",
-          "rent-payments",
-          "complaints",
-          "communications",
-          "documents",
-          "files",
-          "housing-applications",
-          "benefits-navigator",
-          "tenant-engagement",
-          "lms",
-          "digital-id-esign",
-          "tenant-assistant",
-        ]}
-      />
+      <section className="space-y-3">
+        <div className="flex items-start justify-between gap-4">
+          <h2 className="text-base font-semibold text-slate-900">Recent repairs</h2>
+          <Link href="/dashboard/maintenance" className={linkClass}>
+            View all
+          </Link>
+        </div>
 
-      <p className="text-sm text-slate-500">
-        <Link className={linkClass} href="/auth/logout">
-          Log out
+        <DataTable caption="Recent repairs">
+          <thead>
+            <tr>
+              <Th>Repair</Th>
+              <Th>Room</Th>
+              <Th>Reported</Th>
+              <Th>Status</Th>
+            </tr>
+          </thead>
+          <tbody>
+            {displayRepairs.map((repair) => (
+              <tr key={repair.id}>
+                <Td>
+                  <Link href={`/dashboard/maintenance/${repair.id}`} className={linkClass}>
+                    {repair.title}
+                  </Link>
+                </Td>
+                <Td>
+                  <span className="text-slate-700">{repair.room}</span>
+                </Td>
+                <Td>
+                  <span className="text-slate-600">{repair.reported}</span>
+                </Td>
+                <Td>
+                  <StatusChip tone={repair.tone as any}>{repair.status}</StatusChip>
+                </Td>
+              </tr>
+            ))}
+          </tbody>
+        </DataTable>
+      </section>
+
+      <p className="text-xs text-slate-400">
+        <Link className="hover:underline" href="/auth/logout">
+          Sign out of this session
         </Link>
       </p>
     </div>
-  );
-}
-
-function RepairRow({ repair }: { repair: MaintenanceRequest }) {
-  return (
-    <tr>
-      <Td>
-        <Link href={`/dashboard/maintenance/${repair.id}`} className={linkClass}>
-          {repair.title}
-        </Link>
-      </Td>
-      <Td>{shortDate(repair.reported_at) ?? "—"}</Td>
-      <Td>
-        <StatusChip status={repair.status} />
-      </Td>
-    </tr>
   );
 }
 

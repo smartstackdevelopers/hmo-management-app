@@ -376,6 +376,23 @@ export const DASHBOARD_NAV: NavItem[] = [
     section: "platform",
   },
   {
+    id: "registration-approvals",
+    label: "Registration approvals",
+    href: "/dashboard/approvals/registrations",
+    anyOf: ["platform_governance.manage", "organisation.memberships.manage", "organisations.manage"],
+    roles: ["organisation_admin", "super_admin"],
+    section: "platform",
+  },
+  {
+    id: "inspections",
+    label: "Inspections",
+    href: "/dashboard/landlord#inspections",
+    anyOf: ["inspections.manage", "properties.manage"],
+    roles: ["landlord", "organisation_admin"],
+    section: "records",
+  },
+
+  {
     id: "caseload",
     label: "Caseload",
     href: "/dashboard/support-worker",
@@ -736,28 +753,57 @@ const NAV_AREAS: { id: string; label: string; itemIds: string[] }[] = [
   { id: "account", label: "Account", itemIds: ["account", "health"] },
 ];
 
-/** Sidebar groups from the Blue PDF, per role. Other modules stay underneath. */
+/** Sidebar groups from the Blue PDF (Page 5), per role. */
 const ROLE_AREAS: Record<string, { id: string; label: string; itemIds: string[] }[]> = {
+  super_admin: [
+    { id: "overview", label: "Overview", itemIds: ["home", "operational-search"] },
+    {
+      id: "platform",
+      label: "Platform",
+      itemIds: [
+        "organisations",
+        "registration-approvals",
+        "platform-admin",
+        "governance",
+        "audit",
+        "backups",
+        "performance",
+      ],
+    },
+    { id: "ai", label: "AI", itemIds: ["ai-feature-flags", "ai-activity", "ai-costs"] },
+    { id: "insights", label: "Insights", itemIds: ["reports", "finance"] },
+  ],
+  organisation_admin: [
+    { id: "overview", label: "Overview", itemIds: ["home", "communications", "workload"] },
+    { id: "people", label: "People", itemIds: ["tenants", "case-assignments", "rota", "lms"] },
+    { id: "housing", label: "Housing", itemIds: ["properties", "housing-applications", "waiting-list", "documents"] },
+    { id: "operations", label: "Operations", itemIds: ["org-workflows", "maintenance", "complaints", "incidents"] },
+    { id: "community", label: "Community", itemIds: ["community-directory", "wellbeing-resources"] },
+    { id: "insights", label: "Insights", itemIds: ["reports", "finance", "automation", "integrations", "ai-activity"] },
+  ],
   landlord: [
-    { id: "overview", label: "Overview", itemIds: ["home", "landlord-enterprise"] },
+    { id: "overview", label: "Overview", itemIds: ["home"] },
     { id: "portfolio", label: "Portfolio", itemIds: ["properties", "rooms", "room-occupancy", "rent-payments"] },
-    { id: "operations", label: "Operations", itemIds: ["maintenance", "complaints"] },
+    { id: "operations", label: "Operations", itemIds: ["maintenance", "inspections", "complaints"] },
     { id: "compliance", label: "Compliance", itemIds: ["documents", "council-portal"] },
     { id: "insights", label: "Insights", itemIds: ["reports"] },
   ],
-  organisation_admin: [
-    { id: "overview", label: "Overview", itemIds: ["home"] },
-    { id: "operations", label: "Operations", itemIds: ["org-workflows", "case-assignments", "rota"] },
-    { id: "insights", label: "Insights", itemIds: ["reports"] },
-  ],
   support_worker: [
-    { id: "overview", label: "Overview", itemIds: ["home", "caseload"] },
-    { id: "people", label: "Caseload", itemIds: ["visits", "tasks", "handovers", "support-plans-dashboard"] },
+    { id: "my_work", label: "My work", itemIds: ["home", "visits", "tasks", "handovers", "rota"] },
+    { id: "records", label: "Records", itemIds: ["daily-logs", "support-plans-dashboard", "case-summaries", "notes-analysis"] },
     { id: "safety", label: "Safety", itemIds: ["safeguarding", "safeguarding-alerts", "incidents"] },
+    { id: "community", label: "Community", itemIds: ["employment-support", "benefits-navigator"] },
+    { id: "me", label: "Me", itemIds: ["lms"] },
   ],
-  super_admin: [
-    { id: "overview", label: "Overview", itemIds: ["home"] },
-    { id: "platform", label: "Platform", itemIds: ["organisations", "platform-admin", "audit", "ai-feature-flags"] },
+  contractor: [
+    { id: "work", label: "Work", itemIds: ["contractor-marketplace", "maintenance"] },
+    { id: "records", label: "Records", itemIds: ["documents", "finance"] },
+    { id: "me", label: "Me", itemIds: ["account"] },
+  ],
+  tenant: [
+    { id: "my_home", label: "My home", itemIds: ["account", "maintenance", "rent-payments"] },
+    { id: "support", label: "Support", itemIds: ["support-plans-dashboard", "communications", "benefits-navigator"] },
+    { id: "me", label: "Me", itemIds: ["documents", "account"] },
   ],
 };
 
@@ -785,9 +831,15 @@ export function groupNavItemsByArea(items: NavItem[], role?: string | null): Nav
   const byId = new Map(items.map((item) => [item.id, item]));
   const placed = new Set<string>();
   const areas: NavArea[] = [];
-  for (const area of ROLE_AREAS[role ?? ""] ?? []) {
-    pushArea(areas, placed, byId, area);
+  const roleConfig = ROLE_AREAS[role ?? ""];
+
+  if (roleConfig && roleConfig.length > 0) {
+    for (const area of roleConfig) {
+      pushArea(areas, placed, byId, area);
+    }
+    return areas;
   }
+
   for (const area of NAV_AREAS) {
     pushArea(areas, placed, byId, area);
   }
@@ -800,7 +852,13 @@ export function groupNavItemsByArea(items: NavItem[], role?: string | null): Nav
 
 export function isNavItemActive(item: NavItem, currentPath: string): boolean {
   if (item.href === "/dashboard") {
-    return currentPath === "/dashboard";
+    return (
+      currentPath === "/dashboard" ||
+      currentPath === "/dashboard/super-admin" ||
+      currentPath === "/dashboard/organisation-admin" ||
+      currentPath === "/dashboard/landlord" ||
+      currentPath === "/dashboard/support-worker"
+    );
   }
   return currentPath === item.href || currentPath.startsWith(`${item.href}/`);
 }

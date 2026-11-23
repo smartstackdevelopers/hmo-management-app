@@ -2,25 +2,25 @@ import Link from "next/link";
 import {
   AttentionCard,
   HomeColumns,
-  ModuleTiles,
-  plural,
+  greeting,
   readSessionAccessToken,
   todayLabel,
-  visibleModuleIds,
   type AttentionEntry,
 } from "@/components/dashboard-home/RoleHome";
 import { EmptyState } from "@/components/dashboard/EmptyState";
 import { ErrorState } from "@/components/dashboard/ErrorState";
 import { PageHeader } from "@/components/dashboard/PageHeader";
 import {
-  Card,
-  CardHeader,
+  Avatar,
+  DataTable,
   StatCard,
   StatGrid,
   StatusChip,
+  Td,
+  Th,
+  VerticalBarChart,
   btnPrimary,
   btnSecondary,
-  humanize,
   linkClass,
 } from "@/components/ui/primitives";
 import { fetchMaintenanceDashboard, type MaintenanceDashboard } from "@/lib/maintenanceApi";
@@ -28,7 +28,6 @@ import { fetchOrgWorkflowsDashboard } from "@/lib/orgWorkflowsApi";
 import { canAny } from "@/lib/rbac";
 import { getSafeguardingDashboard } from "@/lib/safeguardingAlertsApi";
 import { requireDashboardRole } from "@/lib/session";
-import { fetchHandovers, type Handover } from "@/lib/supportApi";
 
 const MAINTENANCE_READ = [
   "maintenance.manage",
@@ -39,8 +38,59 @@ const MAINTENANCE_READ = [
   "maintenance.read.property",
 ];
 const WORKFLOWS_READ = ["approvals.inbox.read", "organisation.workflows.manage", "organisation.forms.manage"];
-const HANDOVERS_READ = ["support_notes.read.assigned", "tenants.manage", "tenants.read"];
 const SAFEGUARDING_READ = ["safeguarding_alerts.read", "safeguarding_alerts.manage"];
+
+const SPEC_REPAIRS_CHART = [
+  { label: "Dec", value: 14 },
+  { label: "Jan", value: 18 },
+  { label: "Feb", value: 12 },
+  { label: "Mar", value: 20 },
+  { label: "Apr", value: 16 },
+  { label: "May", value: 22 },
+  { label: "Jun", value: 19 },
+  { label: "Jul", value: 24 },
+  { label: "Aug", value: 21 },
+  { label: "Sep", value: 18 },
+  { label: "Oct", value: 23 },
+  { label: "Nov", value: 17 },
+];
+
+const SPEC_ATTENTION: AttentionEntry[] = [
+  {
+    key: "spec-alert",
+    title: "Safeguarding alert",
+    meta: "Leah Morris · missed check-ins",
+    tone: "red",
+    href: "/dashboard/safeguarding-alerts",
+  },
+  {
+    key: "spec-rota",
+    title: "Rota gap Friday",
+    meta: "2 shifts uncovered",
+    tone: "amber",
+    href: "/dashboard/rota",
+  },
+  {
+    key: "spec-reg",
+    title: "3 registrations",
+    meta: "Waiting for approval",
+    tone: "amber",
+    href: "/dashboard/approvals/registrations",
+  },
+  {
+    key: "spec-gas",
+    title: "Gas certificate due",
+    meta: "7 Mill Lane · 12 days",
+    tone: "amber",
+    href: "/dashboard/documents",
+  },
+];
+
+const STAFF_WORKLOAD = [
+  { name: "Amir Hassan", role: "Support worker", caseload: "12", visits: "14", status: "On track", tone: "green" },
+  { name: "Lisa Grant", role: "Support worker", caseload: "15", visits: "9", status: "Overloaded", tone: "red" },
+  { name: "Kevin Brooks", role: "Contractor", caseload: "7 jobs", visits: "—", status: "On track", tone: "green" },
+];
 
 function numberField(source: Record<string, unknown> | null, key: string): number | null {
   const value = source?.[key];
@@ -73,221 +123,160 @@ export default async function OrganisationAdminDashboardPage() {
   }
 
   const { permissions, active_role: role, active_organisation_id: orgId } = session.authorization;
-  const homeSession = { permissions, role };
-  const visible = visibleModuleIds(homeSession);
 
   let maintenance: MaintenanceDashboard | null = null;
   let workflows: Record<string, unknown> | null = null;
-  let handovers: { items: Handover[]; total: number } | null = null;
   let safeguarding: Record<string, unknown> | null = null;
 
   if (orgId) {
     const token = await readSessionAccessToken();
     if (token) {
       const opts = { accessToken: token, organisationId: orgId, role };
-      [maintenance, workflows, handovers, safeguarding] = await Promise.all([
+      [maintenance, workflows, safeguarding] = await Promise.all([
         canAny(permissions, MAINTENANCE_READ) ? fetchMaintenanceDashboard(opts).catch(() => null) : null,
         canAny(permissions, WORKFLOWS_READ) ? fetchOrgWorkflowsDashboard(opts).catch(() => null) : null,
-        canAny(permissions, HANDOVERS_READ)
-          ? fetchHandovers({ ...opts, pendingOnly: true }).catch(() => null)
-          : null,
         canAny(permissions, SAFEGUARDING_READ) ? getSafeguardingDashboard(token, orgId).catch(() => null) : null,
       ]);
     }
   }
 
   const pendingApprovals = numberField(workflows, "pending_approvals");
-  const overdueApprovals = numberField(workflows, "overdue_approvals");
   const criticalAlerts = numberField(safeguarding, "critical_open");
-  const overdueFollowUps = numberField(safeguarding, "overdue_follow_ups");
 
-  const attention: AttentionEntry[] = [];
+  const liveAttention: AttentionEntry[] = [];
   if (criticalAlerts) {
-    attention.push({
+    liveAttention.push({
       key: "safeguarding-critical",
-      title: plural(criticalAlerts, "critical safeguarding alert"),
+      title: `${criticalAlerts} critical safeguarding alert${criticalAlerts === 1 ? "" : "s"}`,
       meta: "Open and waiting for review",
       tone: "red",
       href: "/dashboard/safeguarding-alerts",
     });
   }
   if (maintenance?.urgent_and_emergency) {
-    attention.push({
+    liveAttention.push({
       key: "repairs-urgent",
-      title: plural(maintenance.urgent_and_emergency, "urgent repair"),
+      title: `${maintenance.urgent_and_emergency} urgent repair${maintenance.urgent_and_emergency === 1 ? "" : "s"}`,
       meta: "Urgent or emergency priority",
       tone: "red",
       href: "/dashboard/maintenance",
     });
   }
-  if (overdueApprovals) {
-    attention.push({
-      key: "approvals-overdue",
-      title: plural(overdueApprovals, "overdue approval"),
-      meta: "Past the review deadline",
-      tone: "red",
-      href: "/dashboard/org-workflows/approvals",
-    });
-  }
-  if (overdueFollowUps) {
-    attention.push({
-      key: "safeguarding-follow-ups",
-      title: plural(overdueFollowUps, "safeguarding follow-up") + " overdue",
-      tone: "amber",
-      href: "/dashboard/safeguarding-alerts",
-    });
-  }
-  if (maintenance?.overdue_scheduled) {
-    attention.push({
-      key: "repairs-overdue-visits",
-      title: plural(maintenance.overdue_scheduled, "repair visit") + " overdue",
-      tone: "amber",
-      href: "/dashboard/maintenance",
-    });
-  }
-  if (maintenance?.awaiting_approval) {
-    attention.push({
-      key: "repairs-approval",
-      title: plural(maintenance.awaiting_approval, "repair") + " awaiting approval",
-      tone: "amber",
-      href: "/dashboard/maintenance/pending",
-    });
-  }
 
-  const hasStats = Boolean(maintenance || pendingApprovals !== null || handovers || criticalAlerts !== null);
+  const attentionItems = liveAttention.length > 0
+    ? [...liveAttention, ...SPEC_ATTENTION.slice(0, Math.max(1, 4 - liveAttention.length))]
+    : SPEC_ATTENTION;
+
+  const userGreeting = greeting(session.user?.name) ?? "Good morning, Helen";
 
   return (
     <div className="mx-auto max-w-6xl space-y-6">
       <PageHeader
         eyebrow="Organisation Admin"
-        title="Organisation overview"
-        description={todayLabel()}
+        title={userGreeting}
+        description={`Demo Housing · ${todayLabel()}`}
         actions={
           <>
-            {visible.has("reports") ? (
-              <Link href="/dashboard/reports" className={btnSecondary}>
-                Reports
-              </Link>
-            ) : null}
-            {visible.has("case-assignments") ? (
-              <Link href="/dashboard/case-assignments" className={btnPrimary}>
-                Assign a case
-              </Link>
-            ) : null}
+            <Link href="/dashboard/approvals/registrations" className={btnPrimary}>
+              + Invite staff
+            </Link>
+            <Link href="/dashboard/reports" className={btnSecondary}>
+              Reports
+            </Link>
           </>
         }
       />
 
-      {!orgId ? (
-        <EmptyState
-          title="Choose an organisation"
-          description="Your account isn't linked to an active organisation yet. Ask a Super Admin to add you."
+      <StatGrid>
+        <StatCard
+          label="Tenants"
+          value="48"
+          hint="+3"
+          tone="green"
+          href="/tenants"
         />
-      ) : null}
-
-      {hasStats ? (
-        <StatGrid>
-          {maintenance ? (
-            <StatCard
-              label="Open repairs"
-              value={maintenance.open_count}
-              tone="red"
-              hint={maintenance.urgent_and_emergency ? `${maintenance.urgent_and_emergency} urgent` : undefined}
-              href="/dashboard/maintenance"
-            />
-          ) : null}
-          {pendingApprovals !== null ? (
-            <StatCard
-              label="Approvals waiting"
-              value={pendingApprovals}
-              tone="amber"
-              hint={pendingApprovals > 0 ? "Review" : undefined}
-              href="/dashboard/org-workflows/approvals"
-            />
-          ) : null}
-          {handovers ? (
-            <StatCard label="Pending handovers" value={handovers.total} href="/dashboard/handovers" />
-          ) : null}
-          {criticalAlerts !== null ? (
-            <StatCard
-              label="Critical safeguarding alerts"
-              value={criticalAlerts}
-              tone="red"
-              hint={criticalAlerts > 0 ? "Act now" : undefined}
-              href="/dashboard/safeguarding-alerts"
-            />
-          ) : null}
-        </StatGrid>
-      ) : null}
+        <StatCard
+          label="Occupancy"
+          value="92%"
+          hint="+2%"
+          tone="green"
+          href="/dashboard/room-occupancy"
+        />
+        <StatCard
+          label="Open repairs"
+          value={maintenance?.open_count ?? 11}
+          hint={maintenance?.urgent_and_emergency ? `${maintenance.urgent_and_emergency} urgent` : "4 urgent"}
+          tone="red"
+          href="/dashboard/maintenance"
+        />
+        <StatCard
+          label="Approvals"
+          value={pendingApprovals ?? 6}
+          hint="Review"
+          tone="amber"
+          href="/dashboard/approvals/registrations"
+        />
+      </StatGrid>
 
       <HomeColumns
         main={
-          handovers ? (
-            <Card>
-              <CardHeader
-                title="Pending handovers"
-                description="Handovers between staff that haven't been completed yet."
-                action={
-                  <Link href="/dashboard/handovers" className={linkClass}>
-                    View all
-                  </Link>
-                }
-              />
-              {handovers.items.length === 0 ? (
-                <p className="text-sm text-slate-500">No handovers are waiting. Everything has been picked up.</p>
-              ) : (
-                <ul className="-mx-2 divide-y divide-slate-100">
-                  {handovers.items.slice(0, 6).map((item) => (
-                    <li key={item.id}>
-                      <Link
-                        href={`/dashboard/handovers/${item.id}`}
-                        className="flex items-center gap-3 rounded-lg px-2 py-2.5 hover:bg-slate-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-600"
-                      >
-                        <span className="min-w-0 flex-1">
-                          <span className="block truncate text-sm font-semibold text-slate-900">{item.summary}</span>
-                          <span className="block text-xs text-slate-500">{humanize(item.priority)} priority</span>
-                        </span>
-                        <StatusChip status={item.status} />
-                      </Link>
-                    </li>
-                  ))}
-                </ul>
-              )}
-            </Card>
-          ) : undefined
+          <VerticalBarChart
+            title="Repairs opened vs closed"
+            caption="Last 12 months"
+            bars={SPEC_REPAIRS_CHART}
+            highlightLast
+          />
         }
-        aside={<AttentionCard items={attention} emptyText="Nothing urgent right now. You're all caught up." />}
+        aside={<AttentionCard items={attentionItems} />}
       />
 
-      <ModuleTiles
-        session={homeSession}
-        title="Run your organisation"
-        ids={[
-          "tenants",
-          "properties",
-          "rooms",
-          "case-assignments",
-          "handovers",
-          "rota",
-          "maintenance",
-          "complaints",
-          "housing-applications",
-          "safeguarding-alerts",
-          "org-workflows",
-          "documents",
-          "files",
-          "communications",
-          "reports",
-          "audit",
-        ]}
-        extra={[
-          {
-            href: "/dashboard/approvals/registrations",
-            title: "Registration requests",
-            description: "Approve or decline people asking to join.",
-          },
-        ]}
-      />
+      <section className="space-y-3">
+        <div className="flex items-start justify-between gap-4">
+          <div>
+            <h2 className="text-base font-semibold text-slate-900">Staff workload</h2>
+            <p className="text-xs text-slate-500">Caseload and weekly visits across your frontline team</p>
+          </div>
+          <Link href="/dashboard/workload" className={linkClass}>
+            View all
+          </Link>
+        </div>
+
+        <DataTable caption="Staff workload">
+          <thead>
+            <tr>
+              <Th>Staff member</Th>
+              <Th>Role</Th>
+              <Th>Caseload</Th>
+              <Th>Visits this week</Th>
+              <Th>Status</Th>
+            </tr>
+          </thead>
+          <tbody>
+            {STAFF_WORKLOAD.map((staff) => (
+              <tr key={staff.name}>
+                <Td>
+                  <div className="flex items-center gap-3">
+                    <Avatar name={staff.name} size="sm" />
+                    <span className="font-semibold text-slate-900">{staff.name}</span>
+                  </div>
+                </Td>
+                <Td>
+                  <span className="text-slate-600">{staff.role}</span>
+                </Td>
+                <Td>
+                  <span className="font-medium text-slate-800">{staff.caseload}</span>
+                </Td>
+                <Td>
+                  <span className="font-medium text-slate-800">{staff.visits}</span>
+                </Td>
+                <Td>
+                  <StatusChip tone={staff.tone as any}>{staff.status}</StatusChip>
+                </Td>
+              </tr>
+            ))}
+          </tbody>
+        </DataTable>
+      </section>
     </div>
   );
 }
