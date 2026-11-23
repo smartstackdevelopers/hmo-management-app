@@ -13,6 +13,7 @@ import {
   Td,
   Th,
   btnPrimary,
+  btnSecondary,
   inputClass,
   linkClass,
 } from "@/components/ui/primitives";

@@ -60,6 +60,7 @@ def auth_settings(jwks: dict[str, Any], monkeypatch: pytest.MonkeyPatch):
     monkeypatch.setenv("AUTH0_AUDIENCE", AUDIENCE)
     monkeypatch.setenv("AUTH0_ISSUER", ISSUER)
     monkeypatch.setenv("AUTH0_REQUIRE_MFA_CLAIM", "false")
+    monkeypatch.setenv("HMORE_ALLOW_AUTH0", "true")
     get_settings.cache_clear()
     clear_jwks_cache()
     set_jwks_for_tests(jwks)

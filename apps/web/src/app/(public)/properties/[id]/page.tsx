@@ -492,7 +492,7 @@ export default async function PropertyDetailPage({
               <Card>
                 <CardHeader title="Rooms" description="Rooms recorded against this property." />
                 {rooms === null ? (
-                  <p className="text-sm text-slate-500">Rooms couldn't be loaded.</p>
+                  <p className="text-sm text-slate-500">Rooms could not be loaded.</p>
                 ) : rooms.length === 0 ? (
                   <p className="text-sm text-slate-500">No rooms for this property yet.</p>
                 ) : (

@@ -70,15 +70,16 @@ test.describe("dashboard routes", () => {
     page,
   }) => {
     const response = await page.goto("/dashboard");
-    // Either redirected to Auth0 login, or shows not-configured empty state in local/CI variants.
+    // Either redirected to Auth0/native login, or shows not-configured empty state in local/CI variants.
     const url = page.url();
     const heading = page.getByRole("heading").first();
     await expect(heading).toBeVisible();
     const body = await page.locator("body").innerText();
     const protectedOk =
+      url.includes("/login") ||
       url.includes("/auth/login") ||
       url.includes("auth0.com") ||
-      /sign-in not configured|dashboard unavailable|membership required|no hmore role|auth0/i.test(
+      /sign-in not configured|dashboard unavailable|membership required|no hmore role|auth0|sign in/i.test(
         body,
       );
     expect(protectedOk).toBeTruthy();

@@ -6,6 +6,7 @@ import {
   AuthShell,
   authInputClass,
   authLabelClass,
+  authLinkClass,
   authPrimaryButtonClass,
 } from "@/components/auth/AuthShell";
 import { friendlyAuthError } from "@/lib/authErrors";
@@ -60,14 +61,14 @@ export default async function LoginPage({
     <AuthShell>
       <header>
         <h1 className="text-3xl font-bold tracking-tight text-slate-900">Sign in</h1>
-        <p className="mt-2 text-sm text-slate-600">Use your approved HMore email and password.</p>
+        <p className="mt-1.5 text-sm text-slate-600">Use your approved HMore email and password.</p>
       </header>
       {params.error ? (
         <div className="mt-6">
           <AuthAlert message={params.error.slice(0, 200)} />
         </div>
       ) : null}
-      <form action={loginAction} className="mt-6 space-y-5">
+      <form action={loginAction} className="mt-5 space-y-4">
         <label className={authLabelClass}>
           Email
           <input
@@ -89,23 +90,30 @@ export default async function LoginPage({
             className={authInputClass}
           />
         </label>
-        <button type="submit" className={authPrimaryButtonClass}>
-          Sign in
-        </button>
+        <div className="pt-1">
+          <button type="submit" className={authPrimaryButtonClass}>
+            Sign in
+          </button>
+        </div>
       </form>
-      <p className="mt-6 text-center text-sm text-slate-600">
-        New to HMore?{" "}
-        <Link className="font-semibold text-brand-700 hover:underline" href="/register">
+      <p className="mt-5 text-center text-xs">
+        <Link className={authLinkClass} href="/forgot-password">
+          Forgot password?
+        </Link>
+        <span aria-hidden="true" className="mx-1.5 text-slate-400">
+          ·
+        </span>
+        <Link className={authLinkClass} href="/register">
           Request access
         </Link>
       </p>
       {showDemo ? (
-        <div className="mt-10 rounded-xl border border-dashed border-slate-300 bg-white/60 px-4 py-3 text-center text-xs text-slate-500">
+        <p className="mt-16 text-center text-xs text-slate-400">
           Local development only ·{" "}
-          <Link className="font-semibold text-slate-700 hover:underline" href="/demo-login">
+          <Link className="font-semibold text-slate-500 hover:underline" href="/demo-login">
             Demo accounts
           </Link>
-        </div>
+        </p>
       ) : null}
     </AuthShell>
   );
